@@ -1,0 +1,153 @@
+Heating
+#######
+
+.. contents:: Table of Contents
+
+.. _primaryhtgsys:
+
+Determining the primary heating system
+**************************************
+
+HEScore only allows the definition of one heating system. If an HPXML document
+contains more than one heating system then the primary one must be chosen for
+input into HEScore. The primary heating system is determined according to the
+following logic:
+
+#. HPXML has a ``PrimaryHeatingSystem`` element that references with system
+   is the primary one. If this is present, the properties of that referenced
+   heating system are translated into HEScore inputs.
+#. If there is no defined primary heating system in HPXML, the
+   ``HeatingSystem`` or ``HeatPump`` with the greatest heating capacity is
+   used. 
+#. If neither of the above conditions are met the first ``HeatingSystem`` or
+   ``HeatPump`` in the document is used.
+#. Finally, if there is no ``HeatingSystem`` or ``HeatPump`` object, then the
+   house is determined to not have a heating system in HEScore. 
+
+.. warning::
+
+   The translation is not currently doing the weighted average of like systems 
+   as described in the HEScore help.
+   
+Heating system type
+*******************
+
+HPXML provides two difference HVAC system elements that can provide heating:
+``HeatingSystem`` that only provides heating and ``HeatPump`` which can provide
+heating and cooling. 
+
+Heat Pump
+=========
+
+The ``HeatPump`` element in HPXML can represent either an air-source heat pump
+or ground source heat pump in HEScore. Which is specified in HEScore is
+determined by the ``HeatPumpType`` element in HPXML according to the following
+mapping.
+
+.. table:: Heat Pump Type mapping
+
+   ============================  ============================
+   HPXML Heat Pump Type          HEScore Heating Type
+   ============================  ============================
+   water-to-air                  heat_pump
+   water-to-water                heat_pump
+   air-to-air                    heat_pump
+   mini-split                    heat_pump
+   ground-to-air                 gchp
+   ============================  ============================
+   
+The primary heating fuel is assumed to be electric.
+
+Heating System
+==============
+
+The ``HeatingSystem`` element in HPXML is used to describe any system that
+provides heating that is not a heat pump. The ``HeatingSystemType`` subelement
+is used to determine what kind of heating system to specify for HEScore. This
+is done according to the following mapping.
+
+.. table:: Heating System Type mapping
+
+   =========================  ====================
+   HPXML Heating System Type  HEScore Heating Type
+   =========================  ====================
+   Furnace                    central_furnace
+   WallFurnace                wall_furnace
+   Boiler                     boiler
+   ElectricResistance         baseboard
+   =========================  ====================
+
+.. note::
+   
+   HPXML supports other values for the ``HeatingSystemType`` element 
+   not in the list above, but HEScore does not. Other heating system 
+   types will result in a translation error.
+
+A primary heating fuel is selected from the ``HeatingSystemFuel`` subelement of
+the primary heating system. The fuel types are mapped as follows.
+
+.. _fuel-mapping:
+
+.. table:: Primary Heating System Fuel mapping
+
+   =====================  ===========
+   HPXML                  HEScore
+   =====================  ===========
+   electricity            electric
+   renewable electricity  electric
+   natural gas            natural_gas
+   renewable natural gas  natural_gas
+   fuel oil               fuel_oil
+   fuel oil 1             fuel_oil
+   fuel oil 2             fuel_oil
+   fuel oil 4             fuel_oil
+   fuel oil 5/6           fuel_oil
+   propane                lpg
+   =====================  ===========
+
+.. note::
+
+   HPXML supports other fuel types that could not be mapped into 
+   existing HEScore fuel types (i.e. coal, wood). Encountering an
+   unsupported fuel type will result in a translation error.   
+
+Heating Efficiency
+******************
+
+Heating efficiency can be described in HEScore by either the rated efficiency
+(AFUE, HSPF, COP), or if that is unavailable, the year installed/manufactured
+from which HEScore estimates the efficiency based on shipment weighted
+efficiencies by year. The translator follows this methodology and looks for the
+rated efficiency first and if it cannot be found sends the year installed. 
+
+Rated Efficiency
+================
+
+HEScore expects efficiency to be described in different units depending on the
+heating system type. 
+
+.. table:: HEScore heating type efficiency units
+
+   ===============  ================
+   Heating Type     Efficiency Units
+   ===============  ================
+   heat_pump        HSPF
+   central_furnace  AFUE
+   wall_furnace     AFUE
+   boiler           AFUE
+   gchp             COP
+   ===============  ================
+
+The translator searches the ``HeatingSystem/AnnualHeatingEfficiency`` or
+``HeatPump/AnnualHeatEfficiency`` elements of the primary heating system and
+uses the first one that has the correct units.
+
+Shipment Weighted Efficiency
+============================
+
+When an appropriate rated efficiency cannot be found, HEScore can accept the
+year the equipment was installed and estimate the efficiency based on that. The
+year is retrieved from the ``YearInstalled`` element, and if that is not
+present the ``ModelYear`` element. 
+
+
