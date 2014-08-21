@@ -23,12 +23,12 @@ thisdir = os.path.dirname(os.path.abspath(__file__))
 ns = {'h': 'http://hpxml.org/hpxml/2011/1',
       'xs': 'http://www.w3.org/2001/XMLSchema'}
 nsre = re.compile(r'([a-zA-Z][a-zA-Z0-9]*):')
-schemapath = os.path.join(thisdir,'hpxml','hpxmlschemas','HPXML.xsd')
+schemapath = os.path.join(thisdir,'schemas','hpxml-1.1.1','HPXML.xsd')
 schematree = etree.parse(schemapath)
 schema = etree.XMLSchema(schematree)
 hpxmlparser = etree.XMLParser(schema = schema)
 
-hpxml_base_elements = etree.parse(os.path.join(thisdir,'hpxml','hpxmlschemas','BaseElements.xsd'))
+hpxml_base_elements = etree.parse(os.path.join(os.path.dirname(schemapath),'BaseElements.xsd'))
 site_element_order = hpxml_base_elements.xpath('//xs:element[@name="Site"][ancestor::xs:complexType[@name="BuildingDetailsType"]]/xs:complexType/xs:sequence/xs:element/@name',namespaces=ns)
 site_element_order = ['h:' + x for x in site_element_order]
 wall_element_order = hpxml_base_elements.xpath('//xs:element[@name="Siding"]/parent::node()/xs:element/@name',namespaces=ns)
