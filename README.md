@@ -19,7 +19,9 @@ Otherwise, just Google it and you can find distributions for your platform.
 Instructions on how to run the script are available from the command line by 
 typing in:
 
+```
 python hpxml_to_hescore.py -h
+```
 
-The --nrelassumptions flag activates some assumptions we make to have our files run
+The `--nrelassumptions` flag activates some assumptions we make to have our files run
 that you probably don't want in a production environment.
