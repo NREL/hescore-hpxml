@@ -446,29 +446,36 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
                    'venting unknown attic': None, 
                    'other': None}
     roof_center_of_cavity_rvalues = \
-        {'standard': {'co': dict(zip((0,11,13,15,19,21),(2.7,13.6,15.6,17.6,21.6,23.6))),
-                      'wo': dict(zip((0,11,13,15,19,21,27),(3.2,14.1,16.1,18.1,22.1,24.1,30.1))),
-                      'rc': dict(zip((0,11,13,15,19,21,27),(2.2,13.2,15.2,17.2,21.2,23.2,29.2))),
-                      'lc': dict(zip((0,11,13,15,19,21,27),(2.3,13.2,15.2,17.2,21.2,23.2,29.2))),
-                      'tg': dict(zip((0,11,13,15,19,21,27),(2.3,13.2,15.2,17.2,21.2,23.2,29.2)))},
-         'radiantbarrier': {'co': {0: 5},
-                            'wo': {0: 5.5},
-                            'rc': {0: 4.5},
-                            'lc': {0: 4.6},
-                            'tg': {0: 4.6}},
-         'foamsheathing': {'co': dict(zip((0,11,13,15),(6.8,17.8,19.8,21.8))),
-                           'wo': dict(zip((0,11,13,15,19,21),(7.3,18.3,20.3,22.3,26.3,28.3))),
-                           'rc': dict(zip((0,11,13,15,19,21),(6.4,17.4,19.4,21.4,25.4,27.4))),
-                           'lc': dict(zip((0,11,13,15,19,21),(6.4,17.4,19.4,21.4,25.4,27.4))),
-                           'tg': dict(zip((0,11,13,15,19,21),(6.4,17.4,19.4,21.4,25.4,27.4)))}}
+        {'wf': {'co': dict(zip((0,11,13,15,19,21),(2.7,13.6,15.6,17.6,21.6,23.6))),
+                'wo': dict(zip((0,11,13,15,19,21,27),(3.2,14.1,16.1,18.1,22.1,24.1,30.1))),
+                'rc': dict(zip((0,11,13,15,19,21,27),(2.2,13.2,15.2,17.2,21.2,23.2,29.2))),
+                'lc': dict(zip((0,11,13,15,19,21,27),(2.3,13.2,15.2,17.2,21.2,23.2,29.2))),
+                'tg': dict(zip((0,11,13,15,19,21,27),(2.3,13.2,15.2,17.2,21.2,23.2,29.2)))},
+         'rb': {'co': {0: 5},
+                'wo': {0: 5.5},
+                'rc': {0: 4.5},
+                'lc': {0: 4.6},
+                'tg': {0: 4.6}},
+         'ps': {'co': dict(zip((0,11,13,15),(6.8,17.8,19.8,21.8))),
+                'wo': dict(zip((0,11,13,15,19,21),(7.3,18.3,20.3,22.3,26.3,28.3))),
+                'rc': dict(zip((0,11,13,15,19,21),(6.4,17.4,19.4,21.4,25.4,27.4))),
+                'lc': dict(zip((0,11,13,15,19,21),(6.4,17.4,19.4,21.4,25.4,27.4))),
+                'tg': dict(zip((0,11,13,15,19,21),(6.4,17.4,19.4,21.4,25.4,27.4)))}}
     hescore_attic_info = {}
+    atticds = []
     for attic in attics:
         atticd = {}
+        atticds.append(atticd)
         roof = doxpath(b,'//h:Roof[h:SystemIdentifier/@id=$roofid]',roofid=doxpath(attic,'h:AttachedToRoof/@idref'))
-        rooftype = rooftypemap[doxpath(attic,'h:AtticType/text()')]
-        assert rooftype is not None
-        # FIXME: how do we get the other roof colors for HEScore?
+        
+        # Roof type
+        atticd['rooftype'] = rooftypemap[doxpath(attic,'h:AtticType/text()')]
+        assert atticd['rooftype'] is not None
+        
+        # Roof color
         atticd['roofcolor'] = {'light': 'light', 'medium': 'medium', 'dark': 'dark', 'reflective': 'white'}[doxpath(roof,'h:RoofColor/text()')]
+
+        # Exterior finish
         hpxml_roof_type = doxpath(roof,'h:RoofType/text()')
         atticd['extfinish'] = {'shingles': 'co', 
                                'slate or tile shingles': 'lc', 
@@ -484,21 +491,30 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
                                'other': None}[hpxml_roof_type]
         if atticd['extfinish'] is None:
             raise TranslationError('HEScore does not have an analogy to the HPXML roof type: %s' % hpxml_roof_type)
-        atticd['has_rigid_sheathing'] = doxpath(attic,'boolean(h:AtticRoofInsulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])')
-        atticd['has_radiant_barrier'] = doxpath(roof,'h:RadiantBarrier="true"')
-        atticd['roof_rvalue'] = doxpath(attic,'sum(h:AtticRoofInsulation/h:Layer/h:NominalRValue)')
+        
+        # construction type
+        has_rigid_sheathing = doxpath(attic,'boolean(h:AtticRoofInsulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])')
+        has_radiant_barrier = doxpath(roof,'h:RadiantBarrier="true"')
+        if has_radiant_barrier:
+            atticd['roofconstype'] = 'rb'
+        elif has_rigid_sheathing:
+            atticd['roofconstype'] = 'ps'
+        else:
+            atticd['roofconstype'] = 'wf'
+        
+        # roof R-value
+        roof_rvalue = doxpath(attic,'sum(h:AtticRoofInsulation/h:Layer[not(boolean(h:InsulationMaterial/h:Rigid) and h:InstallationType="continuous")]/h:NominalRValue)')
+        roof_rvalue, atticd['roof_coc_rvalue'] = \
+            min(roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']].items(),
+                key=lambda x: abs(x[0] - roof_rvalue))
+        
+        # attic floor R-value
         atticd['attic_floor_rvalue'] = doxpath(attic,'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
+        
+        # Attic area
         atticd['attic_area'] = convert_to_type(float,doxpath(attic,'h:Area/text()'))
-        
-        try:
-            hescore_attic_info[rooftype].append(atticd)
-        except KeyError:
-            hescore_attic_info[rooftype] = [atticd]
-        
-    if len(hescore_attic_info) == 0:
-        raise TranslationError('There are no Attic elements in this building.')
-        
-    def select_category_with_most_total_area(key,atticds):
+    
+    def select_attic_category_with_most_total_area(key):
         attic_area_by_cat = {}
         for atticd in atticds:
             try:
@@ -506,51 +522,57 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
             except:
                 attic_area_by_cat[atticd[key]] = atticd['attic_area']
         return max(attic_area_by_cat,key=lambda x: attic_area_by_cat[x])
-    
-    def combine_rvalues_weighted_by_area(key,atticds):
-        ua = 0
-        total_attic_area = 0
-        for atticd in atticds:
-            try:
-                ua += atticd['attic_area'] / atticd[key]
-            except ZeroDivisionError:
-                ua = float('inf')
-            total_attic_area += atticd['attic_area']
-        return total_attic_area / ua
 
-    roof_category_variables = ('has_radiant_barrier','has_rigid_sheathing','roofcolor','extfinish')
-    rvalue_variables = ('attic_floor_rvalue','roof_rvalue')
-    combined_attics_by_rooftype = {}
-    for rooftype,atticds in hescore_attic_info.items():
-        if len(atticds) == 1:
-            atticds[0]['attic_area'] = 1.0
-        combinedattic = dict([(key,select_category_with_most_total_area(key,atticds)) for key in roof_category_variables])
-        combinedattic.update(dict([(key,combine_rvalues_weighted_by_area(key,atticds)) for key in rvalue_variables]))
-        combinedattic['attic_area'] = sum([atticd['attic_area'] for atticd in atticds])
-        combined_attics_by_rooftype[rooftype] = combinedattic
-    rooftype,combinedattic = max(combined_attics_by_rooftype.items(),key=lambda x: x[1]['attic_area'])
-        
-    if combinedattic['has_radiant_barrier']:
-        roof_rvalue = 0
-        roofconstype = 'rb'
-    else:
-        if combinedattic['has_rigid_sheathing']:
-            roofconstype = 'ps'
-            rvalues = (0,11,13,15,19,21)
-        else:
-            roofconstype = 'wf'
-            rvalues = (0,11,13,15,19,21,27)
-        if combinedattic['extfinish'] == 'co':
-            rvalues = rvalues[0:4]
-        roof_rvalue = min(rvalues,key=lambda x: abs(combinedattic['roof_rvalue'] - x))
+    if len(atticds) == 0:
+        raise TranslationError('There are no Attic elements in this building.')
+
+    # Get the roof type
+    rooftype = select_attic_category_with_most_total_area('rooftype')
     
+    # Make sure we're either dealing with all cathedral ceilings or not
+    if rooftype == 'cath_ceiling':
+        for atticd in atticds:
+            if atticd['rooftype'] != 'cath_ceiling':
+                atticds.remove(atticd)
+    else:
+        for atticd in atticds:
+            if atticd['rooftype'] == 'cath_ceiling':
+                atticds.remove(atticd)
+
+    # Determine predominant roof characteristics
+    roofconstype, extfinish, roofcolor, rooftype = \
+        map(select_attic_category_with_most_total_area,
+            ('roofconstype','extfinish','roofcolor','rooftype'))
+        
+    # Calculate roof area weighted average effective center-of-cavity R-value
+    total_attic_area = sum([atticd['attic_area'] for atticd in atticds])
+    if len(atticds) == 1:
+        area_wt_coc_roof_rvalue = atticds[0]['roof_coc_rvalue']
+    else:
+        area_wt_coc_roof_rvalue = \
+            sum([atticd['roof_coc_rvalue'] * atticd['attic_area'] for atticd in atticds]) / \
+            total_attic_area
+    
+    # Get Roof R-value
+    roffset = roof_center_of_cavity_rvalues[roofconstype][extfinish][0]
+    roof_rvalue = min(roof_center_of_cavity_rvalues[roofconstype][extfinish].keys(),
+                      key=lambda x: abs(area_wt_coc_roof_rvalue - roffset - x))
+        
+    # Get Attic Floor R-value
+    attic_floor_rvalues = (0,3,6,9,11,19,21,25,30,38,44,49,60)
+    attic_floor_rvalue = sum([(min(attic_floor_rvalues,
+                                  key=lambda x: abs(atticd['attic_floor_rvalue']-x)) + 0.5) * atticd['attic_area']
+                              for atticd in atticds]) / total_attic_area - 0.5
+    attic_floor_rvalue = min(attic_floor_rvalues,key=lambda x: abs(attic_floor_rvalue - x))
+    
+    # store it all
     zone_roof = {}
     bldg['zone_roof'] = zone_roof
-    zone_roof['roof_assembly_code'] = 'rf%s%02d%s' % (roofconstype,roof_rvalue,combinedattic['extfinish'])
-    zone_roof['roof_color'] = combinedattic['roofcolor']
+    zone_roof['roof_assembly_code'] = 'rf%s%02d%s' % (roofconstype,roof_rvalue,extfinish)
+    zone_roof['roof_color'] = roofcolor
     zone_roof['roof_type'] = rooftype
-    rvalues = (0,3,6,9,11,19,21,25,30,38,44,49,60)
-    zone_roof['ceiling_assembly_code'] = 'ecwf%02d' % min(rvalues,key=lambda x: abs(combinedattic['attic_floor_rvalue'] - x))
+    if rooftype != 'cath_ceiling':
+        zone_roof['ceiling_assembly_code'] = 'ecwf%02d' % attic_floor_rvalue
 
     # building.zone.zone_roof.zone_skylight -----------------------------------
     zone_skylight = {}
