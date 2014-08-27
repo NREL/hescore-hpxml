@@ -53,20 +53,70 @@ HPXML according to the following table.
 Foundation wall insulation R-value
 **********************************
 
-If the foundation type is a basement or crawlspace, for each foundation wall a
-*UA* is calculated with the wall area and R-value. The area is obtained from
-the ``Area`` element, if present, or calculated from the ``Length`` and
-``Height`` elements. The R-value is the sum of the
+If the foundation type is a basement or crawlspace, an area weighted average
+R-value is calculated for the foundation walls. The area is obtained from the
+``Area`` element, if present, or calculated from the ``Length`` and ``Height``
+elements. The R-value is the sum of the
 ``FoundationWall/Insulation/Layer/NominalRValue`` element values for each
-foundation wall. Then an equivalent R-value is calculated using the method
-described in :ref:`roof-rvalues`.
+foundation wall. For each foundation wall, an effective R-value is looked up
+based on the nearest R-value in the following table.
 
-If the foundation type is a slab on grade, for each foundation wall a *UA* is
+.. table:: Basement and crawlspace wall effective R-values
+
+   =================  ==================
+   Insulation Level   Effective R-value   
+   =================  ==================
+   R-0                4                   
+   R-11               11.6                
+   R-19               16.9               
+   =================  ==================
+
+Then a weighted average is calculated weighting the values by area. 
+
+.. math::
+   
+   R_{eff,avg} = \frac{\sum_i R_{eff,i} A_i}{\sum_i A_i}
+
+The effective R-value of the R-0 insulation level is then subtracted.
+
+.. math::
+
+   R = R_{eff,avg} - 4.0
+   
+Finally, the nearest insulation level is selected from the enumeration list.
+
+Slab insulation R-value
+***********************
+
+If the foundation type is a slab on grade, an area weighted average R-value is
 calculated using the value of ``ExposedPerimeter`` as the area. (The units work
 out, the depth in the area drops out of the equation.) The R-value is the sum
 of the ``Slab/PerimeterInsulation/Layer/NominalRValue`` element values for each
-foundation wall. Then an equivalent R-value is calculated, also using the
-method described in :ref:`roof-rvalues`.
+foundation wall. For each slab, an effective R-value is looked up based on the
+nearest R-value in the following table.
+
+.. table:: Slab insulation effective R-values
+
+   =================  ==================
+   Insulation Level   Effective R-value   
+   =================  ==================
+   R-0                4                   
+   R-5                7.9                 
+   =================  ==================
+
+Then a weighted average is calculated weighting the values by area. 
+
+.. math::
+   
+   R_{eff,avg} = \frac{\sum_i R_{eff,i} A_i}{\sum_i A_i}
+
+The effective R-value of the R-0 insulation level is then subtracted.
+
+.. math::
+
+   R = R_{eff,avg} - 4.0
+   
+Finally, the nearest insulation level is selected from the enumeration list.
 
 Floor insulation above basement or crawlspace
 *********************************************
