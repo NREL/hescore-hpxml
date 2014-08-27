@@ -72,12 +72,42 @@ Floor insulation above basement or crawlspace
 *********************************************
 
 If the foundation type is a basement or crawlspace, for each frame floor above
-the foundation a *UA* is calculated from the floor area and R-value. The area
-is obtained from the ``Area`` element. The R-value is the sum of the
-``FrameFloor/Insulation/Layer/NominalRValue`` element values for each
-foundation wall. Then an equivalent R-value is calculated using the method
-described in :ref:`roof-rvalues`. Finally, the floor assembly code with the nearest
-R-value is selected. 
+the foundation, a weighted average using the floor area and R-value are
+calculated. The area is obtained from the ``Area`` element. The R-value is the
+sum of the ``FrameFloor/Insulation/Layer/NominalRValue`` element values for
+each foundation wall. The effective R-value is looked up in the following table.
+
+.. table:: Floor center-of-cavity effective R-value
+
+   =================  ==================
+   Insulation Level   Effective R-value   
+   =================  ==================
+   R-0                4                   
+   R-11               15.8                
+   R-13               17.8                
+   R-15               19.8                
+   R-19               23.8                
+   R-21               25.8                
+   R-25               31.8                
+   R-30               37.8                
+   R-38               42.8                
+   =================  ==================
+
+Then a weighted average is calculated weighting the values by area. 
+
+.. math::
+   
+   R_{eff,avg} = \frac{\sum_i R_{eff,i} A_i}{\sum_i A_i}
+
+The effective R-value of the R-0 insulation level is then subtracted.
+
+.. math::
+
+   R = R_{eff,avg} - 4.0
+   
+Finally, the nearest insulation level is selected from the enumeration list.
+
+
 
 
 
