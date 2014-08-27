@@ -567,7 +567,7 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     
     # store it all
     zone_roof = {}
-    bldg['zone_roof'] = zone_roof
+    bldg['zone']['zone_roof'] = zone_roof
     zone_roof['roof_assembly_code'] = 'rf%s%02d%s' % (roofconstype,roof_rvalue,extfinish)
     zone_roof['roof_color'] = roofcolor
     zone_roof['roof_type'] = rooftype
@@ -576,7 +576,7 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
 
     # building.zone.zone_roof.zone_skylight -----------------------------------
     zone_skylight = {}
-    bldg['zone_roof']['zone_skylight'] = zone_skylight
+    bldg['zone']['zone_roof']['zone_skylight'] = zone_skylight
     skylights = b.xpath('//h:Skylight',namespaces=ns)
     if len(skylights) > 0:
         uvalues, shgcs, areas = map(list,zip(*[[doxpath(skylight,'h:%s/text()' % x) for x in ('UFactor','SHGC','Area')] for skylight in skylights]))
