@@ -645,10 +645,13 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
         raise TranslationError('HEScore does not have a foundation type analogous to: %s' % hpxml_foundation_type)
     
     # Foundation Wall insulation R-value
-    fwua = 0
+    fwra = 0
     fwtotalarea = 0
     foundationwalls = foundation.xpath('h:FoundationWall',namespaces=ns)
+    fw_eff_rvalues = dict(zip((0,5,11,19),(4,7.9,11.6,19.6)))
     if len(foundationwalls) > 0:
+        assert zone_floor['foundation_type'] != 'slab_on_grade'
+        del fw_eff_rvalues[5] # remove the value for slab insulation
         for fwall in foundationwalls:
             fwarea, fwlength, fwheight = \
                 map(lambda x: convert_to_type(float,doxpath(fwall,'h:%s/text()' % x)),
@@ -662,18 +665,15 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
                     else:
                         raise TranslationError('If there is more than one FoundationWall, an Area is required for each.')
             fwrvalue = doxpath(fwall,'sum(h:Insulation/h:Layer/h:NominalRValue)')
-            try:
-                fwua += fwarea / fwrvalue
-            except ZeroDivisionError:
-                fwua = float('inf')
+            fweffrvalue = fw_eff_rvalues[min(fw_eff_rvalues.keys(), key=lambda x: abs(fwrvalue - x))]
+            fwra += fweffrvalue * fwarea
             fwtotalarea += fwarea
-        fwrvalue = int(round(fwtotalarea / fwua))
-        if fwrvalue > 19:
-            fwrvalue = 19
-        zone_floor['foundation_insulation_level'] = fwrvalue
+        zone_floor['foundation_insulation_level'] = fwra / fwtotalarea - 4.0
     elif zone_floor['foundation_type'] == 'slab_on_grade':
+        del fw_eff_rvalues[11] # remove unused values 
+        del fw_eff_rvalues[19] 
         slabs = foundation.xpath('h:Slab',namespaces=ns)
-        slabua = 0
+        slabra = 0
         slabtotalperimeter = 0
         for slab in slabs:
             exp_perimeter = convert_to_type(float,doxpath(slab,'h:ExposedPerimeter/text()'))
@@ -683,17 +683,13 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
                 else:
                     raise TranslationError('If there is more than one Slab, an ExposedPerimeter is required for each.')
             slabrvalue = doxpath(slab,'sum(h:PerimeterInsulation/h:Layer/h:NominalRValue)')
-            try:
-                slabua += exp_perimeter / slabrvalue
-            except ZeroDivisionError:
-                slabua = float('inf')
+            slabeffrvalue = fw_eff_rvalues[min(fw_eff_rvalues.keys(), key=lambda x: abs(slabrvalue - x))]
+            slabra += slabeffrvalue * exp_perimeter
             slabtotalperimeter += exp_perimeter
-        slabrvalue = int(round(slabtotalperimeter / slabua))
-        if slabrvalue > 19:
-            slabrvalue = 19
-        zone_floor['foundation_insulation_level'] = slabrvalue
+        zone_floor['foundation_insulation_level'] = slabra / slabtotalperimeter - 4.0
     else:
         zone_floor['foundation_insulation_level'] = 0
+    zone_floor['foundation_insulation_level'] = min(fw_eff_rvalues.keys(), key=lambda x: abs(zone_floor['foundation_insulation_level'] - x))
     
     # floor above foundation insulation
     ffra = 0
@@ -709,7 +705,7 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
                 else:
                     raise TranslationError('If there is more than one FrameFloor, an Area is required for each.')
             ffrvalue = doxpath(framefloor,'sum(h:Insulation/h:Layer/h:NominalRValue)')
-            ffeffrvalue = floor_eff_rvalues[ffrvalue]
+            ffeffrvalue = floor_eff_rvalues[min(floor_eff_rvalues.keys(), key=lambda x: abs(ffrvalue - x))]
             ffra += ffarea * ffeffrvalue
             fftotalarea += ffarea
         ffrvalue = ffra / fftotalarea - 4.0
