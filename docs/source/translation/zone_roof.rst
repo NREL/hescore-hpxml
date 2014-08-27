@@ -101,6 +101,8 @@ folling mapping.
    fiberglass shingles" should be translated to composition shingles, but if I 
    do that there's no enumeration that maps to tar and gravel.
 
+.. _rigid-sheathing:
+
 Rigid Foam Sheathing
 ********************
 
@@ -139,25 +141,72 @@ according to the construction codes available in HEScore.
 
 .. _rvalues:
 
-R-values
-********
+Roof R-value
+************
 
-R-values for each the attic floor and roof deck are added up by summing the
-values of the ``Layer/NominalRValue`` elements. When multiple attics must be
-combined into a single construction code in HEScore, the R-value of the
-combined attic is calculated using a *UA* calculation and an equivalent R-value
-is determined.
+R-values for the roof deck are added up by summing the values of the
+``Layer/NominalRValue`` elements where the layer is not :ref:`rigid-sheathing`.
+If the house has more than one ``Attic`` element with roof insulation, the
+insulation values are combined by first selecting the nearest roof
+center-of-cavity R-value for each roof area from the table below.
+
+.. table:: Roof Center-of-Cavity Effective R-values
+
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |Exterior           |Composition or Metal |Wood Shakes |Clay Tile |Concrete Tile |Tar and Gravel |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-value            |Effective R-value                                                           |
+   +===================+=====================+============+==========+==============+===============+
+   | **Standard**                                                                                   |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-0                |2.7                  |3.2         |2.2       |2.3           |2.3            |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-11               |13.6                 |14.1        |13.2      |13.2          |13.2           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-13               |15.6                 |16.1        |15.2      |15.2          |15.2           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-15               |17.6                 |18.1        |17.2      |17.2          |17.2           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-19               |21.6                 |22.1        |21.2      |21.2          |21.2           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-21               |23.6                 |24.1        |23.2      |23.2          |23.2           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-27               |#N/A                 |30.1        |29.2      |29.2          |29.2           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   | **w/ Radiant Barrier**                                                                         |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-0                |5                    |5.5         |4.5       |4.6           |4.6            |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   | **w/ foam sheeting**                                                                           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-0                |6.8                  |7.3         |6.4       |6.4           |6.4            |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-11               |17.8                 |18.3        |17.4      |17.4          |17.4           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-13               |19.8                 |20.3        |19.4      |19.4          |19.4           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-15               |21.8                 |22.3        |21.4      |21.4          |21.4           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-19               |#N/A                 |26.3        |25.4      |25.4          |25.4           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-21               |#N/A                 |28.3        |27.4      |27.4          |27.4           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+
+Then a weighted average is calculated weighting the values by area. 
+
+.. math::
+   
+   R_{eff,avg} = \frac{\sum_i R_{eff,i} A_i}{\sum_i A_i}
+
+The R-0 effective center-of-cavity R-value (:math:`R_{offset}`) is selected for
+the highest weighted roof construction type represented in the calculation and
+is subtracted from :math:`R_{eff,avg}`. 
 
 .. math::
 
-   UA_{total} = \frac{A_1}{R_1} + \frac{A_2}{R_2} + \dotsb
+   R = R_{eff,avg} - R_{offset}
 
-.. math::
-
-   R_{total} = \frac{A_{total}}{UA_{total}}
-
-Since HEScore only allows for certain discrete R-values in their construction
-codes, the nearest R-value to the calculated one is selected. 
-
-
+Finally the R-value is rounded to the nearest insulation level in the
+enumeration choices for the highest weighted roof construction type included in
+the calculation.
  
