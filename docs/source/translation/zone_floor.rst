@@ -59,14 +59,14 @@ the ``Area`` element, if present, or calculated from the ``Length`` and
 ``Height`` elements. The R-value is the sum of the
 ``FoundationWall/Insulation/Layer/NominalRValue`` element values for each
 foundation wall. Then an equivalent R-value is calculated using the method
-described in :ref:`rvalues`.
+described in :ref:`roof-rvalues`.
 
 If the foundation type is a slab on grade, for each foundation wall a *UA* is
 calculated using the value of ``ExposedPerimeter`` as the area. (The units work
 out, the depth in the area drops out of the equation.) The R-value is the sum
 of the ``Slab/PerimeterInsulation/Layer/NominalRValue`` element values for each
 foundation wall. Then an equivalent R-value is calculated, also using the
-method described in :ref:`rvalues`.
+method described in :ref:`roof-rvalues`.
 
 Floor insulation above basement or crawlspace
 *********************************************
@@ -76,7 +76,7 @@ the foundation a *UA* is calculated from the floor area and R-value. The area
 is obtained from the ``Area`` element. The R-value is the sum of the
 ``FrameFloor/Insulation/Layer/NominalRValue`` element values for each
 foundation wall. Then an equivalent R-value is calculated using the method
-described in :ref:`rvalues`. Finally, the floor assembly code with the nearest
+described in :ref:`roof-rvalues`. Finally, the floor assembly code with the nearest
 R-value is selected. 
 
 

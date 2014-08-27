@@ -41,7 +41,7 @@ can only accept one roof type. The properties of the ``Attic`` elements with
 the same roof type are combined. For variables with a discrete selection the
 value that covers the greatest combined area is used. For R-values a UA
 calculation is performed to determine the equivalent overall R-value for the
-attic. This is discussed in more detail in :ref:`rvalues`.
+attic. This is discussed in more detail in :ref:`roof-rvalues`.
 
 Roof Color
 **********
@@ -139,7 +139,7 @@ If the ``Roof/RadiantBarrier`` element exists and has a "true" value, the attic
 is assumed to have a radiant barrier and no roof deck insulation is assumed
 according to the construction codes available in HEScore.
 
-.. _rvalues:
+.. _roof-rvalues:
 
 Roof R-value
 ************
@@ -209,4 +209,14 @@ is subtracted from :math:`R_{eff,avg}`.
 Finally the R-value is rounded to the nearest insulation level in the
 enumeration choices for the highest weighted roof construction type included in
 the calculation.
+
+Attic R-value
+*************
  
+Determining the attic floor insulation levels uses the same procedure as
+:ref:`roof-rvalues` except the lookup table is different. The attic floor
+center-of-cavity R-values are each R-0.5 greater than the nominal R-values in
+the enumeration list. 
+
+If the primary roof type is determined to be a cathedral ceiling, then an attic
+R-value is not calculated.
