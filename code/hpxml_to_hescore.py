@@ -696,9 +696,10 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
         zone_floor['foundation_insulation_level'] = 0
     
     # floor above foundation insulation
-    ffua = 0
+    ffra = 0
     fftotalarea = 0
     framefloors = foundation.xpath('h:FrameFloor',namespaces=ns)
+    floor_eff_rvalues = dict(zip((0,11,13,15,19,21,25,30,38),(4.0,15.8,17.8,19.8,23.8,25.8,31.8,37.8,42.8)))
     if len(framefloors) > 0:
         for framefloor in framefloors:
             ffarea = convert_to_type(float,doxpath(framefloor,'h:Area/text()'))
@@ -708,14 +709,11 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
                 else:
                     raise TranslationError('If there is more than one FrameFloor, an Area is required for each.')
             ffrvalue = doxpath(framefloor,'sum(h:Insulation/h:Layer/h:NominalRValue)')
-            try:
-                ffua += ffarea / ffrvalue
-            except ZeroDivisionError:
-                ffua = float('inf')
+            ffeffrvalue = floor_eff_rvalues[ffrvalue]
+            ffra += ffarea * ffeffrvalue
             fftotalarea += ffarea
-        ffrvalue = fftotalarea / ffua
-        rvalues = (0,11,13,15,19,21,25,30,38)
-        zone_floor['floor_assembly_code'] = 'efwf%02dca' % min(rvalues, key=lambda x: abs(ffrvalue - x))
+        ffrvalue = ffra / fftotalarea - 4.0
+        zone_floor['floor_assembly_code'] = 'efwf%02dca' % min(floor_eff_rvalues.keys(), key=lambda x: abs(ffrvalue - x))
     else:
         zone_floor['floor_assembly_code'] = 'efwf00ca'
 
