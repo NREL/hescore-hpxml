@@ -10,32 +10,37 @@ Wall Orientation
 
 The flexibility of HPXML allows specification of any number of walls and windows
 facing any direction. HEScore expects only one wall/window specification for
-each side of the building (front, back, left, right). Simplifying the almost
-infinite flexibility of HPXML in this regard presents some challenges.  
+each side of the building (front, back, left, right). 
 
 For each wall in the HPXML document, the translator attempts to assign the wall
 to the nearest side of the building, which is relative to the orientation of
-the front of the building. Then the properties of the largest wall by area on
-each side of the building are then used to define the wall construction sent to
-HEScore. If there is only one wall on any side of the house, the area is not
-required for that side. 
+the front of the building. The wall construction and exterior finish of the
+largest wall by area on each side of the building are used to define the
+properties sent to HEScore. An area weighted R-value of all the walls on each
+side of the building is calculated as well as described in :ref:`wall-rvalue`.
+If there is only one wall on any side of the house, the area is not required
+for that side. If a wall falls exactly between two sides of the house the area
+of the wall is divided by two and half of the wall is assigned to either side.
 
-HEScore also allows the specification of one wall for the entire building. If
-none of the walls in HPXML have orientation (or azimuth) data the largest wall
-is selected and the properties of that wall are used to define the wall
-construction for the whole building. If there is only one wall and no area
-specified that wall is used to determine the wall construction.
 
-.. warning::
+HEScore also allows the specification of one wall for all sides of the building.
+If none of the walls in HPXML have orientation (or azimuth) data, the wall
+construction and exterior finish of the largest wall by area on each side of
+the building are used to define the properties sent to HEScore. An area
+weighted R-value of all the walls on each side of the building is calculated as
+well as described in :ref:`wall-rvalue`. If there is only one wall and no area
+specified, that wall is used to determine the wall construction.
 
-   There are several potential situations in the wall orientation handling that
-   can cause this to error including:
+.. note::
+
+   The following conditions must be met for the wall translation to succeed:
    
-   #. A wall falls exactly between two sides of the house (i.e. The front of
-      the house faces North and one of the walls faces Northeast.)
-   #. The largest wall cannot be determined for a side of the building or the
-      whole building because one of the walls does not have an area. 
-   #. Some of the walls have an orientation/azimuth and others don't.
+    * If there is more than one wall on each side of the building each wall 
+      on that side of the building must have an ``Area`` specified.
+    * Either all walls must have an ``Azimuth`` and/or ``Orientation`` or none
+      of them must. 
+
+.. _wall-construction:
 
 Wall Construction
 *****************
@@ -163,8 +168,8 @@ assembly code in HEScore is selected.
 
 .. _sidingmap:
 
-Siding
-======
+Exterior Finish
+===============
 
 Siding mapping is done from the ``Wall/Siding`` element in HPXML. Siding is
 specified as the last two characters of the construction code in HEScore.
@@ -190,4 +195,113 @@ specified as the last two characters of the construction code in HEScore.
 .. note::
 
    *not translated* means the translation will fail for that house.
+
+
+.. _wall-rvalue:
+
+Area Weighted Wall R-value
+**************************
+
+When more than one HPXML ``Wall`` element must be combined into one wall
+construction for HEScore, the wall construction code is determined for each
+HPXMl ``Wall`` as described in :ref:`wall-construction`. The wall construction
+and exterior finish that represent the largest combined area are used to
+represent the side of the house. 
+
+A weighted R-value is calculated by looking up the center-of-cavity effective
+R-value for the wall construction, exterior finish, and nominal R-value for
+each ``Wall`` from the following table.
+
+.. table:: Wall center-of-cavity effective R-values
+
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |Exterior |Wood Siding       |Stucco |Vinyl |Aluminum |Brick Veneer |None |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-value  |Effective R-value                                              |
+   +=========+==================+=======+======+=========+=============+=====+
+   |**Wood Frame**                                                           |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-0      |3.6               |2.3    |2.2   |2.1      |2.9          |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-3      |5.7               |4.4    |4.3   |4.2      |5.0          |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-7      |9.7               |8.4    |8.3   |8.2      |9.0          |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-11     |13.7              |12.4   |12.3  |12.2     |13.0         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-13     |15.7              |14.4   |14.3  |14.2     |15.0         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-15     |17.7              |16.4   |16.3  |16.2     |17.0         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-19     |21.7              |20.4   |20.3  |20.2     |21.0         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-21     |23.7              |22.4   |22.3  |22.2     |23.0         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |**Wood Frame w/insulated sheathing**                                     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-11     |17.1              |16.4   |16.3  |16.2     |17.0         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-13     |19.1              |18.4   |18.3  |18.2     |19.0         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-15     |21.1              |20.4   |20.3  |20.2     |21.0         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-19     |25.1              |24.4   |24.3  |24.2     |25.0         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-21     |27.1              |26.4   |26.3  |26.2     |27.0         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |**Optimimum Value Engineering**                                          |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-19     |21.0              |20.3   |20.1  |20.1     |20.9         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-21     |23.0              |22.3   |22.1  |22.1     |22.9         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-27     |29.0              |28.3   |28.1  |28.1     |28.9         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-33     |35.0              |34.3   |34.1  |34.1     |34.9         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-38     |40.0              |39.3   |39.1  |39.1     |39.9         |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |**Structural Brick**                                                     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-0      |                  |       |      |         |             |2.9  |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-5      |                  |       |      |         |             |7.9  |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-10     |                  |       |      |         |             |12.8 |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |**Concrete Block**                                                       |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-0      |                  |4.1    |      |         |5.6          |4.0  |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-3      |                  |5.7    |      |         |7.2          |5.6  |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-6      |                  |8.5    |      |         |10.0         |8.3  |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |**Straw Bale**                                                           |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-0      |                  |58.8   |      |         |             |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+
+
+Then a weighted average is calculated weighting the values by area. 
+
+.. math::
+   
+   R_{eff,avg} = \frac{\sum_i R_{eff,i} A_i}{\sum_i A_i}
+
+The R-0 effective center-of-cavity R-value (:math:`R_{offset}`) is selected for
+the highest weighted wall construction type represented in the calculation and
+is subtracted from :math:`R_{eff,avg}`. For construction types where there is
+no R-0 nominal value, the lowest nominal R-value is subtracted from the
+corresponding effective R-value. For "Wood Frame w/insulated sheathing"
+construction type an addition R-4.16 is added to :math:`R_{offset}`.
+
+.. math::
+
+   R = R_{eff,avg} - R_{offset}
+
+Finally the R-value is rounded to the nearest insulation level in the
+enumeration choices for the highest weighted roof construction type included in
+the calculation.
+
 
