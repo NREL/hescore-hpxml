@@ -147,6 +147,18 @@
                         <GlassLayers>double-pane</GlassLayers>
                     </Window>
                 </Windows>
+                <Skylights>
+                    <Skylight>
+                        <SystemIdentifier id="sky1"/>
+                        <Area>11</Area>
+                        <FrameType>
+                            <Aluminum>
+                                <ThermalBreak>true</ThermalBreak>
+                            </Aluminum>
+                        </FrameType>
+                        <GlassLayers>double-pane</GlassLayers>
+                    </Skylight>
+                </Skylights>
             </Enclosure>
             <Systems>
                 <HVAC>
