@@ -583,7 +583,7 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
 
     # building.zone.zone_roof.zone_skylight -----------------------------------
     zone_skylight = {}
-    bldg['zone']['zone_roof']['zone_skylight'] = zone_skylight
+    zone_roof['zone_skylight'] = zone_skylight
     skylights = b.xpath('//h:Skylight',namespaces=ns)
     if len(skylights) > 0:
         uvalues, shgcs, areas = map(list,zip(*[[doxpath(skylight,'h:%s/text()' % x) for x in ('UFactor','SHGC','Area')] for skylight in skylights]))
@@ -614,9 +614,21 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
             zone_skylight['skylight_shgc'] = sum([shgc * area for (shgc,area) in zip(shgcs,areas)]) / sum(areas)
         else:
             # use a construction code
-            skylight = max(skylights, key=lambda x: convert_to_type(float,doxpath(x,'h:Area/text()')))
+            skylight_type_areas = {}
+            for skylight in skylights:
+                area = convert_to_type(float,doxpath(skylight,'h:Area/text()'))
+                if area is None:
+                    if len(skylights) == 1:
+                        area = 1.0
+                    else:
+                        raise TranslationError('If there are more than one Skylight elements, each needs to have an area.')
+                skylight_code = get_window_code(skylight)
+                try:
+                    skylight_type_areas[skylight_code] += area
+                except KeyError:
+                    skylight_type_areas[skylight_code] = area
             zone_skylight['skylight_method'] = 'code'
-            zone_skylight['skylight_code'] = get_window_code(skylight)
+            zone_skylight['skylight_code'] = max(skylight_type_areas.items(), key=lambda x: x[1])[0]
     
     
     # building.zone.zone_floor-------------------------------------------------
