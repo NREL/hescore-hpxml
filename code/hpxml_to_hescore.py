@@ -84,6 +84,13 @@ def convert_to_type(type_,value):
 class TranslationError(Exception):
     pass
 
+def unspin_azimuth(azimuth):
+    while azimuth >= 360:
+        azimuth -= 360
+    while azimuth < 0:
+        azimuth += 360
+    return azimuth
+
 def get_nearest_azimuth(azimuth=None,orientation=None):
     if azimuth is not None:
         return int(round(float(azimuth) / 45.)) % 8 * 45
@@ -126,7 +133,7 @@ def get_wall_assembly_code(hpxmlwall):
             if doxpath(lyr,'h:InsulationMaterial/h:Rigid') is not None and \
                installation_type == 'continuous':
                 has_rigid_ins = True
-            elif installation_type == 'cavity':
+            else:
                 cavity_rvalue += float(doxpath(lyr,'h:NominalRValue/text()'))
         if tobool(doxpath(hpxmlwall,'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')) or has_rigid_ins:
             wallconstype = 'ps'
@@ -717,38 +724,105 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     bldg_zone['zone_wall'] = []
     
     hpxmlwalls = dict([(side,[]) for side in sidemap.values()])
-    hpxmlwalls['other'] = []
     hpxmlwalls['noside'] = []
     for wall in b.xpath('h:BuildingDetails/h:Enclosure/h:Walls/h:Wall',namespaces=ns):
+        walld = {'assembly_code': get_wall_assembly_code(wall),
+                 'area': convert_to_type(float,doxpath(wall,'h:Area/text()'))}
+        
         try:
             wall_azimuth = get_nearest_azimuth(doxpath(wall,'h:Azimuth/text()'),
                                                doxpath(wall,'h:Orientation/text()'))
-            wall_side = sidemap[wall_azimuth]
         except AssertionError:
             # There is no directional information in the HPXML wall
             wall_side = 'noside'
-        except KeyError:
-            # The direction of the wall is in between sides
-            walls_side = 'other'
-        hpxmlwalls[wall_side].append(wall)
-    # TODO: Decide what to do with walls between sides
-    assert len(hpxmlwalls['other']) == 0
+            hpxmlwalls[wall_side].append(walld)
+        else:
+            try:
+                wall_side = sidemap[wall_azimuth]
+            except KeyError:
+                # The direction of the wall is in between sides
+                # split the area between sides
+                walld['area'] /= 2.0
+                hpxmlwalls[sidemap[unspin_azimuth(wall_azimuth+45)]].append(dict(walld))
+                hpxmlwalls[sidemap[unspin_azimuth(wall_azimuth-45)]].append(dict(walld))                
+            else:
+                hpxmlwalls[wall_side].append(walld)
+
     if len(hpxmlwalls['noside']) > 0 and map(len,[hpxmlwalls[key] for key in sidemap.values()]) == ([0] * 4):
         # if none of the walls have orientation information
-        bldg_zone['wall_construction_same'] = True
+        # copy the walls to all sides
+        bldg_zone['wall_construction_same'] = False
+        for side in sidemap.values():
+            hpxmlwalls[side] = hpxmlwalls['noside']
+        del hpxmlwalls['noside']
     else:
         # make sure all of the walls have an orientation
-        assert len(hpxmlwalls['noside']) == 0
+        if len(hpxmlwalls['noside']) > 0:
+            raise TranslationError('Some of the HPXML walls have orientation information and others do not.')
         bldg_zone['wall_construction_same'] = False
     
+    # Wall effective R-value map
+    wall_const_types = ('wf','ps','ov','br','cb','sb')
+    wall_ext_finish_types = ('wo','st','vi','al','br','nn')
+    wall_eff_rvalues = {}
+    wall_eff_rvalues['wf'] = dict(zip(wall_ext_finish_types[:-1],[dict(zip((0,3,7,11,13,15,19,21),x)) 
+                                                             for x in [(3.6, 5.7, 9.7, 13.7, 15.7, 17.7, 21.7, 23.7), 
+                                                                       (2.3, 4.4, 8.4, 12.4, 14.4, 16.4, 20.4, 22.4), 
+                                                                       (2.2, 4.3, 8.3, 12.3, 14.3, 16.3, 20.3, 22.3), 
+                                                                       (2.1, 4.2, 8.2, 12.2, 14.2, 16.2, 20.2, 22.2), 
+                                                                       (2.9, 5.0, 9.0, 13.0, 15.0, 17.0, 21.0, 23.0)]]))
+    wall_eff_rvalues['ps'] = dict(zip(wall_ext_finish_types[:-1],[dict(zip((11,13,15,19,21),x))
+                                                                  for x in [(17.1, 19.1, 21.1, 25.1, 27.1), 
+                                                                            (16.4, 18.4, 20.4, 24.4, 26.4), 
+                                                                            (16.3, 18.3, 20.3, 24.3, 26.3), 
+                                                                            (16.2, 18.2, 20.2, 24.2, 26.2), 
+                                                                            (17.0, 19.0, 21.0, 25.0, 27.0)]]))
+    wall_eff_rvalues['ov'] = dict(zip(wall_ext_finish_types[:-1],[dict(zip((19,21,27,33,38),x))
+                                                                  for x in [(21.0, 23.0, 29.0, 35.0, 40.0), 
+                                                                            (20.3, 22.3, 28.3, 34.3, 39.3), 
+                                                                            (20.1, 22.1, 28.1, 34.1, 39.1), 
+                                                                            (20.1, 22.1, 28.1, 34.1, 39.1), 
+                                                                            (20.9, 22.9, 28.9, 34.9, 39.9)]]))
+    wall_eff_rvalues['br'] = {'nn': dict(zip((0,5,10),(2.9,7.9,12.8)))}
+    wall_eff_rvalues['cb'] = dict(zip(('st','br','nn'),[dict(zip((0,3,6),x)) 
+                                                        for x in [(4.1, 5.7, 8.5),
+                                                                  (5.6, 7.2, 10),
+                                                                  (4, 5.6, 8.3)]]))
+    wall_eff_rvalues['sb'] = {'st': {0: 58.8}}
+
     # build HEScore walls
     for side in sidemap.values():
         heswall = {}
         heswall['side'] = side
-        if bldg_zone['wall_construction_same']:
-            heswall['wall_assembly_code'] = get_wall_assembly_code(find_largest_hpxml_wall(hpxmlwalls['noside']))
-        else:
-            heswall['wall_assembly_code'] = get_wall_assembly_code(find_largest_hpxml_wall(hpxmlwalls[side]))
+        if len(hpxmlwalls[side]) == 1 and hpxmlwalls[side][0]['area'] is None:
+            hpxmlwalls[side][0]['area'] = 1.0
+        elif len(hpxmlwalls[side]) > 1 and None in [x['area'] for x in hpxmlwalls[side]]:
+            raise TranslationError('The %s side of the house has %d walls and they do not all have areas.' % (side,len(hpxmlwalls[side])))
+        wall_const_type_areas = dict(zip(wall_const_types,[0] * len(wall_const_types)))
+        wall_ext_finish_areas = dict(zip(wall_ext_finish_types, [0] * len(wall_ext_finish_types)))
+        wallra = 0
+        walltotalarea = 0
+        for walld in hpxmlwalls[side]:
+            const_type = walld['assembly_code'][2:4]
+            ext_finish = walld['assembly_code'][6:8]
+            rvalue = int(walld['assembly_code'][4:6])
+            eff_rvalue = wall_eff_rvalues[const_type][ext_finish][rvalue]
+            wallra += walld['area'] * eff_rvalue
+            walltotalarea += walld['area']
+            wall_const_type_areas[const_type] += walld['area']
+            wall_ext_finish_areas[ext_finish] += walld['area']
+        const_type = max(wall_const_type_areas.keys(), key=lambda x: wall_const_type_areas[x])
+        ext_finish = max(wall_ext_finish_areas.keys(), key=lambda x: wall_ext_finish_areas[x])
+        try:
+            roffset = wall_eff_rvalues[const_type][ext_finish][0]
+        except KeyError:
+            rvalue, eff_rvalue = min(wall_eff_rvalues[const_type][ext_finish].items(),key=lambda x: x[0])
+            roffset = eff_rvalue - rvalue
+        if const_type == 'ps':
+            roffset += 4.16
+        comb_rvalue = min(wall_eff_rvalues[const_type][ext_finish].keys(), 
+                          key=lambda x: abs(wallra / walltotalarea - roffset - x))
+        heswall['wall_assembly_code'] = 'ew%s%02d%s' % (const_type,comb_rvalue,ext_finish)
         bldg_zone['zone_wall'].append(heswall)
     
     # building.zone.zone_wall.zone_window--------------------------------------
