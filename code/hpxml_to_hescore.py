@@ -239,6 +239,54 @@ def get_window_code(window):
         TranslationError('Cannot translate window type')
     return window_code
 
+heat_pump_type_map = {'water-to-air': 'heat_pump', 
+                      'water-to-water': 'heat_pump', 
+                      'air-to-air': 'heat_pump', 
+                      'mini-split': 'heat_pump', 
+                      'ground-to-air': 'gchp'}
+
+def get_heating_system_type(htgsys):
+    sys_heating = {}
+    if htgsys.tag.endswith('HeatPump'):
+        sys_heating['fuel_primary'] = 'electric'
+        heat_pump_type = doxpath(htgsys,'h:HeatPumpType/text()')
+        if heat_pump_type is None:
+            sys_heating['type'] = 'heat_pump'
+        else:
+            sys_heating['type'] = heat_pump_type_map[heat_pump_type]
+    else:
+        assert htgsys.tag.endswith('HeatingSystem')
+        sys_heating['fuel_primary'] = fuel_type_mapping[doxpath(htgsys,'h:HeatingSystemFuel/text()')]
+        hpxml_heating_type = doxpath(htgsys,'name(h:HeatingSystemType/*)')
+        try:
+            sys_heating['type'] = {'Furnace': 'central_furnace',
+                                 'WallFurnace': 'wall_furnace',
+                                 'Boiler': 'boiler',
+                                 'ElectricResistance': 'baseboard'}[hpxml_heating_type]
+        except KeyError:
+            raise TranslationError('HEScore does not support the HPXML HeatingSystemType %s' % hpxml_heating_type)
+        
+    if not (sys_heating['type'] in ('furnace','baseboard') and sys_heating['fuel_primary'] == 'electric'):
+        eff_units = {'heat_pump': 'HSPF',
+                     'central_furnace': 'AFUE',
+                     'wall_furnace': 'AFUE',
+                     'boiler': 'AFUE',
+                     'gchp': 'COP'}[sys_heating['type']]
+        getefficiencyxpathexpr = '(h:AnnualHeatingEfficiency|h:AnnualHeatEfficiency)[h:Units=$effunits]/h:Value/text()'
+        eff_els = htgsys.xpath(getefficiencyxpathexpr,namespaces=ns,
+                               effunits=eff_units)
+        if len(eff_els) == 0:
+            # Use the year instead
+            sys_heating['efficiency_method'] = 'shipment_weighted'
+            sys_heating['year'] = int(htgsys.xpath('(h:YearInstalled|h:ModelYear)/text()',namespaces=ns)[0])
+        else:
+            # Use the efficiency of the first element found.
+            sys_heating['efficiency_method'] = 'user'
+            sys_heating['efficiency'] = float(eff_els[0])
+    sys_heating['capacity'] = convert_to_type(float,doxpath(htgsys,'h:HeatingCapacity/text()'))
+    return sys_heating
+    
+
 def get_or_create_child(parent,childname,insertpos=-1):
     child = parent.find(childname)
     if child is None:
@@ -946,81 +994,67 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     bldg['systems'] = bldg_systems
     sys_heating = {}
     bldg_systems['heating'] = sys_heating
-    
-    heat_pump_type_map = {'water-to-air': 'heat_pump', 
-                          'water-to-water': 'heat_pump', 
-                          'air-to-air': 'heat_pump', 
-                          'mini-split': 'heat_pump', 
-                          'ground-to-air': 'gchp'}
-    
+        
     # Use the primary heating system specified in the HPXML file if that element exists.
     primaryhtgsys = doxpath(b,'//h:HVACPlant/*[//h:HVACPlant/h:PrimarySystems/h:PrimaryHeatingSystem/@idref=h:SystemIdentifier/@id]')
     
     if primaryhtgsys is None:
-        # A primary heating system isn't specified, choose the one with the largest capacity.    
-        maxcapacity = 0
-        has_htgcapacity = False
-        htgsysxpathexpr = '|'.join(['//h:HVACPlant/h:' + x for x in ('HeatingSystem','HeatPump')])
-        htgsystems = b.xpath(htgsysxpathexpr,namespaces=ns)
-        for htgsys in htgsystems:
-            htgcapacity = doxpath(htgsys,'h:HeatingCapacity/text()')
-            if htgcapacity is not None:
-                has_htgcapacity = True
-                htgcapacity = float(htgcapacity)
-                if htgcapacity > maxcapacity:
-                    maxcapacity = htgcapacity
-                    primaryhtgsys = htgsys
+        # A primary heating system isn't specified, get the properties of all of them
+        htgsystems = []    
+        for htgsys in b.xpath('//h:HVACPlant/h:HeatingSystem|//h:HVACPlant/h:HeatPump',namespaces=ns):
+            try:
+                htgsysd = get_heating_system_type(htgsys)
+            except TranslationError:
+                continue
+            else:
+                htgsystems.append(htgsysd)
+        capacities = [x['capacity'] for x in htgsystems]
+        if None in capacities:
+            if len(capacities) == 1:
+                htgsystems[0]['capacity'] = 1.0
+            else:
+                raise TranslationError('If a primary heating system is not defined, each heating system must have a capacity')   
+    else:
+        htgsystems = [get_heating_system_type(primaryhtgsys)]
+    
+    htgsys_by_capacity = {}
+    htgsys_groupby_keys = ('type','fuel_primary','efficiency_method')
+    for htgsysd in htgsystems:
+        try:
+            combhtgsys = htgsys_by_capacity[tuple([htgsysd[x] for x in htgsys_groupby_keys])]
+        except KeyError:
+            combhtgsys = {'totalcapacity': 0}
+            if htgsysd['efficiency_method'] == 'user':
+                combhtgsys.update({'neff': 0, 'effsum': 0})
+            else:
+                assert htgsysd['efficiency_method'] == 'shipment_weighted'
+                combhtgsys.update({'nyear': 0, 'yearsum': 0})
+            htgsys_by_capacity[tuple([htgsysd[x] for x in htgsys_groupby_keys])] = combhtgsys
+            for key in htgsys_groupby_keys:
+                combhtgsys[key] = htgsysd[key]
         
-        # If none of them have a listed capacity, choose the first.
-        if not has_htgcapacity:
-            try:
-                primaryhtgsys = htgsystems[0]
-            except IndexError:
-                # If there are none specify that
-                sys_heating['type'] = 'none'
-    primaryhtgsys_id = doxpath(primaryhtgsys,'h:SystemIdentifier/@id')
-    
-    if 'type' not in sys_heating:
-        # heating_type
-        if primaryhtgsys.tag.endswith('HeatPump'):
-            sys_heating['fuel_primary'] = 'electric'
-            heat_pump_type = doxpath(primaryhtgsys,'h:HeatPumpType/text()')
-            if heat_pump_type is None:
-                sys_heating['type'] = 'heat_pump'
-            else:
-                sys_heating['type'] = heat_pump_type_map[heat_pump_type]
+        combhtgsys['totalcapacity'] += htgsysd['capacity']
+        if htgsysd['efficiency_method'] == 'user':
+            combhtgsys['effsum'] +=  htgsysd['efficiency'] * htgsysd['capacity']
+            combhtgsys['neff'] += 1
         else:
-            assert primaryhtgsys.tag.endswith('HeatingSystem')
-            sys_heating['fuel_primary'] = fuel_type_mapping[doxpath(primaryhtgsys,'h:HeatingSystemFuel/text()')]
-            hpxml_heating_type = doxpath(primaryhtgsys,'name(h:HeatingSystemType/*)')
-            try:
-                sys_heating['type'] = {'Furnace': 'central_furnace',
-                                     'WallFurnace': 'wall_furnace',
-                                     'Boiler': 'boiler',
-                                     'ElectricResistance': 'baseboard'}[hpxml_heating_type]
-            except KeyError:
-                raise TranslationError('HEScore does not support the HPXML HeatingSystemType %s' % hpxml_heating_type)
-            
-        if not (sys_heating['type'] in ('furnace','baseboard') and sys_heating['fuel_primary'] == 'electric'):
-            eff_units = {'heat_pump': 'HSPF',
-                         'central_furnace': 'AFUE',
-                         'wall_furnace': 'AFUE',
-                         'boiler': 'AFUE',
-                         'gchp': 'COP'}[sys_heating['type']]
-            getefficiencyxpathexpr = '(//h:HeatingSystem/h:AnnualHeatingEfficiency|//h:HeatPump/h:AnnualHeatEfficiency)[parent::node()/h:SystemIdentifier/@id=$htgsysid][h:Units=$effunits]/h:Value/text()'
-            eff_els = b.xpath(getefficiencyxpathexpr,namespaces=ns,
-                             htgsysid=primaryhtgsys_id,
-                             effunits=eff_units)
-            if len(eff_els) == 0:
-                # Use the year instead
-                sys_heating['efficiency_method'] = 'shipment_weighted'
-                sys_heating['year'] = int(primaryhtgsys.xpath('(h:YearInstalled|h:ModelYear)/text()',namespaces=ns)[0])
-            else:
-                # Use the efficiency of the first element found.
-                sys_heating['efficiency_method'] = 'user'
-                sys_heating['efficiency'] = float(eff_els[0])
-                    
+            assert htgsysd['efficiency_method'] == 'shipment_weighted'
+            combhtgsys['yearsum'] += htgsysd['year'] * htgsysd['capacity']
+            combhtgsys['nyear'] += 1
     
+    for combhtgsys in htgsys_by_capacity.values():
+        if combhtgsys['efficiency_method'] == 'user':
+            combhtgsys['efficiency'] = round(combhtgsys['effsum'] / combhtgsys['totalcapacity'], 2)
+            del combhtgsys['effsum']
+            del combhtgsys['neff']
+        else:
+            assert htgsysd['efficiency_method'] == 'shipment_weighted'
+            combhtgsys['year'] = int(round(combhtgsys['yearsum'] / combhtgsys['totalcapacity']))
+            del combhtgsys['yearsum']
+            del combhtgsys['nyear']
+    sys_heating.update(max(htgsys_by_capacity.values(),key=lambda x: x['totalcapacity']))
+    del sys_heating['totalcapacity']
+        
     # systems.cooling ---------------------------------------------------------
     sys_cooling = {}
     bldg_systems['cooling'] = sys_cooling
@@ -1103,15 +1137,13 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
                          'interstitial space': None, 
                          'garage': None, 
                          'outside': None}
-    airdistributionxpath = '//h:HVACDistribution[h:SystemIdentifier/@id=//h:HVACPlant/*[h:SystemIdentifier/@id=$htgsysid or h:SystemIdentifier/@id=$clgsysid]/h:DistributionSystem/@idref]/h:DistributionSystemType/h:AirDistribution'
+    airdistributionxpath = '//h:HVACDistribution/h:DistributionSystemType/h:AirDistribution'
     allhave_cfaserved = True
     allmissing_cfaserved = True
     airdistsystems_ductfracs = []
     hescore_ductloc_has_ins = {}
     airdistsys_issealed = []
-    for airdistsys in b.xpath(airdistributionxpath,namespaces=ns,
-                              htgsysid=primaryhtgsys_id,
-                              clgsysid=primaryclgsys_id):
+    for airdistsys in b.xpath(airdistributionxpath,namespaces=ns):
         airdistsys_ductfracs = {}
         airdistsys_issealed.append(airdistsys.xpath('h:DuctLeakageMeasurement[not(h:DuctType) or h:DuctType="supply"]/h:LeakinessObservedVisualInspection="connections sealed w mastic"',namespaces=ns))
         for duct in airdistsys.xpath('h:Ducts[not(h:DuctType) or h:DuctType="supply"]',namespaces=ns):
