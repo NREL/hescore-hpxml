@@ -29,7 +29,7 @@ following logic:
    The translation is not currently doing the weighted average of like systems 
    as described in the HEScore help.
    
-Heating system type
+Cooling system type
 *******************
 
 HPXML provides two difference HVAC system elements that can provide cooling:
