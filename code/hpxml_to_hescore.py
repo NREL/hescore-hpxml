@@ -739,7 +739,8 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     hpxmlwalls['noside'] = []
     for wall in b.xpath('h:BuildingDetails/h:Enclosure/h:Walls/h:Wall',namespaces=ns):
         walld = {'assembly_code': get_wall_assembly_code(wall),
-                 'area': convert_to_type(float,doxpath(wall,'h:Area/text()'))}
+                 'area': convert_to_type(float,doxpath(wall,'h:Area/text()')),
+                 'id': doxpath(wall,'h:SystemIdentifier/@id')}
         
         try:
             wall_azimuth = get_nearest_azimuth(doxpath(wall,'h:Azimuth/text()'),
@@ -843,23 +844,48 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     # Assign each window to a side of the house
     hpxmlwindows = dict([(side,[]) for side in sidemap.values()])
     for hpxmlwndw in b.xpath('h:BuildingDetails/h:Enclosure/h:Windows/h:Window',namespaces=ns):
-        window_side = None
+
+        # Get the area, uvalue, SHGC, or window_code
+        windowd = {'area': convert_to_type(float,doxpath(hpxmlwndw,'h:Area/text()'))}
+        windowd['uvalue'] = convert_to_type(float,doxpath(hpxmlwndw,'h:UFactor/text()'))
+        windowd['shgc'] = convert_to_type(float,doxpath(hpxmlwndw,'h:SHGC/text()'))
+        if windowd['uvalue'] is not None and windowd['shgc'] is not None:
+            windowd['window_code'] = None
+        else:
+            windowd['window_code'] = get_window_code(hpxmlwndw)
+        
+        # Window side
+        window_sides = []
         attached_to_wall_id = doxpath(hpxmlwndw,'h:AttachedToWall/@idref')
         if attached_to_wall_id is not None and not bldg_zone['wall_construction_same']:
             # Give preference to the Attached to Wall element to determine the side of the house.
             for side,walls in hpxmlwalls.items():
                 for wall in walls:
-                    if attached_to_wall_id == doxpath(wall,'h:SystemIdentifier/@id'):
-                        window_side = side
+                    if attached_to_wall_id == walld['id']:
+                        window_sides.append(side)
                         break
-                if window_side is not None:
-                    break
         else:
             # If there's not Attached to Wall element, figure it out from the Azimuth/Orientation
-            wndw_azimuth = get_nearest_azimuth(doxpath(hpxmlwndw,'h:Azimuth/text()'),doxpath(hpxmlwndw,'h:Orientation/text()'))
-            window_side = sidemap[wndw_azimuth]
-        hpxmlwindows[window_side].append(hpxmlwndw)
+            try:
+                wndw_azimuth = get_nearest_azimuth(doxpath(hpxmlwndw,'h:Azimuth/text()'),doxpath(hpxmlwndw,'h:Orientation/text()'))
+                window_sides = [sidemap[wndw_azimuth]]
+            except AssertionError:
+                # there's no directional information in the window
+                raise TranslationError('All windows need to have either an AttachedToWall, Orientation, or Azimuth sub element.')
+            else:
+                try:
+                    window_sides = [sidemap[wndw_azimuth]]
+                except KeyError:
+                    # the direction of the window is between sides, split area
+                    window_sides = [sidemap[unspin_azimuth(wndw_azimuth+x)] for x in (-45,45)]
+        
+        # Assign properties and areas to the correct side of the house
+        for window_side in window_sides:
+            windowd['area'] /= float(len(window_sides))
+            hpxmlwindows[window_side].append(dict(windowd))
     
+    # Determine the predominant window characteristics and create HEScore windows 
+    bldg_zone['window_construction_same'] = False
     for side,windows in hpxmlwindows.items():
         
         # Add to the correct wall
@@ -877,11 +903,10 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
             continue
         
         # Get the list of uvalues and shgcs for the windows on this side of the house.
-        uvalues,shgcs,areas = map(list,zip(*[[doxpath(window,'h:%s/text()' % x) for x in ('UFactor','SHGC','Area')] for window in windows]))
+        uvalues,shgcs,areas = map(list,zip(*[[window[x] for x in ('uvalue','shgc','area')] for window in windows]))
         
         # Make sure every window has an area
         assert None not in areas
-        areas = map(float,areas)
         zone_window['window_area'] = sum(areas)
 
         # Remove windows from the calculation where a uvalue or shgc isn't set.
@@ -897,8 +922,6 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
             shgcs.pop(i)
             areas.pop(i)
         assert len(uvalues) == len(shgcs)
-        uvalues = map(float,uvalues)
-        shgcs = map(float,shgcs)
         
         if len(uvalues) > 0:
             # Use an area weighted average of the uvalues, shgcs
@@ -909,8 +932,14 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
             # Use a window construction code
             zone_window['window_method'] = 'code'
             # Use the properties of the largest window on the side
-            window = max(windows, key=lambda x: float(doxpath(x,'h:Area/text()')))
-            zone_window['window_code'] = get_window_code(window)
+            window_code_areas = {}
+            for window in windows:
+                assert window['window_code'] is not None
+                try:
+                    window_code_areas[window['window_code']] += window['area']
+                except KeyError:
+                    window_code_areas[window['window_code']] = window['area']
+            zone_window['window_code'] = max(window_code_areas.items(),key=lambda x: x[1])[0]
             
     # systems.heating----------------------------------------------------------
     bldg_systems = {}

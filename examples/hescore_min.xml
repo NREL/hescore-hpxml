@@ -114,14 +114,12 @@
                         <SystemIdentifier id="window1"/>
                         <Area>1</Area>
                         <Orientation>north</Orientation>
-                        <FrameType>
-                            <Vinyl/>
-                        </FrameType>
-                        <GlassLayers>double-pane</GlassLayers>
+                        <UFactor>1</UFactor>
+                        <SHGC>.75</SHGC>
                     </Window>
                     <Window>
                         <SystemIdentifier id="window2"/>
-                        <Area>1</Area>
+                        <Area>2</Area>
                         <Orientation>east</Orientation>
                         <FrameType>
                             <Vinyl/>
@@ -130,7 +128,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="window3"/>
-                        <Area>1</Area>
+                        <Area>3</Area>
                         <Orientation>south</Orientation>
                         <FrameType>
                             <Vinyl/>
@@ -139,7 +137,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="window4"/>
-                        <Area>1</Area>
+                        <Area>4</Area>
                         <Orientation>west</Orientation>
                         <FrameType>
                             <Vinyl/>
