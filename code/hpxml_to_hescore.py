@@ -1052,7 +1052,10 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
             combhtgsys['year'] = int(round(combhtgsys['yearsum'] / combhtgsys['totalcapacity']))
             del combhtgsys['yearsum']
             del combhtgsys['nyear']
-    sys_heating.update(max(htgsys_by_capacity.values(),key=lambda x: x['totalcapacity']))
+    if len(htgsys_by_capacity) > 0:
+        sys_heating.update(max(htgsys_by_capacity.values(),key=lambda x: x['totalcapacity']))
+    else:
+        sys_heating = {'type': 'none'}
     del sys_heating['totalcapacity']
         
     # systems.cooling ---------------------------------------------------------
@@ -1062,7 +1065,7 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     primaryclgsys = doxpath(b,'//h:HVACPlant/*[//h:HVACPlant/h:PrimarySystems/h:PrimaryCoolingSystem/@idref=h:SystemIdentifier/@id]')
     
     if primaryclgsys is None:
-        # A primary cooling system isn't specified, choose the one with the largest capacity.
+        # A primary cooling system isn't specified, get the properties of all of them.
         maxcapacity = 0
         has_clgcapacity = False
         clgsysxpathexpr = '|'.join(['//h:HVACPlant/h:' + x for x in ('CoolingSystem','HeatPump')])
