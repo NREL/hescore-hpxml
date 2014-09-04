@@ -20,15 +20,19 @@ the window faces is inferred from the :ref:`wall orientation <wallorientation>`.
 
 If there is not ``AttachedToWall`` element, the side is determined via the
 ``Azimuth`` or ``Orientation`` elements with preference given to the
-``Azimuth`` if present.
+``Azimuth`` if present. If the window falls between two sides of the house, the
+window area is divided between the sides of the house evenly. 
 
-.. warning::
-
-   Windows exactly between two sides of the house (ie. Northeast when the house
-   has sides that face North and East) will cause the translation to fail.
+The areas on each side of the house are summed and the :ref:`window-prop` are
+determined independently for each side of the house. Since HPXML requires that
+window properties be assigned to each direction, the
+``window_construction_same`` option in HEScore will always be false and all
+windows will be specified separately. 
 
 Skylights in HEScore do not have an orientation associated with them, therefore
 orientation/azimuth information about skylights is ignored.
+
+.. _window-prop:
 
 Window Properties
 *****************
@@ -60,9 +64,11 @@ Defining windows by selecting a window type
 ===========================================
 
 When none of the windows on a side of the house have U-Factor and SHGC data
-elements, a window code is selected based on other properties of the window.
-Only the properties of the window with the largest area are used in this
-mapping. Unfortunately there is not a 1-to-1 correlation of the HPXML data
+elements, a window code is selected based on other properties of each window.
+Then the most predominant window code by area on each side of the house is
+selected. 
+
+Unfortunately there is not a 1-to-1 correlation of the HPXML data
 elements to HEScore for these selections and it is possible to define windows
 in HPXML that are impossible to input into HEScore. In these cases the
 translation will fail.
