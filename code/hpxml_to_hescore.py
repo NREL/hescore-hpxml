@@ -285,7 +285,50 @@ def get_heating_system_type(htgsys):
             sys_heating['efficiency'] = float(eff_els[0])
     sys_heating['capacity'] = convert_to_type(float,doxpath(htgsys,'h:HeatingCapacity/text()'))
     return sys_heating
+
+def get_cooling_system_type(clgsys):
+    sys_cooling = {}
+    if clgsys.tag.endswith('HeatPump'):
+        heat_pump_type = doxpath(clgsys,'h:HeatPumpType/text()')
+        if heat_pump_type is None:
+            sys_cooling['type'] = 'heat_pump'
+        else:
+            sys_cooling['type'] = heat_pump_type_map[heat_pump_type]
+    else:
+        assert clgsys.tag.endswith('CoolingSystem')
+        hpxml_cooling_type = doxpath(clgsys,'h:CoolingSystemType/text()')
+        sys_cooling['type'] = {'central air conditioning': 'split_dx',
+                               'room air conditioner': 'packaged_dx',
+                               'mini-split': 'split_dx',
+                               'evaporative cooler': 'dec'}[hpxml_cooling_type]
+        # TODO: Figure out how to specify indirect and direct/indirect evap coolers
+        
     
+    # cooling efficiency
+    eff_units = {'split_dx': 'SEER',
+                 'packaged_dx': 'EER',
+                 'heat_pump': 'SEER',
+                 'gchp': 'SEER',
+                 'dec': None,
+                 'iec': None,
+                 'idec': None}[sys_cooling['type']]
+    if eff_units is not None:
+        clgeffxpathexpr = '(h:AnnualCoolingEfficiency|h:AnnualCoolEfficiency)[h:Units=$effunits]/h:Value/text()'
+        eff_els = clgsys.xpath(clgeffxpathexpr,namespaces=ns,
+                               effunits=eff_units)
+    else:
+        eff_els = []
+    if len(eff_els) == 0:
+        # Use the year instead
+        sys_cooling['efficiency_method'] = 'shipment_weighted'
+        sys_cooling['year'] = int(clgsys.xpath('(h:YearInstalled|h:ModelYear)/text()',namespaces=ns)[0])
+    else:
+        # Use the efficiency of the first element found.
+        sys_cooling['efficiency_method'] = 'user'
+        sys_cooling['efficiency'] = float(eff_els[0])
+    sys_cooling['capacity'] = convert_to_type(float,doxpath(clgsys,'h:CoolingCapacity/text()'))
+    return sys_cooling
+        
 
 def get_or_create_child(parent,childname,insertpos=-1):
     child = parent.find(childname)
@@ -990,6 +1033,7 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
             zone_window['window_code'] = max(window_code_areas.items(),key=lambda x: x[1])[0]
             
     # systems.heating----------------------------------------------------------
+    eff_method_map = {'user': 'efficiency', 'shipment_weighted': 'year'}
     bldg_systems = {}
     bldg['systems'] = bldg_systems
     sys_heating = {}
@@ -1023,40 +1067,29 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
         try:
             combhtgsys = htgsys_by_capacity[tuple([htgsysd[x] for x in htgsys_groupby_keys])]
         except KeyError:
-            combhtgsys = {'totalcapacity': 0}
-            if htgsysd['efficiency_method'] == 'user':
-                combhtgsys.update({'neff': 0, 'effsum': 0})
-            else:
-                assert htgsysd['efficiency_method'] == 'shipment_weighted'
-                combhtgsys.update({'nyear': 0, 'yearsum': 0})
-            htgsys_by_capacity[tuple([htgsysd[x] for x in htgsys_groupby_keys])] = combhtgsys
+            combhtgsys = {'totalcapacity': 0, 'n': 0, 'sum': 0}
             for key in htgsys_groupby_keys:
                 combhtgsys[key] = htgsysd[key]
+            htgsys_by_capacity[tuple([htgsysd[x] for x in htgsys_groupby_keys])] = combhtgsys
         
         combhtgsys['totalcapacity'] += htgsysd['capacity']
-        if htgsysd['efficiency_method'] == 'user':
-            combhtgsys['effsum'] +=  htgsysd['efficiency'] * htgsysd['capacity']
-            combhtgsys['neff'] += 1
-        else:
-            assert htgsysd['efficiency_method'] == 'shipment_weighted'
-            combhtgsys['yearsum'] += htgsysd['year'] * htgsysd['capacity']
-            combhtgsys['nyear'] += 1
+        combhtgsys['sum'] +=  htgsysd[eff_method_map[combhtgsys['efficiency_method']]] * htgsysd['capacity']
+        combhtgsys['n'] += 1
     
     for combhtgsys in htgsys_by_capacity.values():
         if combhtgsys['efficiency_method'] == 'user':
-            combhtgsys['efficiency'] = round(combhtgsys['effsum'] / combhtgsys['totalcapacity'], 2)
-            del combhtgsys['effsum']
-            del combhtgsys['neff']
+            combhtgsys[eff_method_map[combhtgsys['efficiency_method']]] = round(combhtgsys['sum'] / combhtgsys['totalcapacity'], 2)
         else:
-            assert htgsysd['efficiency_method'] == 'shipment_weighted'
-            combhtgsys['year'] = int(round(combhtgsys['yearsum'] / combhtgsys['totalcapacity']))
-            del combhtgsys['yearsum']
-            del combhtgsys['nyear']
+            assert combhtgsys['efficiency_method'] == 'shipment_weighted'
+            combhtgsys[eff_method_map[combhtgsys['efficiency_method']]] = int(round(combhtgsys['sum'] / combhtgsys['totalcapacity']))
+        del combhtgsys['sum']
+        del combhtgsys['n']
+
     if len(htgsys_by_capacity) > 0:
         sys_heating.update(max(htgsys_by_capacity.values(),key=lambda x: x['totalcapacity']))
+        del sys_heating['totalcapacity']
     else:
         sys_heating = {'type': 'none'}
-    del sys_heating['totalcapacity']
         
     # systems.cooling ---------------------------------------------------------
     sys_cooling = {}
@@ -1066,68 +1099,53 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     
     if primaryclgsys is None:
         # A primary cooling system isn't specified, get the properties of all of them.
-        maxcapacity = 0
-        has_clgcapacity = False
-        clgsysxpathexpr = '|'.join(['//h:HVACPlant/h:' + x for x in ('CoolingSystem','HeatPump')])
-        clgsystems = b.xpath(clgsysxpathexpr,namespaces=ns)
-        for clgsys in clgsystems:
-            clgcapacity = doxpath(clgsys,'h:CoolingCapacity/text()')
-            if clgcapacity is not None:
-                has_clgcapacity = True
-                clgcapacity = float(clgcapacity)
-                if clgcapacity > maxcapacity:
-                    maxcapacity = clgcapacity
-                    primaryclgsys = clgsys
-        
-        # If none of them have a listed capacity, choose the first.
-        if not has_clgcapacity:
+        clgsystems = []
+        for clgsys in b.xpath('//h:HVACPlant/h:CoolingSystem|h:HVACPlant/h:HeatPump',namespaces=ns):
             try:
-                primaryclgsys = clgsystems[0]
-            except IndexError:
-                # If there are no cooling systems, specify that.
-                sys_cooling['type'] = 'none'
-    primaryclgsys_id = doxpath(primaryclgsys,'h:SystemIdentifier/@id')
+                clgsysd = get_cooling_system_type(clgsys)
+            except TranslationError:
+                continue
+            else:
+                clgsystems.append(clgsysd)
+        capacities = [x['capacity'] for x in clgsystems]
+        if None in capacities:
+            if len(capacities) == 1:
+                clgsystems[0]['capacity'] = 1.0
+            else:
+                raise TranslationError('If a primary cooling system is not defined, each cooling system must have a capacity')
+    else:
+        clgsystems = [get_cooling_system_type(primaryclgsys)]
      
-    if 'type' not in sys_cooling:
-        # cooling_type
-        if primaryclgsys.tag.endswith('HeatPump'):
-            heat_pump_type = doxpath(primaryclgsys,'h:HeatPumpType/text()')
-            if heat_pump_type is None:
-                sys_cooling['type'] = 'heat_pump'
-            else:
-                sys_cooling['type'] = heat_pump_type_map[heat_pump_type]
-        else:
-            assert primaryclgsys.tag.endswith('CoolingSystem')
-            hpxml_cooling_type = doxpath(primaryclgsys,'h:CoolingSystemType/text()')
-            sys_cooling['type'] = {'central air conditioning': 'split_dx',
-                                 'room air conditioner': 'packaged_dx',
-                                 'mini-split': 'split_dx',
-                                 'evaporative cooler': 'dec'}[hpxml_cooling_type]
-            # TODO: Figure out how to specify indirect and direct/indirect evap coolers
-            
+    clgsys_by_capacity = {}
+    clgsys_groupby_keys = ('type','efficiency_method')
+    for clgsysd in clgsystems:
+        try:
+            combclgsys = clgsys_by_capacity[tuple([clgsysd[x] for x in clgsys_groupby_keys])]
+        except KeyError:
+            combclgsys = {'totalcapacity': 0, 'n': 0, 'sum': 0}
+            for key in clgsys_groupby_keys:
+                combclgsys[key] = clgsysd[key]
+            clgsys_by_capacity[tuple([clgsysd[x] for x in clgsys_groupby_keys])] = combclgsys
         
-        # cooling efficiency
-        eff_units = {'split_dx': 'SEER',
-                     'packaged_dx': 'EER',
-                     'heat_pump': 'SEER',
-                     'gchp': 'SEER',
-                     'dec': None,
-                     'iec': None,
-                     'idec': None}[sys_cooling['type']]
-        if eff_units is not None:
-            clgeffxpathexpr = '(//h:CoolingSystem/h:AnnualCoolingEfficiency|//h:HeatPump/h:AnnualCoolEfficiency)[parent::node()/h:SystemIdentifier/@id=$clgsysid][h:Units=$effunits]/h:Value/text()'
-            eff_els = b.xpath(clgeffxpathexpr,namespaces=ns,
-                              clgsysid=primaryclgsys_id,
-                              effunits=eff_units)
-            if len(eff_els) == 0:
-                # Use the year instead
-                sys_cooling['efficiency_method'] = 'shipment_weighted'
-                sys_cooling['year'] = int(primaryclgsys.xpath('(h:YearInstalled|h:ModelYear)/text()',namespaces=ns)[0])
-            else:
-                # Use the efficiency of the first element found.
-                sys_cooling['efficiency_method'] = 'user'
-                sys_cooling['efficiency'] = float(eff_els[0])
-            
+        combclgsys['totalcapacity'] += clgsysd['capacity']
+        combclgsys['sum'] += clgsysd[eff_method_map[combclgsys['efficiency_method']]] * clgsysd['capacity']
+        combclgsys['n'] += 1
+    
+    for combclgsys in clgsys_by_capacity.values():
+        if combclgsys['efficiency_method'] == 'user':
+            combclgsys[eff_method_map[combclgsys['efficiency_method']]] = round(combclgsys['sum'] / combclgsys['totalcapacity'],1)
+        else:
+            assert combclgsys['efficiency_method'] == 'shipment_weighted'
+            combclgsys[eff_method_map[combclgsys['efficiency_method']]] = int(round(combclgsys['sum'] / combclgsys['totalcapacity']))
+        del combclgsys['sum']
+        del combclgsys['n']
+    
+    if len(clgsys_by_capacity) > 0:
+        sys_cooling.update(max(clgsys_by_capacity.values(),key=lambda x: x['totalcapacity']))
+        del sys_cooling['totalcapacity']
+    else:
+        sys_cooling = {'type': 'none'}
+        
     # systems.hvac_distribution -----------------------------------------------
     bldg_systems['hvac_distribution'] = []
     duct_location_map = {'conditioned space': 'cond_space', 
