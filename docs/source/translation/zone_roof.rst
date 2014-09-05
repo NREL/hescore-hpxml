@@ -27,7 +27,7 @@ type according to the following mapping.
    flat roof              cath_ceiling
    unvented attic         cond_attic
    vented attic           vented_attic
-   venting unknown attic  *not translated*
+   venting unknown attic  vented_attic
    other                  *not translated*
    =====================  ================
 

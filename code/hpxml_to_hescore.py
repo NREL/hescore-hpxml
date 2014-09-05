@@ -544,7 +544,7 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
                    'flat roof': 'cath_ceiling', 
                    'unvented attic': 'cond_attic', 
                    'vented attic': 'vented_attic', 
-                   'venting unknown attic': None, 
+                   'venting unknown attic': 'vented_attic', 
                    'other': None}
     roof_center_of_cavity_rvalues = \
         {'wf': {'co': dict(zip((0,11,13,15,19,21),(2.7,13.6,15.6,17.6,21.6,23.6))),
