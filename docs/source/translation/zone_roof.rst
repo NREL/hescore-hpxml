@@ -83,10 +83,10 @@ folling mapping.
    shingles                           composition shingles
    slate or tile shingles             concrete tile
    wood shingles or shakes            wood shakes
-   asphalt or fiberglass shingles     tar and gravel
-   metal surfacing                    *not translated*
+   asphalt or fiberglass shingles     composition shingles
+   metal surfacing                    composition shingles
    expanded polystyrene sheathing     *not translated*
-   plastic/rubber/synthetic sheeting  *not translated*
+   plastic/rubber/synthetic sheeting  tar and gravel
    concrete                           concrete tile
    cool roof                          *not translated*
    green roof                         *not translated*
@@ -94,12 +94,10 @@ folling mapping.
    other                              *not translated*
    =================================  ====================
    
-.. warning::
+.. note::
 
    Items where the HEScore translation indicates *not translated* above 
-   will result in a translation error. Also, I'm not sure if "asphalt or 
-   fiberglass shingles" should be translated to composition shingles, but if I 
-   do that there's no enumeration that maps to tar and gravel.
+   will result in a translation error. 
 
 .. _rigid-sheathing:
 
