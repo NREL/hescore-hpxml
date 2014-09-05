@@ -61,10 +61,10 @@ enumerations is as follows:
    attached on three sides  *not translated*
    =======================  ================   
 
-.. warning::
+.. note::
 
-   For buildings that are "attached on three sides" should we have a way to
-   specify the HEScore input? Right now it will error out and not run.
+   HEScore cannot model houses that are "attached on three sides".
+   Using that input will result in a translation error.
 
 Year Built, Stories, Bedrooms, Floor Height, and Floor Area
 ***********************************************************
