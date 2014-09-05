@@ -1078,7 +1078,11 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     
     for combhtgsys in htgsys_by_capacity.values():
         if combhtgsys['efficiency_method'] == 'user':
-            combhtgsys[eff_method_map[combhtgsys['efficiency_method']]] = round(combhtgsys['sum'] / combhtgsys['totalcapacity'], 2)
+            if combhtgsys['type'] in ('heat_pump','gchp'):
+                htg_round_decimal_places = 1
+            else:
+                htg_round_decimal_places = 2 
+            combhtgsys[eff_method_map[combhtgsys['efficiency_method']]] = round(combhtgsys['sum'] / combhtgsys['totalcapacity'], htg_round_decimal_places)
         else:
             assert combhtgsys['efficiency_method'] == 'shipment_weighted'
             combhtgsys[eff_method_map[combhtgsys['efficiency_method']]] = int(round(combhtgsys['sum'] / combhtgsys['totalcapacity']))
@@ -1100,7 +1104,7 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     if primaryclgsys is None:
         # A primary cooling system isn't specified, get the properties of all of them.
         clgsystems = []
-        for clgsys in b.xpath('//h:HVACPlant/h:CoolingSystem|h:HVACPlant/h:HeatPump',namespaces=ns):
+        for clgsys in b.xpath('//h:HVACPlant/h:CoolingSystem|//h:HVACPlant/h:HeatPump',namespaces=ns):
             try:
                 clgsysd = get_cooling_system_type(clgsys)
             except TranslationError:
@@ -1272,7 +1276,7 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
         energyfactor = doxpath(primarydhw,'h:EnergyFactor/text()')
         if energyfactor is not None:
             sys_dhw['efficiency_method'] = 'user'
-            sys_dhw['energy_factor'] = float(energyfactor)
+            sys_dhw['energy_factor'] = round(float(energyfactor),2)
         else:
             dhwyear = int(doxpath(primarydhw,'(h:YearInstalled|h:ModelYear)[1]/text()'))
             if dhwyear < 1972:
