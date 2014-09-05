@@ -60,7 +60,7 @@ according to the following mapping.
    reflective  white
    ==========  =======
 
-.. warning::
+.. note::
 
    HEScore allows for more detailed roof color descriptions than HPXML. 
    There is no way in HPXML to specify the following HEScore roof colors:
