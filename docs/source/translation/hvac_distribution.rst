@@ -3,12 +3,10 @@ HVAC Distribution
 
 .. contents:: Table of Contents
 
-In HPXML multiple ``HVACDistribution`` elements can be associated with a
-heating or cooling system. That element can then describe a ducted system, a
-hydronic system, or an open ended other system. For the translation to HEScore,
-only ``HVACDistribution`` elements that are used  by the primary
-:ref:`heating <primaryhtgsys>` and :ref:`cooling <primaryclgsys>` systems and
-that are ducted are considered. 
+In HPXML multiple ``HVACDistribution`` elements can be associated with a heating
+or cooling system. That element can then describe a ducted system, a hydronic
+system, or an open ended other system. For the translation to HEScore, only
+``HVACDistribution`` elements that are ducted are considered.
 
 .. _ductlocationmapping:
 
@@ -111,7 +109,19 @@ ducts in a location will be used. For instance, if a home has air distribtuion
 system (a.) that serves 2000 sq.ft. with 60% of its ducts in an unconditioned
 basement that is sealed and system (b.) that serves 2500 sq.ft. that has 40% of
 its ducts in an unconditioned basement that is *not* sealed, the ducts in the
-unconditioned basement will be marked as sealed (2000 * 0.6 = 1200 > 200 * 0.4
-= 1000). 
+unconditioned basement will be marked as sealed:
+
+.. math::
+   :nowrap:
+   
+   \begin{eqnarray*}
+   \text{duct a} && \text{duct b} \\
+   2000 \times 60\% && 2500 \times 40\% \\
+   1200 &>& 1000
+   \end{eqnarray*}
+
+
+
+
 
 
