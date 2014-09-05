@@ -418,7 +418,10 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     # building_address
     bldgaddr = {}
     hescore_inputs['building_address'] = bldgaddr
-    bldgaddr['address'] = ' '.join(b.xpath('h:Site/h:Address/h:Address1/text() | h:Site/h:Address/h:Address2/text()',namespaces=ns))
+    hpxmladdress = doxpath(b,'h:Site/h:Address[h:AddressType="street"]')
+    if hpxmladdress is None:
+        raise TranslationError('The house address must be a street address.')
+    bldgaddr['address'] = ' '.join(hpxmladdress.xpath('h:Address1/text() | h:Address2/text()',namespaces=ns))
     bldgaddr['city'] = doxpath(b,'h:Site/h:Address/h:CityMunicipality/text()')
     bldgaddr['state'] = doxpath(b,'h:Site/h:Address/h:StateCode/text()')
     bldgaddr['zip_code'] = doxpath(b,'h:Site/h:Address/h:ZipCode/text()')

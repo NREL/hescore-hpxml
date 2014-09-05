@@ -17,6 +17,7 @@
         <Site>
             <SiteID id="bldg1site"/>
             <Address>
+                <AddressType>street</AddressType>
                 <Address1>123 Main Street</Address1>
                 <CityMunicipality>Golden</CityMunicipality>
                 <StateCode>CO</StateCode>
