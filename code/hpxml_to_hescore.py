@@ -429,7 +429,7 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     bldgaddr['assessment_type'] = {'audit': 'initial',
                                    'proposed workscope': 'alternative',
                                    'approved workscope': 'alternative',
-                                   'construction-period testing/daily test out': 'corrected',
+                                   'construction-period testing/daily test out': 'alternative',
                                    'job completion testing/final inspection': 'final',
                                    'quality assurance/monitoring': 'qa'}[doxpath(b,'h:ProjectStatus/h:EventType/text()')]
     
