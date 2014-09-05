@@ -16,11 +16,12 @@ following logic:
 #. HPXML has a ``PrimaryCoolingSystem`` element that references with system
    is the primary one. If this is present, the properties of that referenced
    cooling system are translated into HEScore inputs.
-#. If there is no defined primary heating system in HPXML, the
-   ``CoolingSystem`` or ``HeatPump`` with the greatest cooling capacity is
-   used. 
-#. If neither of the above conditions are met the first ``CoolingSystem`` or
-   ``HeatPump`` in the document is used.
+#. If there is no defined primary cooling system in HPXML, each
+   ``CoolingSystem`` or ``HeatPump`` is translated into HEScore inputs and
+   systems with teh same ``type`` and ``efficiency_method`` are combined by
+   taking a capacity weighted average of the ``efficiency`` or ``year``
+   depending on the efficiency method. The combined system that has the
+   greatest total capacity is then used for the HEScore inputs. 
 #. Finally, if there is no ``CoolingSystem`` or ``HeatPump`` object, then the
    house is determined to not have a cooling system in HEScore. 
 
@@ -47,7 +48,7 @@ mapping.
 .. table:: Heat Pump Type mapping
 
    ============================  ============================
-   HPXML Heat Pump Type          HEScore Heating Type
+   HPXML Heat Pump Type          HEScore Cooling Type
    ============================  ============================
    water-to-air                  heat_pump
    water-to-water                heat_pump
@@ -67,7 +68,7 @@ is done according to the following mapping.
 .. table:: Cooling System Type mapping
 
    =========================  ====================
-   HPXML Heating System Type  HEScore Heating Type
+   HPXML Cooling System Type  HEScore Cooling Type
    =========================  ====================
    central air conditioning   split_dx
    room air conditioner       packaged_dx
@@ -116,15 +117,18 @@ cooling system type.
    idec             *not translated*
    ===============  ================
 
-.. warning::
+.. note::
 
    It is unclear from the :term:`API` documentation as well as the HEScore
-   user interface how to specify efficiency for evaporative coolers. Efficiency
-   is omitted from the cooling system specification in HEScore if it is 
+   user interface what the efficiency units are for evaporative coolers.
+   Therefore, for evaporative coolers the :ref:`clg-shipment-weighted-efficiency`
+   method is always used.
 
 The translator searches the ``CoolingSystem/AnnualCoolingEfficiency`` or
 ``HeatPump/AnnualCoolEfficiency`` elements of the primary cooling system and
 uses the first one that has the correct units.
+
+.. _clg-shipment-weighted-efficiency
 
 Shipment Weighted Efficiency
 ============================
