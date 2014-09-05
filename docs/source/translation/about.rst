@@ -158,10 +158,6 @@ example of the minimum expected elements in that case looks like:
       <LeakinessDescription>tight</LeakinessDescription>
    </AirInfiltrationMeasurement>
 
-.. warning::
-
-   Should I allow "checklist" as an option here for ``TypeOfInfiltrationMeasurement`` as well?
-   
 If more than one ``AirInfiltrationMeasurement`` is found that have the above
 elements, the last one to appear in the document is used. Whether the house is
 marked as having air sealing present is determined according to the following
