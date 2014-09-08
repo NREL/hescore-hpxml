@@ -238,8 +238,8 @@ def get_window_code(window):
         TranslationError('Cannot translate window type')
     return window_code
 
-heat_pump_type_map = {'water-to-air': 'heat_pump', 
-                      'water-to-water': 'heat_pump', 
+heat_pump_type_map = {'water-to-air': 'gchp', 
+                      'water-to-water': 'gchp', 
                       'air-to-air': 'heat_pump', 
                       'mini-split': 'heat_pump', 
                       'ground-to-air': 'gchp'}

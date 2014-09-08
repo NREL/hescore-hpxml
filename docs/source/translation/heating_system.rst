@@ -45,8 +45,8 @@ mapping.
    ============================  ============================
    HPXML Heat Pump Type          HEScore Heating Type
    ============================  ============================
-   water-to-air                  heat_pump
-   water-to-water                heat_pump
+   water-to-air                  gchp
+   water-to-water                gchp
    air-to-air                    heat_pump
    mini-split                    heat_pump
    ground-to-air                 gchp
