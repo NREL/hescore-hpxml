@@ -98,7 +98,7 @@ The HEScore input ``floor_to_ceiling_height`` will be calculated by dividing
 ``ConditionedBuildingVolume`` by ``ConditionedFloorArea`` if
 ``AverageCeilingHeight`` is omitted.
 
-:: _house-orientation:
+.. _house-orientation:
 
 House Orientation
 *****************
