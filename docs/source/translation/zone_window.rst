@@ -68,10 +68,9 @@ elements, a window code is selected based on other properties of each window.
 Then the most predominant window code by area on each side of the house is
 selected. 
 
-Unfortunately there is not a 1-to-1 correlation of the HPXML data
-elements to HEScore for these selections and it is possible to define windows
-in HPXML that are impossible to input into HEScore. In these cases the
-translation will fail.
+Unfortunately there is not a 1-to-1 correlation of the HPXML data elements to
+HEScore for these selections and it is possible to define windows in HPXML that
+are impossible to input into HEScore. In these cases the translation will fail.
 
 Windows are first sorted by frame type. The mapping of HPXML ``FrameType`` to
 HEScore frame type is performed thusly.
@@ -168,7 +167,7 @@ and clear options.
    low-e                     Double-pane, clear
    tinted                    Double-pane, tinted
    reflective                Double-pane, solar-control low-E
-   tinted/reflective         Double-pane, tinted
+   tinted/reflective         Double-pane, solar-control low-E
    other                     Double-pane, clear
    *element missing*         Double-pane, clear
    ========================  ================================

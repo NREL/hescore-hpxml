@@ -201,10 +201,9 @@ def get_window_code(window):
                 else:
                     window_code = 'scna'
             elif glass_layers in ('double-pane','single-paned with storms','single-paned with low-e storms'):
-                if glass_type is not None and glass_type == 'reflective':
-                    # TODO: figure out if 'reflective' is close enough to 'solar-control' low-e
+                if glass_type is not None and glass_type in ('reflective','tinted/reflective'):
                     window_code = 'dseaa'
-                elif glass_type is not None and glass_type.startswith('tinted'):
+                elif glass_type is not None and glass_type == 'tinted':
                     window_code = 'dtaa'
                 else:
                     window_code = 'dcaa'
