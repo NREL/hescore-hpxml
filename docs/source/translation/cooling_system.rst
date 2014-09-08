@@ -128,7 +128,7 @@ The translator searches the ``CoolingSystem/AnnualCoolingEfficiency`` or
 ``HeatPump/AnnualCoolEfficiency`` elements of the primary cooling system and
 uses the first one that has the correct units.
 
-.. _clg-shipment-weighted-efficiency
+.. _clg-shipment-weighted-efficiency:
 
 Shipment Weighted Efficiency
 ============================
