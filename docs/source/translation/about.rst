@@ -98,6 +98,8 @@ The HEScore input ``floor_to_ceiling_height`` will be calculated by dividing
 ``ConditionedBuildingVolume`` by ``ConditionedFloorArea`` if
 ``AverageCeilingHeight`` is omitted.
 
+:: _house-orientation:
+
 House Orientation
 *****************
 
@@ -106,8 +108,8 @@ as either a compass direction ('North','Southwest',etc.) or an azimuth measured
 in degrees clockwise from North. HEScore requires a compass direction for the
 orientation of the front of the house. If the azimuth is available in
 ``Building/BuildingDetails/BuildingSummary/Site/AzimuthOfFrontOfHome`` the
-nearest compasdirection is chosen. If the azimuth is omitted from HPXML but the
-``OrientationOfFronOfHome`` element exists, the orientation is used. 
+nearest compass direction is chosen. If the azimuth is omitted from HPXML but
+the ``OrientationOfFronOfHome`` element exists, the orientation is used. 
 
 Infiltration
 ************
