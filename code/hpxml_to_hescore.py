@@ -196,7 +196,7 @@ def get_window_code(window):
         else:
             # Aluminum
             if glass_layers == 'single-pane':
-                if glass_type is not None and glass_type.startswith('tinted'):
+                if glass_type is not None and glass_type in ('tinted','low-e','tinted/reflective'):
                     window_code = 'stna'
                 else:
                     window_code = 'scna'
@@ -210,7 +210,7 @@ def get_window_code(window):
     elif frame_type in ('Vinyl','Wood','Fiberglass','Composite'):
         # Wood or Vinyl
         if glass_layers == 'single-pane':
-            if glass_type is not None and glass_type.startswith('tinted'):
+            if glass_type is not None and glass_type in ('tinted','low-e','tinted/reflective'):
                 window_code = 'stnw'
             else:
                 window_code = 'scnw'

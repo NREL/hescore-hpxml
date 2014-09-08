@@ -145,7 +145,7 @@ Otherwise, "Single-pane, clear" is selected.
    ========================  ============================
    HPXML Glass Type          HEScore Glazing Type
    ========================  ============================
-   low-e                     Single-pane, clear
+   low-e                     Single-pane, tinted
    tinted                    Single-pane, tinted
    reflective                Single-pane, clear
    tinted/reflective         Single-pane, tinted
@@ -308,7 +308,7 @@ Otherwise, "Single-pane, clear" is selected.
    ========================  ============================
    HPXML Glass Type          HEScore Glazing Type
    ========================  ============================
-   low-e                     Single-pane, clear
+   low-e                     Single-pane, tinted
    tinted                    Single-pane, tinted
    reflective                Single-pane, clear
    tinted/reflective         Single-pane, tinted
