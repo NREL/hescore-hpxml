@@ -752,6 +752,8 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
             zone_floor['foundation_type'] = 'unvented_crawl'
     elif hpxml_foundation_type == 'SlabOnGrade':
         zone_floor['foundation_type'] = 'slab_on_grade'
+    elif hpxml_foundation_type == 'Garage':
+        zone_floor['foundation_type'] = 'uncond_basement'
     elif hpxml_foundation_type == 'Ambient':
         zone_floor['foundation_type'] = 'vented_crawl'
     else:
