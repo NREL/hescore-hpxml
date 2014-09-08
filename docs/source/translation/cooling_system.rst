@@ -111,7 +111,7 @@ cooling system type.
    split_dx         SEER
    packaged_dx      EER
    heat_pump        SEER
-   gchp             SEER
+   gchp             EER
    dec              *not translated*
    iec              *not translated*
    idec             *not translated*

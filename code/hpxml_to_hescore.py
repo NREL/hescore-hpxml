@@ -307,7 +307,7 @@ def get_cooling_system_type(clgsys):
     eff_units = {'split_dx': 'SEER',
                  'packaged_dx': 'EER',
                  'heat_pump': 'SEER',
-                 'gchp': 'SEER',
+                 'gchp': 'EER',
                  'dec': None,
                  'iec': None,
                  'idec': None}[sys_cooling['type']]
