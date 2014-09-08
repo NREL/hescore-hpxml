@@ -117,10 +117,10 @@ def get_wall_assembly_code(hpxmlwall):
                  'vinyl siding': 'vi',
                  'aluminum siding': 'al',
                  'brick veneer': 'br',
-                 'asbestos siding': None,
-                 'fiber cement siding': None,
-                 'composite shingle siding': None,
-                 'masonite siding': None,
+                 'asbestos siding': 'wo',
+                 'fiber cement siding': 'wo',
+                 'composite shingle siding': 'wo',
+                 'masonite siding': 'wo',
                  'other': None}
     
     # construction type

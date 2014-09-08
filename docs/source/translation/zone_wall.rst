@@ -185,10 +185,10 @@ specified as the last two characters of the construction code in HEScore.
    vinyl siding              vi
    aluminum siding           al
    brick veneer              br
-   asbestos siding           *not translated*
-   fiber cement siding       *not translated*
-   composite shingle siding  *not translated*
-   masonite siding           *not translated*
+   asbestos siding           wo
+   fiber cement siding       wo
+   composite shingle siding  wo
+   masonite siding           wo
    other                     *not translated*
    ========================  ================   
 
