@@ -3,9 +3,11 @@
 This translator script takes an HPXML file or directory of files as an input 
 and generates HEScore inputs from it. The HEScore inputs are exported as json. 
 
+Details of the translation assumptions can be found in [the documentation](http://hescore-hpxml.readthedocs.org/en/latest/).
+
 To run this script you will need the following python library:
 
- * lxml: handles all the xml processing.
+ * [lxml](http://lxml.de/): handles all the xml processing.
 
 If you have pip installed on top of python you can install these by going to
 your terminal and typing in
