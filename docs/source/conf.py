@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'HPXML Import for Home Energy Score'
-copyright = u'2014, Noel Merket (NREL)'
+copyright = u'2014, Allliance for Sustainable Energy, LLC.'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
