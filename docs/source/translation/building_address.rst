@@ -51,7 +51,7 @@ using the following mapping:
    audit                                       initial
    proposed workscope                          alternative
    approved workscope                          alternative
-   construction-period testing/daily test out  corrected
+   construction-period testing/daily test out  test
    job completion testing/final inspection     final
    quality assurance/monitoring                qa
    ==========================================  ===============================

@@ -414,7 +414,7 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     # Create return dict
     hescore_inputs = {}
     
-    # building_address
+    # building_address---------------------------------------------------------
     bldgaddr = {}
     hescore_inputs['building_address'] = bldgaddr
     hpxmladdress = doxpath(b,'h:Site/h:Address[h:AddressType="street"]')
@@ -428,7 +428,7 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     bldgaddr['assessment_type'] = {'audit': 'initial',
                                    'proposed workscope': 'alternative',
                                    'approved workscope': 'alternative',
-                                   'construction-period testing/daily test out': 'alternative',
+                                   'construction-period testing/daily test out': 'test',
                                    'job completion testing/final inspection': 'final',
                                    'quality assurance/monitoring': 'qa'}[doxpath(b,'h:ProjectStatus/h:EventType/text()')]
     
