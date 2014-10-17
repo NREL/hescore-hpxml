@@ -298,11 +298,7 @@ def get_cooling_system_type(clgsys):
         hpxml_cooling_type = doxpath(clgsys,'h:CoolingSystemType/text()')
         sys_cooling['type'] = {'central air conditioning': 'split_dx',
                                'room air conditioner': 'packaged_dx',
-                               'mini-split': 'split_dx',
-                               'evaporative cooler': 'dec'}[hpxml_cooling_type]
-        # TODO: Figure out how to specify indirect and direct/indirect evap coolers
-        
-    
+                               'mini-split': 'split_dx'}[hpxml_cooling_type]
     # cooling efficiency
     eff_units = {'split_dx': 'SEER',
                  'packaged_dx': 'EER',

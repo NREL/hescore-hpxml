@@ -57,6 +57,8 @@ mapping.
    ground-to-air                 gchp
    ============================  ============================
 
+.. clg-sys_
+
 Cooling System
 ==============
 
@@ -73,20 +75,17 @@ is done according to the following mapping.
    central air conditioning   split_dx
    room air conditioner       packaged_dx
    mini-split                 split_dx
-   evaporative cooler         dec
+   evaporative cooler         *not translated*
+   other                      *not translated*
    =========================  ====================
 
 .. note::
    
-   If "other" is selected as the cooling system type in HPXML, the 
-   translation will error out.
-
-.. warning::
-
-   There is no way to specify an indirect or direct/indirect evaporative cooler 
-   in HPXML, so those choices in HEScore are not available 
-   through this translation. As shown above, all evaporative coolers in 
-   HPXML are assumed to be direct.
+   If an HPXML cooling system type maps to *not translated* the translation
+   will fail. 
+   
+   While HEScore does have evaporative coolers in the API, they are not fully
+   implemented in the software and will not be used in the translation.
 
 Cooling Efficiency
 ******************
@@ -112,17 +111,15 @@ cooling system type.
    packaged_dx      EER
    heat_pump        SEER
    gchp             EER
-   dec              *not translated*
-   iec              *not translated*
-   idec             *not translated*
+   dec              *not applicable*
+   iec              *not applicable*
+   idec             *not applicable*
    ===============  ================
 
 .. note::
 
-   It is unclear from the :term:`API` documentation as well as the HEScore
-   user interface what the efficiency units are for evaporative coolers.
-   Therefore, for evaporative coolers the :ref:`clg-shipment-weighted-efficiency`
-   method is always used.
+   Currently evaporative coolers are disabled in the translation (see 
+   :ref:`clg-sys`) and therefore do not need efficiency units specified.
 
 The translator searches the ``CoolingSystem/AnnualCoolingEfficiency`` or
 ``HeatPump/AnnualCoolEfficiency`` elements of the primary cooling system and
