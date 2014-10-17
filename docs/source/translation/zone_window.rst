@@ -6,10 +6,10 @@ Windows and Skylights
 Window Orientation
 ******************
 
-HEScore requires that a wall area be specified for each side of the building. To
-determine the window area on each side of the building, each ``Window`` element
-in HPXML must have an ``Area`` subelement. Each ``Window`` is then assigned to
-a side of the building in one of two ways:
+HEScore requires that a window area be specified for each side of the building.
+To determine the window area on each side of the building, each ``Window``
+element in HPXML must have an ``Area`` subelement. Each ``Window`` is then
+assigned to a side of the building in one of two ways:
 
    #. By association with a particular wall.
    #. By inspecting the azimuth or orientation of the window.
@@ -18,7 +18,7 @@ If an HPXML window has the ``AttachedToWall`` element, the id reference in that
 element is used to find the associated wall and the side of the building that
 the window faces is inferred from the :ref:`wall orientation <wallorientation>`.
 
-If there is not ``AttachedToWall`` element, the side is determined via the
+If there is not an ``AttachedToWall`` element, the side is determined via the
 ``Azimuth`` or ``Orientation`` elements with preference given to the
 ``Azimuth`` if present. If the window falls between two sides of the house, the
 window area is divided between the sides of the house evenly. 
