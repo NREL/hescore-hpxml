@@ -502,13 +502,12 @@ def hpxml_to_hescore_dict(hpxmlfilename,hpxml_bldg_id=None,nrel_assumptions=Fals
     blower_door_test = None
     air_infilt_est = None
     for air_infilt_meas in b.xpath('h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirInfiltrationMeasurement',namespaces=ns):
-        # Take the last blower door test that is in CFM50 or ACH50
+        # Take the last blower door test that is in CFM50, or if that's not available, ACH50
         if doxpath(air_infilt_meas,'h:TypeOfInfiltrationMeasurement/text()') == 'blower door':
-            house_pressure = doxpath(air_infilt_meas,'h:HousePressure/text()')
-            if house_pressure is not None:
-                house_pressure = int(house_pressure)
-            if doxpath(air_infilt_meas,'h:BuildingAirLeakage/h:UnitofMeasure/text()') in ('CFM','ACH') and \
-               house_pressure == 50:
+            house_pressure = convert_to_type(int,doxpath(air_infilt_meas,'h:HousePressure/text()'))
+            blower_door_test_units = doxpath(air_infilt_meas,'h:BuildingAirLeakage/h:UnitofMeasure/text()')
+            if house_pressure == 50 and (blower_door_test_units == 'CFM' or
+                                         (blower_door_test_units == 'ACH' and blower_door_test is None)):
                 blower_door_test = air_infilt_meas
         elif doxpath(air_infilt_meas,'h:TypeOfInfiltrationMeasurement/text()') == 'estimate':
             air_infilt_est = air_infilt_meas

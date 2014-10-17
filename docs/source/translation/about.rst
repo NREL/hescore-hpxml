@@ -124,9 +124,17 @@ is available in HPXML.
 
 Blower Door Test
 ================
-The translator first looks for a blower door test with units of either
-:term:`CFM50` or :term:`ACH50` that was a blower door test, not an estimate. An
-example of the minimum expected elements in HPXML follows:
+The translator first looks for a blower door test (not an estimate) with units
+of :term:`CFM50`. If more than one of the ``AirInfiltrationMeasurement``
+elements have units in :term:`CFM50`, the last one to appear in the document is
+used. If there are no measurements in :term:`CFM50`, it will look for one in
+:term:`ACH50`. If more than one of the ``AirInfiltrationMeasurement`` elements
+have units in :term:`ACH50`, the last one to appear in the document is used. If
+the ``UnitofMeasure`` element has a value of ACH, then the value is converted
+to CFM using the building volume calculated by the floor area and floor
+height.
+
+An example of the minimum expected elements in HPXML follows:
 
 .. code-block:: xml
 
@@ -140,11 +148,6 @@ example of the minimum expected elements in HPXML follows:
       </BuildingAirLeakage>
    </AirInfiltrationMeasurement>
    
-If the ``UnitofMeasure`` element has a value of ACH, then the value is converted
-to CFM using the building volume calculated by the floor area and floor height.
-If more than one of the ``AirInfiltrationMeasurement`` elements meet the
-criteria for a blower door test, the last one to appear in the document is used.
-
 Air Sealing Present
 ===================
 
