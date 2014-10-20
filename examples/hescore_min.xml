@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<HPXML xmlns="http://hpxml.org/hpxml/2011/1"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://hpxml.org/hpxml/2011/1 file:/Users/nmerket/fielddata/code/hpxml/hpxmlschemas/HPXML.xsd">
+<HPXML xmlns="http://hpxmlonline.com/2014/6"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="2.0">
     <XMLTransactionHeaderInformation>
-        <XMLType></XMLType>
+        <XMLType/>
         <XMLGeneratedBy></XMLGeneratedBy>
         <CreatedDateAndTime>2014-08-21T11:41:49.968796</CreatedDateAndTime>
         <Transaction>create</Transaction>
@@ -67,7 +66,7 @@
                         <Attic>
                             <SystemIdentifier id="attic1"/>
                             <AttachedToRoof idref="roof1"/>
-                            <AtticType>unvented attic</AtticType>
+                            <AtticType>vented attic</AtticType>
                             <AtticFloorInsulation>
                                 <SystemIdentifier id="attic1flrins"/>
                                 <Layer>
@@ -175,9 +174,12 @@
                             </AnnualHeatingEfficiency>
                         </HeatingSystem>
                         <CoolingSystem>
-                            <SystemIdentifier id="evapclr1"/>
-                            <YearInstalled>2013</YearInstalled>
-                            <CoolingSystemType>evaporative cooler</CoolingSystemType>
+                            <SystemIdentifier id="centralair1"/>
+                            <CoolingSystemType>central air conditioning</CoolingSystemType>
+                            <AnnualCoolingEfficiency>
+                                <Units>SEER</Units>
+                                <Value>13</Value>
+                            </AnnualCoolingEfficiency>
                         </CoolingSystem>
                     </HVACPlant>
                     <HVACDistribution>
