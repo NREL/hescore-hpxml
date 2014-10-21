@@ -587,6 +587,8 @@ class HPXMLtoHEScoreTranslator(object):
             atticd = {}
             atticds.append(atticd)
             roof = doxpath(b,'//h:Roof[h:SystemIdentifier/@id=$roofid]',roofid=doxpath(attic,'h:AttachedToRoof/@idref'))
+            if roof is None:
+                raise TranslationError('Attic {} does not have a roof associated with it.'.format(doxpath(attic,'h:SystemIdentifier/@id')))
             
             # Roof type
             atticd['rooftype'] = rooftypemap[doxpath(attic,'h:AtticType/text()')]
@@ -665,13 +667,12 @@ class HPXMLtoHEScoreTranslator(object):
                 ('roofconstype','extfinish','roofcolor','rooftype'))
             
         # Calculate roof area weighted average effective center-of-cavity R-value
-        total_attic_area = sum([atticd['attic_area'] for atticd in atticds])
         if len(atticds) == 1:
-            area_wt_coc_roof_rvalue = atticds[0]['roof_coc_rvalue']
-        else:
-            area_wt_coc_roof_rvalue = \
-                sum([atticd['roof_coc_rvalue'] * atticd['attic_area'] for atticd in atticds]) / \
-                total_attic_area
+            atticds[0]['attic_area'] = 1.0
+        total_attic_area = sum([atticd['attic_area'] for atticd in atticds])
+        area_wt_coc_roof_rvalue = \
+            sum([atticd['roof_coc_rvalue'] * atticd['attic_area'] for atticd in atticds]) / \
+            total_attic_area
         
         # Get Roof R-value
         roffset = roof_center_of_cavity_rvalues[roofconstype][extfinish][0]
