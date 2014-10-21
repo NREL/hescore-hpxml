@@ -963,6 +963,9 @@ class HPXMLtoHEScoreTranslator(object):
     
             # Get the area, uvalue, SHGC, or window_code
             windowd = {'area': convert_to_type(float,doxpath(hpxmlwndw,'h:Area/text()'))}
+            qty = convert_to_type(int,doxpath(hpxmlwndw,'h:Quantity/text()'))
+            if isinstance(qty,int):
+                windowd['area'] *= qty
             windowd['uvalue'] = convert_to_type(float,doxpath(hpxmlwndw,'h:UFactor/text()'))
             windowd['shgc'] = convert_to_type(float,doxpath(hpxmlwndw,'h:SHGC/text()'))
             if windowd['uvalue'] is not None and windowd['shgc'] is not None:
