@@ -1177,90 +1177,91 @@ class HPXMLtoHEScoreTranslator(object):
             
         # systems.hvac_distribution -----------------------------------------------
         bldg_systems['hvac_distribution'] = []
-        duct_location_map = {'conditioned space': 'cond_space', 
-                             'unconditioned space': None, 
-                             'unconditioned basement': 'uncond_basement', 
-                             'unvented crawlspace': 'unvented_crawl', 
-                             'vented crawlspace': 'vented_crawl', 
-                             'crawlspace': None, 
-                             'unconditioned attic': 'uncond_attic', 
-                             'interstitial space': None, 
-                             'garage': None, 
-                             'outside': None}
-        airdistributionxpath = '//h:HVACDistribution/h:DistributionSystemType/h:AirDistribution'
-        allhave_cfaserved = True
-        allmissing_cfaserved = True
-        airdistsystems_ductfracs = []
-        hescore_ductloc_has_ins = {}
-        airdistsys_issealed = []
-        for airdistsys in b.xpath(airdistributionxpath,namespaces=ns):
-            airdistsys_ductfracs = {}
-            airdistsys_issealed.append(airdistsys.xpath('h:DuctLeakageMeasurement[not(h:DuctType) or h:DuctType="supply"]/h:LeakinessObservedVisualInspection="connections sealed w mastic"',namespaces=ns))
-            for duct in airdistsys.xpath('h:Ducts[not(h:DuctType) or h:DuctType="supply"]',namespaces=ns):
-                frac_duct_area = float(doxpath(duct,'h:FractionDuctArea/text()'))
-                hpxml_duct_location = doxpath(duct,'h:DuctLocation/text()')
-                hescore_duct_location = duct_location_map[hpxml_duct_location]
-                if hescore_duct_location is None:
-                    raise TranslationError('No comparable duct location in HEScore: %s' % hpxml_duct_location)
-                try:
-                    airdistsys_ductfracs[hescore_duct_location] += frac_duct_area
-                except KeyError:
-                    airdistsys_ductfracs[hescore_duct_location] = frac_duct_area
-                duct_has_ins = duct.xpath('h:DuctInsulationRValue > 0 or h:DuctInsulationThickness > 0',namespaces=ns)
-                try:
-                    hescore_ductloc_has_ins[hescore_duct_location] = hescore_ductloc_has_ins[hescore_duct_location] or duct_has_ins
-                except KeyError:
-                    hescore_ductloc_has_ins[hescore_duct_location] = duct_has_ins
-            assert abs(1 - sum(airdistsys_ductfracs.values())) < 0.001
-            cfaserved = doxpath(airdistsys.getparent().getparent(),'h:ConditionedFloorAreaServed/text()')
-            if cfaserved is not None:
-                cfaserved = float(cfaserved)
-                airdistsys_ductfracs = dict([(key,value * cfaserved) for key,value in airdistsys_ductfracs.items()])
-                allmissing_cfaserved = False
+        if not (sys_cooling['type'] == 'none' and sys_heating['type'] == 'none'):
+            duct_location_map = {'conditioned space': 'cond_space', 
+                                 'unconditioned space': None, 
+                                 'unconditioned basement': 'uncond_basement', 
+                                 'unvented crawlspace': 'unvented_crawl', 
+                                 'vented crawlspace': 'vented_crawl', 
+                                 'crawlspace': None, 
+                                 'unconditioned attic': 'uncond_attic', 
+                                 'interstitial space': None, 
+                                 'garage': None, 
+                                 'outside': None}
+            airdistributionxpath = '//h:HVACDistribution/h:DistributionSystemType/h:AirDistribution'
+            allhave_cfaserved = True
+            allmissing_cfaserved = True
+            airdistsystems_ductfracs = []
+            hescore_ductloc_has_ins = {}
+            airdistsys_issealed = []
+            for airdistsys in b.xpath(airdistributionxpath,namespaces=ns):
+                airdistsys_ductfracs = {}
+                airdistsys_issealed.append(airdistsys.xpath('h:DuctLeakageMeasurement[not(h:DuctType) or h:DuctType="supply"]/h:LeakinessObservedVisualInspection="connections sealed w mastic"',namespaces=ns))
+                for duct in airdistsys.xpath('h:Ducts[not(h:DuctType) or h:DuctType="supply"]',namespaces=ns):
+                    frac_duct_area = float(doxpath(duct,'h:FractionDuctArea/text()'))
+                    hpxml_duct_location = doxpath(duct,'h:DuctLocation/text()')
+                    hescore_duct_location = duct_location_map[hpxml_duct_location]
+                    if hescore_duct_location is None:
+                        raise TranslationError('No comparable duct location in HEScore: %s' % hpxml_duct_location)
+                    try:
+                        airdistsys_ductfracs[hescore_duct_location] += frac_duct_area
+                    except KeyError:
+                        airdistsys_ductfracs[hescore_duct_location] = frac_duct_area
+                    duct_has_ins = duct.xpath('h:DuctInsulationRValue > 0 or h:DuctInsulationThickness > 0',namespaces=ns)
+                    try:
+                        hescore_ductloc_has_ins[hescore_duct_location] = hescore_ductloc_has_ins[hescore_duct_location] or duct_has_ins
+                    except KeyError:
+                        hescore_ductloc_has_ins[hescore_duct_location] = duct_has_ins
+                assert abs(1 - sum(airdistsys_ductfracs.values())) < 0.001
+                cfaserved = doxpath(airdistsys.getparent().getparent(),'h:ConditionedFloorAreaServed/text()')
+                if cfaserved is not None:
+                    cfaserved = float(cfaserved)
+                    airdistsys_ductfracs = dict([(key,value * cfaserved) for key,value in airdistsys_ductfracs.items()])
+                    allmissing_cfaserved = False
+                else:
+                    allhave_cfaserved = False
+                airdistsystems_ductfracs.append(airdistsys_ductfracs)
+            allsame_cfaserved = allhave_cfaserved or allmissing_cfaserved
+                
+            # Combine all
+            ductfracs = {}
+            issealedfracs = {}
+            if (len(airdistsystems_ductfracs) > 1 and allsame_cfaserved) or len(airdistsystems_ductfracs) == 1:
+                for airdistsys_ductfracs,issealed in zip(airdistsystems_ductfracs,airdistsys_issealed):
+                    for key,value in airdistsys_ductfracs.items():
+                        try:
+                            ductfracs[key] += value
+                        except KeyError:
+                            ductfracs[key] = value
+                        try:
+                            issealedfracs[key] += value * float(issealed)
+                        except KeyError:
+                            issealedfracs[key] = value * float(issealed)
+                            
             else:
-                allhave_cfaserved = False
-            airdistsystems_ductfracs.append(airdistsys_ductfracs)
-        allsame_cfaserved = allhave_cfaserved or allmissing_cfaserved
+                raise TranslationError('All HVACDistribution elements need to have or NOT have the ConditionFloorAreaServed subelement.')  
             
-        # Combine all
-        ductfracs = {}
-        issealedfracs = {}
-        if (len(airdistsystems_ductfracs) > 1 and allsame_cfaserved) or len(airdistsystems_ductfracs) == 1:
-            for airdistsys_ductfracs,issealed in zip(airdistsystems_ductfracs,airdistsys_issealed):
-                for key,value in airdistsys_ductfracs.items():
-                    try:
-                        ductfracs[key] += value
-                    except KeyError:
-                        ductfracs[key] = value
-                    try:
-                        issealedfracs[key] += value * float(issealed)
-                    except KeyError:
-                        issealedfracs[key] = value * float(issealed)
-                        
-        else:
-            raise TranslationError('All HVACDistribution elements need to have or NOT have the ConditionFloorAreaServed subelement.')  
-        
-        # Make sure there are only three locations and normalize to percentages
-        top3locations = sorted(ductfracs.keys(), key=lambda x: ductfracs[x], reverse=True)[0:3]
-        for location in ductfracs.keys():
-            if location not in top3locations:
-                del ductfracs[location]
-                del hescore_ductloc_has_ins[location]
-                del issealedfracs[location]
-        issealedfracs = dict([(key,bool(round(x / ductfracs[key]))) for key,x in issealedfracs.items()])
-        normalization_denominator = sum(ductfracs.values())
-        ductfracs = dict([(key,int(round(x / normalization_denominator * 100))) for key,x in ductfracs.items()])
-        # Sometimes with the rounding it adds up to a number slightly off of 100, adjust the largest fraction to make it add up to 100
-        ductfracs[top3locations[0]] += 100 - sum(ductfracs.values())
-        
-        for i,location in enumerate(top3locations,1):
-            hvacd = {}
-            hvacd['name'] = 'duct%d' % i
-            hvacd['location'] = location
-            hvacd['fraction'] = ductfracs[location]
-            hvacd['insulated'] = hescore_ductloc_has_ins[location]
-            hvacd['sealed'] = issealedfracs[location]
-            bldg_systems['hvac_distribution'].append(hvacd)
+            # Make sure there are only three locations and normalize to percentages
+            top3locations = sorted(ductfracs.keys(), key=lambda x: ductfracs[x], reverse=True)[0:3]
+            for location in ductfracs.keys():
+                if location not in top3locations:
+                    del ductfracs[location]
+                    del hescore_ductloc_has_ins[location]
+                    del issealedfracs[location]
+            issealedfracs = dict([(key,bool(round(x / ductfracs[key]))) for key,x in issealedfracs.items()])
+            normalization_denominator = sum(ductfracs.values())
+            ductfracs = dict([(key,int(round(x / normalization_denominator * 100))) for key,x in ductfracs.items()])
+            # Sometimes with the rounding it adds up to a number slightly off of 100, adjust the largest fraction to make it add up to 100
+            ductfracs[top3locations[0]] += 100 - sum(ductfracs.values())
+            
+            for i,location in enumerate(top3locations,1):
+                hvacd = {}
+                hvacd['name'] = 'duct%d' % i
+                hvacd['location'] = location
+                hvacd['fraction'] = ductfracs[location]
+                hvacd['insulated'] = hescore_ductloc_has_ins[location]
+                hvacd['sealed'] = issealedfracs[location]
+                bldg_systems['hvac_distribution'].append(hvacd)
         
         # systems.domestic_hot_water ----------------------------------------------
         sys_dhw = {}
