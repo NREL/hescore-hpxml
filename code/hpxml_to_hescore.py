@@ -541,8 +541,9 @@ class HPXMLtoHEScoreTranslator(object):
                     float(doxpath(blower_door_test,'h:BuildingAirLeakage/h:AirLeakage/text()')) / 60.
         else:
             bldg_about['blower_door_test'] = False
-            if len(doxpath(b,'h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirSealing')) > 0 or \
-               doxpath(air_infilt_est,'h:LeakinessDescription/text()') in ('tight','very tight'):
+            if b.xpath('count(h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirSealing)',namespaces=ns) > 0 or \
+               (air_infilt_est is not None and
+                doxpath(air_infilt_est,'h:LeakinessDescription/text()') in ('tight','very tight')):
                 bldg_about['air_sealing_present'] = True
             else:
                 bldg_about['air_sealing_present'] = False
