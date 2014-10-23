@@ -14,6 +14,10 @@ import re
 import json
 import math
 from lxml import etree
+try:
+    from collections import OrderedDict
+except ImportError:
+    OrderedDict = dict
 
 logging.basicConfig(filename='hpxml_to_hescore.log', level=logging.DEBUG, filemode='w')
 
@@ -229,7 +233,7 @@ class HPXMLtoHEScoreTranslator(object):
         doxpath = self.doxpath
         ns = self.ns
         
-        sys_heating = {}
+        sys_heating = OrderedDict()
         if htgsys.tag.endswith('HeatPump'):
             sys_heating['fuel_primary'] = 'electric'
             heat_pump_type = doxpath(htgsys,'h:HeatPumpType/text()')
@@ -273,7 +277,7 @@ class HPXMLtoHEScoreTranslator(object):
         doxpath = self.doxpath
         ns = self.ns
         
-        sys_cooling = {}
+        sys_cooling = OrderedDict()
         if clgsys.tag.endswith('HeatPump'):
             heat_pump_type = doxpath(clgsys,'h:HeatPumpType/text()')
             if heat_pump_type is None:
@@ -432,10 +436,10 @@ class HPXMLtoHEScoreTranslator(object):
         self.schema.assertValid(self.hpxmldoc)
         
         # Create return dict
-        hescore_inputs = {}
+        hescore_inputs = OrderedDict()
         
         # building_address---------------------------------------------------------
-        bldgaddr = {}
+        bldgaddr = OrderedDict()
         hescore_inputs['building_address'] = bldgaddr
         hpxmladdress = doxpath(b,'h:Site/h:Address[h:AddressType="street"]')
         if hpxmladdress is None:
@@ -453,11 +457,11 @@ class HPXMLtoHEScoreTranslator(object):
                                        'quality assurance/monitoring': 'qa'}[doxpath(b,'h:ProjectStatus/h:EventType/text()')]
         
         # building-----------------------------------------------------------------
-        bldg = {}
+        bldg = OrderedDict()
         hescore_inputs['building'] = bldg
         
         # building.about-----------------------------------------------------------
-        bldg['about'] = {}
+        bldg['about'] = OrderedDict()
         bldg_about = bldg['about']
         projstatdateel = b.find('h:ProjectStatus/h:Date',namespaces=ns)
         if projstatdateel is None:
@@ -549,7 +553,7 @@ class HPXMLtoHEScoreTranslator(object):
                 bldg_about['air_sealing_present'] = False
         
         # building.zone------------------------------------------------------------
-        bldg_zone = {}
+        bldg_zone = OrderedDict()
         bldg['zone'] = bldg_zone
         sidemap = {house_azimuth: 'front',
                    (house_azimuth + 90) % 360: 'right',
@@ -687,7 +691,7 @@ class HPXMLtoHEScoreTranslator(object):
         attic_floor_rvalue = min(attic_floor_rvalues,key=lambda x: abs(attic_floor_rvalue - x))
         
         # store it all
-        zone_roof = {}
+        zone_roof = OrderedDict()
         bldg['zone']['zone_roof'] = zone_roof
         zone_roof['roof_assembly_code'] = 'rf%s%02d%s' % (roofconstype,roof_rvalue,extfinish)
         zone_roof['roof_color'] = roofcolor
@@ -696,7 +700,7 @@ class HPXMLtoHEScoreTranslator(object):
             zone_roof['ceiling_assembly_code'] = 'ecwf%02d' % attic_floor_rvalue
     
         # building.zone.zone_roof.zone_skylight -----------------------------------
-        zone_skylight = {}
+        zone_skylight = OrderedDict()
         zone_roof['zone_skylight'] = zone_skylight
         skylights = b.xpath('//h:Skylight',namespaces=ns)
         if len(skylights) > 0:
@@ -746,7 +750,7 @@ class HPXMLtoHEScoreTranslator(object):
         
         
         # building.zone.zone_floor-------------------------------------------------
-        zone_floor = {}
+        zone_floor = OrderedDict()
         bldg_zone['zone_floor'] = zone_floor
         
         foundations = b.xpath('//h:Foundations/h:Foundation',namespaces=ns)
@@ -921,7 +925,7 @@ class HPXMLtoHEScoreTranslator(object):
     
         # build HEScore walls
         for side in sidemap.values():
-            heswall = {}
+            heswall = OrderedDict()
             heswall['side'] = side
             if len(hpxmlwalls[side]) == 1 and hpxmlwalls[side][0]['area'] is None:
                 hpxmlwalls[side][0]['area'] = 1.0
@@ -1012,7 +1016,7 @@ class HPXMLtoHEScoreTranslator(object):
                 if heswall['side'] == side:
                     break
             
-            zone_window = {}
+            zone_window = OrderedDict()
             heswall['zone_window'] = zone_window
             
             # If there are no windows on that side of the house
@@ -1062,9 +1066,9 @@ class HPXMLtoHEScoreTranslator(object):
                 
         # systems.heating----------------------------------------------------------
         eff_method_map = {'user': 'efficiency', 'shipment_weighted': 'year'}
-        bldg_systems = {}
+        bldg_systems = OrderedDict()
         bldg['systems'] = bldg_systems
-        sys_heating = {}
+        sys_heating = OrderedDict()
         bldg_systems['heating'] = sys_heating
             
         # Use the primary heating system specified in the HPXML file if that element exists.
@@ -1124,7 +1128,7 @@ class HPXMLtoHEScoreTranslator(object):
             sys_heating = {'type': 'none'}
             
         # systems.cooling ---------------------------------------------------------
-        sys_cooling = {}
+        sys_cooling = OrderedDict()
         bldg_systems['cooling'] = sys_cooling
         
         primaryclgsys = doxpath(b,'//h:HVACPlant/*[//h:HVACPlant/h:PrimarySystems/h:PrimaryCoolingSystem/@idref=h:SystemIdentifier/@id]')
@@ -1258,7 +1262,7 @@ class HPXMLtoHEScoreTranslator(object):
             ductfracs[top3locations[0]] += 100 - sum(ductfracs.values())
             
             for i,location in enumerate(top3locations,1):
-                hvacd = {}
+                hvacd = OrderedDict()
                 hvacd['name'] = 'duct%d' % i
                 hvacd['location'] = location
                 hvacd['fraction'] = ductfracs[location]
@@ -1267,7 +1271,7 @@ class HPXMLtoHEScoreTranslator(object):
                 bldg_systems['hvac_distribution'].append(hvacd)
         
         # systems.domestic_hot_water ----------------------------------------------
-        sys_dhw = {}
+        sys_dhw = OrderedDict()
         bldg_systems['domestic_hot_water'] = sys_dhw
         
         water_heating_systems = doxpath(b,'//h:WaterHeatingSystem')
