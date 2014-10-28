@@ -3,3 +3,4 @@
 *.log
 docs/build
 .settings
+*.pyc
