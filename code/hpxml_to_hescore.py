@@ -951,10 +951,12 @@ class HPXMLtoHEScoreTranslator(object):
             except KeyError:
                 rvalue, eff_rvalue = min(wall_eff_rvalues[const_type][ext_finish].items(),key=lambda x: x[0])
                 roffset = eff_rvalue - rvalue
-            if const_type == 'ps':
-                roffset += 4.16
+#             if const_type == 'ps':
+#                 roffset += 4.16
+            rvalueavgeff = wallra / walltotalarea
+            rvalueavgnom = rvalueavgeff - roffset
             comb_rvalue = min(wall_eff_rvalues[const_type][ext_finish].keys(), 
-                              key=lambda x: abs(wallra / walltotalarea - roffset - x))
+                              key=lambda x: abs(rvalueavgnom - x))
             heswall['wall_assembly_code'] = 'ew%s%02d%s' % (const_type,comb_rvalue,ext_finish)
             bldg_zone['zone_wall'].append(heswall)
         
