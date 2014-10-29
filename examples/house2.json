@@ -1,0 +1,112 @@
+{
+  "building_address": {
+    "address": "2 API House", 
+    "city": "Hunstville", 
+    "state": "AL", 
+    "zip_code": "35801", 
+    "assessment_type": "qa"
+  }, 
+  "building": {
+    "about": {
+      "assessment_date": "2014-10-29", 
+      "shape": "rectangle", 
+      "year_built": 1980, 
+      "number_bedrooms": 5, 
+      "num_floor_above_grade": 3, 
+      "floor_to_ceiling_height": 8, 
+      "conditioned_floor_area": 2038.875, 
+      "orientation": "south_west", 
+      "blower_door_test": true, 
+      "envelope_leakage": 2500.0
+    }, 
+    "zone": {
+      "zone_roof": {
+        "roof_assembly_code": "rfwf27lc", 
+        "roof_color": "medium", 
+        "roof_type": "cath_ceiling", 
+        "zone_skylight": {}
+      }, 
+      "zone_floor": {
+        "foundation_type": "slab_on_grade", 
+        "foundation_insulation_level": 5, 
+        "floor_assembly_code": "efwf00ca"
+      }, 
+      "zone_wall": [
+        {
+          "side": "front", 
+          "wall_assembly_code": "ewps13al", 
+          "zone_window": {
+            "window_area": 105.0, 
+            "window_method": "code", 
+            "window_code": "dseab"
+          }
+        }, 
+        {
+          "side": "right", 
+          "wall_assembly_code": "ewps13al", 
+          "zone_window": {
+            "window_area": 30.0, 
+            "window_method": "code", 
+            "window_code": "dseab"
+          }
+        }, 
+        {
+          "side": "back", 
+          "wall_assembly_code": "ewps13al", 
+          "zone_window": {
+            "window_area": 72.0, 
+            "window_method": "code", 
+            "window_code": "dseab"
+          }
+        }, 
+        {
+          "side": "left", 
+          "wall_assembly_code": "ewps13al", 
+          "zone_window": {
+            "window_area": 75.0, 
+            "window_method": "code", 
+            "window_code": "dseab"
+          }
+        }
+      ], 
+      "wall_construction_same": false, 
+      "window_construction_same": false
+    }, 
+    "systems": {
+      "heating": {
+        "efficiency_method": "shipment_weighted", 
+        "year": 2000, 
+        "fuel_primary": "electric", 
+        "type": "heat_pump"
+      }, 
+      "cooling": {
+        "type": "heat_pump", 
+        "year": 2000, 
+        "efficiency_method": "shipment_weighted"
+      }, 
+      "hvac_distribution": [
+        {
+          "name": "duct1", 
+          "location": "uncond_attic", 
+          "fraction": 50, 
+          "insulated": false, 
+          "sealed": false
+        }, 
+        {
+          "name": "duct2", 
+          "location": "cond_space", 
+          "fraction": 50, 
+          "insulated": false, 
+          "sealed": false
+        }
+      ], 
+      "domestic_hot_water": {
+        "category": "unit", 
+        "type": "storage", 
+        "fuel_primary": "lpg", 
+        "efficiency_method": "user", 
+        "energy_factor": 0.56
+      }
+    }
+  }
+}
