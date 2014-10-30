@@ -1292,20 +1292,23 @@ class HPXMLtoHEScoreTranslator(object):
         if water_heater_type in ('storage water heater','instantaneous water heater'):
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'storage'
+            sys_dhw['fuel_primary'] = self.fuel_type_mapping[doxpath(primarydhw,'h:FuelType/text()')]
         elif water_heater_type == 'space-heating boiler with storage tank':
             sys_dhw['category'] = 'combined'
             sys_dhw['type'] = 'indirect'
+            if sys_heating['type'] != 'boiler':
+                raise TranslationError('Cannot have a tankless coil water heater if the primary heating system is not a boiler.')
         elif water_heater_type == 'space-heating boiler with tankless coil':
             sys_dhw['category'] = 'combined'
             sys_dhw['type'] = 'tankless_coil'
+            if sys_heating['type'] != 'boiler':
+                raise TranslationError('Cannot have a tankless coil water heater if the primary heating system is not a boiler.')
         elif water_heater_type == 'heat pump water heater':
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'heat_pump'
             sys_dhw['fuel_primary'] = 'electric'
         else:
             raise TranslationError('HEScore cannot model the water heater type: %s' % water_heater_type)
-        
-        sys_dhw['fuel_primary'] = self.fuel_type_mapping[doxpath(primarydhw,'h:FuelType/text()')]
         
         if not sys_dhw['category'] == 'combined':
             energyfactor = doxpath(primarydhw,'h:EnergyFactor/text()')
