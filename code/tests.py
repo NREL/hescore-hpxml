@@ -30,6 +30,9 @@ class TestAPIHouses(unittest.TestCase):
     
     def test_house2(self):
         self._do_compare('house2')
+    
+    def test_house3(self):
+        self._do_compare('house3')
 
 if __name__ == "__main__":
     unittest.main()
