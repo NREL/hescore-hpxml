@@ -1205,8 +1205,8 @@ class HPXMLtoHEScoreTranslator(object):
             airdistsys_issealed = []
             for airdistsys in b.xpath(airdistributionxpath,namespaces=ns):
                 airdistsys_ductfracs = {}
-                airdistsys_issealed.append(airdistsys.xpath('h:DuctLeakageMeasurement[not(h:DuctType) or h:DuctType="supply"]/h:LeakinessObservedVisualInspection="connections sealed w mastic"',namespaces=ns))
-                for duct in airdistsys.xpath('h:Ducts[not(h:DuctType) or h:DuctType="supply"]',namespaces=ns):
+                airdistsys_issealed.append(airdistsys.xpath('h:DuctLeakageMeasurement/h:LeakinessObservedVisualInspection="connections sealed w mastic"',namespaces=ns))
+                for duct in airdistsys.xpath('h:Ducts',namespaces=ns):
                     frac_duct_area = float(doxpath(duct,'h:FractionDuctArea/text()'))
                     hpxml_duct_location = doxpath(duct,'h:DuctLocation/text()')
                     hescore_duct_location = duct_location_map[hpxml_duct_location]
@@ -1221,7 +1221,10 @@ class HPXMLtoHEScoreTranslator(object):
                         hescore_ductloc_has_ins[hescore_duct_location] = hescore_ductloc_has_ins[hescore_duct_location] or duct_has_ins
                     except KeyError:
                         hescore_ductloc_has_ins[hescore_duct_location] = duct_has_ins
-                assert abs(1 - sum(airdistsys_ductfracs.values())) < 0.001
+                total_duct_frac = sum(airdistsys_ductfracs.values())
+                airdistsys_ductfracs = dict([(key,value / total_duct_frac)
+                                             for key,value
+                                             in airdistsys_ductfracs.items()])
                 cfaserved = doxpath(airdistsys.getparent().getparent(),'h:ConditionedFloorAreaServed/text()')
                 if cfaserved is not None:
                     cfaserved = float(cfaserved)

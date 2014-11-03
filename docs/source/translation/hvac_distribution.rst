@@ -13,9 +13,9 @@ system, or an open ended other system. For the translation to HEScore, only
 Duct Location Mapping
 *********************
 
-For each ``Ducts`` element that represents supply ducting in each air
-distirbution system, the location of the duct mapped from HPXML enumerations to
-HEScore enumerations according to the following mapping. 
+For each ``Ducts`` element in each air distirbution system, the location of the
+duct mapped from HPXML enumerations to HEScore enumerations according to the
+following mapping.
 
 .. table:: Duct Location mapping
 
@@ -42,11 +42,11 @@ HEScore enumerations according to the following mapping.
 Aggregating Duct Fractions
 **************************
 
-For each air distribution system in HPXML the fraction of the supply side
-ducting in each HEScore location are added together. The duct fractions are
-summed across air distribution systems by weighting them by the conditioned
-floor area served by the air distribution system, if that's available. If there
-is no ``ConditionedFloorAreaServed`` element available, then the duct fractions
+For each air distribution system in HPXML the fraction of the ducting in each
+HEScore location are added together. The duct fractions are summed across air
+distribution systems by weighting them by the conditioned floor area served by
+the air distribution system, if that's available. If there is no
+``ConditionedFloorAreaServed`` element available, then the duct fractions
 across each system are weighted equally.
 
 .. note::
@@ -70,7 +70,7 @@ Duct leakage measurements are not stored on the individual ``Ducts`` elements in
 HEScore, which means they are not directly associated with a duct location.
 They are instead associated with an ``AirDistribution`` element, which can have
 many ducts in many locations. Duct sealing information is therefore associated
-with all ducts in an ``AirDistribution``. 
+with all ducts in an ``AirDistribution`` element.
 
 To specify that the ducts in an ``AirDistribution`` system are sealed, the
 translator expects to find the
