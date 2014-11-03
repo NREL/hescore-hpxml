@@ -565,7 +565,7 @@ class HPXMLtoHEScoreTranslator(object):
         rooftypemap = {'cape cod': 'cath_ceiling', 
                        'cathedral ceiling': 'cath_ceiling', 
                        'flat roof': 'cath_ceiling', 
-                       'unvented attic': 'cond_attic', 
+                       'unvented attic': 'vented_attic', 
                        'vented attic': 'vented_attic', 
                        'venting unknown attic': 'vented_attic', 
                        'other': None}
