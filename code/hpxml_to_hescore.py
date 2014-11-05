@@ -777,7 +777,7 @@ class HPXMLtoHEScoreTranslator(object):
         elif hpxml_foundation_type == 'SlabOnGrade':
             zone_floor['foundation_type'] = 'slab_on_grade'
         elif hpxml_foundation_type == 'Garage':
-            zone_floor['foundation_type'] = 'uncond_basement'
+            zone_floor['foundation_type'] = 'unvented_crawl'
         elif hpxml_foundation_type == 'Ambient':
             zone_floor['foundation_type'] = 'vented_crawl'
         else:
