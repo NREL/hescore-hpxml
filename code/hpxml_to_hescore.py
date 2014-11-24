@@ -1009,6 +1009,22 @@ class HPXMLtoHEScoreTranslator(object):
                 windowd['area'] /= float(len(window_sides))
                 hpxmlwindows[window_side].append(dict(windowd))
         
+        # Make sure the windows aren't on shared walls if it's a townhouse.
+        def windows_are_on_shared_walls():
+            shared_wall_sides = set(sidemap.values()) - set(bldg_about['town_house_walls'].split('_'))
+            for side in shared_wall_sides:
+                if len(hpxmlwindows[side]) > 0:
+                    return True
+            return False
+        if bldg_about['shape'] == 'town_house':
+            window_on_shared_wall_fail = windows_are_on_shared_walls()
+            if window_on_shared_wall_fail:
+                if bldg_about['town_house_walls'] == 'back_right_front':
+                    bldg_about['town_house_walls'] = 'back_front_left'
+                    window_on_shared_wall_fail = windows_are_on_shared_walls()
+            if window_on_shared_wall_fail:
+                raise TranslationError('The house has windows on shared walls.')
+
         # Determine the predominant window characteristics and create HEScore windows 
         bldg_zone['window_construction_same'] = False
         for side,windows in hpxmlwindows.items():
