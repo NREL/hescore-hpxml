@@ -24,11 +24,6 @@ following logic:
    greatest total capacity is then used for the HEScore inputs. 
 #. Finally, if there is no ``CoolingSystem`` or ``HeatPump`` object, then the
    house is determined to not have a cooling system in HEScore. 
-
-.. warning::
-
-   The translation is not currently doing the weighted average of like systems 
-   as described in the HEScore help.
    
 Cooling system type
 *******************
@@ -57,7 +52,7 @@ mapping.
    ground-to-air                 gchp
    ============================  ============================
 
-.. clg-sys_
+.. _clg-sys:
 
 Cooling System
 ==============

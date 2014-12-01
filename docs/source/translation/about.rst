@@ -52,16 +52,25 @@ enumerations is as follows:
 
 .. table:: Mapping for shared walls in town houses
 
-   =======================  ================
+   =======================  ===================================
    HPXML                    HEScore 
-   =======================  ================
+   =======================  ===================================
    stand-alone              *not needed*
-   attached on one side     back_right_front
+   attached on one side     back_right_front or back_front_left
    attached on two sides    back_front
    attached on three sides  *not translated*
-   =======================  ================   
+   =======================  ===================================
 
-.. note::
+If the HPXML enumeration of ```attached on one side``` is present the
+translation will determine which HEScore enumeration to select based on which
+side of the house is missing windows. 
+
+.. warning::
+
+   If windows are found on a shared town house wall, the translation will 
+   error out.
+
+.. note::   
 
    HEScore cannot model houses that are "attached on three sides".
    Using that input will result in a translation error.
