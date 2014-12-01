@@ -33,8 +33,7 @@ type according to the following mapping.
 
 .. warning:: 
 
-   Items that are *not translated* will result in a translation error. 
-   Would it be reasonable to assume that "venting unknown attic" is a vented attic?
+   Items that are *not translated* will result in a translation error.
    
 The roof type that has the largest total area is entered into HEScore since it
 can only accept one roof type. The properties of the ``Attic`` elements with
