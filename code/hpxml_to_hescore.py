@@ -19,7 +19,7 @@ try:
 except ImportError:
     OrderedDict = dict
 
-logging.basicConfig(filename='hpxml_to_hescore.log', level=logging.DEBUG, filemode='w')
+logging.basicConfig(level=logging.ERROR)
 
 # My imports
 thisdir = os.path.dirname(os.path.abspath(__file__))
