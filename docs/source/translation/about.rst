@@ -61,9 +61,9 @@ enumerations is as follows:
    attached on three sides  *not translated*
    =======================  ===================================
 
-If the HPXML enumeration of ```attached on one side``` is present the
-translation will determine which HEScore enumeration to select based on which
-side of the house is missing windows. 
+If the HPXML enumeration of ``attached on one side`` is present the translation
+will determine which HEScore enumeration to select based on which side of the
+house is missing windows. 
 
 .. warning::
 
@@ -140,8 +140,7 @@ used. If there are no measurements in :term:`CFM50`, it will look for one in
 :term:`ACH50`. If more than one of the ``AirInfiltrationMeasurement`` elements
 have units in :term:`ACH50`, the last one to appear in the document is used. If
 the ``UnitofMeasure`` element has a value of ACH, then the value is converted
-to CFM using the building volume calculated by the floor area and floor
-height.
+to CFM using the building volume calculated by the floor area and floor height.
 
 An example of the minimum expected elements in HPXML follows:
 

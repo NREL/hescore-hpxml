@@ -32,7 +32,11 @@ type according to the following mapping.
    =====================  ================
 
 .. warning:: 
+   
+   There is no way to get a HEScore ``cond_attic``.
 
+.. note::   
+   
    Items that are *not translated* will result in a translation error.
    
 The roof type that has the largest total area is entered into HEScore since it
