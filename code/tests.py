@@ -6,22 +6,28 @@ Created on Oct 23, 2014
 import os
 import json
 import unittest
-from hpxml_to_hescore import HPXMLtoHEScoreTranslator
+from hpxml_to_hescore import HPXMLtoHEScoreTranslator, TranslationError
 
 thisdir = os.path.dirname(os.path.abspath(__file__))
 exampledir = os.path.abspath(os.path.join(thisdir,'..','examples'))
 
-class TestAPIHouses(unittest.TestCase):
-    
-    def _do_compare(self,filebase):
+class ComparatorBase(object):
+
+    def _convert_hpxml(self,filebase):
         xmlfilepath = os.path.join(exampledir,filebase + '.xml')
-        jsonfilepath = os.path.join(exampledir,filebase + '.json')
         translator = HPXMLtoHEScoreTranslator(xmlfilepath)
-        hescore_trans = translator.hpxml_to_hescore_dict()
+        return translator.hpxml_to_hescore_dict()
+        
+    def _do_compare(self,filebase):
+        jsonfilepath = os.path.join(exampledir,filebase + '.json')
+        hescore_trans = self._convert_hpxml(filebase)
         with open(os.path.join(exampledir,jsonfilepath)) as f:
             hescore_truth = json.load(f)
         self.assertEqual(hescore_trans, hescore_truth, '{} not equal'.format(filebase))
-        
+    
+
+class TestAPIHouses(unittest.TestCase,ComparatorBase):
+    
     def test_house1(self):
         self._do_compare('house1')
     
@@ -33,6 +39,20 @@ class TestAPIHouses(unittest.TestCase):
     
     def test_house3(self):
         self._do_compare('house3')
+
+class TestOtherHouses(unittest.TestCase,ComparatorBase):
+
+    def test_hescore_min(self):
+        self._do_compare('hescore_min')
+    
+    def test_townhouse_walls(self):
+        self._do_compare('townhouse_walls')
+    
+    def test_townhouse_wall_fail(self):
+        self.assertRaisesRegexp(TranslationError, 
+                                r'The house has windows on shared walls\.', 
+                                self._convert_hpxml, 'townhouse_walls_fail')
+        
 
 if __name__ == "__main__":
     unittest.main()

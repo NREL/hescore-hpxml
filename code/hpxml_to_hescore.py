@@ -492,7 +492,7 @@ class HPXMLtoHEScoreTranslator(object):
                                               'attached on one side': 'back_right_front',
                                               'attached on two sides': 'back_front',
                                               'attached on three sides': None
-                                              }[doxpath('h:BuildingDetails/h:BuildingSummary/h:Site/h:Surroundings/text()')]
+                                              }[doxpath(b,'h:BuildingDetails/h:BuildingSummary/h:Site/h:Surroundings/text()')]
             assert bldg_about['town_house_walls'] is not None
         
         bldg_cons_el = b.find('h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction',namespaces=ns)
@@ -1040,7 +1040,6 @@ class HPXMLtoHEScoreTranslator(object):
             # If there are no windows on that side of the house
             if len(windows) == 0:
                 zone_window['window_area'] = 0
-                zone_window['window_code'] = 'scna'
                 continue
             
             # Get the list of uvalues and shgcs for the windows on this side of the house.
