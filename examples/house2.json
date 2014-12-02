@@ -24,7 +24,9 @@
         "roof_assembly_code": "rfwf27lc", 
         "roof_color": "medium", 
         "roof_type": "cath_ceiling", 
-        "zone_skylight": {}
+        "zone_skylight": {
+          "skylight_area": 0
+        }
       }, 
       "zone_floor": {
         "foundation_type": "slab_on_grade", 

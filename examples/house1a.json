@@ -25,7 +25,9 @@
         "roof_color": "dark", 
         "roof_type": "vented_attic", 
         "ceiling_assembly_code": "ecwf11", 
-        "zone_skylight": {}
+        "zone_skylight": {
+          "skylight_area": 0
+        }
       }, 
       "zone_floor": {
         "foundation_type": "vented_crawl", 
@@ -96,7 +98,7 @@
           "fraction": 100, 
           "insulated": true, 
           "sealed": false
-        } 
+        }
       ], 
       "domestic_hot_water": {
         "category": "unit", 
