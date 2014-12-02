@@ -1,0 +1,107 @@
+{
+  "building_address": {
+    "address": "4 API House", 
+    "city": "Springfield", 
+    "state": "MO", 
+    "zip_code": "65802", 
+    "assessment_type": "alternative"
+  }, 
+  "building": {
+    "about": {
+      "assessment_date": "2014-10-30", 
+      "shape": "rectangle", 
+      "year_built": 1890, 
+      "number_bedrooms": 4, 
+      "num_floor_above_grade": 2, 
+      "floor_to_ceiling_height": 9, 
+      "conditioned_floor_area": 2323.0, 
+      "orientation": "south_east", 
+      "blower_door_test": true, 
+      "envelope_leakage": 4200.0
+    }, 
+    "zone": {
+      "zone_roof": {
+        "roof_assembly_code": "rfwf27wo", 
+        "roof_color": "medium", 
+        "roof_type": "cath_ceiling", 
+        "zone_skylight": {
+          "skylight_area": 0
+        }
+      }, 
+      "zone_floor": {
+        "foundation_type": "cond_basement", 
+        "foundation_insulation_level": 0, 
+        "floor_assembly_code": "efwf00ca"
+      }, 
+      "zone_wall": [
+        {
+          "side": "right", 
+          "wall_assembly_code": "ewwf13vi", 
+          "zone_window": {
+            "window_area": 88.0, 
+            "window_method": "code", 
+            "window_code": "thmabw"
+          }
+        }, 
+        {
+          "side": "back", 
+          "wall_assembly_code": "ewwf13vi", 
+          "zone_window": {
+            "window_area": 142.0, 
+            "window_method": "code", 
+            "window_code": "dtaa"
+          }
+        }, 
+        {
+          "side": "left", 
+          "wall_assembly_code": "ewwf13vi", 
+          "zone_window": {
+            "window_area": 72.0, 
+            "window_method": "code", 
+            "window_code": "dtaw"
+          }
+        }, 
+        {
+          "side": "front", 
+          "wall_assembly_code": "ewwf13vi", 
+          "zone_window": {
+            "window_area": 102.0, 
+            "window_method": "code", 
+            "window_code": "dcaa"
+          }
+        }
+      ], 
+      "wall_construction_same": false, 
+      "window_construction_same": false
+    }, 
+    "systems": {
+      "heating": {
+        "efficiency_method": "user", 
+        "efficiency": 0.84, 
+        "fuel_primary": "lpg", 
+        "type": "central_furnace"
+      }, 
+      "cooling": {
+        "type": "split_dx", 
+        "efficiency": 12.1, 
+        "efficiency_method": "user"
+      }, 
+      "hvac_distribution": [
+        {
+          "name": "duct1", 
+          "location": "cond_space", 
+          "fraction": 100, 
+          "insulated": false, 
+          "sealed": false
+        }
+      ], 
+      "domestic_hot_water": {
+        "category": "unit", 
+        "type": "storage", 
+        "fuel_primary": "lpg", 
+        "efficiency_method": "user", 
+        "energy_factor": 0.55
+      }
+    }
+  }
+}
