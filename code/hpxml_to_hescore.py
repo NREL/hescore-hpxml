@@ -216,7 +216,7 @@ class HPXMLtoHEScoreTranslator(object):
                     window_code = 'dtaw'
                 else:
                     window_code = 'dcaw'                        
-            elif glass_layers == 'triple-paned':
+            elif glass_layers == 'triple-pane':
                 window_code = 'thmabw'
     
         if window_code is None:
@@ -703,7 +703,9 @@ class HPXMLtoHEScoreTranslator(object):
         zone_skylight = OrderedDict()
         zone_roof['zone_skylight'] = zone_skylight
         skylights = b.xpath('//h:Skylight',namespaces=ns)
-        if len(skylights) > 0:
+        if len(skylights) == 0:
+            zone_skylight['skylight_area'] = 0
+        elif len(skylights) > 0:
             uvalues, shgcs, areas = map(list,zip(*[[doxpath(skylight,'h:%s/text()' % x) for x in ('UFactor','SHGC','Area')] for skylight in skylights]))
             assert None not in areas
             areas = map(float,areas)
