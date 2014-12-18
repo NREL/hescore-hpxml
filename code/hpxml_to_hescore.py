@@ -1264,7 +1264,7 @@ class HPXMLtoHEScoreTranslator(object):
             # Combine all
             ductfracs = {}
             issealedfracs = {}
-            if (len(airdistsystems_ductfracs) > 1 and allsame_cfaserved) or len(airdistsystems_ductfracs) == 1:
+            if (len(airdistsystems_ductfracs) > 1 and allsame_cfaserved) or len(airdistsystems_ductfracs) <= 1:
                 for airdistsys_ductfracs,issealed in zip(airdistsystems_ductfracs,airdistsys_issealed):
                     for key,value in airdistsys_ductfracs.items():
                         try:
@@ -1290,7 +1290,8 @@ class HPXMLtoHEScoreTranslator(object):
             normalization_denominator = sum(ductfracs.values())
             ductfracs = dict([(key,int(round(x / normalization_denominator * 100))) for key,x in ductfracs.items()])
             # Sometimes with the rounding it adds up to a number slightly off of 100, adjust the largest fraction to make it add up to 100
-            ductfracs[top3locations[0]] += 100 - sum(ductfracs.values())
+            if len(top3locations) > 0:
+                ductfracs[top3locations[0]] += 100 - sum(ductfracs.values())
             
             for i,location in enumerate(top3locations,1):
                 hvacd = OrderedDict()
