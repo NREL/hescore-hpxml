@@ -270,6 +270,8 @@ class HPXMLtoHEScoreTranslator(object):
                 # Use the efficiency of the first element found.
                 sys_heating['efficiency_method'] = 'user'
                 sys_heating['efficiency'] = float(eff_els[0])
+        else:
+            sys_heating['efficiency_method'] = None
         sys_heating['capacity'] = convert_to_type(float,doxpath(htgsys,'h:HeatingCapacity/text()'))
         return sys_heating
 
@@ -1128,7 +1130,8 @@ class HPXMLtoHEScoreTranslator(object):
                 htgsys_by_capacity[tuple([htgsysd[x] for x in htgsys_groupby_keys])] = combhtgsys
             
             combhtgsys['totalcapacity'] += htgsysd['capacity']
-            combhtgsys['sum'] +=  htgsysd[eff_method_map[combhtgsys['efficiency_method']]] * htgsysd['capacity']
+            if combhtgsys['efficiency_method'] is not None:
+                combhtgsys['sum'] +=  htgsysd[eff_method_map[combhtgsys['efficiency_method']]] * htgsysd['capacity']
             combhtgsys['n'] += 1
         
         for combhtgsys in htgsys_by_capacity.values():
@@ -1138,9 +1141,11 @@ class HPXMLtoHEScoreTranslator(object):
                 else:
                     htg_round_decimal_places = 2 
                 combhtgsys[eff_method_map[combhtgsys['efficiency_method']]] = round(combhtgsys['sum'] / combhtgsys['totalcapacity'], htg_round_decimal_places)
-            else:
-                assert combhtgsys['efficiency_method'] == 'shipment_weighted'
+            elif combhtgsys['efficiency_method'] == 'shipment_weighted':
                 combhtgsys[eff_method_map[combhtgsys['efficiency_method']]] = int(round(combhtgsys['sum'] / combhtgsys['totalcapacity']))
+            else:
+                assert combhtgsys['efficiency_method'] is None
+                del combhtgsys['efficiency_method']
             del combhtgsys['sum']
             del combhtgsys['n']
     
