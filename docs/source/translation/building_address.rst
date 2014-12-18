@@ -40,19 +40,26 @@ Assessment Type
 ***************
 
 To begin a HEScore session an assement type must be selected. The assesment type
-is determined from HPXML via the ``Building/ProjectStatus/EventType`` element
-using the following mapping: 
+is determined from HPXML via the
+``XMLTransactionHeaderInformation/Transaction`` and
+``Building/ProjectStatus/EventType`` element using the following mapping: 
 
 .. table:: Assessment Type mapping
 
-   ==========================================  ===============================
-   HPXML EventType                             HEScore Assessment Type
-   ==========================================  ===============================
-   audit                                       initial
-   proposed workscope                          alternative
-   approved workscope                          alternative
-   construction-period testing/daily test out  test
-   job completion testing/final inspection     final
-   quality assurance/monitoring                qa
-   ==========================================  ===============================
-
+   +---------------------+-------------------------------------------+------------------------+
+   |XML Transaction Type |HPXML Event Type                           |HEScore Assessment Type |
+   +=====================+===========================================+========================+
+   |create               |audit                                      |initial                 |
+   +                     +-------------------------------------------+------------------------+
+   |                     |proposed workscope                         |alternative             |
+   +                     +-------------------------------------------+------------------------+
+   |                     |approved workscope                         |alternative             |
+   +                     +-------------------------------------------+------------------------+
+   |                     |construction-period testing/daily test out |test                    |
+   +                     +-------------------------------------------+------------------------+
+   |                     |job completion testing/final inspection    |final                   |
+   +                     +-------------------------------------------+------------------------+
+   |                     |quality assurance/monitoring               |qa                      |
+   +---------------------+-------------------------------------------+------------------------+
+   |update               |*any*                                      |corrected               |
+   +---------------------+-------------------------------------------+------------------------+

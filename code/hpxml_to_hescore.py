@@ -448,13 +448,17 @@ class HPXMLtoHEScoreTranslator(object):
         bldgaddr['city'] = doxpath(b,'h:Site/h:Address/h:CityMunicipality/text()')
         bldgaddr['state'] = doxpath(b,'h:Site/h:Address/h:StateCode/text()')
         bldgaddr['zip_code'] = doxpath(b,'h:Site/h:Address/h:ZipCode/text()')
-        # TODO: verify this mapping with Glenn
-        bldgaddr['assessment_type'] = {'audit': 'initial',
-                                       'proposed workscope': 'alternative',
-                                       'approved workscope': 'alternative',
-                                       'construction-period testing/daily test out': 'test',
-                                       'job completion testing/final inspection': 'final',
-                                       'quality assurance/monitoring': 'qa'}[doxpath(b,'h:ProjectStatus/h:EventType/text()')]
+        transaction_type = doxpath(self.hpxmldoc,'h:XMLTransactionHeaderInformation/h:Transaction/text()')
+        if transaction_type == 'create':
+            bldgaddr['assessment_type'] = {'audit': 'initial',
+                                           'proposed workscope': 'alternative',
+                                           'approved workscope': 'alternative',
+                                           'construction-period testing/daily test out': 'test',
+                                           'job completion testing/final inspection': 'final',
+                                           'quality assurance/monitoring': 'qa'}[doxpath(b,'h:ProjectStatus/h:EventType/text()')]
+        else:
+            assert transaction_type == 'update'
+            bldgaddr['assessment_type'] = 'corrected'
         
         # building-----------------------------------------------------------------
         bldg = OrderedDict()

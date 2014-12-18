@@ -125,7 +125,7 @@ If the foundation type is a basement or crawlspace, for each frame floor above
 the foundation, a weighted average using the floor area and R-value are
 calculated. The area is obtained from the ``Area`` element. The R-value is the
 sum of the ``FrameFloor/Insulation/Layer/NominalRValue`` element values for
-each foundation wall. The effective R-value is looked up in the following table.
+each frame floor. The effective R-value is looked up in the following table.
 
 .. table:: Floor center-of-cavity effective R-value
 
