@@ -45,6 +45,9 @@ class TestAPIHouses(unittest.TestCase,ComparatorBase):
     
     def test_house5(self):
         self._do_compare('house5')
+    
+    def test_house6(self):
+        self._do_compare('house6')
 
 class TestOtherHouses(unittest.TestCase,ComparatorBase):
 
