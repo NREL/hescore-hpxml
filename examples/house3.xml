@@ -456,10 +456,6 @@
                         <SystemIdentifier id="aircondducts"/>
                         <DistributionSystemType>
                             <AirDistribution>
-                                <DuctLeakageMeasurement>
-                                    <LeakinessObservedVisualInspection>connections sealed w mastic</LeakinessObservedVisualInspection>
-                                    <DuctLeakageTestMethod>visual inspection</DuctLeakageTestMethod>
-                                </DuctLeakageMeasurement>
                                 <Ducts>
                                     <DuctInsulationRValue>0</DuctInsulationRValue>
                                     <DuctLocation>unvented crawlspace</DuctLocation>
@@ -467,6 +463,9 @@
                                 </Ducts>
                             </AirDistribution>
                         </DistributionSystemType>
+                        <HVACDistributionImprovement>
+                            <DuctSystemSealed>true</DuctSystemSealed>
+                        </HVACDistributionImprovement>
                     </HVACDistribution>
                     <HVACDistribution>
                         <SystemIdentifier id="boilerhydronic"/>

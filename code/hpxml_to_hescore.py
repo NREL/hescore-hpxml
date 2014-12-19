@@ -1231,7 +1231,7 @@ class HPXMLtoHEScoreTranslator(object):
             airdistsys_issealed = []
             for airdistsys in b.xpath(airdistributionxpath,namespaces=ns):
                 airdistsys_ductfracs = {}
-                airdistsys_issealed.append(airdistsys.xpath('h:DuctLeakageMeasurement/h:LeakinessObservedVisualInspection="connections sealed w mastic"',namespaces=ns))
+                airdistsys_issealed.append(airdistsys.xpath('(h:DuctLeakageMeasurement/h:LeakinessObservedVisualInspection="connections sealed w mastic") or (ancestor::h:HVACDistribution/h:HVACDistributionImprovement/h:DuctSystemSealed="true")',namespaces=ns))
                 for duct in airdistsys.xpath('h:Ducts',namespaces=ns):
                     frac_duct_area = float(doxpath(duct,'h:FractionDuctArea/text()'))
                     hpxml_duct_location = doxpath(duct,'h:DuctLocation/text()')
