@@ -73,17 +73,21 @@ many ducts in many locations. Duct sealing information is therefore associated
 with all ducts in an ``AirDistribution`` element.
 
 To specify that the ducts in an ``AirDistribution`` system are sealed, the
-translator expects to find the
-``DuctLeakageMeasurement/LeakinessObservedVisualInspection`` element with the
-value of "connections sealed w mastic". The ``DuctLeakageMeasurement`` can hold
-values for actual measurements of leakage, but since HEScore cannot do anything
-with them, they will be ignored. Therefore the following will result in an
-"unsealed" designation:
+translator expects to find either of the following elements:
+
+* ``DuctLeakageMeasurement/LeakinessObservedVisualInspection`` element with
+  the value of "connections sealed w mastic".
+* ``HVACDistribution/HVACDistributionImprovement/DuctSystemSealed`` element
+  with the value of "true".
+
+The ``DuctLeakageMeasurement`` can hold values for actual measurements of
+leakage, but since HEScore cannot do anything with them, they will be ignored.
+Therefore the following will result in an "unsealed" designation:
 
 .. code-block:: xml
 
    <DuctLeakageMeasurement>
-      <DuctType>supply</DuctType><!-- if this is "return" it will be ignored -->
+      <DuctType>supply</DuctType>
       <!-- All of this is ignored -->
       <DuctLeakageTestMethod>duct leakage tester</DuctLeakageTestMethod>
       <DuctLeakage>
@@ -98,7 +102,7 @@ and the following will result in a "sealed" designation:
    :emphasize-lines: 3
 
    <DuctLeakageMeasurement>
-      <DuctType>supply</DuctType><!-- if this is "return" it will be ignored -->
+      <DuctType>supply</DuctType>
       <LeakinessObservedVisualInspection>connections sealed w mastic</LeakinessObservedVisualInspection>
    </DuctLeakageMeasurement>
 
