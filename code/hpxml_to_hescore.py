@@ -1028,7 +1028,7 @@ class HPXMLtoHEScoreTranslator(object):
                 # Give preference to the Attached to Wall element to determine the side of the house.
                 for side,walls in hpxmlwalls.items():
                     for wall in walls:
-                        if attached_to_wall_id == walld['id']:
+                        if attached_to_wall_id == wall['id']:
                             window_sides.append(side)
                             break
             else:

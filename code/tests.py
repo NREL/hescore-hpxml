@@ -20,48 +20,49 @@ class ComparatorBase(object):
         self.translator = HPXMLtoHEScoreTranslator(xmlfilepath)
         return self.translator
     
-    def _convert_hpxml(self,filebase):
-        self._load_xmlfile(filebase)
-        return self.translator.hpxml_to_hescore_dict()
-        
     def _do_compare(self,filebase):
+        hescore_trans = self.translator.hpxml_to_hescore_dict()
         jsonfilepath = os.path.join(exampledir,filebase + '.json')
-        hescore_trans = self._convert_hpxml(filebase)
         with open(os.path.join(exampledir,jsonfilepath)) as f:
             hescore_truth = json.load(f)
         self.assertEqual(hescore_trans, hescore_truth, '{} not equal'.format(filebase))
+
+    def _do_full_compare(self,filebase):
+        self._load_xmlfile(filebase)
+        self._do_compare(filebase)
+    
     
 
 class TestAPIHouses(unittest.TestCase,ComparatorBase):
     
     def test_house1(self):
-        self._do_compare('house1')
+        self._do_full_compare('house1')
     
     def test_house1a(self):
-        self._do_compare('house1a')
+        self._do_full_compare('house1a')
     
     def test_house2(self):
-        self._do_compare('house2')
+        self._do_full_compare('house2')
     
     def test_house3(self):
-        self._do_compare('house3')
+        self._do_full_compare('house3')
     
     def test_house4(self):
-        self._do_compare('house4')
+        self._do_full_compare('house4')
     
     def test_house5(self):
-        self._do_compare('house5')
+        self._do_full_compare('house5')
     
     def test_house6(self):
-        self._do_compare('house6')
+        self._do_full_compare('house6')
 
 class TestOtherHouses(unittest.TestCase,ComparatorBase):
 
     def test_hescore_min(self):
-        self._do_compare('hescore_min')
+        self._do_full_compare('hescore_min')
     
     def test_townhouse_walls(self):
-        self._do_compare('townhouse_walls')
+        self._do_full_compare('townhouse_walls')
     
     def test_townhouse_wall_fail(self):
         tr = self._load_xmlfile('townhouse_walls')
@@ -205,6 +206,31 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         self.assertRaisesRegexp(TranslationError, 
                                 'All windows need an area\.', 
                                 tr.hpxml_to_hescore_dict)
+    
+    def test_missing_window_orientation(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = tr.doxpath(tr.hpxmldoc, '//h:Window[1]/h:Orientation')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError, 
+                                'All windows need to have either an AttachedToWall, Orientation, or Azimuth sub element\.', 
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_window_attached_to_wall(self):
+        filebase = 'house5'
+        tr = self._load_xmlfile(filebase)
+        # Get the first wall id
+        wallid = tr.doxpath(tr.hpxmldoc, '//h:Wall[1]/h:Orientation/parent::node()/h:SystemIdentifier/@id')
+        # get the orientation of the wall
+        orientation = tr.doxpath(tr.hpxmldoc, '//h:Wall[h:SystemIdentifier/@id=$wallid]/h:Orientation/text()',wallid=wallid)
+        # get the window orientation element of a window that is facing the same direction as the wall
+        window_orientation = tr.doxpath(tr.hpxmldoc, '//h:Window[h:Orientation=$orientation][1]/h:Orientation',orientation=orientation)
+        # remove the window orientation
+        window = window_orientation.getparent()
+        window.remove(window_orientation)
+        # attach that window to the wall
+        etree.SubElement(window, tr.addns('h:AttachedToWall'), attrib={'idref': wallid})
+        self._do_compare(filebase)
+        
         
         
         
