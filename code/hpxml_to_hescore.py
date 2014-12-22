@@ -79,7 +79,7 @@ class HPXMLtoHEScoreTranslator(object):
         self.ns = {'xs': 'http://www.w3.org/2001/XMLSchema'}
         self.ns['h'] = schematree.xpath('//xs:schema/@targetNamespace',namespaces=self.ns)[0]
         
-    def doxpath(self,el,xpathquery,**kwargs):
+    def xpath(self,el,xpathquery,**kwargs):
         res = el.xpath(xpathquery,namespaces=self.ns,**kwargs)
         if isinstance(res,list):
             if len(res) == 0:
@@ -92,9 +92,9 @@ class HPXMLtoHEScoreTranslator(object):
             return res
 
     def get_wall_assembly_code(self,hpxmlwall):
-        doxpath = self.doxpath
+        xpath = self.xpath
         ns = self.ns
-        wallid = doxpath(hpxmlwall,'h:SystemIdentifier/@id')
+        wallid = xpath(hpxmlwall,'h:SystemIdentifier/@id')
         
         # siding
         sidingmap = {'wood siding': 'wo',
@@ -110,27 +110,27 @@ class HPXMLtoHEScoreTranslator(object):
                      'other': None}
         
         # construction type
-        wall_type = doxpath(hpxmlwall,'name(h:WallType/*)')
+        wall_type = xpath(hpxmlwall,'name(h:WallType/*)')
         if wall_type == 'WoodStud':
             has_rigid_ins = False
             cavity_rvalue = 0
             for lyr in hpxmlwall.xpath('h:Insulation/h:Layer',namespaces=ns):
-                installation_type = doxpath(lyr,'h:InstallationType/text()')
-                if doxpath(lyr,'h:InsulationMaterial/h:Rigid') is not None and \
+                installation_type = xpath(lyr,'h:InstallationType/text()')
+                if xpath(lyr,'h:InsulationMaterial/h:Rigid') is not None and \
                    installation_type == 'continuous':
                     has_rigid_ins = True
                 else:
-                    cavity_rvalue += float(doxpath(lyr,'h:NominalRValue/text()'))
-            if tobool(doxpath(hpxmlwall,'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')) or has_rigid_ins:
+                    cavity_rvalue += float(xpath(lyr,'h:NominalRValue/text()'))
+            if tobool(xpath(hpxmlwall,'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')) or has_rigid_ins:
                 wallconstype = 'ps'
                 rvalue = round_to_nearest(cavity_rvalue,(0,3,7,11,13,15,19,21))
-            elif tobool(doxpath(hpxmlwall,'h:WallType/h:WoodStud/h:OptimumValueEngineering/text()')):
+            elif tobool(xpath(hpxmlwall,'h:WallType/h:WoodStud/h:OptimumValueEngineering/text()')):
                 wallconstype = 'ov'
                 rvalue = round_to_nearest(cavity_rvalue,(19,21,27,33,38))
             else:
                 wallconstype = 'wf'
                 rvalue = round_to_nearest(cavity_rvalue,(0,3,7,11,13,15,19,21))
-            hpxmlsiding = doxpath(hpxmlwall,'h:Siding/text()')
+            hpxmlsiding = xpath(hpxmlwall,'h:Siding/text()')
             try:
                 sidingtype = sidingmap[hpxmlsiding]
             except KeyError:
@@ -144,15 +144,15 @@ class HPXMLtoHEScoreTranslator(object):
             sidingtype = 'nn'
             rvalue = 0
             for lyr in hpxmlwall.xpath('h:Insulation/h:Layer',namespaces=ns):
-                rvalue += float(doxpath(lyr,'h:NominalRValue/text()'))
+                rvalue += float(xpath(lyr,'h:NominalRValue/text()'))
             rvalue = round_to_nearest(rvalue,(0,5,10))
         elif wall_type in ('ConcreteMasonryUnit','Stone'):
             wallconstype = 'cb'
             rvalue = 0
             for lyr in hpxmlwall.xpath('h:Insulation/h:Layer',namespaces=ns):
-                rvalue += float(doxpath(lyr,'h:NominalRValue/text()'))
+                rvalue += float(xpath(lyr,'h:NominalRValue/text()'))
             rvalue = round_to_nearest(rvalue,(0,3,6))
-            hpxmlsiding = doxpath(hpxmlwall,'h:Siding/text()')
+            hpxmlsiding = xpath(hpxmlwall,'h:Siding/text()')
             if hpxmlsiding is None:
                 sidingtype = 'nn'
             else:
@@ -169,16 +169,16 @@ class HPXMLtoHEScoreTranslator(object):
         return 'ew%s%02d%s' % (wallconstype,rvalue,sidingtype)
 
     def get_window_code(self,window):
-        doxpath = self.doxpath
+        xpath = self.xpath
         ns = self.ns
         
         window_code = None
-        frame_type = doxpath(window,'name(h:FrameType/*)')
-        glass_layers = doxpath(window,'h:GlassLayers/text()')
-        glass_type = doxpath(window,'h:GlassType/text()')
-        gas_fill = doxpath(window,'h:GasFill/text()')
+        frame_type = xpath(window,'name(h:FrameType/*)')
+        glass_layers = xpath(window,'h:GlassLayers/text()')
+        glass_type = xpath(window,'h:GlassType/text()')
+        gas_fill = xpath(window,'h:GasFill/text()')
         if frame_type in ('Aluminum','Metal'):
-            thermal_break = tobool(doxpath(window,'h:FrameType/*/h:ThermalBreak/text()'))
+            thermal_break = tobool(xpath(window,'h:FrameType/*/h:ThermalBreak/text()'))
             if thermal_break:
                 # Aluminum with Thermal Break
                 if glass_layers in ('double-pane','single-paned with storms','single-paned with low-e storms'):
@@ -243,21 +243,21 @@ class HPXMLtoHEScoreTranslator(object):
                           'ground-to-air': 'gchp'}
 
     def get_heating_system_type(self,htgsys):
-        doxpath = self.doxpath
+        xpath = self.xpath
         ns = self.ns
         
         sys_heating = OrderedDict()
         if htgsys.tag.endswith('HeatPump'):
             sys_heating['fuel_primary'] = 'electric'
-            heat_pump_type = doxpath(htgsys,'h:HeatPumpType/text()')
+            heat_pump_type = xpath(htgsys,'h:HeatPumpType/text()')
             if heat_pump_type is None:
                 sys_heating['type'] = 'heat_pump'
             else:
                 sys_heating['type'] = self.heat_pump_type_map[heat_pump_type]
         else:
             assert htgsys.tag.endswith('HeatingSystem')
-            sys_heating['fuel_primary'] = self.fuel_type_mapping[doxpath(htgsys,'h:HeatingSystemFuel/text()')]
-            hpxml_heating_type = doxpath(htgsys,'name(h:HeatingSystemType/*)')
+            sys_heating['fuel_primary'] = self.fuel_type_mapping[xpath(htgsys,'h:HeatingSystemFuel/text()')]
+            hpxml_heating_type = xpath(htgsys,'name(h:HeatingSystemType/*)')
             try:
                 sys_heating['type'] = {'Furnace': 'central_furnace',
                                        'WallFurnace': 'wall_furnace',
@@ -285,23 +285,23 @@ class HPXMLtoHEScoreTranslator(object):
                 sys_heating['efficiency'] = float(eff_els[0])
         else:
             sys_heating['efficiency_method'] = None
-        sys_heating['capacity'] = convert_to_type(float,doxpath(htgsys,'h:HeatingCapacity/text()'))
+        sys_heating['capacity'] = convert_to_type(float,xpath(htgsys,'h:HeatingCapacity/text()'))
         return sys_heating
 
     def get_cooling_system_type(self,clgsys):
-        doxpath = self.doxpath
+        xpath = self.xpath
         ns = self.ns
         
         sys_cooling = OrderedDict()
         if clgsys.tag.endswith('HeatPump'):
-            heat_pump_type = doxpath(clgsys,'h:HeatPumpType/text()')
+            heat_pump_type = xpath(clgsys,'h:HeatPumpType/text()')
             if heat_pump_type is None:
                 sys_cooling['type'] = 'heat_pump'
             else:
                 sys_cooling['type'] = self.heat_pump_type_map[heat_pump_type]
         else:
             assert clgsys.tag.endswith('CoolingSystem')
-            hpxml_cooling_type = doxpath(clgsys,'h:CoolingSystemType/text()')
+            hpxml_cooling_type = xpath(clgsys,'h:CoolingSystemType/text()')
             sys_cooling['type'] = {'central air conditioning': 'split_dx',
                                    'room air conditioner': 'packaged_dx',
                                    'mini-split': 'split_dx'}[hpxml_cooling_type]
@@ -327,7 +327,7 @@ class HPXMLtoHEScoreTranslator(object):
             # Use the efficiency of the first element found.
             sys_cooling['efficiency_method'] = 'user'
             sys_cooling['efficiency'] = float(eff_els[0])
-        sys_cooling['capacity'] = convert_to_type(float,doxpath(clgsys,'h:CoolingCapacity/text()'))
+        sys_cooling['capacity'] = convert_to_type(float,xpath(clgsys,'h:CoolingCapacity/text()'))
         return sys_cooling
 
     def get_or_create_child(self,parent,childname,insertpos=-1):
@@ -357,7 +357,7 @@ class HPXMLtoHEScoreTranslator(object):
                     return
 
     def apply_nrel_assumptions(self,b):
-        doxpath = self.doxpath
+        xpath = self.xpath
         addns = self.addns
         ns = self.ns
         
@@ -369,15 +369,15 @@ class HPXMLtoHEScoreTranslator(object):
         wall_element_order = ['h:' + x for x in wall_element_order]
 
         # Assume the back of the house has the largest window area
-        site = self.get_or_create_child(doxpath(b,'h:BuildingDetails/h:BuildingSummary'),addns('h:Site'),0)
-        doxpath(site,'h:OrientationOfFrontOfHome/text()')
-        if doxpath(site,'h:AzimuthOfFrontOfHome/text()') is None and \
-           doxpath(site,'h:OrientationOfFrontOfHome/text()') is None:
+        site = self.get_or_create_child(xpath(b,'h:BuildingDetails/h:BuildingSummary'),addns('h:Site'),0)
+        xpath(site,'h:OrientationOfFrontOfHome/text()')
+        if xpath(site,'h:AzimuthOfFrontOfHome/text()') is None and \
+           xpath(site,'h:OrientationOfFrontOfHome/text()') is None:
             window_areas = {}
-            for window in doxpath(b,'h:BuildingDetails/h:Enclosure/h:Windows/h:Window'):
-                azimuth = self.get_nearest_azimuth(doxpath(window,'h:Azimuth/text()'), 
-                                                   doxpath(window,'h:Orientation/text()'))
-                window_area = float(doxpath(window,'h:Area/text()'))
+            for window in xpath(b,'h:BuildingDetails/h:Enclosure/h:Windows/h:Window'):
+                azimuth = self.get_nearest_azimuth(xpath(window,'h:Azimuth/text()'), 
+                                                   xpath(window,'h:Orientation/text()'))
+                window_area = float(xpath(window,'h:Area/text()'))
                 try:
                     window_areas[azimuth] += window_area
                 except KeyError:
@@ -390,7 +390,7 @@ class HPXMLtoHEScoreTranslator(object):
             logging.debug('Assuming the house faces %d',front_azimuth)
         
         # Assume stucco if none specified
-        if doxpath(b,'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall/h:Siding') is None:
+        if xpath(b,'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall/h:Siding') is None:
             logging.debug('Assuming stucco siding')
             for wall in b.xpath('h:BuildingDetails/h:Enclosure/h:Walls/h:Wall',namespaces=ns):
                 siding_el = etree.Element(addns('h:Siding'))
@@ -437,14 +437,14 @@ class HPXMLtoHEScoreTranslator(object):
             use this one. Otherwise just use the first one.
         nrel_assumptions - Apply the NREL assumptions for files that don't explicitly have certain fields.
         '''
-        doxpath = self.doxpath
+        xpath = self.xpath
         ns = self.ns
         
         # Load the xml document into lxml etree
         if hpxml_bldg_id is not None:
-            b = doxpath(self.hpxmldoc,'h:Building[h:BuildingID/@id=$bldgid]',bldgid=hpxml_bldg_id)
+            b = xpath(self.hpxmldoc,'h:Building[h:BuildingID/@id=$bldgid]',bldgid=hpxml_bldg_id)
         else:
-            b = doxpath(self.hpxmldoc,'h:Building[1]')
+            b = xpath(self.hpxmldoc,'h:Building[1]')
         
         # Apply NREL assumptions, if requested
         if nrel_assumptions:
@@ -457,21 +457,21 @@ class HPXMLtoHEScoreTranslator(object):
         # building_address---------------------------------------------------------
         bldgaddr = OrderedDict()
         hescore_inputs['building_address'] = bldgaddr
-        hpxmladdress = doxpath(b,'h:Site/h:Address[h:AddressType="street"]')
+        hpxmladdress = xpath(b,'h:Site/h:Address[h:AddressType="street"]')
         if hpxmladdress is None:
             raise TranslationError('The house address must be a street address.')
         bldgaddr['address'] = ' '.join(hpxmladdress.xpath('h:Address1/text() | h:Address2/text()',namespaces=ns))
-        bldgaddr['city'] = doxpath(b,'h:Site/h:Address/h:CityMunicipality/text()')
-        bldgaddr['state'] = doxpath(b,'h:Site/h:Address/h:StateCode/text()')
-        bldgaddr['zip_code'] = doxpath(b,'h:Site/h:Address/h:ZipCode/text()')
-        transaction_type = doxpath(self.hpxmldoc,'h:XMLTransactionHeaderInformation/h:Transaction/text()')
+        bldgaddr['city'] = xpath(b,'h:Site/h:Address/h:CityMunicipality/text()')
+        bldgaddr['state'] = xpath(b,'h:Site/h:Address/h:StateCode/text()')
+        bldgaddr['zip_code'] = xpath(b,'h:Site/h:Address/h:ZipCode/text()')
+        transaction_type = xpath(self.hpxmldoc,'h:XMLTransactionHeaderInformation/h:Transaction/text()')
         if transaction_type == 'create':
             bldgaddr['assessment_type'] = {'audit': 'initial',
                                            'proposed workscope': 'alternative',
                                            'approved workscope': 'alternative',
                                            'construction-period testing/daily test out': 'test',
                                            'job completion testing/final inspection': 'final',
-                                           'quality assurance/monitoring': 'qa'}[doxpath(b,'h:ProjectStatus/h:EventType/text()')]
+                                           'quality assurance/monitoring': 'qa'}[xpath(b,'h:ProjectStatus/h:EventType/text()')]
         else:
             assert transaction_type == 'update'
             bldgaddr['assessment_type'] = 'corrected'
@@ -491,7 +491,7 @@ class HPXMLtoHEScoreTranslator(object):
         bldg_about['assessment_date'] = bldg_about['assessment_date'].isoformat()
     
         # TODO: See if we can map more of these facility types
-        residential_facility_type = doxpath(b,'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ResidentialFacilityType/text()')
+        residential_facility_type = xpath(b,'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ResidentialFacilityType/text()')
         try:
             bldg_about['shape'] = {'single-family detached': 'rectangle',
                                    'single-family attached': 'town_house',
@@ -513,7 +513,7 @@ class HPXMLtoHEScoreTranslator(object):
         if bldg_about['shape'] == 'town_house':
             # TODO: what to do with a house that is attached on three sides?
             # TODO: pull this info from the geometry
-            hpxml_surroundings = doxpath(b,'h:BuildingDetails/h:BuildingSummary/h:Site/h:Surroundings/text()')
+            hpxml_surroundings = xpath(b,'h:BuildingDetails/h:BuildingSummary/h:Site/h:Surroundings/text()')
             try:
                 bldg_about['town_house_walls'] = {'stand-alone': None,
                                                   'attached on one side': 'back_right_front',
@@ -526,24 +526,24 @@ class HPXMLtoHEScoreTranslator(object):
                 raise TranslationError('Cannot translate HPXML Site/Surroundings element value of %s into HEScore town_house_walls' % hpxml_surroundings)
         
         bldg_cons_el = b.find('h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction',namespaces=ns)
-        bldg_about['year_built'] = int(doxpath(bldg_cons_el,'h:YearBuilt/text()'))
-        nbedrooms = int(doxpath(bldg_cons_el,'h:NumberofBedrooms/text()'))
+        bldg_about['year_built'] = int(xpath(bldg_cons_el,'h:YearBuilt/text()'))
+        nbedrooms = int(xpath(bldg_cons_el,'h:NumberofBedrooms/text()'))
         if nbedrooms > 10:
             nbedrooms = 10
         bldg_about['number_bedrooms'] = nbedrooms
-        bldg_about['num_floor_above_grade'] = int(math.ceil(float(doxpath(bldg_cons_el,'h:NumberofConditionedFloorsAboveGrade/text()'))))
-        avg_ceiling_ht = doxpath(bldg_cons_el,'h:AverageCeilingHeight/text()')
+        bldg_about['num_floor_above_grade'] = int(math.ceil(float(xpath(bldg_cons_el,'h:NumberofConditionedFloorsAboveGrade/text()'))))
+        avg_ceiling_ht = xpath(bldg_cons_el,'h:AverageCeilingHeight/text()')
         if avg_ceiling_ht is None:
-            avg_ceiling_ht = float(doxpath(bldg_cons_el,'h:ConditionedBuildingVolume/text()')) / \
-                                           float(doxpath(bldg_cons_el,'h:ConditionedFloorArea/text()'))
+            avg_ceiling_ht = float(xpath(bldg_cons_el,'h:ConditionedBuildingVolume/text()')) / \
+                                           float(xpath(bldg_cons_el,'h:ConditionedFloorArea/text()'))
         else:
             avg_ceiling_ht = float(avg_ceiling_ht)
         bldg_about['floor_to_ceiling_height'] = int(round(avg_ceiling_ht))
-        bldg_about['conditioned_floor_area'] = float(doxpath(b,'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ConditionedFloorArea/text()'))
+        bldg_about['conditioned_floor_area'] = float(xpath(b,'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ConditionedFloorArea/text()'))
         
-        site_el = doxpath(b,'h:BuildingDetails/h:BuildingSummary/h:Site')
-        house_azimuth = self.get_nearest_azimuth(doxpath(site_el,'h:AzimuthOfFrontOfHome/text()'),
-                                            doxpath(site_el,'h:OrientationOfFrontOfHome/text()'))
+        site_el = xpath(b,'h:BuildingDetails/h:BuildingSummary/h:Site')
+        house_azimuth = self.get_nearest_azimuth(xpath(site_el,'h:AzimuthOfFrontOfHome/text()'),
+                                            xpath(site_el,'h:OrientationOfFrontOfHome/text()'))
         bldg_about['orientation'] = {0:   'north',
                             45:  'north_east',
                             90:  'east',
@@ -557,27 +557,27 @@ class HPXMLtoHEScoreTranslator(object):
         air_infilt_est = None
         for air_infilt_meas in b.xpath('h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirInfiltrationMeasurement',namespaces=ns):
             # Take the last blower door test that is in CFM50, or if that's not available, ACH50
-            if doxpath(air_infilt_meas,'h:TypeOfInfiltrationMeasurement/text()') == 'blower door':
-                house_pressure = convert_to_type(int,doxpath(air_infilt_meas,'h:HousePressure/text()'))
-                blower_door_test_units = doxpath(air_infilt_meas,'h:BuildingAirLeakage/h:UnitofMeasure/text()')
+            if xpath(air_infilt_meas,'h:TypeOfInfiltrationMeasurement/text()') == 'blower door':
+                house_pressure = convert_to_type(int,xpath(air_infilt_meas,'h:HousePressure/text()'))
+                blower_door_test_units = xpath(air_infilt_meas,'h:BuildingAirLeakage/h:UnitofMeasure/text()')
                 if house_pressure == 50 and (blower_door_test_units == 'CFM' or
                                              (blower_door_test_units == 'ACH' and blower_door_test is None)):
                     blower_door_test = air_infilt_meas
-            elif doxpath(air_infilt_meas,'h:TypeOfInfiltrationMeasurement/text()') == 'estimate':
+            elif xpath(air_infilt_meas,'h:TypeOfInfiltrationMeasurement/text()') == 'estimate':
                 air_infilt_est = air_infilt_meas
         if blower_door_test is not None:
             bldg_about['blower_door_test'] = True
-            if doxpath(blower_door_test,'h:BuildingAirLeakage/h:UnitofMeasure/text()') == 'CFM':
-                bldg_about['envelope_leakage'] = float(doxpath(blower_door_test,'h:BuildingAirLeakage/h:AirLeakage/text()'))
+            if xpath(blower_door_test,'h:BuildingAirLeakage/h:UnitofMeasure/text()') == 'CFM':
+                bldg_about['envelope_leakage'] = float(xpath(blower_door_test,'h:BuildingAirLeakage/h:AirLeakage/text()'))
             else:
-                assert doxpath(blower_door_test,'h:BuildingAirLeakage/h:UnitofMeasure/text()') == 'ACH'
+                assert xpath(blower_door_test,'h:BuildingAirLeakage/h:UnitofMeasure/text()') == 'ACH'
                 bldg_about['envelope_leakage'] = bldg_about['floor_to_ceiling_height'] * bldg_about['conditioned_floor_area'] * \
-                    float(doxpath(blower_door_test,'h:BuildingAirLeakage/h:AirLeakage/text()')) / 60.
+                    float(xpath(blower_door_test,'h:BuildingAirLeakage/h:AirLeakage/text()')) / 60.
         else:
             bldg_about['blower_door_test'] = False
             if b.xpath('count(h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirSealing)',namespaces=ns) > 0 or \
                (air_infilt_est is not None and
-                doxpath(air_infilt_est,'h:LeakinessDescription/text()') in ('tight','very tight')):
+                xpath(air_infilt_est,'h:LeakinessDescription/text()') in ('tight','very tight')):
                 bldg_about['air_sealing_present'] = True
             else:
                 bldg_about['air_sealing_present'] = False
@@ -620,25 +620,25 @@ class HPXMLtoHEScoreTranslator(object):
         for attic in attics:
             atticd = {}
             atticds.append(atticd)
-            atticid = doxpath(attic,'h:SystemIdentifier/@id')
-            roof = doxpath(b,'//h:Roof[h:SystemIdentifier/@id=$roofid]',roofid=doxpath(attic,'h:AttachedToRoof/@idref'))
+            atticid = xpath(attic,'h:SystemIdentifier/@id')
+            roof = xpath(b,'//h:Roof[h:SystemIdentifier/@id=$roofid]',roofid=xpath(attic,'h:AttachedToRoof/@idref'))
             if roof is None:
-                raise TranslationError('Attic {} does not have a roof associated with it.'.format(doxpath(attic,'h:SystemIdentifier/@id')))
+                raise TranslationError('Attic {} does not have a roof associated with it.'.format(xpath(attic,'h:SystemIdentifier/@id')))
             
             # Roof type
-            hpxml_attic_type = doxpath(attic,'h:AtticType/text()')
+            hpxml_attic_type = xpath(attic,'h:AtticType/text()')
             atticd['rooftype'] = rooftypemap[hpxml_attic_type]
             if atticd['rooftype'] is None:
                 raise TranslationError('Attic {}: Cannot translate HPXML AtticType {} to HEScore rooftype.'.format(atticid,hpxml_attic_type))
             
             # Roof color
             try:
-                atticd['roofcolor'] = {'light': 'light', 'medium': 'medium', 'dark': 'dark', 'reflective': 'white'}[doxpath(roof,'h:RoofColor/text()')]
+                atticd['roofcolor'] = {'light': 'light', 'medium': 'medium', 'dark': 'dark', 'reflective': 'white'}[xpath(roof,'h:RoofColor/text()')]
             except KeyError:
                 raise TranslationError('Attic {}: Invalid or missing RoofColor'.format(atticid))
     
             # Exterior finish
-            hpxml_roof_type = doxpath(roof,'h:RoofType/text()')
+            hpxml_roof_type = xpath(roof,'h:RoofType/text()')
             try:
                 atticd['extfinish'] = {'shingles': 'co', 
                                        'slate or tile shingles': 'lc', 
@@ -657,8 +657,8 @@ class HPXMLtoHEScoreTranslator(object):
                 raise TranslationError('Attic {}: HEScore does not have an analogy to the HPXML roof type: {}'.format(atticid,hpxml_roof_type))
             
             # construction type
-            has_rigid_sheathing = doxpath(attic,'boolean(h:AtticRoofInsulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])')
-            has_radiant_barrier = doxpath(roof,'h:RadiantBarrier="true"')
+            has_rigid_sheathing = xpath(attic,'boolean(h:AtticRoofInsulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])')
+            has_radiant_barrier = xpath(roof,'h:RadiantBarrier="true"')
             if has_radiant_barrier:
                 atticd['roofconstype'] = 'rb'
             elif has_rigid_sheathing:
@@ -667,16 +667,16 @@ class HPXMLtoHEScoreTranslator(object):
                 atticd['roofconstype'] = 'wf'
             
             # roof R-value
-            roof_rvalue = doxpath(attic,'sum(h:AtticRoofInsulation/h:Layer[not(boolean(h:InsulationMaterial/h:Rigid) and h:InstallationType="continuous")]/h:NominalRValue)')
+            roof_rvalue = xpath(attic,'sum(h:AtticRoofInsulation/h:Layer[not(boolean(h:InsulationMaterial/h:Rigid) and h:InstallationType="continuous")]/h:NominalRValue)')
             roof_rvalue, atticd['roof_coc_rvalue'] = \
                 min(roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']].items(),
                     key=lambda x: abs(x[0] - roof_rvalue))
             
             # attic floor R-value
-            atticd['attic_floor_rvalue'] = doxpath(attic,'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
+            atticd['attic_floor_rvalue'] = xpath(attic,'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
             
             # Attic area
-            atticd['attic_area'] = convert_to_type(float,doxpath(attic,'h:Area/text()'))
+            atticd['attic_area'] = convert_to_type(float,xpath(attic,'h:Area/text()'))
         
         def select_attic_category_with_most_total_area(key):
             attic_area_by_cat = {}
@@ -744,7 +744,7 @@ class HPXMLtoHEScoreTranslator(object):
         if len(skylights) == 0:
             zone_skylight['skylight_area'] = 0
         elif len(skylights) > 0:
-            uvalues, shgcs, areas = map(list,zip(*[[doxpath(skylight,'h:%s/text()' % x) for x in ('UFactor','SHGC','Area')] for skylight in skylights]))
+            uvalues, shgcs, areas = map(list,zip(*[[xpath(skylight,'h:%s/text()' % x) for x in ('UFactor','SHGC','Area')] for skylight in skylights]))
             if None in areas:
                 raise TranslationError('Every skylight needs an area.')
             areas = map(float,areas)
@@ -775,7 +775,7 @@ class HPXMLtoHEScoreTranslator(object):
                 # use a construction code
                 skylight_type_areas = {}
                 for skylight in skylights:
-                    area = convert_to_type(float,doxpath(skylight,'h:Area/text()'))
+                    area = convert_to_type(float,xpath(skylight,'h:Area/text()'))
                     skylight_code = self.get_window_code(skylight)
                     try:
                         skylight_type_areas[skylight_code] += area
@@ -792,19 +792,19 @@ class HPXMLtoHEScoreTranslator(object):
         foundations = b.xpath('//h:Foundations/h:Foundation',namespaces=ns)
         # get the Foundation element that covers the largest square footage of the house
         foundation = max(foundations, 
-                         key=lambda fnd: max([doxpath(fnd,'sum(h:%s/h:Area)' % x) for x in ('Slab','FrameFloor')]))
+                         key=lambda fnd: max([xpath(fnd,'sum(h:%s/h:Area)' % x) for x in ('Slab','FrameFloor')]))
         
         # Foundation type
-        hpxml_foundation_type = doxpath(foundation,'name(h:FoundationType/*)')
+        hpxml_foundation_type = xpath(foundation,'name(h:FoundationType/*)')
         if hpxml_foundation_type == 'Basement':
-            bsmtcond = doxpath(foundation,'h:FoundationType/h:Basement/h:Conditioned="true"')
+            bsmtcond = xpath(foundation,'h:FoundationType/h:Basement/h:Conditioned="true"')
             if bsmtcond:
                 zone_floor['foundation_type'] = 'cond_basement'
             else:
                 # assumed unconditioned basement if h:Conditioned is missing
                 zone_floor['foundation_type'] = 'uncond_basement'
         elif hpxml_foundation_type == 'Crawlspace':
-            crawlvented = doxpath(foundation,'h:FoundationType/h:Crawlspace/h:Vented="true"')
+            crawlvented = xpath(foundation,'h:FoundationType/h:Crawlspace/h:Vented="true"')
             if crawlvented:
                 zone_floor['foundation_type'] = 'vented_crawl'
             else:
@@ -830,7 +830,7 @@ class HPXMLtoHEScoreTranslator(object):
             del fw_eff_rvalues[5] # remove the value for slab insulation
             for fwall in foundationwalls:
                 fwarea, fwlength, fwheight = \
-                    map(lambda x: convert_to_type(float,doxpath(fwall,'h:%s/text()' % x)),
+                    map(lambda x: convert_to_type(float,xpath(fwall,'h:%s/text()' % x)),
                         ('Area','Length','Height'))
                 if fwarea is None:
                     try:
@@ -840,7 +840,7 @@ class HPXMLtoHEScoreTranslator(object):
                             fwarea = 1.0
                         else:
                             raise TranslationError('If there is more than one FoundationWall, an Area is required for each.')
-                fwrvalue = doxpath(fwall,'sum(h:Insulation/h:Layer/h:NominalRValue)')
+                fwrvalue = xpath(fwall,'sum(h:Insulation/h:Layer/h:NominalRValue)')
                 fweffrvalue = fw_eff_rvalues[min(fw_eff_rvalues.keys(), key=lambda x: abs(fwrvalue - x))]
                 fwra += fweffrvalue * fwarea
                 fwtotalarea += fwarea
@@ -852,13 +852,13 @@ class HPXMLtoHEScoreTranslator(object):
             slabra = 0
             slabtotalperimeter = 0
             for slab in slabs:
-                exp_perimeter = convert_to_type(float,doxpath(slab,'h:ExposedPerimeter/text()'))
+                exp_perimeter = convert_to_type(float,xpath(slab,'h:ExposedPerimeter/text()'))
                 if exp_perimeter is None:
                     if len(slabs) == 1:
                         exp_perimeter = 1.0
                     else:
                         raise TranslationError('If there is more than one Slab, an ExposedPerimeter is required for each.')
-                slabrvalue = doxpath(slab,'sum(h:PerimeterInsulation/h:Layer/h:NominalRValue)')
+                slabrvalue = xpath(slab,'sum(h:PerimeterInsulation/h:Layer/h:NominalRValue)')
                 slabeffrvalue = fw_eff_rvalues[min(fw_eff_rvalues.keys(), key=lambda x: abs(slabrvalue - x))]
                 slabra += slabeffrvalue * exp_perimeter
                 slabtotalperimeter += exp_perimeter
@@ -874,13 +874,13 @@ class HPXMLtoHEScoreTranslator(object):
         floor_eff_rvalues = dict(zip((0,11,13,15,19,21,25,30,38),(4.0,15.8,17.8,19.8,23.8,25.8,31.8,37.8,42.8)))
         if len(framefloors) > 0:
             for framefloor in framefloors:
-                ffarea = convert_to_type(float,doxpath(framefloor,'h:Area/text()'))
+                ffarea = convert_to_type(float,xpath(framefloor,'h:Area/text()'))
                 if ffarea is None:
                     if len(framefloors) == 1:
                         ffarea = 1.0
                     else:
                         raise TranslationError('If there is more than one FrameFloor, an Area is required for each.')
-                ffrvalue = doxpath(framefloor,'sum(h:Insulation/h:Layer/h:NominalRValue)')
+                ffrvalue = xpath(framefloor,'sum(h:Insulation/h:Layer/h:NominalRValue)')
                 ffeffrvalue = floor_eff_rvalues[min(floor_eff_rvalues.keys(), key=lambda x: abs(ffrvalue - x))]
                 ffra += ffarea * ffeffrvalue
                 fftotalarea += ffarea
@@ -896,12 +896,12 @@ class HPXMLtoHEScoreTranslator(object):
         hpxmlwalls['noside'] = []
         for wall in b.xpath('h:BuildingDetails/h:Enclosure/h:Walls/h:Wall',namespaces=ns):
             walld = {'assembly_code': self.get_wall_assembly_code(wall),
-                     'area': convert_to_type(float,doxpath(wall,'h:Area/text()')),
-                     'id': doxpath(wall,'h:SystemIdentifier/@id')}
+                     'area': convert_to_type(float,xpath(wall,'h:Area/text()')),
+                     'id': xpath(wall,'h:SystemIdentifier/@id')}
             
             try:
-                wall_azimuth = self.get_nearest_azimuth(doxpath(wall,'h:Azimuth/text()'),
-                                                   doxpath(wall,'h:Orientation/text()'))
+                wall_azimuth = self.get_nearest_azimuth(xpath(wall,'h:Azimuth/text()'),
+                                                   xpath(wall,'h:Orientation/text()'))
             except TranslationError:
                 # There is no directional information in the HPXML wall
                 wall_side = 'noside'
@@ -1005,17 +1005,17 @@ class HPXMLtoHEScoreTranslator(object):
         for hpxmlwndw in b.xpath('h:BuildingDetails/h:Enclosure/h:Windows/h:Window',namespaces=ns):
     
             # Get the area, uvalue, SHGC, or window_code
-            windowd = {'area': convert_to_type(float,doxpath(hpxmlwndw,'h:Area/text()'))}
+            windowd = {'area': convert_to_type(float,xpath(hpxmlwndw,'h:Area/text()'))}
 
             # Make sure every window has an area
             if windowd['area'] is None:
                 raise TranslationError('All windows need an area.')
 
-            qty = convert_to_type(int,doxpath(hpxmlwndw,'h:Quantity/text()'))
+            qty = convert_to_type(int,xpath(hpxmlwndw,'h:Quantity/text()'))
             if isinstance(qty,int):
                 windowd['area'] *= qty
-            windowd['uvalue'] = convert_to_type(float,doxpath(hpxmlwndw,'h:UFactor/text()'))
-            windowd['shgc'] = convert_to_type(float,doxpath(hpxmlwndw,'h:SHGC/text()'))
+            windowd['uvalue'] = convert_to_type(float,xpath(hpxmlwndw,'h:UFactor/text()'))
+            windowd['shgc'] = convert_to_type(float,xpath(hpxmlwndw,'h:SHGC/text()'))
             if windowd['uvalue'] is not None and windowd['shgc'] is not None:
                 windowd['window_code'] = None
             else:
@@ -1023,7 +1023,7 @@ class HPXMLtoHEScoreTranslator(object):
             
             # Window side
             window_sides = []
-            attached_to_wall_id = doxpath(hpxmlwndw,'h:AttachedToWall/@idref')
+            attached_to_wall_id = xpath(hpxmlwndw,'h:AttachedToWall/@idref')
             if attached_to_wall_id is not None and not bldg_zone['wall_construction_same']:
                 # Give preference to the Attached to Wall element to determine the side of the house.
                 for side,walls in hpxmlwalls.items():
@@ -1034,7 +1034,7 @@ class HPXMLtoHEScoreTranslator(object):
             else:
                 # If there's not Attached to Wall element, figure it out from the Azimuth/Orientation
                 try:
-                    wndw_azimuth = self.get_nearest_azimuth(doxpath(hpxmlwndw,'h:Azimuth/text()'),doxpath(hpxmlwndw,'h:Orientation/text()'))
+                    wndw_azimuth = self.get_nearest_azimuth(xpath(hpxmlwndw,'h:Azimuth/text()'),xpath(hpxmlwndw,'h:Orientation/text()'))
                     window_sides = [sidemap[wndw_azimuth]]
                 except TranslationError:
                     # there's no directional information in the window
@@ -1129,26 +1129,31 @@ class HPXMLtoHEScoreTranslator(object):
         bldg_systems['heating'] = sys_heating
             
         # Use the primary heating system specified in the HPXML file if that element exists.
-        primaryhtgsys = doxpath(b,'//h:HVACPlant/*[//h:HVACPlant/h:PrimarySystems/h:PrimaryHeatingSystem/@idref=h:SystemIdentifier/@id]')
+        primaryhtgsys = xpath(b,'//h:HVACPlant/*[//h:HVACPlant/h:PrimarySystems/h:PrimaryHeatingSystem/@idref=h:SystemIdentifier/@id]')
         
         if primaryhtgsys is None:
             # A primary heating system isn't specified, get the properties of all of them
-            htgsystems = []    
+            htgsystems = []
+            has_htgsys_translation_err = False
             for htgsys in b.xpath('//h:HVACPlant/h:HeatingSystem|//h:HVACPlant/h:HeatPump',namespaces=ns):
                 try:
                     htgsysd = self.get_heating_system_type(htgsys)
-                except TranslationError:
+                except TranslationError as ex:
+                    has_htgsys_translation_err = True
                     continue
                 else:
                     htgsystems.append(htgsysd)
-            capacities = [x['capacity'] for x in htgsystems]
-            if None in capacities:
-                if len(capacities) == 1:
-                    htgsystems[0]['capacity'] = 1.0
-                else:
-                    raise TranslationError('If a primary heating system is not defined, each heating system must have a capacity')   
+            if has_htgsys_translation_err and len(htgsystems) == 0:
+                raise ex
         else:
             htgsystems = [self.get_heating_system_type(primaryhtgsys)]
+
+        capacities = [x['capacity'] for x in htgsystems]
+        if None in capacities:
+            if len(capacities) == 1:
+                htgsystems[0]['capacity'] = 1.0
+            else:
+                raise TranslationError('If a primary heating system is not defined, each heating system must have a capacity')   
         
         htgsys_by_capacity = {}
         htgsys_groupby_keys = ('type','fuel_primary','efficiency_method')
@@ -1191,26 +1196,31 @@ class HPXMLtoHEScoreTranslator(object):
         sys_cooling = OrderedDict()
         bldg_systems['cooling'] = sys_cooling
         
-        primaryclgsys = doxpath(b,'//h:HVACPlant/*[//h:HVACPlant/h:PrimarySystems/h:PrimaryCoolingSystem/@idref=h:SystemIdentifier/@id]')
+        primaryclgsys = xpath(b,'//h:HVACPlant/*[//h:HVACPlant/h:PrimarySystems/h:PrimaryCoolingSystem/@idref=h:SystemIdentifier/@id]')
         
         if primaryclgsys is None:
             # A primary cooling system isn't specified, get the properties of all of them.
             clgsystems = []
+            has_clgsys_translation_err = False
             for clgsys in b.xpath('//h:HVACPlant/h:CoolingSystem|//h:HVACPlant/h:HeatPump',namespaces=ns):
                 try:
                     clgsysd = self.get_cooling_system_type(clgsys)
-                except TranslationError:
+                except TranslationError as ex:
+                    has_clgsys_translation_err = True
                     continue
                 else:
                     clgsystems.append(clgsysd)
-            capacities = [x['capacity'] for x in clgsystems]
-            if None in capacities:
-                if len(capacities) == 1:
-                    clgsystems[0]['capacity'] = 1.0
-                else:
-                    raise TranslationError('If a primary cooling system is not defined, each cooling system must have a capacity')
+            if has_clgsys_translation_err and len(clgsystems) == 0:
+                raise ex
         else:
             clgsystems = [self.get_cooling_system_type(primaryclgsys)]
+
+        capacities = [x['capacity'] for x in clgsystems]
+        if None in capacities:
+            if len(capacities) == 1:
+                clgsystems[0]['capacity'] = 1.0
+            else:
+                raise TranslationError('If a primary cooling system is not defined, each cooling system must have a capacity')
          
         clgsys_by_capacity = {}
         clgsys_groupby_keys = ('type','efficiency_method')
@@ -1265,8 +1275,8 @@ class HPXMLtoHEScoreTranslator(object):
                 airdistsys_ductfracs = {}
                 airdistsys_issealed.append(airdistsys.xpath('(h:DuctLeakageMeasurement/h:LeakinessObservedVisualInspection="connections sealed w mastic") or (ancestor::h:HVACDistribution/h:HVACDistributionImprovement/h:DuctSystemSealed="true")',namespaces=ns))
                 for duct in airdistsys.xpath('h:Ducts',namespaces=ns):
-                    frac_duct_area = float(doxpath(duct,'h:FractionDuctArea/text()'))
-                    hpxml_duct_location = doxpath(duct,'h:DuctLocation/text()')
+                    frac_duct_area = float(xpath(duct,'h:FractionDuctArea/text()'))
+                    hpxml_duct_location = xpath(duct,'h:DuctLocation/text()')
                     hescore_duct_location = duct_location_map[hpxml_duct_location]
                     if hescore_duct_location is None:
                         raise TranslationError('No comparable duct location in HEScore: %s' % hpxml_duct_location)
@@ -1283,7 +1293,7 @@ class HPXMLtoHEScoreTranslator(object):
                 airdistsys_ductfracs = dict([(key,value / total_duct_frac)
                                              for key,value
                                              in airdistsys_ductfracs.items()])
-                cfaserved = doxpath(airdistsys.getparent().getparent(),'h:ConditionedFloorAreaServed/text()')
+                cfaserved = xpath(airdistsys.getparent().getparent(),'h:ConditionedFloorAreaServed/text()')
                 if cfaserved is not None:
                     cfaserved = float(cfaserved)
                     airdistsys_ductfracs = dict([(key,value * cfaserved) for key,value in airdistsys_ductfracs.items()])
@@ -1338,10 +1348,10 @@ class HPXMLtoHEScoreTranslator(object):
         sys_dhw = OrderedDict()
         bldg_systems['domestic_hot_water'] = sys_dhw
         
-        water_heating_systems = doxpath(b,'//h:WaterHeatingSystem')
+        water_heating_systems = xpath(b,'//h:WaterHeatingSystem')
         if isinstance(water_heating_systems,list):
             dhwfracs = map(lambda x: None if x is None else float(x), 
-                           [doxpath(water_heating_system,'h:FractionDHWLoadServed/text()') for water_heating_system in water_heating_systems])
+                           [xpath(water_heating_system,'h:FractionDHWLoadServed/text()') for water_heating_system in water_heating_systems])
             if None in dhwfracs:
                 primarydhw = water_heating_systems[0]
             else:
@@ -1350,11 +1360,11 @@ class HPXMLtoHEScoreTranslator(object):
             raise TranslationError('No water heating systems found.')
         else:
             primarydhw = water_heating_systems
-        water_heater_type = doxpath(primarydhw,'h:WaterHeaterType/text()')
+        water_heater_type = xpath(primarydhw,'h:WaterHeaterType/text()')
         if water_heater_type in ('storage water heater','instantaneous water heater'):
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'storage'
-            sys_dhw['fuel_primary'] = self.fuel_type_mapping[doxpath(primarydhw,'h:FuelType/text()')]
+            sys_dhw['fuel_primary'] = self.fuel_type_mapping[xpath(primarydhw,'h:FuelType/text()')]
         elif water_heater_type == 'space-heating boiler with storage tank':
             sys_dhw['category'] = 'combined'
             sys_dhw['type'] = 'indirect'
@@ -1373,12 +1383,12 @@ class HPXMLtoHEScoreTranslator(object):
             raise TranslationError('HEScore cannot model the water heater type: %s' % water_heater_type)
         
         if not sys_dhw['category'] == 'combined':
-            energyfactor = doxpath(primarydhw,'h:EnergyFactor/text()')
+            energyfactor = xpath(primarydhw,'h:EnergyFactor/text()')
             if energyfactor is not None:
                 sys_dhw['efficiency_method'] = 'user'
                 sys_dhw['energy_factor'] = round(float(energyfactor),2)
             else:
-                dhwyear = int(doxpath(primarydhw,'(h:YearInstalled|h:ModelYear)[1]/text()'))
+                dhwyear = int(xpath(primarydhw,'(h:YearInstalled|h:ModelYear)[1]/text()'))
                 if dhwyear < 1972:
                     dhwyear = 1972
                 sys_dhw['efficiency_method'] = 'shipment_weighted'

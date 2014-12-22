@@ -31,7 +31,11 @@ class ComparatorBase(object):
         self._load_xmlfile(filebase)
         self._do_compare(filebase)
     
+    def _write_xml_file(self,filename):
+        self.translator.hpxmldoc.write(os.path.join(exampledir,filename))
     
+    def xpath(self,xpathexpr,*args,**kwargs):
+        return self.translator.xpath(self.translator.hpxmldoc, xpathexpr, *args, **kwargs)
 
 class TestAPIHouses(unittest.TestCase,ComparatorBase):
     
@@ -66,7 +70,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_townhouse_wall_fail(self):
         tr = self._load_xmlfile('townhouse_walls')
-        el = tr.doxpath(tr.hpxmldoc, '//h:Window/h:Orientation[text()="south"]')
+        el = self.xpath( '//h:Window/h:Orientation[text()="south"]')
         el.text = 'east'
         self.assertRaisesRegexp(TranslationError, 
                                 r'The house has windows on shared walls\.', 
@@ -74,7 +78,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_missing_siding(self):
         tr = self._load_xmlfile('hescore_min')
-        siding = tr.doxpath(tr.hpxmldoc,'//h:Wall[1]/h:Siding')
+        siding = self.xpath('//h:Wall[1]/h:Siding')
         siding.getparent().remove(siding)
         self.assertRaisesRegexp(TranslationError, 
                                 r'Exterior finish information is missing',
@@ -83,7 +87,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         
     def test_siding_fail2(self):
         tr = self._load_xmlfile('hescore_min')
-        siding = tr.doxpath(tr.hpxmldoc, '//h:Wall[1]/h:Siding')
+        siding = self.xpath('//h:Wall[1]/h:Siding')
         siding.text = 'other'
         self.assertRaisesRegexp(TranslationError, 
                                 r'There is no HEScore wall siding equivalent for the HPXML option: other',
@@ -91,10 +95,10 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_siding_cmu_fail(self):
         tr = self._load_xmlfile('hescore_min')
-        walltype = tr.doxpath(tr.hpxmldoc, '//h:Wall[1]/h:WallType')
+        walltype = self.xpath('//h:Wall[1]/h:WallType')
         walltype.clear()
         etree.SubElement(walltype, tr.addns('h:ConcreteMasonryUnit'))
-        siding = tr.doxpath(tr.hpxmldoc, '//h:Wall[1]/h:Siding')
+        siding = self.xpath('//h:Wall[1]/h:Siding')
         siding.text = 'vinyl siding'
         self.assertRaisesRegexp(TranslationError, 
                                 r'is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. It has a siding type of vinyl siding', 
@@ -102,7 +106,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_log_wall_fail(self):
         tr = self._load_xmlfile('hescore_min')
-        el = tr.doxpath(tr.hpxmldoc, '//h:Wall[1]/h:WallType')
+        el = self.xpath('//h:Wall[1]/h:WallType')
         el.clear()
         etree.SubElement(el, tr.addns('h:LogWall'))
         self.assertRaisesRegexp(TranslationError, 
@@ -111,7 +115,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_missing_residential_facility_type(self):
         tr = self._load_xmlfile('hescore_min')
-        el = tr.doxpath(tr.hpxmldoc, '//h:ResidentialFacilityType')
+        el = self.xpath('//h:ResidentialFacilityType')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError,
                                 r'ResidentialFacilityType is required in the HPXML document',
@@ -119,7 +123,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_invalid_residential_faciliy_type(self):
         tr = self._load_xmlfile('hescore_min')
-        el = tr.doxpath(tr.hpxmldoc, '//h:ResidentialFacilityType')
+        el = self.xpath('//h:ResidentialFacilityType')
         el.text = 'manufactured home'
         self.assertRaisesRegexp(TranslationError,
                                 r'Cannot translate HPXML ResidentialFacilityType of .+ into HEScore building shape',
@@ -127,7 +131,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_missing_surroundings(self):
         tr = self._load_xmlfile('townhouse_walls')
-        el = tr.doxpath(tr.hpxmldoc, '//h:Surroundings')
+        el = self.xpath('//h:Surroundings')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError, 
                                 r'Site/Surroundings element is required in the HPXML document for town houses', 
@@ -135,7 +139,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_invalid_surroundings(self):
         tr = self._load_xmlfile('townhouse_walls')
-        el = tr.doxpath(tr.hpxmldoc, '//h:Surroundings')
+        el = self.xpath('//h:Surroundings')
         el.text = 'attached on three sides'
         self.assertRaisesRegexp(TranslationError, 
                                 r'Cannot translate HPXML Site/Surroundings element value of .+ into HEScore town_house_walls', 
@@ -143,12 +147,12 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_attic_roof_assoc(self):
         tr = self._load_xmlfile('hescore_min')
-        el = tr.doxpath(tr.hpxmldoc, '//h:Attic[1]/h:AttachedToRoof')
+        el = self.xpath('//h:Attic[1]/h:AttachedToRoof')
         el.getparent().remove(el)
     
     def test_invalid_attic_type(self):
         tr = self._load_xmlfile('hescore_min')
-        el = tr.doxpath(tr.hpxmldoc, '//h:Attic[1]/h:AtticType')
+        el = self.xpath('//h:Attic[1]/h:AtticType')
         el.text = 'other'
         self.assertRaisesRegexp(TranslationError, 
                                 'Attic .+ Cannot translate HPXML AtticType .+ to HEScore rooftype.', 
@@ -156,7 +160,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_missing_roof_color(self):
         tr = self._load_xmlfile('hescore_min')
-        el = tr.doxpath(tr.hpxmldoc, '//h:Roof[1]/h:RoofColor')
+        el = self.xpath('//h:Roof[1]/h:RoofColor')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError, 
                                 'Attic .+ Invalid or missing RoofColor', 
@@ -164,7 +168,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_invalid_roof_type(self):
         tr = self._load_xmlfile('hescore_min')
-        el = tr.doxpath(tr.hpxmldoc, '//h:Roof[1]/h:RoofType')
+        el = self.xpath('//h:Roof[1]/h:RoofType')
         el.text = 'no one major type'
         self.assertRaisesRegexp(TranslationError, 
                                 'Attic .+ HEScore does not have an analogy to the HPXML roof type: .+', 
@@ -172,7 +176,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         
     def test_missing_roof_type(self):
         tr = self._load_xmlfile('hescore_min')
-        el = tr.doxpath(tr.hpxmldoc, '//h:Roof[1]/h:RoofType')
+        el = self.xpath('//h:Roof[1]/h:RoofType')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError, 
                                 'Attic .+ HEScore does not have an analogy to the HPXML roof type: .+', 
@@ -180,7 +184,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
 
     def test_missing_skylight_area(self):
         tr = self._load_xmlfile('hescore_min')
-        area = tr.doxpath(tr.hpxmldoc, '//h:Skylight[1]/h:Area')
+        area = self.xpath('//h:Skylight[1]/h:Area')
         area.getparent().remove(area)
         self.assertRaisesRegexp(TranslationError, 
                                 'Every skylight needs an area\.', 
@@ -188,7 +192,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_foundation_walls_on_slab(self):
         tr = self._load_xmlfile('house6')
-        fnd = tr.doxpath(tr.hpxmldoc, '//h:Foundation[name(h:FoundationType/*) = "SlabOnGrade"]')
+        fnd = self.xpath('//h:Foundation[name(h:FoundationType/*) = "SlabOnGrade"]')
         for i,el in enumerate(fnd):
             if el.tag.endswith('Slab'):
                 break
@@ -201,7 +205,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_missing_window_area(self):
         tr = self._load_xmlfile('hescore_min')
-        el = tr.doxpath(tr.hpxmldoc, '//h:Window[1]/h:Area')
+        el = self.xpath('//h:Window[1]/h:Area')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError, 
                                 'All windows need an area\.', 
@@ -209,7 +213,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     
     def test_missing_window_orientation(self):
         tr = self._load_xmlfile('hescore_min')
-        el = tr.doxpath(tr.hpxmldoc, '//h:Window[1]/h:Orientation')
+        el = self.xpath('//h:Window[1]/h:Orientation')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError, 
                                 'All windows need to have either an AttachedToWall, Orientation, or Azimuth sub element\.', 
@@ -219,11 +223,11 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         filebase = 'house5'
         tr = self._load_xmlfile(filebase)
         # Get the first wall id
-        wallid = tr.doxpath(tr.hpxmldoc, '//h:Wall[1]/h:Orientation/parent::node()/h:SystemIdentifier/@id')
+        wallid = self.xpath('//h:Wall[1]/h:Orientation/parent::node()/h:SystemIdentifier/@id')
         # get the orientation of the wall
-        orientation = tr.doxpath(tr.hpxmldoc, '//h:Wall[h:SystemIdentifier/@id=$wallid]/h:Orientation/text()',wallid=wallid)
+        orientation = self.xpath('//h:Wall[h:SystemIdentifier/@id=$wallid]/h:Orientation/text()',wallid=wallid)
         # get the window orientation element of a window that is facing the same direction as the wall
-        window_orientation = tr.doxpath(tr.hpxmldoc, '//h:Window[h:Orientation=$orientation][1]/h:Orientation',orientation=orientation)
+        window_orientation = self.xpath('//h:Window[h:Orientation=$orientation][1]/h:Orientation',orientation=orientation)
         # remove the window orientation
         window = window_orientation.getparent()
         window.remove(window_orientation)
@@ -233,11 +237,58 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         
     def test_impossible_window(self):
         tr = self._load_xmlfile('house1')
-        el = tr.doxpath(tr.hpxmldoc, '//h:Window[h:GlassLayers="single-pane"]/h:FrameType/h:Aluminum')
+        el = self.xpath('//h:Window[h:GlassLayers="single-pane"]/h:FrameType/h:Aluminum')
         etree.SubElement(el, tr.addns('h:ThermalBreak')).text = "true"
         self.assertRaisesRegexp(TranslationError, 
                                 'Cannot translate window type\.', 
                                 tr.hpxml_to_hescore_dict)
+    
+    def test_impossible_heating_system_type(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:HeatingSystem[1]/h:HeatingSystemType')
+        el.clear()
+        etree.SubElement(el, tr.addns('h:PortableHeater'))
+        self.assertRaisesRegexp(TranslationError, 
+                                'HEScore does not support the HPXML HeatingSystemType', 
+                                tr.hpxml_to_hescore_dict)
+        
+    def test_missing_heating_capacity(self):
+        tr = self._load_xmlfile('house3')
+        el = self.xpath('(//h:HeatingSystem|//h:HeatPump)[1]/h:HeatingCapacity')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError, 
+                                'If a primary heating system is not defined, each heating system must have a capacity', 
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_primary_heating_system(self):
+        filebase = 'house3'
+        tr = self._load_xmlfile(filebase)
+        hvacplant = self.xpath('//h:HVACPlant')
+        el = etree.Element(tr.addns('h:PrimarySystems'))
+        etree.SubElement(el, tr.addns('h:PrimaryHeatingSystem'), attrib={'idref': 'boiler1'})
+        hvacplant.insert(0,el)
+        for el in self.xpath('(//h:HeatingSystem|//h:HeatPump)/h:HeatingCapacity'):
+            el.getparent().remove(el)
+        self._do_compare(filebase)
+        
+    def test_missing_cooling_capacity(self):
+        tr = self._load_xmlfile('house4')
+        for el in self.xpath('(//h:HVACPlant/h:CoolingSystem|//h:HVACPlant/h:HeatPump)/h:CoolingCapacity'):
+            el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError, 
+                                'If a primary cooling system is not defined, each cooling system must have a capacity', 
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_primary_cooling_system(self):
+        filebase = 'house3'
+        tr = self._load_xmlfile(filebase)
+        hvacplant = self.xpath('//h:HVACPlant')
+        el = etree.Element(tr.addns('h:PrimarySystems'))
+        etree.SubElement(el, tr.addns('h:PrimaryCoolingSystem'), attrib={'idref': 'centralair1'})
+        hvacplant.insert(0,el)
+        for el in self.xpath('(//h:HeatingSystem|//h:HeatPump)/h:CoolingCapacity'):
+            el.getparent().remove(el)
+        self._do_compare(filebase)
         
         
         
