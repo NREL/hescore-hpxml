@@ -231,6 +231,13 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         etree.SubElement(window, tr.addns('h:AttachedToWall'), attrib={'idref': wallid})
         self._do_compare(filebase)
         
+    def test_impossible_window(self):
+        tr = self._load_xmlfile('house1')
+        el = tr.doxpath(tr.hpxmldoc, '//h:Window[h:GlassLayers="single-pane"]/h:FrameType/h:Aluminum')
+        etree.SubElement(el, tr.addns('h:ThermalBreak')).text = "true"
+        self.assertRaisesRegexp(TranslationError, 
+                                'Cannot translate window type\.', 
+                                tr.hpxml_to_hescore_dict)
         
         
         

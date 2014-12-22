@@ -233,7 +233,7 @@ class HPXMLtoHEScoreTranslator(object):
                 window_code = 'thmabw'
     
         if window_code is None:
-            TranslationError('Cannot translate window type')
+            raise TranslationError('Cannot translate window type.')
         return window_code
 
     heat_pump_type_map = {'water-to-air': 'gchp', 
