@@ -40,7 +40,11 @@ def convert_to_type(type_,value):
     else:
         return type_(value)
 
-class TranslationError(Exception):
+# Base class for errors in this module
+class HPXMLToHEScoreError(Exception):
+    pass
+
+class TranslationError(HPXMLToHEScoreError):
     pass
 
 def unspin_azimuth(azimuth):
@@ -90,9 +94,9 @@ class HPXMLtoHEScoreTranslator(object):
     def get_wall_assembly_code(self,hpxmlwall):
         doxpath = self.doxpath
         ns = self.ns
+        wallid = doxpath(hpxmlwall,'h:SystemIdentifier/@id')
         
         # siding
-        # TODO: determine what to assume for other siding types.
         sidingmap = {'wood siding': 'wo',
                      'stucco': 'st',
                      'synthetic stucco': 'st',
@@ -126,8 +130,15 @@ class HPXMLtoHEScoreTranslator(object):
             else:
                 wallconstype = 'wf'
                 rvalue = round_to_nearest(cavity_rvalue,(0,3,7,11,13,15,19,21))
-            sidingtype = sidingmap[doxpath(hpxmlwall,'h:Siding/text()')]
-            assert sidingtype is not None
+            hpxmlsiding = doxpath(hpxmlwall,'h:Siding/text()')
+            try:
+                sidingtype = sidingmap[hpxmlsiding]
+            except KeyError:
+                raise TranslationError('Wall %s: Exterior finish information is missing' % wallid)
+            else:
+                if sidingtype is None:
+                    raise TranslationError('Wall %s: There is no HEScore wall siding equivalent for the HPXML option: %s' % 
+                                           (wallid, hpxmlsiding))
         elif wall_type == 'StructuralBrick':
             wallconstype = 'br'
             sidingtype = 'nn'
@@ -141,11 +152,13 @@ class HPXMLtoHEScoreTranslator(object):
             for lyr in hpxmlwall.xpath('h:Insulation/h:Layer',namespaces=ns):
                 rvalue += float(doxpath(lyr,'h:NominalRValue/text()'))
             rvalue = round_to_nearest(rvalue,(0,3,6))
-            if doxpath(hpxmlwall,'h:Siding/text()') is None:
+            hpxmlsiding = doxpath(hpxmlwall,'h:Siding/text()')
+            if hpxmlsiding is None:
                 sidingtype = 'nn'
             else:
-                sidingtype = sidingmap[doxpath(hpxmlwall,'h:Siding/text()')]
-                assert sidingtype in ('st','br')
+                sidingtype = sidingmap[hpxmlsiding]
+                if sidingtype not in ('st','br'):
+                    raise TranslationError('Wall %s: is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. It has a siding type of %s' % (wallid, hpxmlsiding))
         elif wall_type == 'StrawBale':
             wallconstype = 'sb'
             rvalue = 0
@@ -408,7 +421,8 @@ class HPXMLtoHEScoreTranslator(object):
         if azimuth is not None:
             return int(round(float(azimuth) / 45.)) % 8 * 45
         else:
-            assert orientation is not None
+            if orientation is None:
+                raise TranslationError('Either an orientation or azimuth is required.')
             return self.hpxml_orientation_to_azimuth[orientation]
                 
     def hpxml_to_hescore_json(self,outfile,*args,**kwargs):
@@ -477,29 +491,39 @@ class HPXMLtoHEScoreTranslator(object):
         bldg_about['assessment_date'] = bldg_about['assessment_date'].isoformat()
     
         # TODO: See if we can map more of these facility types
-        bldg_about['shape'] = {'single-family detached': 'rectangle',
-                               'single-family attached': 'town_house',
-                               'manufactured home': None,
-                               '2-4 unit building': None,
-                               '5+ unit building': None,
-                               'multi-family - uncategorized': None,
-                               'multi-family - town homes': 'town_house',
-                               'multi-family - condos': None,
-                               'apartment unit': None,
-                               'studio unit': None,
-                               'other': None,
-                               'unknown': None
-                               }[doxpath(b,'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ResidentialFacilityType/text()')]
-        assert bldg_about['shape'] is not None
+        residential_facility_type = doxpath(b,'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ResidentialFacilityType/text()')
+        try:
+            bldg_about['shape'] = {'single-family detached': 'rectangle',
+                                   'single-family attached': 'town_house',
+                                   'manufactured home': None,
+                                   '2-4 unit building': None,
+                                   '5+ unit building': None,
+                                   'multi-family - uncategorized': None,
+                                   'multi-family - town homes': 'town_house',
+                                   'multi-family - condos': None,
+                                   'apartment unit': None,
+                                   'studio unit': None,
+                                   'other': None,
+                                   'unknown': None
+                                   }[residential_facility_type]
+        except KeyError:
+            raise TranslationError('ResidentialFacilityType is required in the HPXML document')
+        if bldg_about['shape'] is None:
+            raise TranslationError('Cannot translate HPXML ResidentialFacilityType of %s into HEScore building shape' % residential_facility_type)
         if bldg_about['shape'] == 'town_house':
             # TODO: what to do with a house that is attached on three sides?
             # TODO: pull this info from the geometry
-            bldg_about['town_house_walls'] = {'stand-alone': None,
-                                              'attached on one side': 'back_right_front',
-                                              'attached on two sides': 'back_front',
-                                              'attached on three sides': None
-                                              }[doxpath(b,'h:BuildingDetails/h:BuildingSummary/h:Site/h:Surroundings/text()')]
-            assert bldg_about['town_house_walls'] is not None
+            hpxml_surroundings = doxpath(b,'h:BuildingDetails/h:BuildingSummary/h:Site/h:Surroundings/text()')
+            try:
+                bldg_about['town_house_walls'] = {'stand-alone': None,
+                                                  'attached on one side': 'back_right_front',
+                                                  'attached on two sides': 'back_front',
+                                                  'attached on three sides': None
+                                                  }[hpxml_surroundings]
+            except KeyError:
+                raise TranslationError('Site/Surroundings element is required in the HPXML document for town houses')
+            if bldg_about['town_house_walls'] is None:
+                raise TranslationError('Cannot translate HPXML Site/Surroundings element value of %s into HEScore town_house_walls' % hpxml_surroundings)
         
         bldg_cons_el = b.find('h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction',namespaces=ns)
         bldg_about['year_built'] = int(doxpath(bldg_cons_el,'h:YearBuilt/text()'))
@@ -596,33 +620,41 @@ class HPXMLtoHEScoreTranslator(object):
         for attic in attics:
             atticd = {}
             atticds.append(atticd)
+            atticid = doxpath(attic,'h:SystemIdentifier/@id')
             roof = doxpath(b,'//h:Roof[h:SystemIdentifier/@id=$roofid]',roofid=doxpath(attic,'h:AttachedToRoof/@idref'))
             if roof is None:
                 raise TranslationError('Attic {} does not have a roof associated with it.'.format(doxpath(attic,'h:SystemIdentifier/@id')))
             
             # Roof type
-            atticd['rooftype'] = rooftypemap[doxpath(attic,'h:AtticType/text()')]
-            assert atticd['rooftype'] is not None
+            hpxml_attic_type = doxpath(attic,'h:AtticType/text()')
+            atticd['rooftype'] = rooftypemap[hpxml_attic_type]
+            if atticd['rooftype'] is None:
+                raise TranslationError('Attic {}: Cannot translate HPXML AtticType {} to HEScore rooftype.'.format(atticid,hpxml_attic_type))
             
             # Roof color
-            atticd['roofcolor'] = {'light': 'light', 'medium': 'medium', 'dark': 'dark', 'reflective': 'white'}[doxpath(roof,'h:RoofColor/text()')]
+            try:
+                atticd['roofcolor'] = {'light': 'light', 'medium': 'medium', 'dark': 'dark', 'reflective': 'white'}[doxpath(roof,'h:RoofColor/text()')]
+            except KeyError:
+                raise TranslationError('Attic {}: Invalid or missing RoofColor'.format(atticid))
     
             # Exterior finish
             hpxml_roof_type = doxpath(roof,'h:RoofType/text()')
-            atticd['extfinish'] = {'shingles': 'co', 
-                                   'slate or tile shingles': 'lc', 
-                                   'wood shingles or shakes': 'wo', 
-                                   'asphalt or fiberglass shingles': 'co',
-                                   'metal surfacing': 'co',
-                                   'expanded polystyrene sheathing': None, 
-                                   'plastic/rubber/synthetic sheeting': 'tg',
-                                   'concrete': 'lc', 
-                                   'cool roof': None, 
-                                   'green roof': None, 
-                                   'no one major type': None, 
-                                   'other': None}[hpxml_roof_type]
-            if atticd['extfinish'] is None:
-                raise TranslationError('HEScore does not have an analogy to the HPXML roof type: %s' % hpxml_roof_type)
+            try:
+                atticd['extfinish'] = {'shingles': 'co', 
+                                       'slate or tile shingles': 'lc', 
+                                       'wood shingles or shakes': 'wo', 
+                                       'asphalt or fiberglass shingles': 'co',
+                                       'metal surfacing': 'co',
+                                       'expanded polystyrene sheathing': None, 
+                                       'plastic/rubber/synthetic sheeting': 'tg',
+                                       'concrete': 'lc', 
+                                       'cool roof': None, 
+                                       'green roof': None, 
+                                       'no one major type': None, 
+                                       'other': None}[hpxml_roof_type]
+                assert atticd['extfinish'] is not None
+            except (KeyError,AssertionError): 
+                raise TranslationError('Attic {}: HEScore does not have an analogy to the HPXML roof type: {}'.format(atticid,hpxml_roof_type))
             
             # construction type
             has_rigid_sheathing = doxpath(attic,'boolean(h:AtticRoofInsulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])')
@@ -713,7 +745,8 @@ class HPXMLtoHEScoreTranslator(object):
             zone_skylight['skylight_area'] = 0
         elif len(skylights) > 0:
             uvalues, shgcs, areas = map(list,zip(*[[doxpath(skylight,'h:%s/text()' % x) for x in ('UFactor','SHGC','Area')] for skylight in skylights]))
-            assert None not in areas
+            if None in areas:
+                raise TranslationError('Every skylight needs an area.')
             areas = map(float,areas)
             zone_skylight['skylight_area'] = sum(areas)
             
@@ -743,11 +776,6 @@ class HPXMLtoHEScoreTranslator(object):
                 skylight_type_areas = {}
                 for skylight in skylights:
                     area = convert_to_type(float,doxpath(skylight,'h:Area/text()'))
-                    if area is None:
-                        if len(skylights) == 1:
-                            area = 1.0
-                        else:
-                            raise TranslationError('If there are more than one Skylight elements, each needs to have an area.')
                     skylight_code = self.get_window_code(skylight)
                     try:
                         skylight_type_areas[skylight_code] += area
@@ -797,7 +825,8 @@ class HPXMLtoHEScoreTranslator(object):
         foundationwalls = foundation.xpath('h:FoundationWall',namespaces=ns)
         fw_eff_rvalues = dict(zip((0,5,11,19),(4,7.9,11.6,19.6)))
         if len(foundationwalls) > 0:
-            assert zone_floor['foundation_type'] != 'slab_on_grade'
+            if zone_floor['foundation_type'] == 'slab_on_grade':
+                raise TranslationError('The house is a slab on grade foundation, but has foundation walls.')
             del fw_eff_rvalues[5] # remove the value for slab insulation
             for fwall in foundationwalls:
                 fwarea, fwlength, fwheight = \
@@ -873,7 +902,7 @@ class HPXMLtoHEScoreTranslator(object):
             try:
                 wall_azimuth = self.get_nearest_azimuth(doxpath(wall,'h:Azimuth/text()'),
                                                    doxpath(wall,'h:Orientation/text()'))
-            except AssertionError:
+            except TranslationError:
                 # There is no directional information in the HPXML wall
                 wall_side = 'noside'
                 hpxmlwalls[wall_side].append(walld)
@@ -977,6 +1006,11 @@ class HPXMLtoHEScoreTranslator(object):
     
             # Get the area, uvalue, SHGC, or window_code
             windowd = {'area': convert_to_type(float,doxpath(hpxmlwndw,'h:Area/text()'))}
+
+            # Make sure every window has an area
+            if windowd['area'] is None:
+                raise TranslationError('All windows need an area.')
+
             qty = convert_to_type(int,doxpath(hpxmlwndw,'h:Quantity/text()'))
             if isinstance(qty,int):
                 windowd['area'] *= qty
@@ -1002,7 +1036,7 @@ class HPXMLtoHEScoreTranslator(object):
                 try:
                     wndw_azimuth = self.get_nearest_azimuth(doxpath(hpxmlwndw,'h:Azimuth/text()'),doxpath(hpxmlwndw,'h:Orientation/text()'))
                     window_sides = [sidemap[wndw_azimuth]]
-                except AssertionError:
+                except TranslationError:
                     # there's no directional information in the window
                     raise TranslationError('All windows need to have either an AttachedToWall, Orientation, or Azimuth sub element.')
                 else:
@@ -1053,8 +1087,6 @@ class HPXMLtoHEScoreTranslator(object):
             # Get the list of uvalues and shgcs for the windows on this side of the house.
             uvalues,shgcs,areas = map(list,zip(*[[window[x] for x in ('uvalue','shgc','area')] for window in windows]))
             
-            # Make sure every window has an area
-            assert None not in areas
             zone_window['window_area'] = sum(areas)
     
             # Remove windows from the calculation where a uvalue or shgc isn't set.

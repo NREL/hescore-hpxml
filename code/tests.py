@@ -6,17 +6,23 @@ Created on Oct 23, 2014
 import os
 import json
 import unittest
+from lxml import etree
+from copy import deepcopy
 from hpxml_to_hescore import HPXMLtoHEScoreTranslator, TranslationError
 
 thisdir = os.path.dirname(os.path.abspath(__file__))
 exampledir = os.path.abspath(os.path.join(thisdir,'..','examples'))
 
 class ComparatorBase(object):
-
-    def _convert_hpxml(self,filebase):
+    
+    def _load_xmlfile(self,filebase):
         xmlfilepath = os.path.join(exampledir,filebase + '.xml')
-        translator = HPXMLtoHEScoreTranslator(xmlfilepath)
-        return translator.hpxml_to_hescore_dict()
+        self.translator = HPXMLtoHEScoreTranslator(xmlfilepath)
+        return self.translator
+    
+    def _convert_hpxml(self,filebase):
+        self._load_xmlfile(filebase)
+        return self.translator.hpxml_to_hescore_dict()
         
     def _do_compare(self,filebase):
         jsonfilepath = os.path.join(exampledir,filebase + '.json')
@@ -58,9 +64,149 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         self._do_compare('townhouse_walls')
     
     def test_townhouse_wall_fail(self):
+        tr = self._load_xmlfile('townhouse_walls')
+        el = tr.doxpath(tr.hpxmldoc, '//h:Window/h:Orientation[text()="south"]')
+        el.text = 'east'
         self.assertRaisesRegexp(TranslationError, 
                                 r'The house has windows on shared walls\.', 
-                                self._convert_hpxml, 'townhouse_walls_fail')
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_missing_siding(self):
+        tr = self._load_xmlfile('hescore_min')
+        siding = tr.doxpath(tr.hpxmldoc,'//h:Wall[1]/h:Siding')
+        siding.getparent().remove(siding)
+        self.assertRaisesRegexp(TranslationError, 
+                                r'Exterior finish information is missing',
+                                tr.hpxml_to_hescore_dict)
+        
+        
+    def test_siding_fail2(self):
+        tr = self._load_xmlfile('hescore_min')
+        siding = tr.doxpath(tr.hpxmldoc, '//h:Wall[1]/h:Siding')
+        siding.text = 'other'
+        self.assertRaisesRegexp(TranslationError, 
+                                r'There is no HEScore wall siding equivalent for the HPXML option: other',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_siding_cmu_fail(self):
+        tr = self._load_xmlfile('hescore_min')
+        walltype = tr.doxpath(tr.hpxmldoc, '//h:Wall[1]/h:WallType')
+        walltype.clear()
+        etree.SubElement(walltype, tr.addns('h:ConcreteMasonryUnit'))
+        siding = tr.doxpath(tr.hpxmldoc, '//h:Wall[1]/h:Siding')
+        siding.text = 'vinyl siding'
+        self.assertRaisesRegexp(TranslationError, 
+                                r'is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. It has a siding type of vinyl siding', 
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_log_wall_fail(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = tr.doxpath(tr.hpxmldoc, '//h:Wall[1]/h:WallType')
+        el.clear()
+        etree.SubElement(el, tr.addns('h:LogWall'))
+        self.assertRaisesRegexp(TranslationError, 
+                                r'Wall type LogWall not supported',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_missing_residential_facility_type(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = tr.doxpath(tr.hpxmldoc, '//h:ResidentialFacilityType')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError,
+                                r'ResidentialFacilityType is required in the HPXML document',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_invalid_residential_faciliy_type(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = tr.doxpath(tr.hpxmldoc, '//h:ResidentialFacilityType')
+        el.text = 'manufactured home'
+        self.assertRaisesRegexp(TranslationError,
+                                r'Cannot translate HPXML ResidentialFacilityType of .+ into HEScore building shape',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_missing_surroundings(self):
+        tr = self._load_xmlfile('townhouse_walls')
+        el = tr.doxpath(tr.hpxmldoc, '//h:Surroundings')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError, 
+                                r'Site/Surroundings element is required in the HPXML document for town houses', 
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_invalid_surroundings(self):
+        tr = self._load_xmlfile('townhouse_walls')
+        el = tr.doxpath(tr.hpxmldoc, '//h:Surroundings')
+        el.text = 'attached on three sides'
+        self.assertRaisesRegexp(TranslationError, 
+                                r'Cannot translate HPXML Site/Surroundings element value of .+ into HEScore town_house_walls', 
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_attic_roof_assoc(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = tr.doxpath(tr.hpxmldoc, '//h:Attic[1]/h:AttachedToRoof')
+        el.getparent().remove(el)
+    
+    def test_invalid_attic_type(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = tr.doxpath(tr.hpxmldoc, '//h:Attic[1]/h:AtticType')
+        el.text = 'other'
+        self.assertRaisesRegexp(TranslationError, 
+                                'Attic .+ Cannot translate HPXML AtticType .+ to HEScore rooftype.', 
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_missing_roof_color(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = tr.doxpath(tr.hpxmldoc, '//h:Roof[1]/h:RoofColor')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError, 
+                                'Attic .+ Invalid or missing RoofColor', 
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_invalid_roof_type(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = tr.doxpath(tr.hpxmldoc, '//h:Roof[1]/h:RoofType')
+        el.text = 'no one major type'
+        self.assertRaisesRegexp(TranslationError, 
+                                'Attic .+ HEScore does not have an analogy to the HPXML roof type: .+', 
+                                tr.hpxml_to_hescore_dict)
+        
+    def test_missing_roof_type(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = tr.doxpath(tr.hpxmldoc, '//h:Roof[1]/h:RoofType')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError, 
+                                'Attic .+ HEScore does not have an analogy to the HPXML roof type: .+', 
+                                tr.hpxml_to_hescore_dict)
+
+    def test_missing_skylight_area(self):
+        tr = self._load_xmlfile('hescore_min')
+        area = tr.doxpath(tr.hpxmldoc, '//h:Skylight[1]/h:Area')
+        area.getparent().remove(area)
+        self.assertRaisesRegexp(TranslationError, 
+                                'Every skylight needs an area\.', 
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_foundation_walls_on_slab(self):
+        tr = self._load_xmlfile('house6')
+        fnd = tr.doxpath(tr.hpxmldoc, '//h:Foundation[name(h:FoundationType/*) = "SlabOnGrade"]')
+        for i,el in enumerate(fnd):
+            if el.tag.endswith('Slab'):
+                break
+        fndwall = etree.Element(tr.addns('h:FoundationWall'))
+        etree.SubElement(fndwall, tr.addns('h:SystemIdentifier'), attrib={'id': 'asdfjkl12345'})
+        fnd.insert(i,fndwall)
+        self.assertRaisesRegexp(TranslationError, 
+                                'The house is a slab on grade foundation, but has foundation walls\.', 
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_missing_window_area(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = tr.doxpath(tr.hpxmldoc, '//h:Window[1]/h:Area')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError, 
+                                'All windows need an area\.', 
+                                tr.hpxml_to_hescore_dict)
+        
+        
         
 
 if __name__ == "__main__":
