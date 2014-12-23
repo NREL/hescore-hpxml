@@ -19,7 +19,7 @@ try:
 except ImportError:
     OrderedDict = dict
 
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.ERROR, format='%(levelname)s:%(message)s')
 
 # My imports
 thisdir = os.path.dirname(os.path.abspath(__file__))
@@ -41,10 +41,10 @@ def convert_to_type(type_,value):
         return type_(value)
 
 # Base class for errors in this module
-class HPXMLToHEScoreError(Exception):
+class HPXMLtoHEScoreError(Exception):
     pass
 
-class TranslationError(HPXMLToHEScoreError):
+class TranslationError(HPXMLtoHEScoreError):
     pass
 
 def unspin_azimuth(azimuth):
@@ -1425,12 +1425,17 @@ def main():
                 tblist = tb.splitlines()
                 for tb in tblist:
                     logging.error(tb)
-            
     else:
         # One hpxml file
         assert os.path.isfile(args.hpxml_input)
-        t = HPXMLtoHEScoreTranslator(os.path.abspath(args.hpxml_input))
-        t.hpxml_to_hescore_json(args.output,nrel_assumptions=args.nrelassumptions)
+        try:
+            t = HPXMLtoHEScoreTranslator(os.path.abspath(args.hpxml_input))
+            t.hpxml_to_hescore_json(args.output,nrel_assumptions=args.nrelassumptions)
+        except HPXMLtoHEScoreError as ex:
+            exclass = type(ex).__name__
+            exmsg = ex.message
+            logging.error('%s:%s',exclass,exmsg)
+            sys.exit(1)
 
 if __name__ == '__main__':
     main()
