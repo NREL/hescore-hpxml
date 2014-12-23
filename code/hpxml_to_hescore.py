@@ -1369,7 +1369,7 @@ class HPXMLtoHEScoreTranslator(object):
             sys_dhw['category'] = 'combined'
             sys_dhw['type'] = 'indirect'
             if sys_heating['type'] != 'boiler':
-                raise TranslationError('Cannot have a tankless coil water heater if the primary heating system is not a boiler.')
+                raise TranslationError('Cannot have an indirect water heater if the primary heating system is not a boiler.')
         elif water_heater_type == 'space-heating boiler with tankless coil':
             sys_dhw['category'] = 'combined'
             sys_dhw['type'] = 'tankless_coil'

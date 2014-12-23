@@ -305,9 +305,38 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         self.assertRaisesRegexp(TranslationError, 
                                 'All HVACDistribution elements need to have or NOT have the ConditionFloorAreaServed subelement\.', 
                                 tr.hpxml_to_hescore_dict)
+    
+    def test_missing_water_heater(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:WaterHeating')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError, 
+                                'No water heating systems found\.', 
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_indirect_dhw_error(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:WaterHeatingSystem[1]/h:WaterHeaterType')
+        el.text = 'space-heating boiler with storage tank'
+        self.assertRaisesRegexp(TranslationError, 
+                                'Cannot have an indirect water heater if the primary heating system is not a boiler\.', 
+                                tr.hpxml_to_hescore_dict)
         
+    def test_tankless_coil_dhw_error(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:WaterHeatingSystem[1]/h:WaterHeaterType')
+        el.text = 'space-heating boiler with tankless coil'
+        self.assertRaisesRegexp(TranslationError, 
+                                'Cannot have a tankless coil water heater if the primary heating system is not a boiler\.', 
+                                tr.hpxml_to_hescore_dict)
         
-        
+    def test_invalid_water_heater_type(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:WaterHeatingSystem[1]/h:WaterHeaterType')
+        el.text = 'dedicated boiler with storage tank'
+        self.assertRaisesRegexp(TranslationError, 
+                                'HEScore cannot model the water heater type: .+', 
+                                tr.hpxml_to_hescore_dict)
         
         
 
