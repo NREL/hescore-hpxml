@@ -289,6 +289,24 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         for el in self.xpath('(//h:HeatingSystem|//h:HeatPump)/h:CoolingCapacity'):
             el.getparent().remove(el)
         self._do_compare(filebase)
+    
+    def test_bad_duct_location(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:DuctLocation[1]')
+        el.text = 'outside'
+        self.assertRaisesRegexp(TranslationError, 
+                                'No comparable duct location in HEScore', 
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_duct_cfa_requirement(self):
+        tr = self._load_xmlfile('house4')
+        el = self.xpath('//h:HVACDistribution[1]/h:ConditionedFloorAreaServed')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError, 
+                                'All HVACDistribution elements need to have or NOT have the ConditionFloorAreaServed subelement\.', 
+                                tr.hpxml_to_hescore_dict)
+        
+        
         
         
         
