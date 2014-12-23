@@ -149,6 +149,9 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Attic[1]/h:AttachedToRoof')
         el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError, 
+                                r'Attic .+ does not have a roof associated with it\.', 
+                                tr.hpxml_to_hescore_dict)
     
     def test_invalid_attic_type(self):
         tr = self._load_xmlfile('hescore_min')
