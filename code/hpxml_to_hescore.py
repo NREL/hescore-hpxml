@@ -1430,7 +1430,7 @@ def main():
         assert os.path.isfile(args.hpxml_input)
         try:
             t = HPXMLtoHEScoreTranslator(os.path.abspath(args.hpxml_input))
-            t.hpxml_to_hescore_json(args.output,nrel_assumptions=args.nrelassumptions)
+            t.hpxml_to_hescore_json(args.output,hpxml_bldg_id=args.bldgid,nrel_assumptions=args.nrelassumptions)
         except HPXMLtoHEScoreError as ex:
             exclass = type(ex).__name__
             exmsg = ex.message
