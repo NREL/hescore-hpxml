@@ -47,6 +47,19 @@ class HPXMLtoHEScoreError(Exception):
 class TranslationError(HPXMLtoHEScoreError):
     pass
 
+class InputOutOfBounds(HPXMLtoHEScoreError):
+    
+    def __init__(self,inpname,value):
+        self.inpname = inpname
+        self.value = value
+    
+    @property
+    def message(self):
+        return '{} is out of bounds: {}'.format(self.inpname,self.value)
+    
+    def __str__(self):
+        return self.message
+
 def unspin_azimuth(azimuth):
     while azimuth >= 360:
         azimuth -= 360
@@ -1192,6 +1205,8 @@ class HPXMLtoHEScoreTranslator(object):
         if len(htgsys_by_capacity) > 0:
             sys_heating.update(max(htgsys_by_capacity.values(),key=lambda x: x['totalcapacity']))
             del sys_heating['totalcapacity']
+            if sys_heating['efficiency_method'] == 'shipment_weighted' and sys_heating['year'] < 1970:
+                sys_heating['year'] = 1970
         else:
             sys_heating = {'type': 'none'}
             
@@ -1252,6 +1267,8 @@ class HPXMLtoHEScoreTranslator(object):
         if len(clgsys_by_capacity) > 0:
             sys_cooling.update(max(clgsys_by_capacity.values(),key=lambda x: x['totalcapacity']))
             del sys_cooling['totalcapacity']
+            if sys_cooling['efficiency_method'] == 'shipment_weighted' and sys_cooling['year'] < 1970:
+                sys_cooling['year'] = 1970
         else:
             sys_cooling = {'type': 'none'}
             
@@ -1397,8 +1414,116 @@ class HPXMLtoHEScoreTranslator(object):
                 sys_dhw['efficiency_method'] = 'shipment_weighted'
                 sys_dhw['year'] = dhwyear
                 
+        self.validate_hescore_inputs(hescore_inputs)
         return hescore_inputs
-    
+
+    def validate_hescore_inputs(self,hescore_inputs):
+        
+        def do_bounds_check(fieldname,value,minincl,maxincl):
+            if value < minincl or value > maxincl:
+                raise InputOutOfBounds(fieldname,value)
+        
+        this_year = dt.datetime.today().year
+        
+        do_bounds_check('assessment_date',
+                        dt.datetime.strptime(hescore_inputs['building']['about']['assessment_date'], '%Y-%m-%d').date(),
+                        dt.date(2010,1,1), dt.datetime.today().date())
+
+        do_bounds_check('year_built',
+                        hescore_inputs['building']['about']['year_built'],
+                        1600, this_year)
+        
+        do_bounds_check('number_bedrooms',
+                        hescore_inputs['building']['about']['number_bedrooms'],
+                        1, 10)
+        
+        do_bounds_check('num_floor_above_grade',
+                        hescore_inputs['building']['about']['num_floor_above_grade'],
+                        1, 4)
+
+        do_bounds_check('floor_to_ceiling_height',
+                        hescore_inputs['building']['about']['floor_to_ceiling_height'],
+                        6, 12)
+        
+        do_bounds_check('conditioned_floor_area',
+                        hescore_inputs['building']['about']['conditioned_floor_area'],
+                        250, 25000)
+
+        if hescore_inputs['building']['about']['blower_door_test']:
+            do_bounds_check('envelope_leakage',
+                            hescore_inputs['building']['about']['envelope_leakage'],
+                            0, 25000)
+        
+        zone_skylight = hescore_inputs['building']['zone']['zone_roof']['zone_skylight']
+        do_bounds_check('skylight_area',
+                        zone_skylight['skylight_area'],
+                        0, 300)
+        
+        if zone_skylight['skylight_area'] > 0 and zone_skylight['skylight_method'] == 'custom':
+            do_bounds_check('skylight_u_value',
+                            zone_skylight['skylight_u_value'],
+                            0.01, 5)
+            do_bounds_check('skylight_shgc',
+                            zone_skylight['skylight_shgc'],
+                            0, 1)
+        
+        do_bounds_check('foundation_insulation_level',
+                        hescore_inputs['building']['zone']['zone_floor']['foundation_insulation_level'],
+                        0, 19)
+        
+        for zone_wall in hescore_inputs['building']['zone']['zone_wall']:
+            zone_window = zone_wall['zone_window']
+            do_bounds_check('window_area',
+                            zone_window['window_area'],
+                            0, 999)
+            if zone_window['window_area'] > 0 and zone_window['window_method'] == 'custom':
+                do_bounds_check('window_u_value',
+                                zone_window['window_u_value'],
+                                0.01, 5)
+                do_bounds_check('window_shgc',
+                                zone_window['window_shgc'],
+                                0, 1)
+        
+        sys_heating = hescore_inputs['building']['systems']['heating']
+        if sys_heating['efficiency_method'] == 'user':
+            do_bounds_check('heating_efficiency',
+                            sys_heating['efficiency'],
+                            0.1, 20)
+        else:
+            assert sys_heating['efficiency_method'] == 'shipment_weighted'
+            do_bounds_check('heating_year',
+                            sys_heating['year'],
+                            1970, this_year)
+            
+        sys_cooling = hescore_inputs['building']['systems']['cooling']
+        if sys_cooling['efficiency_method'] == 'user':
+            do_bounds_check('cooling_efficiency',
+                            sys_cooling['efficiency'],
+                            0.1, 30)
+        else:
+            assert sys_cooling['efficiency_method'] == 'shipment_weighted'
+            do_bounds_check('cooling_year',
+                            sys_cooling['year'],
+                            1970, this_year)
+        
+        for hvacd in hescore_inputs['building']['systems']['hvac_distribution']:
+            do_bounds_check('hvac_distribution_fraction',
+                            hvacd['fraction'],
+                            0, 100)
+        
+        dhw = hescore_inputs['building']['systems']['domestic_hot_water']
+        if dhw['type'] in ('storage','heat_pump'):
+            if dhw['efficiency_method'] == 'user':
+                do_bounds_check('domestic_hot_water_energy_factor',
+                                dhw['energy_factor'],
+                                0.1, 3.0)
+            else:
+                assert dhw['efficiency_method'] == 'shipment_weighted'
+                do_bounds_check('domestic_hot_water_year',
+                                dhw['year'],
+                                1972, this_year)
+            
+            
 
 def main():
     parser = argparse.ArgumentParser(description='Convert HPXML v1.1.1 or v2.0 files to HEScore inputs')

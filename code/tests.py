@@ -6,9 +6,9 @@ Created on Oct 23, 2014
 import os
 import json
 import unittest
+import datetime as dt
 from lxml import etree
-from copy import deepcopy
-from hpxml_to_hescore import HPXMLtoHEScoreTranslator, TranslationError
+from hpxml_to_hescore import HPXMLtoHEScoreTranslator, TranslationError, InputOutOfBounds
 
 thisdir = os.path.dirname(os.path.abspath(__file__))
 exampledir = os.path.abspath(os.path.join(thisdir,'..','examples'))
@@ -341,8 +341,176 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 'HEScore cannot model the water heater type: .+', 
                                 tr.hpxml_to_hescore_dict)
         
-        
+class TestInputOutOfBounds(unittest.TestCase,ComparatorBase):
+    
+    def test_assessment_date1(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:Building/h:ProjectStatus/h:Date')
+        el.text = '2009-12-31'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'assessment_date is out of bounds',
+                                tr.hpxml_to_hescore_dict)
 
+    def test_assessment_date2(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:Building/h:ProjectStatus/h:Date')
+        el.text = (dt.datetime.today().date() + dt.timedelta(1)).isoformat()
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'assessment_date is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_year_built1(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:YearBuilt')
+        el.text = '1599'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'year_built is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_year_built2(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:YearBuilt')
+        el.text = str(dt.datetime.today().year + 1)
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'year_built is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_num_floor_above_grade(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:NumberofConditionedFloorsAboveGrade')
+        el.text = '5'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'num_floor_above_grade is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+        
+    def test_floor_to_ceiling_height1(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:AverageCeilingHeight')
+        el.text = '5'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'floor_to_ceiling_height is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_floor_to_ceiling_height2(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:AverageCeilingHeight')
+        el.text = '13'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'floor_to_ceiling_height is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+        
+    def test_conditioned_floor_area1(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:ConditionedFloorArea')
+        el.text = '249'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'conditioned_floor_area is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_conditioned_floor_area2(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:ConditionedFloorArea')
+        el.text = '25001'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'conditioned_floor_area is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_envelope_leakage(self):
+        tr = self._load_xmlfile('hescore_min')
+        units_el = self.xpath('//h:BuildingAirLeakage/h:UnitofMeasure')
+        leak_el = self.xpath('//h:BuildingAirLeakage/h:AirLeakage')
+        units_el.text = 'CFM'
+        leak_el.text = '25001'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'envelope_leakage is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_skylight_area(self):
+        tr = self._load_xmlfile('house3')
+        el = self.xpath('//h:Skylight/h:Area')
+        el.text = '301'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'skylight_area is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+        
+    def test_skylight_u_value(self):
+        tr = self._load_xmlfile('house3')
+        skylight = self.xpath('//h:Skylight')
+        etree.SubElement(skylight, tr.addns('h:UFactor')).text = '0.001'
+        etree.SubElement(skylight, tr.addns('h:SHGC')).text = '0.7'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'skylight_u_value is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_window_area(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:Window[1]/h:Area')
+        el.text = '1000'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'window_area is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_window_u_value(self):
+        tr = self._load_xmlfile('house1a')
+        el = self.xpath('//h:Window[1]/h:UFactor')
+        el.text = '5.00001'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'window_u_value is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_heating_efficiency(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:HeatingSystem/h:AnnualHeatingEfficiency/h:Value')
+        el.text = '20.1'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'heating_efficiency is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_heating_year(self):
+        tr = self._load_xmlfile('house2')
+        el = self.xpath('//h:HeatPump/h:YearInstalled')
+        el.text = str(dt.datetime.today().year + 1)
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'heating_year is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_cooling_efficiency(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency/h:Value')
+        el.text = '30.1'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'cooling_efficiency is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_cooling_year(self):
+        tr = self._load_xmlfile('house1')
+        eff_el = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency')
+        eff_el.getparent().remove(eff_el)
+        year_el = self.xpath('//h:CoolingSystem/h:YearInstalled')
+        year_el.text = str(dt.datetime.today().year + 1)
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'cooling_year is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_dhw_efficiency(self):
+        tr = self._load_xmlfile('house1')
+        el = self.xpath('//h:WaterHeatingSystem/h:EnergyFactor')
+        el.text = '4'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'domestic_hot_water_energy_factor is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+    
+    def test_dhw_year(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:WaterHeatingSystem/h:YearInstalled')
+        el.text = str(dt.datetime.today().year + 1)
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'domestic_hot_water_year is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+        
+        
+        
+        
 if __name__ == "__main__":
     unittest.main()
     
