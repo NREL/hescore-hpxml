@@ -15,7 +15,7 @@
       "number_bedrooms": 5, 
       "num_floor_above_grade": 4, 
       "floor_to_ceiling_height": 9, 
-      "conditioned_floor_area": 3600.0, 
+      "conditioned_floor_area": 3600, 
       "orientation": "south_east", 
       "blower_door_test": false, 
       "air_sealing_present": false
@@ -39,7 +39,9 @@
           "side": "right", 
           "wall_assembly_code": "ewbr00nn", 
           "zone_window": {
-            "window_area": 0
+            "window_area": 0, 
+            "window_method": "code", 
+            "window_code": "scna"
           }
         }, 
         {
@@ -55,7 +57,9 @@
           "side": "left", 
           "wall_assembly_code": "ewbr00nn", 
           "zone_window": {
-            "window_area": 0
+            "window_area": 0, 
+            "window_method": "code", 
+            "window_code": "scna"
           }
         }, 
         {

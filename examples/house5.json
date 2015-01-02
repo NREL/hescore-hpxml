@@ -14,7 +14,7 @@
       "number_bedrooms": 10, 
       "num_floor_above_grade": 2, 
       "floor_to_ceiling_height": 8, 
-      "conditioned_floor_area": 2600.0, 
+      "conditioned_floor_area": 2600, 
       "orientation": "south", 
       "blower_door_test": true, 
       "envelope_leakage": 6100.0

@@ -539,7 +539,7 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             avg_ceiling_ht = float(avg_ceiling_ht)
         bldg_about['floor_to_ceiling_height'] = int(round(avg_ceiling_ht))
-        bldg_about['conditioned_floor_area'] = float(xpath(b,'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ConditionedFloorArea/text()'))
+        bldg_about['conditioned_floor_area'] = int(round(float(xpath(b,'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ConditionedFloorArea/text()'))))
         
         site_el = xpath(b,'h:BuildingDetails/h:BuildingSummary/h:Site')
         house_azimuth = self.get_nearest_azimuth(xpath(site_el,'h:AzimuthOfFrontOfHome/text()'),
@@ -573,6 +573,7 @@ class HPXMLtoHEScoreTranslator(object):
                 assert xpath(blower_door_test,'h:BuildingAirLeakage/h:UnitofMeasure/text()') == 'ACH'
                 bldg_about['envelope_leakage'] = bldg_about['floor_to_ceiling_height'] * bldg_about['conditioned_floor_area'] * \
                     float(xpath(blower_door_test,'h:BuildingAirLeakage/h:AirLeakage/text()')) / 60.
+                bldg_about['envelope_leakage'] = int(round(bldg_about['envelope_leakage']))
         else:
             bldg_about['blower_door_test'] = False
             if b.xpath('count(h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirSealing)',namespaces=ns) > 0 or \
@@ -1082,6 +1083,8 @@ class HPXMLtoHEScoreTranslator(object):
             # If there are no windows on that side of the house
             if len(windows) == 0:
                 zone_window['window_area'] = 0
+                zone_window['window_method'] = 'code'
+                zone_window['window_code'] = 'scna'
                 continue
             
             # Get the list of uvalues and shgcs for the windows on this side of the house.
@@ -1398,44 +1401,23 @@ class HPXMLtoHEScoreTranslator(object):
     
 
 def main():
-    parser = argparse.ArgumentParser(description='Convert HPXML v1.1.1 files to HEScore inputs')
-    parser.add_argument('hpxml_input',help='Filename or directory name of hpxml file(s)')
+    parser = argparse.ArgumentParser(description='Convert HPXML v1.1.1 or v2.0 files to HEScore inputs')
+    parser.add_argument('hpxml_input', type=argparse.FileType('r'), help='Filename of hpxml file')
     parser.add_argument('-o','--output', type=argparse.FileType('w'), default=sys.stdout,
                         help='Filename of output file in json format. If not provided, will go to stdout.')
-    parser.add_argument('--outdir',help='output directory if inputs are a directory')
     parser.add_argument('--bldgid',help='HPXML building id to score if there are more than one <Building/> elements. Default: first one.')
     parser.add_argument('--nrelassumptions',action='store_true',help='Use the NREL assumptions to guess at data elements that are missing.')
     
     args = parser.parse_args()
     
-    if os.path.isdir(args.hpxml_input):
-        assert os.path.isdir(args.outdir)
-        # Directory of hpxml files
-        for filename in os.listdir(args.hpxml_input):
-            basename, ext = os.path.splitext(filename)
-            if not ext == '.xml':
-                continue
-            logging.debug('Translating %s',filename)
-            try:
-                with open(os.path.join(os.path.abspath(args.outdir), basename + '.json'),'w') as f:
-                    t = HPXMLtoHEScoreTranslator(os.path.abspath(args.hpxml_input))
-                    t.hpxml_to_hescore_json(f,nrel_assumptions=args.nrelassumptions)
-            except:
-                tb = traceback.format_exc()
-                tblist = tb.splitlines()
-                for tb in tblist:
-                    logging.error(tb)
-    else:
-        # One hpxml file
-        assert os.path.isfile(args.hpxml_input)
-        try:
-            t = HPXMLtoHEScoreTranslator(os.path.abspath(args.hpxml_input))
-            t.hpxml_to_hescore_json(args.output,hpxml_bldg_id=args.bldgid,nrel_assumptions=args.nrelassumptions)
-        except HPXMLtoHEScoreError as ex:
-            exclass = type(ex).__name__
-            exmsg = ex.message
-            logging.error('%s:%s',exclass,exmsg)
-            sys.exit(1)
+    try:
+        t = HPXMLtoHEScoreTranslator(args.hpxml_input)
+        t.hpxml_to_hescore_json(args.output,hpxml_bldg_id=args.bldgid,nrel_assumptions=args.nrelassumptions)
+    except HPXMLtoHEScoreError as ex:
+        exclass = type(ex).__name__
+        exmsg = ex.message
+        logging.error('%s:%s',exclass,exmsg)
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

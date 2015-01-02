@@ -14,7 +14,7 @@
       "number_bedrooms": 3, 
       "num_floor_above_grade": 2, 
       "floor_to_ceiling_height": 11, 
-      "conditioned_floor_area": 1620.0, 
+      "conditioned_floor_area": 1620, 
       "orientation": "east", 
       "blower_door_test": false, 
       "air_sealing_present": false
