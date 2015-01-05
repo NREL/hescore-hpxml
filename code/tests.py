@@ -20,16 +20,18 @@ class ComparatorBase(object):
         self.translator = HPXMLtoHEScoreTranslator(xmlfilepath)
         return self.translator
     
-    def _do_compare(self,filebase):
+    def _do_compare(self,filebase,jsonfilebase=None):
+        if not jsonfilebase:
+            jsonfilebase = filebase
         hescore_trans = self.translator.hpxml_to_hescore_dict()
-        jsonfilepath = os.path.join(exampledir,filebase + '.json')
+        jsonfilepath = os.path.join(exampledir,jsonfilebase + '.json')
         with open(os.path.join(exampledir,jsonfilepath)) as f:
             hescore_truth = json.load(f)
         self.assertEqual(hescore_trans, hescore_truth, '{} not equal'.format(filebase))
 
-    def _do_full_compare(self,filebase):
+    def _do_full_compare(self,filebase,jsonfilebase=None):
         self._load_xmlfile(filebase)
-        self._do_compare(filebase)
+        self._do_compare(filebase,jsonfilebase)
     
     def _write_xml_file(self,filename):
         self.translator.hpxmldoc.write(os.path.join(exampledir,filename))
@@ -41,6 +43,12 @@ class TestAPIHouses(unittest.TestCase,ComparatorBase):
     
     def test_house1(self):
         self._do_full_compare('house1')
+    
+    def test_house1_v1_1(self):
+        self._do_full_compare('house1-v1-1','house1')
+    
+    def test_house1_v2(self):
+        self._do_full_compare('house1-v2','house1')
     
     def test_house1a(self):
         self._do_full_compare('house1a')
