@@ -72,7 +72,7 @@ def round_to_nearest(x,vals):
 
 class HPXMLtoHEScoreTranslator(object):
     
-    schemaversions = ('hpxml-2.0.0','hpxml-1.1.1')
+    schemaversions = ('hpxml-2.1.0','hpxml-1.1.1')
     
     def __init__(self,hpxmlfilename):
         
