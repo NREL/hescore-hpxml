@@ -58,4 +58,4 @@ present the ``ModelYear`` element.
 
 .. rubric:: Footnotes
 
-.. [#f1] The HEScore help instructs, "If the water heater is a tankless model (aka: on-demand or instaneous water heater) it should be characterized the same as a storage model that uses the same fuel. An electric tankless should be entered as Electric Storage, a natural gas tankless should be entered as Natural Gas Storage, and an LPG or propane tankless should be entered as LPG Storage."
+.. [#f1] The HEScore help instructs, "If the water heater is a tankless model (aka: on-demand or instantaneous water heater) it should be characterized the same as a storage model that uses the same fuel. An electric tankless should be entered as Electric Storage, a natural gas tankless should be entered as Natural Gas Storage, and an LPG or propane tankless should be entered as LPG Storage."

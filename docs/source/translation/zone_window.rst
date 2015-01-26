@@ -48,7 +48,7 @@ Windows can be specified in one of two different ways in HEScore:
 
 Preference is given to the first choice above if those values are available in
 the HPXML document. If U-Factor and SHGC are not available, then one of the
-window codes is chosed based on the other properties of the windows. Since
+window codes is chosen based on the other properties of the windows. Since
 HPXML stores the window properties for each window, the properties for the
 windows on each side of the house must be aggregated across all of the windows
 on that side. The processes described below are done independently for the
@@ -161,7 +161,7 @@ Double-pane
 Double-paned windows have a solar control low-e option in addition to the tinted
 and clear options. 
 
-.. table:: Double-pane window mapping for Alluminum frame types
+.. table:: Double-pane window mapping for Aluminum frame types
 
    ========================  ================================
    HPXML Glass Type          HEScore Glazing Type

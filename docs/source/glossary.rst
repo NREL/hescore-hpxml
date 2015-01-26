@@ -49,7 +49,7 @@ Glossary of Terms
 
       
 
-.. rubric:: Footnoes
+.. rubric:: Footnotes
 
 .. [#f3] http://energy.gov/eere/buildings/home-energy-score
 .. [#f2] http://hpxmlonline.com/

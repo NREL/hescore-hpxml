@@ -13,7 +13,7 @@ system, or an open ended other system. For the translation to HEScore, only
 Duct Location Mapping
 *********************
 
-For each ``Ducts`` element in each air distirbution system, the location of the
+For each ``Ducts`` element in each air distribution system, the location of the
 duct mapped from HPXML enumerations to HEScore enumerations according to the
 following mapping.
 
@@ -109,7 +109,7 @@ and the following will result in a "sealed" designation:
 When combining ducts in certain :ref:`locations <ductlocationmapping>` across
 ``HVACDistribution`` systems, the duct sealing designation for the systems in
 the location that handle the largest area weighted by the percentage of the
-ducts in a location will be used. For instance, if a home has air distribtuion
+ducts in a location will be used. For instance, if a home has air distribution
 system (a.) that serves 2000 sq.ft. with 60% of its ducts in an unconditioned
 basement that is sealed and system (b.) that serves 2500 sq.ft. that has 40% of
 its ducts in an unconditioned basement that is *not* sealed, the ducts in the

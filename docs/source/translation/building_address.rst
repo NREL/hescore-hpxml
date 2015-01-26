@@ -39,7 +39,7 @@ above code snippet are required with the exception of ``Address2``
 Assessment Type
 ***************
 
-To begin a HEScore session an assement type must be selected. The assesment type
+To begin a HEScore session an assessment type must be selected. The assessment type
 is determined from HPXML via the
 ``XMLTransactionHeaderInformation/Transaction`` and
 ``Building/ProjectStatus/EventType`` element using the following mapping: 

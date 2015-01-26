@@ -76,7 +76,7 @@ Exterior Finish
 
 HPXML stores the exterior finish information in the ``Roof/RoofType`` element.
 This is translated into the HEScore exterior finish variable according to the
-folling mapping.
+following mapping.
 
 .. table:: HPXML Roof Type to HEScore Exterior Finish mapping
 

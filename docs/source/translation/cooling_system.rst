@@ -18,7 +18,7 @@ following logic:
    cooling system are translated into HEScore inputs.
 #. If there is no defined primary cooling system in HPXML, each
    ``CoolingSystem`` or ``HeatPump`` is translated into HEScore inputs and
-   systems with teh same ``type`` and ``efficiency_method`` are combined by
+   systems with the same ``type`` and ``efficiency_method`` are combined by
    taking a capacity weighted average of the ``efficiency`` or ``year``
    depending on the efficiency method. The combined system that has the
    greatest total capacity is then used for the HEScore inputs. 
