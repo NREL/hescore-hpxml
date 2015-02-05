@@ -4,3 +4,4 @@
 docs/build
 .settings
 *.pyc
+.idea
