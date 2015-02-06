@@ -1596,7 +1596,7 @@ class HPXMLtoHEScoreTranslator(object):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Convert HPXML v1.1.1 or v2.0 files to HEScore inputs')
+    parser = argparse.ArgumentParser(description='Convert HPXML v1.1.1 or v2.x files to HEScore inputs')
     parser.add_argument('hpxml_input', type=argparse.FileType('r'), help='Filename of hpxml file')
     parser.add_argument('-o', '--output', type=argparse.FileType('w'), default=sys.stdout,
                         help='Filename of output file in json format. If not provided, will go to stdout.')

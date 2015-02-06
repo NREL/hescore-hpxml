@@ -10,6 +10,7 @@ HPXML to Home Energy Score Documentation
    :maxdepth: 3
    
    intro
+   usage
    translation/index
    glossary
 
