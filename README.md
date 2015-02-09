@@ -3,7 +3,7 @@
 This translator script takes an HPXML file or directory of files as an input 
 and generates HEScore inputs from it. The HEScore inputs are exported as json. 
 
-Details of the translation assumptions can be found in [the documentation](http://hescore-hpxml.readthedocs.org/en/latest/).
+Details of the translation assumptions as well instructions for use can be found in [the documentation](http://hescore-hpxml.readthedocs.org/en/latest/).
 
 Instructions on how to run the script are available from the command line by 
 typing in:
