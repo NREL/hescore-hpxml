@@ -130,7 +130,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="backwindows1"/>
-                        <Area>21</Area><!-- 3.5x6 -->
+                        <Area>18</Area><!-- 3x6 -->
                         <Quantity>3</Quantity>
                         <Orientation>west</Orientation>
                         <FrameType>

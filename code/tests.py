@@ -50,9 +50,6 @@ class TestAPIHouses(unittest.TestCase,ComparatorBase):
     def test_house1_v2(self):
         self._do_full_compare('house1-v2','house1')
     
-    def test_house1a(self):
-        self._do_full_compare('house1a')
-    
     def test_house2(self):
         self._do_full_compare('house2')
     
@@ -67,6 +64,12 @@ class TestAPIHouses(unittest.TestCase,ComparatorBase):
     
     def test_house6(self):
         self._do_full_compare('house6')
+    
+    def test_house7(self):
+        self._do_full_compare('house7')
+
+    def test_house8(self):
+        self._do_full_compare('house8')
 
 class TestOtherHouses(unittest.TestCase,ComparatorBase):
 
@@ -154,7 +157,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
     
     def test_attic_roof_assoc(self):
-        tr = self._load_xmlfile('house5')
+        tr = self._load_xmlfile('house6')
         el = self.xpath('//h:Attic[1]/h:AttachedToRoof')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError, 
@@ -202,7 +205,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
     
     def test_foundation_walls_on_slab(self):
-        tr = self._load_xmlfile('house6')
+        tr = self._load_xmlfile('house7')
         fnd = self.xpath('//h:Foundation[name(h:FoundationType/*) = "SlabOnGrade"]')
         for i,el in enumerate(fnd):
             if el.tag.endswith('Slab'):
@@ -231,7 +234,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
     
     def test_window_attached_to_wall(self):
-        filebase = 'house5'
+        filebase = 'house6'
         tr = self._load_xmlfile(filebase)
         # Get the first wall id
         wallid = self.xpath('//h:Wall[1]/h:Orientation/parent::node()/h:SystemIdentifier/@id')
@@ -264,7 +267,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
         
     def test_missing_heating_capacity(self):
-        tr = self._load_xmlfile('house3')
+        tr = self._load_xmlfile('house4')
         el = self.xpath('(//h:HeatingSystem|//h:HeatPump)[1]/h:HeatingCapacity')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError, 
@@ -272,7 +275,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
     
     def test_primary_heating_system(self):
-        filebase = 'house3'
+        filebase = 'house4'
         tr = self._load_xmlfile(filebase)
         hvacplant = self.xpath('//h:HVACPlant')
         el = etree.Element(tr.addns('h:PrimarySystems'))
@@ -283,7 +286,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         self._do_compare(filebase)
         
     def test_missing_cooling_capacity(self):
-        tr = self._load_xmlfile('house4')
+        tr = self._load_xmlfile('house5')
         for el in self.xpath('(//h:HVACPlant/h:CoolingSystem|//h:HVACPlant/h:HeatPump)/h:CoolingCapacity'):
             el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError, 
@@ -291,7 +294,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
     
     def test_primary_cooling_system(self):
-        filebase = 'house3'
+        filebase = 'house4'
         tr = self._load_xmlfile(filebase)
         hvacplant = self.xpath('//h:HVACPlant')
         el = etree.Element(tr.addns('h:PrimarySystems'))
@@ -310,7 +313,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
     
     def test_duct_cfa_requirement(self):
-        tr = self._load_xmlfile('house4')
+        tr = self._load_xmlfile('house5')
         el = self.xpath('//h:HVACDistribution[1]/h:ConditionedFloorAreaServed')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError, 
@@ -440,7 +443,7 @@ class TestInputOutOfBounds(unittest.TestCase,ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
     
     def test_skylight_area(self):
-        tr = self._load_xmlfile('house3')
+        tr = self._load_xmlfile('house4')
         el = self.xpath('//h:Skylight/h:Area')
         el.text = '301'
         self.assertRaisesRegexp(InputOutOfBounds,
@@ -448,7 +451,7 @@ class TestInputOutOfBounds(unittest.TestCase,ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
         
     def test_skylight_u_value(self):
-        tr = self._load_xmlfile('house3')
+        tr = self._load_xmlfile('house4')
         skylight = self.xpath('//h:Skylight')
         etree.SubElement(skylight, tr.addns('h:UFactor')).text = '0.001'
         etree.SubElement(skylight, tr.addns('h:SHGC')).text = '0.7'
@@ -465,7 +468,7 @@ class TestInputOutOfBounds(unittest.TestCase,ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
     
     def test_window_u_value(self):
-        tr = self._load_xmlfile('house1a')
+        tr = self._load_xmlfile('house2')
         el = self.xpath('//h:Window[1]/h:UFactor')
         el.text = '5.00001'
         self.assertRaisesRegexp(InputOutOfBounds,
@@ -481,7 +484,7 @@ class TestInputOutOfBounds(unittest.TestCase,ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
     
     def test_heating_year(self):
-        tr = self._load_xmlfile('house2')
+        tr = self._load_xmlfile('house3')
         el = self.xpath('//h:HeatPump/h:YearInstalled')
         el.text = str(dt.datetime.today().year + 1)
         self.assertRaisesRegexp(InputOutOfBounds,

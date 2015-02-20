@@ -1,76 +1,73 @@
 {
   "building_address": {
     "address": "3 API House", 
-    "city": "Tacoma", 
-    "state": "WA", 
-    "zip_code": "98404", 
-    "assessment_type": "alternative"
+    "city": "Hunstville", 
+    "state": "AL", 
+    "zip_code": "35801", 
+    "assessment_type": "qa"
   }, 
   "building": {
     "about": {
-      "assessment_date": "2014-10-30", 
+      "assessment_date": "2014-10-29", 
       "shape": "rectangle", 
-      "year_built": 1970, 
-      "number_bedrooms": 4, 
-      "num_floor_above_grade": 2, 
-      "floor_to_ceiling_height": 9, 
-      "conditioned_floor_area": 3213, 
-      "orientation": "north_west", 
-      "blower_door_test": false, 
-      "air_sealing_present": true
+      "year_built": 1980, 
+      "number_bedrooms": 5, 
+      "num_floor_above_grade": 3, 
+      "floor_to_ceiling_height": 8, 
+      "conditioned_floor_area": 2039, 
+      "orientation": "south_west", 
+      "blower_door_test": true, 
+      "envelope_leakage": 2500.0
     }, 
     "zone": {
       "zone_roof": {
-        "roof_assembly_code": "rfwf00co", 
-        "roof_color": "white", 
-        "roof_type": "vented_attic", 
-        "ceiling_assembly_code": "ecwf09", 
+        "roof_assembly_code": "rfwf15lc", 
+        "roof_color": "medium", 
+        "roof_type": "cath_ceiling", 
         "zone_skylight": {
-          "skylight_area": 12.0, 
-          "skylight_method": "code", 
-          "skylight_code": "dtab"
+          "skylight_area": 0
         }
       }, 
       "zone_floor": {
-        "foundation_type": "unvented_crawl", 
-        "foundation_insulation_level": 11, 
+        "foundation_type": "slab_on_grade", 
+        "foundation_insulation_level": 5, 
         "floor_assembly_code": "efwf00ca"
       }, 
       "zone_wall": [
         {
-          "side": "left", 
-          "wall_assembly_code": "ewwf11st", 
-          "zone_window": {
-            "window_area": 153.0, 
-            "window_method": "code", 
-            "window_code": "dpeaaw"
-          }
-        }, 
-        {
           "side": "front", 
-          "wall_assembly_code": "ewwf07st", 
+          "wall_assembly_code": "ewps13al", 
           "zone_window": {
-            "window_area": 124.0, 
+            "window_area": 120.0, 
             "window_method": "code", 
-            "window_code": "dcaw"
+            "window_code": "dseab"
           }
         }, 
         {
           "side": "right", 
-          "wall_assembly_code": "ewwf07st", 
+          "wall_assembly_code": "ewps13al", 
           "zone_window": {
-            "window_area": 104.0, 
+            "window_area": 36.0, 
             "window_method": "code", 
-            "window_code": "dcaw"
+            "window_code": "dseab"
           }
         }, 
         {
           "side": "back", 
-          "wall_assembly_code": "ewwf13st", 
+          "wall_assembly_code": "ewps13al", 
           "zone_window": {
-            "window_area": 165.333, 
+            "window_area": 72.0, 
             "window_method": "code", 
-            "window_code": "dpeaaw"
+            "window_code": "dseab"
+          }
+        }, 
+        {
+          "side": "left", 
+          "wall_assembly_code": "ewps13al", 
+          "zone_window": {
+            "window_area": 75.0, 
+            "window_method": "code", 
+            "window_code": "dseab"
           }
         }
       ], 
@@ -79,28 +76,31 @@
     }, 
     "systems": {
       "heating": {
-        "efficiency_method": "user", 
-        "efficiency": 0.85, 
-        "fuel_primary": "fuel_oil", 
-        "type": "boiler"
+        "efficiency_method": "shipment_weighted", 
+        "year": 2000, 
+        "fuel_primary": "electric", 
+        "type": "heat_pump"
       }, 
       "cooling": {
-        "type": "split_dx", 
-        "efficiency": 13.0, 
-        "efficiency_method": "user"
+        "type": "heat_pump", 
+        "year": 2000, 
+        "efficiency_method": "shipment_weighted"
       }, 
       "hvac_distribution": [
         {
           "name": "duct1", 
-          "location": "unvented_crawl", 
+          "location": "cond_space", 
           "fraction": 100, 
           "insulated": false, 
           "sealed": true
         }
       ], 
       "domestic_hot_water": {
-        "category": "combined", 
-        "type": "tankless_coil"
+        "category": "unit", 
+        "type": "storage", 
+        "fuel_primary": "lpg", 
+        "efficiency_method": "user", 
+        "energy_factor": 0.56
       }
     }
   }

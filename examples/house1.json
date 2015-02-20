@@ -66,7 +66,7 @@
           "side": "back", 
           "wall_assembly_code": "ewwf00br", 
           "zone_window": {
-            "window_area": 144.3333333, 
+            "window_area": 135.3333333, 
             "window_method": "code", 
             "window_code": "stnw"
           }

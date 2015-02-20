@@ -9,7 +9,6 @@ import sys
 import argparse
 import datetime as dt
 import logging
-import traceback
 import re
 import json
 import math

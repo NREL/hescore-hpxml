@@ -5,7 +5,7 @@
         <XMLType/>
         <XMLGeneratedBy/>
         <CreatedDateAndTime>2014-12-01T15:34:15</CreatedDateAndTime>
-        <Transaction>update</Transaction>
+        <Transaction>create</Transaction>
     </XMLTransactionHeaderInformation>
     <SoftwareInfo/>
     <Building>
@@ -15,27 +15,27 @@
             <Address>
                 <AddressType>street</AddressType>
                 <Address1>5 API House</Address1>
-                <CityMunicipality>Bakersfield</CityMunicipality>
-                <StateCode>CA</StateCode>
-                <ZipCode>93301</ZipCode>
+                <CityMunicipality>Springfield</CityMunicipality>
+                <StateCode>MO</StateCode>
+                <ZipCode>65802</ZipCode>
             </Address>
         </Site>
         <ProjectStatus>
             <EventType>proposed workscope</EventType>
-            <Date>2014-12-18</Date>
+            <Date>2014-10-30</Date>
         </ProjectStatus>
         <BuildingDetails>
             <BuildingSummary>
                 <Site>
-                    <OrientationOfFrontOfHome>south</OrientationOfFrontOfHome>
+                    <OrientationOfFrontOfHome>southeast</OrientationOfFrontOfHome>
                 </Site>
                 <BuildingConstruction>
-                    <YearBuilt>1950</YearBuilt>
+                    <YearBuilt>1890</YearBuilt>
                     <ResidentialFacilityType>single-family detached</ResidentialFacilityType>
                     <NumberofConditionedFloorsAboveGrade>2</NumberofConditionedFloorsAboveGrade>
-                    <AverageCeilingHeight>8</AverageCeilingHeight>
-                    <NumberofBedrooms>11</NumberofBedrooms>
-                    <ConditionedFloorArea>2600</ConditionedFloorArea>
+                    <NumberofBedrooms>4</NumberofBedrooms>
+                    <ConditionedFloorArea>2323</ConditionedFloorArea>
+                    <ConditionedBuildingVolume>20380</ConditionedBuildingVolume>
                 </BuildingConstruction>
             </BuildingSummary>
             <Enclosure>
@@ -46,7 +46,7 @@
                         <HousePressure>50</HousePressure>
                         <BuildingAirLeakage>
                             <UnitofMeasure>CFM</UnitofMeasure>
-                            <AirLeakage>6100</AirLeakage>
+                            <AirLeakage>4200</AirLeakage>
                         </BuildingAirLeakage>
                     </AirInfiltrationMeasurement>
                 </AirInfiltration>
@@ -57,36 +57,19 @@
                             <RoofColor>medium</RoofColor>
                             <RoofType>wood shingles or shakes</RoofType>
                         </Roof>
-                        <Roof>
-                            <SystemIdentifier id="roof2"/>
-                            <RoofColor>medium</RoofColor>
-                            <RoofType>plastic/rubber/synthetic sheeting</RoofType><!-- tar and gravel -->
-                        </Roof>
                     </Roofs>
                     <Attics>
                         <Attic>
                             <SystemIdentifier id="attic1"/>
                             <AttachedToRoof idref="roof1"/>
-                            <AtticType>cathedral ceiling</AtticType>
+                            <AtticType>vented attic</AtticType>
                             <AtticRoofInsulation>
                                 <SystemIdentifier id="attic1ins"/>
                                 <Layer>
-                                    <NominalRValue>25</NominalRValue>
+                                    <NominalRValue>30</NominalRValue>
                                 </Layer>
                             </AtticRoofInsulation>
-                            <Area>843</Area>
-                        </Attic>
-                        <Attic>
-                            <SystemIdentifier id="attic2"/>
-                            <AttachedToRoof idref="roof2"/>
-                            <AtticType>vented attic</AtticType>
-                            <AtticFloorInsulation>
-                                <SystemIdentifier id="attic2ins"/>
-                                <Layer>
-                                    <NominalRValue>49</NominalRValue>
-                                </Layer>
-                            </AtticFloorInsulation>
-                            <Area>1000</Area>
+                            <Area>898</Area>
                         </Attic>
                     </Attics>
                 </AtticAndRoof>
@@ -94,253 +77,185 @@
                     <Foundation>
                         <SystemIdentifier id="fnd1"/>
                         <FoundationType>
-                            <SlabOnGrade/>
+                            <Crawlspace>
+                                <Vented>false</Vented>
+                            </Crawlspace>
                         </FoundationType>
-                        <Slab>
-                            <SystemIdentifier id="slab1"/>
-                            <Area>600</Area>
-                            <PerimeterInsulation>
-                                <SystemIdentifier id="slab1ins"/>
+                        <FrameFloor>
+                            <SystemIdentifier id="crawlflr"/>
+                            <Area>371</Area>
+                        </FrameFloor>
+                        <FoundationWall>
+                            <SystemIdentifier id="crawlwall"/>
+                            <Insulation>
+                                <SystemIdentifier id="crawlwallins"/>
                                 <Layer>
-                                    <NominalRValue>5</NominalRValue>
+                                    <InsulationMaterial>
+                                        <SprayFoam>unknown</SprayFoam>
+                                    </InsulationMaterial>
+                                    <NominalRValue>13</NominalRValue>
                                 </Layer>
-                            </PerimeterInsulation>
-                        </Slab>
+                            </Insulation>
+                        </FoundationWall>
                     </Foundation>
                     <Foundation>
                         <SystemIdentifier id="fnd2"/>
                         <FoundationType>
                             <Basement>
-                                <Conditioned>false</Conditioned>
+                                <Conditioned>true</Conditioned>
                             </Basement>
                         </FoundationType>
-                        <FrameFloor>
-                            <SystemIdentifier id="bsmtflrabove"/>
-                            <Area>1200</Area>
-                            <Insulation>
-                                <SystemIdentifier id="bsmtflraboveins"/>
-                                <Layer>
-                                    <NominalRValue>22</NominalRValue>
-                                </Layer>
-                            </Insulation>
-                        </FrameFloor>
+                        <Slab>
+                            <SystemIdentifier id="slab"/>
+                            <Area>527</Area>
+                        </Slab>
                     </Foundation>
                 </Foundations>
                 <Walls>
                     <Wall>
-                        <SystemIdentifier id="wallfront"/>
-                        <WallType>
-                            <StructuralBrick/>
-                        </WallType>
-                        <Orientation>south</Orientation>
-                        <!-- Intentionally omitting insulation to see if it comes up with zero as it should -->
-                    </Wall>
-                    <Wall>
-                        <SystemIdentifier id="wallback1"/>
-                        <WallType>
-                            <StructuralBrick/>
-                        </WallType>
-                        <Area>320</Area>
-                        <Orientation>north</Orientation>
-                        <Insulation>
-                            <SystemIdentifier id="wallback1ins"/>
-                            <Layer>
-                                <InstallationType>cavity</InstallationType>
-                                <NominalRValue>0</NominalRValue>
-                            </Layer>
-                        </Insulation>
-                    </Wall>
-                    <Wall>
-                        <SystemIdentifier id="wallback2"/>
+                        <SystemIdentifier id="wall1"/>
                         <WallType>
                             <WoodStud/>
                         </WallType>
-                        <Area>480</Area>
-                        <Orientation>north</Orientation>
-                        <Siding>wood siding</Siding>
+                        <Studs>
+                            <Size>2x4</Size>
+                        </Studs>
+                        <Siding>vinyl siding</Siding>
                         <Insulation>
-                            <SystemIdentifier id="wallback2ins"/>
+                            <SystemIdentifier id="wall1ins"/>
                             <Layer>
                                 <InstallationType>cavity</InstallationType>
-                                <NominalRValue>11</NominalRValue>
-                            </Layer>
-                        </Insulation>
-                    </Wall>
-                    <Wall>
-                        <SystemIdentifier id="wallright1"/>
-                        <WallType>
-                            <StructuralBrick/>
-                        </WallType>
-                        <Area>160</Area>
-                        <Orientation>west</Orientation>
-                        <Insulation>
-                            <SystemIdentifier id="wallright1ins"/>
-                            <Layer>
-                                <InstallationType>cavity</InstallationType>
-                                <NominalRValue>0</NominalRValue>
-                            </Layer>
-                        </Insulation>
-                    </Wall>
-                    <Wall>
-                        <SystemIdentifier id="wallright2"/>
-                        <WallType>
-                            <WoodStud/>
-                        </WallType>
-                        <Area>240</Area>
-                        <Orientation>west</Orientation>
-                        <Siding>wood siding</Siding>
-                        <Insulation>
-                            <SystemIdentifier id="wallright2ins"/>
-                            <Layer>
-                                <InstallationType>cavity</InstallationType>
-                                <NominalRValue>11</NominalRValue>
-                            </Layer>
-                        </Insulation>
-                    </Wall>
-                    <Wall>
-                        <SystemIdentifier id="wallleft1"/>
-                        <WallType>
-                            <StructuralBrick/>
-                        </WallType>
-                        <Area>240</Area>
-                        <Orientation>east</Orientation>
-                        <Insulation>
-                            <SystemIdentifier id="wallleft1ins"/>
-                            <Layer>
-                                <InstallationType>cavity</InstallationType>
-                                <NominalRValue>0</NominalRValue>
-                            </Layer>
-                        </Insulation>
-                    </Wall>
-                    <Wall>
-                        <SystemIdentifier id="wallleft2"/>
-                        <WallType>
-                            <WoodStud/>
-                        </WallType>
-                        <Area>160</Area>
-                        <Orientation>east</Orientation>
-                        <Siding>wood siding</Siding>
-                        <Insulation>
-                            <SystemIdentifier id="wallleft2ins"/>
-                            <Layer>
-                                <InstallationType>cavity</InstallationType>
-                                <NominalRValue>11</NominalRValue>
+                                <NominalRValue>13</NominalRValue>
                             </Layer>
                         </Insulation>
                     </Wall>
                 </Walls>
                 <Windows>
                     <Window>
-                        <SystemIdentifier id="frontwindows"/>
-                        <Area>180</Area>
-                        <Orientation>south</Orientation>
-                        <FrameType>
-                            <Vinyl/>
-                        </FrameType>
-                        <GlassLayers>double-pane</GlassLayers>
-                        <GlassType>reflective</GlassType>
-                    </Window>
-                    <Window>
-                        <SystemIdentifier id="rightwindows"/>
-                        <Area>70</Area>
-                        <Orientation>west</Orientation>
-                        <FrameType>
-                            <Vinyl/>
-                        </FrameType>
-                        <GlassLayers>double-pane</GlassLayers>
-                        <GlassType>reflective</GlassType>
-                        <GasFill>argon</GasFill>
-                    </Window>
-                    <Window>
-                        <SystemIdentifier id="backwindows"/>
-                        <Area>220</Area>
-                        <Orientation>north</Orientation>
-                        <FrameType>
-                            <Vinyl/>
-                        </FrameType>
-                        <GlassLayers>double-pane</GlassLayers>
-                        <GlassType>low-e</GlassType>
-                    </Window>
-                    <Window>
-                        <SystemIdentifier id="leftwindows"/>
-                        <Area>40</Area>
-                        <Orientation>east</Orientation>
-                        <FrameType>
-                            <Vinyl/>
-                        </FrameType>
-                        <GlassLayers>double-pane</GlassLayers>
-                        <GlassType>low-e</GlassType>
-                        <GasFill>argon</GasFill>
-                    </Window>
-                </Windows>
-                <Skylights>
-                    <Skylight>
-                        <SystemIdentifier id="skylight1"/>
-                        <Area>12</Area><!-- 2x6 -->
-                        <Quantity>2</Quantity>
+                        <SystemIdentifier id="frontwindows1"/>
+                        <Area>15</Area><!-- 3x5 -->
+                        <Quantity>7</Quantity>
+                        <Orientation>southeast</Orientation>
                         <FrameType>
                             <Wood/>
                         </FrameType>
-                        <GlassLayers>single-pane</GlassLayers>
-                        <GlassType>tinted</GlassType>
-                    </Skylight>
-                    <Skylight>
-                        <SystemIdentifier id="skylight2"/>
-                        <Area>12</Area><!-- 2x6 -->
-                        <Quantity>1</Quantity>
+                        <GlassLayers>triple-pane</GlassLayers>
+                    </Window>
+                    <Window>
+                        <SystemIdentifier id="rightwindows2"/>
+                        <Area>16</Area><!-- 4x4 -->
+                        <Quantity>5</Quantity>
+                        <Orientation>southwest</Orientation>
                         <FrameType>
-                            <Aluminum/>
+                            <Wood/>
                         </FrameType>
-                        <GlassLayers>single-pane</GlassLayers>
-                    </Skylight>
-                </Skylights>
+                        <GlassLayers>triple-pane</GlassLayers>
+                    </Window>
+                    <Window>
+                        <SystemIdentifier id="backwindows1"/>
+                        <Area>18</Area><!-- 3x6 -->
+                        <Quantity>8</Quantity>
+                        <Orientation>northwest</Orientation>
+                        <FrameType>
+                            <Wood/>
+                        </FrameType>
+                        <GlassLayers>triple-pane</GlassLayers>
+                    </Window>
+                    <Window>
+                        <SystemIdentifier id="leftwindows1"/>
+                        <Area>18</Area><!-- 3x6 -->
+                        <Quantity>4</Quantity>
+                        <Orientation>northeast</Orientation>
+                        <FrameType>
+                            <Wood/>
+                        </FrameType>
+                        <GlassLayers>triple-pane</GlassLayers>
+                    </Window>
+                </Windows>
             </Enclosure>
             <Systems>
                 <HVAC>
                     <HVACPlant>
                         <HeatingSystem>
-                            <SystemIdentifier id="furnace"/>
-                            <YearInstalled>1990</YearInstalled>
-                            <DistributionSystem idref="ducts"/>
+                            <SystemIdentifier id="backfurnace"/>
+                            <YearInstalled>1995</YearInstalled>
+                            <DistributionSystem idref="backducts"/>
                             <HeatingSystemType>
                                 <Furnace/>
                             </HeatingSystemType>
                             <HeatingSystemFuel>propane</HeatingSystemFuel>
                             <HeatingCapacity>100000</HeatingCapacity>
+                            <AnnualHeatingEfficiency>
+                                <Units>AFUE</Units>
+                                <Value>0.80</Value>
+                            </AnnualHeatingEfficiency>
+                            <FloorAreaServed>1581</FloorAreaServed>
                         </HeatingSystem>
                         <HeatingSystem>
-                            <SystemIdentifier id="baseboard"/>
-                            <YearInstalled>1970</YearInstalled>
+                            <SystemIdentifier id="frontfurnace"/>
+                            <YearInstalled>2010</YearInstalled>
+                            <DistributionSystem idref="frontducts"/>
                             <HeatingSystemType>
-                                <ElectricResistance>
-                                    <ElectricDistribution>baseboard</ElectricDistribution>
-                                </ElectricResistance>
+                                <Furnace></Furnace>
                             </HeatingSystemType>
-                            <HeatingSystemFuel>electricity</HeatingSystemFuel>
-                            <HeatingCapacity>6824.28326626</HeatingCapacity><!-- 2 kW in Btu/h -->
+                            <HeatingSystemFuel>propane</HeatingSystemFuel>
+                            <HeatingCapacity>60000</HeatingCapacity>
+                            <AnnualHeatingEfficiency>
+                                <Units>AFUE</Units>
+                                <Value>0.92</Value>
+                            </AnnualHeatingEfficiency>
+                            <FloorAreaServed>742</FloorAreaServed>
                         </HeatingSystem>
                         <CoolingSystem>
-                            <SystemIdentifier id="centralair"/>
-                            <DistributionSystem idref="ducts"/>
+                            <SystemIdentifier id="backcentralair"/>
+                            <YearInstalled>1995</YearInstalled>
+                            <DistributionSystem idref="backducts"/>
                             <CoolingSystemType>central air conditioning</CoolingSystemType>
-                            <CoolingSystemFuel>electricity</CoolingSystemFuel>
+                            <CoolingCapacity>42000</CoolingCapacity><!-- 3.5 ton -->
+                            <FloorAreaServed>1581</FloorAreaServed>
                             <AnnualCoolingEfficiency>
                                 <Units>SEER</Units>
-                                <Value>12</Value>
+                                <Value>10</Value>
+                            </AnnualCoolingEfficiency>
+                        </CoolingSystem>
+                        <CoolingSystem>
+                            <SystemIdentifier id="frontcentralair"/>
+                            <YearInstalled>2000</YearInstalled>
+                            <DistributionSystem idref="frontducts"/>
+                            <CoolingSystemType>central air conditioning</CoolingSystemType>
+                            <CoolingCapacity>30000</CoolingCapacity><!-- 2.5 ton -->
+                            <FloorAreaServed>742</FloorAreaServed>
+                            <AnnualCoolingEfficiency>
+                                <Units>SEER</Units>
+                                <Value>15</Value>
                             </AnnualCoolingEfficiency>
                         </CoolingSystem>
                     </HVACPlant>
                     <HVACDistribution>
-                        <SystemIdentifier id="ducts"/>
+                        <SystemIdentifier id="backducts"/>
                         <DistributionSystemType>
                             <AirDistribution>
                                 <Ducts>
-                                    <DuctInsulationRValue>1</DuctInsulationRValue>
-                                    <DuctLocation>unconditioned basement</DuctLocation>
+                                    <DuctInsulationRValue>0</DuctInsulationRValue>
+                                    <DuctLocation>conditioned space</DuctLocation>
                                     <FractionDuctArea>1</FractionDuctArea>
                                 </Ducts>
                             </AirDistribution>
                         </DistributionSystemType>
+                        <ConditionedFloorAreaServed>1581</ConditionedFloorAreaServed>
+                    </HVACDistribution>
+                    <HVACDistribution>
+                        <SystemIdentifier id="frontducts"/>
+                        <DistributionSystemType>
+                            <AirDistribution>
+                                <Ducts>
+                                    <DuctInsulationRValue>0</DuctInsulationRValue>
+                                    <DuctLocation>conditioned space</DuctLocation>
+                                    <FractionDuctArea>1</FractionDuctArea>
+                                </Ducts>
+                            </AirDistribution>
+                        </DistributionSystemType>
+                        <ConditionedFloorAreaServed>742</ConditionedFloorAreaServed>
                     </HVACDistribution>
                 </HVAC>
                 <WaterHeating>
@@ -348,7 +263,8 @@
                         <SystemIdentifier id="dhw1"/>
                         <FuelType>propane</FuelType>
                         <WaterHeaterType>storage water heater</WaterHeaterType>
-                        <EnergyFactor>0.58</EnergyFactor>
+                        <YearInstalled>2000</YearInstalled>
+                        <EnergyFactor>0.55</EnergyFactor>
                     </WaterHeatingSystem>
                 </WaterHeating>
             </Systems>
