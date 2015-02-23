@@ -483,9 +483,33 @@ class HPXMLtoHEScoreTranslator(object):
         # Create return dict
         hescore_inputs = OrderedDict()
 
-        # building_address---------------------------------------------------------
+        # Build it
+        bldg = OrderedDict()
+        hescore_inputs['building'] = bldg
+        hescore_inputs['building_address'] = self._get_building_address(b)
+        bldg['about'] = self._get_building_about(b)
+        bldg['zone'] = OrderedDict()
+        bldg['zone']['zone_roof'] = self._get_building_zone_roof(b)
+        bldg['zone']['zone_floor'] = self._get_building_zone_floor(b)
+        bldg['zone']['wall_construction_same'] = False
+        bldg['zone']['window_construction_same'] = False
+        bldg['zone']['zone_wall'] = self._get_building_zone_wall(b, bldg['about'])
+        bldg['systems'] = OrderedDict()
+        bldg['systems']['heating'] = self._get_systems_heating(b)
+        bldg['systems']['cooling'] = self._get_systems_cooling(b)
+        if not (bldg['systems']['cooling']['type'] == 'none' and bldg['systems']['heating']['type'] == 'none'):
+            bldg['systems']['hvac_distribution'] = self._get_systems_hvac_distribution(b)
+        bldg['systems']['domestic_hot_water'] = self._get_systems_dhw(b, bldg['systems']['heating'])
+
+        # Validate
+        self.validate_hescore_inputs(hescore_inputs)
+
+        return hescore_inputs
+
+    def _get_building_address(self,b):
+        xpath = self.xpath
+        ns = self.ns
         bldgaddr = OrderedDict()
-        hescore_inputs['building_address'] = bldgaddr
         hpxmladdress = xpath(b, 'h:Site/h:Address[h:AddressType="street"]')
         if hpxmladdress is None:
             raise TranslationError('The house address must be a street address.')
@@ -505,14 +529,12 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             assert transaction_type == 'update'
             bldgaddr['assessment_type'] = 'corrected'
+        return bldgaddr
 
-        # building-----------------------------------------------------------------
-        bldg = OrderedDict()
-        hescore_inputs['building'] = bldg
-
-        # building.about-----------------------------------------------------------
-        bldg['about'] = OrderedDict()
-        bldg_about = bldg['about']
+    def _get_building_about(self,b):
+        xpath = self.xpath
+        ns = self.ns
+        bldg_about = OrderedDict()
         projstatdateel = b.find('h:ProjectStatus/h:Date', namespaces=ns)
         if projstatdateel is None:
             bldg_about['assessment_date'] = dt.date.today()
@@ -587,6 +609,8 @@ class HPXMLtoHEScoreTranslator(object):
                                      225: 'south_west',
                                      270: 'west',
                                      315: 'north_west'}[house_azimuth]
+        self.sidemap = {house_azimuth: 'front', (house_azimuth + 90) % 360: 'right',
+                        (house_azimuth + 180) % 360: 'back', (house_azimuth + 270) % 360: 'left'}
 
         blower_door_test = None
         air_infilt_est = None
@@ -621,14 +645,11 @@ class HPXMLtoHEScoreTranslator(object):
                 bldg_about['air_sealing_present'] = True
             else:
                 bldg_about['air_sealing_present'] = False
+        return bldg_about
 
-        # building.zone------------------------------------------------------------
-        bldg_zone = OrderedDict()
-        bldg['zone'] = bldg_zone
-        sidemap = {house_azimuth: 'front',
-                   (house_azimuth + 90) % 360: 'right',
-                   (house_azimuth + 180) % 360: 'back',
-                   (house_azimuth + 270) % 360: 'left'}
+    def _get_building_zone_roof(self, b):
+        ns = self.ns
+        xpath = self.xpath
 
         # building.zone.zone_roof--------------------------------------------------
         attics = b.xpath('//h:Attic', namespaces=ns)
@@ -782,7 +803,6 @@ class HPXMLtoHEScoreTranslator(object):
 
         # store it all
         zone_roof = OrderedDict()
-        bldg['zone']['zone_roof'] = zone_roof
         zone_roof['roof_assembly_code'] = 'rf%s%02d%s' % (roofconstype, roof_rvalue, extfinish)
         zone_roof['roof_color'] = roofcolor
         zone_roof['roof_type'] = rooftype
@@ -838,10 +858,14 @@ class HPXMLtoHEScoreTranslator(object):
                 zone_skylight['skylight_method'] = 'code'
                 zone_skylight['skylight_code'] = max(skylight_type_areas.items(), key=lambda x: x[1])[0]
 
+        return zone_roof
+
+    def _get_building_zone_floor(self, b):
+        ns = self.ns
+        xpath = self.xpath
 
         # building.zone.zone_floor-------------------------------------------------
         zone_floor = OrderedDict()
-        bldg_zone['zone_floor'] = zone_floor
 
         foundations = b.xpath('//h:Foundations/h:Foundation', namespaces=ns)
         # get the Foundation element that covers the largest square footage of the house
@@ -862,7 +886,7 @@ class HPXMLtoHEScoreTranslator(object):
             if crawlvented:
                 zone_floor['foundation_type'] = 'vented_crawl'
             else:
-                # assumes unvented crawlspace if h:Vented is missing. 
+                # assumes unvented crawlspace if h:Vented is missing.
                 zone_floor['foundation_type'] = 'unvented_crawl'
         elif hpxml_foundation_type == 'SlabOnGrade':
             zone_floor['foundation_type'] = 'slab_on_grade'
@@ -948,8 +972,15 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             zone_floor['floor_assembly_code'] = 'efwf00ca'
 
+        return zone_floor
+
+    def _get_building_zone_wall(self, b, bldg_about):
+        xpath = self.xpath
+        ns = self.ns
+        sidemap = self.sidemap
+
         # building.zone.zone_wall--------------------------------------------------
-        bldg_zone['zone_wall'] = []
+        zone_wall = []
 
         hpxmlwalls = dict([(side, []) for side in sidemap.values()])
         hpxmlwalls['noside'] = []
@@ -980,7 +1011,6 @@ class HPXMLtoHEScoreTranslator(object):
         if len(hpxmlwalls['noside']) > 0 and map(len, [hpxmlwalls[key] for key in sidemap.values()]) == ([0] * 4):
             # if none of the walls have orientation information
             # copy the walls to all sides
-            bldg_zone['wall_construction_same'] = False
             for side in sidemap.values():
                 hpxmlwalls[side] = hpxmlwalls['noside']
             del hpxmlwalls['noside']
@@ -988,7 +1018,6 @@ class HPXMLtoHEScoreTranslator(object):
             # make sure all of the walls have an orientation
             if len(hpxmlwalls['noside']) > 0:
                 raise TranslationError('Some of the HPXML walls have orientation information and others do not.')
-            bldg_zone['wall_construction_same'] = False
 
         # Wall effective R-value map
         wall_const_types = ('wf', 'ps', 'ov', 'br', 'cb', 'sb')
@@ -1057,11 +1086,9 @@ class HPXMLtoHEScoreTranslator(object):
             comb_rvalue = min(wall_eff_rvalues[const_type][ext_finish].keys(),
                               key=lambda x: abs(rvalueavgnom - x))
             heswall['wall_assembly_code'] = 'ew%s%02d%s' % (const_type, comb_rvalue, ext_finish)
-            bldg_zone['zone_wall'].append(heswall)
+            zone_wall.append(heswall)
 
         # building.zone.zone_wall.zone_window--------------------------------------
-        bldg_zone['window_construction_same'] = False
-
         # Assign each window to a side of the house
         hpxmlwindows = dict([(side, []) for side in sidemap.values()])
         for hpxmlwndw in b.xpath('h:BuildingDetails/h:Enclosure/h:Windows/h:Window', namespaces=ns):
@@ -1086,7 +1113,7 @@ class HPXMLtoHEScoreTranslator(object):
             # Window side
             window_sides = []
             attached_to_wall_id = xpath(hpxmlwndw, 'h:AttachedToWall/@idref')
-            if attached_to_wall_id is not None and not bldg_zone['wall_construction_same']:
+            if attached_to_wall_id is not None:
                 # Give preference to the Attached to Wall element to determine the side of the house.
                 for side, walls in hpxmlwalls.items():
                     for wall in walls:
@@ -1132,12 +1159,11 @@ class HPXMLtoHEScoreTranslator(object):
             if window_on_shared_wall_fail:
                 raise TranslationError('The house has windows on shared walls.')
 
-        # Determine the predominant window characteristics and create HEScore windows 
-        bldg_zone['window_construction_same'] = False
+        # Determine the predominant window characteristics and create HEScore windows
         for side, windows in hpxmlwindows.items():
 
             # Add to the correct wall
-            for heswall in bldg_zone['zone_wall']:
+            for heswall in zone_wall:
                 if heswall['side'] == side:
                     break
 
@@ -1190,12 +1216,15 @@ class HPXMLtoHEScoreTranslator(object):
                         window_code_areas[window['window_code']] = window['area']
                 zone_window['window_code'] = max(window_code_areas.items(), key=lambda x: x[1])[0]
 
-        # systems.heating----------------------------------------------------------
-        eff_method_map = {'user': 'efficiency', 'shipment_weighted': 'year'}
-        bldg_systems = OrderedDict()
-        bldg['systems'] = bldg_systems
+        return zone_wall
+
+    eff_method_map = {'user': 'efficiency', 'shipment_weighted': 'year'}
+
+    def _get_systems_heating(self, b):
+        xpath = self.xpath
+        ns = self.ns
+
         sys_heating = OrderedDict()
-        bldg_systems['heating'] = sys_heating
 
         # Use the primary heating system specified in the HPXML file if that element exists.
         primaryhtgsys = xpath(b,
@@ -1239,7 +1268,7 @@ class HPXMLtoHEScoreTranslator(object):
 
             combhtgsys['totalcapacity'] += htgsysd['capacity']
             if combhtgsys['efficiency_method'] is not None:
-                combhtgsys['sum'] += htgsysd[eff_method_map[combhtgsys['efficiency_method']]] * htgsysd['capacity']
+                combhtgsys['sum'] += htgsysd[self.eff_method_map[combhtgsys['efficiency_method']]] * htgsysd['capacity']
             combhtgsys['n'] += 1
 
         for combhtgsys in htgsys_by_capacity.values():
@@ -1248,10 +1277,10 @@ class HPXMLtoHEScoreTranslator(object):
                     htg_round_decimal_places = 1
                 else:
                     htg_round_decimal_places = 2
-                combhtgsys[eff_method_map[combhtgsys['efficiency_method']]] = round(
+                combhtgsys[self.eff_method_map[combhtgsys['efficiency_method']]] = round(
                     combhtgsys['sum'] / combhtgsys['totalcapacity'], htg_round_decimal_places)
             elif combhtgsys['efficiency_method'] == 'shipment_weighted':
-                combhtgsys[eff_method_map[combhtgsys['efficiency_method']]] = int(
+                combhtgsys[self.eff_method_map[combhtgsys['efficiency_method']]] = int(
                     round(combhtgsys['sum'] / combhtgsys['totalcapacity']))
             else:
                 assert combhtgsys['efficiency_method'] is None
@@ -1267,9 +1296,12 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             sys_heating = {'type': 'none'}
 
-        # systems.cooling ---------------------------------------------------------
+        return sys_heating
+
+    def _get_systems_cooling(self, b):
+        xpath = self.xpath
+        ns = self.ns
         sys_cooling = OrderedDict()
-        bldg_systems['cooling'] = sys_cooling
 
         primaryclgsys = xpath(b,
                               '//h:HVACPlant/*[//h:HVACPlant/h:PrimarySystems/h:PrimaryCoolingSystem/@idref=h:SystemIdentifier/@id]')
@@ -1311,16 +1343,16 @@ class HPXMLtoHEScoreTranslator(object):
                 clgsys_by_capacity[tuple([clgsysd[x] for x in clgsys_groupby_keys])] = combclgsys
 
             combclgsys['totalcapacity'] += clgsysd['capacity']
-            combclgsys['sum'] += clgsysd[eff_method_map[combclgsys['efficiency_method']]] * clgsysd['capacity']
+            combclgsys['sum'] += clgsysd[self.eff_method_map[combclgsys['efficiency_method']]] * clgsysd['capacity']
             combclgsys['n'] += 1
 
         for combclgsys in clgsys_by_capacity.values():
             if combclgsys['efficiency_method'] == 'user':
-                combclgsys[eff_method_map[combclgsys['efficiency_method']]] = round(
+                combclgsys[self.eff_method_map[combclgsys['efficiency_method']]] = round(
                     combclgsys['sum'] / combclgsys['totalcapacity'], 1)
             else:
                 assert combclgsys['efficiency_method'] == 'shipment_weighted'
-                combclgsys[eff_method_map[combclgsys['efficiency_method']]] = int(
+                combclgsys[self.eff_method_map[combclgsys['efficiency_method']]] = int(
                     round(combclgsys['sum'] / combclgsys['totalcapacity']))
             del combclgsys['sum']
             del combclgsys['n']
@@ -1333,107 +1365,115 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             sys_cooling = {'type': 'none'}
 
-        # systems.hvac_distribution -----------------------------------------------
-        bldg_systems['hvac_distribution'] = []
-        if not (sys_cooling['type'] == 'none' and sys_heating['type'] == 'none'):
-            duct_location_map = {'conditioned space': 'cond_space',
-                                 'unconditioned space': None,
-                                 'unconditioned basement': 'uncond_basement',
-                                 'unvented crawlspace': 'unvented_crawl',
-                                 'vented crawlspace': 'vented_crawl',
-                                 'crawlspace': None,
-                                 'unconditioned attic': 'uncond_attic',
-                                 'interstitial space': None,
-                                 'garage': None,
-                                 'outside': None}
-            airdistributionxpath = '//h:HVACDistribution/h:DistributionSystemType/h:AirDistribution'
-            allhave_cfaserved = True
-            allmissing_cfaserved = True
-            airdistsystems_ductfracs = []
-            hescore_ductloc_has_ins = {}
-            airdistsys_issealed = []
-            for airdistsys in b.xpath(airdistributionxpath, namespaces=ns):
-                airdistsys_ductfracs = {}
-                airdistsys_issealed.append(airdistsys.xpath(
-                    '(h:DuctLeakageMeasurement/h:LeakinessObservedVisualInspection="connections sealed w mastic") or (ancestor::h:HVACDistribution/h:HVACDistributionImprovement/h:DuctSystemSealed="true")',
-                    namespaces=ns))
-                for duct in airdistsys.xpath('h:Ducts', namespaces=ns):
-                    frac_duct_area = float(xpath(duct, 'h:FractionDuctArea/text()'))
-                    hpxml_duct_location = xpath(duct, 'h:DuctLocation/text()')
-                    hescore_duct_location = duct_location_map[hpxml_duct_location]
-                    if hescore_duct_location is None:
-                        raise TranslationError('No comparable duct location in HEScore: %s' % hpxml_duct_location)
-                    try:
-                        airdistsys_ductfracs[hescore_duct_location] += frac_duct_area
-                    except KeyError:
-                        airdistsys_ductfracs[hescore_duct_location] = frac_duct_area
-                    duct_has_ins = duct.xpath('h:DuctInsulationRValue > 0 or h:DuctInsulationThickness > 0',
-                                              namespaces=ns)
-                    try:
-                        hescore_ductloc_has_ins[hescore_duct_location] = hescore_ductloc_has_ins[
-                                                                             hescore_duct_location] or duct_has_ins
-                    except KeyError:
-                        hescore_ductloc_has_ins[hescore_duct_location] = duct_has_ins
-                total_duct_frac = sum(airdistsys_ductfracs.values())
-                airdistsys_ductfracs = dict([(key, value / total_duct_frac)
-                                             for key, value
-                                             in airdistsys_ductfracs.items()])
-                cfaserved = xpath(airdistsys.getparent().getparent(), 'h:ConditionedFloorAreaServed/text()')
-                if cfaserved is not None:
-                    cfaserved = float(cfaserved)
-                    airdistsys_ductfracs = dict(
-                        [(key, value * cfaserved) for key, value in airdistsys_ductfracs.items()])
-                    allmissing_cfaserved = False
-                else:
-                    allhave_cfaserved = False
-                airdistsystems_ductfracs.append(airdistsys_ductfracs)
-            allsame_cfaserved = allhave_cfaserved or allmissing_cfaserved
+        return sys_cooling
 
-            # Combine all
-            ductfracs = {}
-            issealedfracs = {}
-            if (len(airdistsystems_ductfracs) > 1 and allsame_cfaserved) or len(airdistsystems_ductfracs) <= 1:
-                for airdistsys_ductfracs, issealed in zip(airdistsystems_ductfracs, airdistsys_issealed):
-                    for key, value in airdistsys_ductfracs.items():
-                        try:
-                            ductfracs[key] += value
-                        except KeyError:
-                            ductfracs[key] = value
-                        try:
-                            issealedfracs[key] += value * float(issealed)
-                        except KeyError:
-                            issealedfracs[key] = value * float(issealed)
+    def _get_systems_hvac_distribution(self, b):
+        ns = self.ns
+        xpath = self.xpath
 
+        hvac_distribution = []
+        duct_location_map = {'conditioned space': 'cond_space',
+                             'unconditioned space': None,
+                             'unconditioned basement': 'uncond_basement',
+                             'unvented crawlspace': 'unvented_crawl',
+                             'vented crawlspace': 'vented_crawl',
+                             'crawlspace': None,
+                             'unconditioned attic': 'uncond_attic',
+                             'interstitial space': None,
+                             'garage': None,
+                             'outside': None}
+        airdistributionxpath = '//h:HVACDistribution/h:DistributionSystemType/h:AirDistribution'
+        allhave_cfaserved = True
+        allmissing_cfaserved = True
+        airdistsystems_ductfracs = []
+        hescore_ductloc_has_ins = {}
+        airdistsys_issealed = []
+        for airdistsys in b.xpath(airdistributionxpath, namespaces=ns):
+            airdistsys_ductfracs = {}
+            airdistsys_issealed.append(airdistsys.xpath(
+                '(h:DuctLeakageMeasurement/h:LeakinessObservedVisualInspection="connections sealed w mastic") or (ancestor::h:HVACDistribution/h:HVACDistributionImprovement/h:DuctSystemSealed="true")',
+                namespaces=ns))
+            for duct in airdistsys.xpath('h:Ducts', namespaces=ns):
+                frac_duct_area = float(xpath(duct, 'h:FractionDuctArea/text()'))
+                hpxml_duct_location = xpath(duct, 'h:DuctLocation/text()')
+                hescore_duct_location = duct_location_map[hpxml_duct_location]
+                if hescore_duct_location is None:
+                    raise TranslationError('No comparable duct location in HEScore: %s' % hpxml_duct_location)
+                try:
+                    airdistsys_ductfracs[hescore_duct_location] += frac_duct_area
+                except KeyError:
+                    airdistsys_ductfracs[hescore_duct_location] = frac_duct_area
+                duct_has_ins = duct.xpath('h:DuctInsulationRValue > 0 or h:DuctInsulationThickness > 0',
+                                          namespaces=ns)
+                try:
+                    hescore_ductloc_has_ins[hescore_duct_location] = hescore_ductloc_has_ins[
+                                                                         hescore_duct_location] or duct_has_ins
+                except KeyError:
+                    hescore_ductloc_has_ins[hescore_duct_location] = duct_has_ins
+            total_duct_frac = sum(airdistsys_ductfracs.values())
+            airdistsys_ductfracs = dict([(key, value / total_duct_frac)
+                                         for key, value
+                                         in airdistsys_ductfracs.items()])
+            cfaserved = xpath(airdistsys.getparent().getparent(), 'h:ConditionedFloorAreaServed/text()')
+            if cfaserved is not None:
+                cfaserved = float(cfaserved)
+                airdistsys_ductfracs = dict(
+                    [(key, value * cfaserved) for key, value in airdistsys_ductfracs.items()])
+                allmissing_cfaserved = False
             else:
-                raise TranslationError(
-                    'All HVACDistribution elements need to have or NOT have the ConditionFloorAreaServed subelement.')
+                allhave_cfaserved = False
+            airdistsystems_ductfracs.append(airdistsys_ductfracs)
+        allsame_cfaserved = allhave_cfaserved or allmissing_cfaserved
 
-                # Make sure there are only three locations and normalize to percentages
-            top3locations = sorted(ductfracs.keys(), key=lambda x: ductfracs[x], reverse=True)[0:3]
-            for location in ductfracs.keys():
-                if location not in top3locations:
-                    del ductfracs[location]
-                    del hescore_ductloc_has_ins[location]
-                    del issealedfracs[location]
-            issealedfracs = dict([(key, bool(round(x / ductfracs[key]))) for key, x in issealedfracs.items()])
-            normalization_denominator = sum(ductfracs.values())
-            ductfracs = dict([(key, int(round(x / normalization_denominator * 100))) for key, x in ductfracs.items()])
-            # Sometimes with the rounding it adds up to a number slightly off of 100, adjust the largest fraction to make it add up to 100
-            if len(top3locations) > 0:
-                ductfracs[top3locations[0]] += 100 - sum(ductfracs.values())
+        # Combine all
+        ductfracs = {}
+        issealedfracs = {}
+        if (len(airdistsystems_ductfracs) > 1 and allsame_cfaserved) or len(airdistsystems_ductfracs) <= 1:
+            for airdistsys_ductfracs, issealed in zip(airdistsystems_ductfracs, airdistsys_issealed):
+                for key, value in airdistsys_ductfracs.items():
+                    try:
+                        ductfracs[key] += value
+                    except KeyError:
+                        ductfracs[key] = value
+                    try:
+                        issealedfracs[key] += value * float(issealed)
+                    except KeyError:
+                        issealedfracs[key] = value * float(issealed)
 
-            for i, location in enumerate(top3locations, 1):
-                hvacd = OrderedDict()
-                hvacd['name'] = 'duct%d' % i
-                hvacd['location'] = location
-                hvacd['fraction'] = ductfracs[location]
-                hvacd['insulated'] = hescore_ductloc_has_ins[location]
-                hvacd['sealed'] = issealedfracs[location]
-                bldg_systems['hvac_distribution'].append(hvacd)
+        else:
+            raise TranslationError(
+                'All HVACDistribution elements need to have or NOT have the ConditionFloorAreaServed subelement.')
 
-        # systems.domestic_hot_water ----------------------------------------------
+            # Make sure there are only three locations and normalize to percentages
+        top3locations = sorted(ductfracs.keys(), key=lambda x: ductfracs[x], reverse=True)[0:3]
+        for location in ductfracs.keys():
+            if location not in top3locations:
+                del ductfracs[location]
+                del hescore_ductloc_has_ins[location]
+                del issealedfracs[location]
+        issealedfracs = dict([(key, bool(round(x / ductfracs[key]))) for key, x in issealedfracs.items()])
+        normalization_denominator = sum(ductfracs.values())
+        ductfracs = dict([(key, int(round(x / normalization_denominator * 100))) for key, x in ductfracs.items()])
+        # Sometimes with the rounding it adds up to a number slightly off of 100, adjust the largest fraction to make it add up to 100
+        if len(top3locations) > 0:
+            ductfracs[top3locations[0]] += 100 - sum(ductfracs.values())
+
+        for i, location in enumerate(top3locations, 1):
+            hvacd = OrderedDict()
+            hvacd['name'] = 'duct%d' % i
+            hvacd['location'] = location
+            hvacd['fraction'] = ductfracs[location]
+            hvacd['insulated'] = hescore_ductloc_has_ins[location]
+            hvacd['sealed'] = issealedfracs[location]
+            hvac_distribution.append(hvacd)
+
+        return hvac_distribution
+
+    def _get_systems_dhw(self, b, sys_heating):
+        ns = self.ns
+        xpath = self.xpath
+
         sys_dhw = OrderedDict()
-        bldg_systems['domestic_hot_water'] = sys_dhw
 
         water_heating_systems = xpath(b, '//h:WaterHeatingSystem')
         if isinstance(water_heating_systems, list):
@@ -1483,9 +1523,7 @@ class HPXMLtoHEScoreTranslator(object):
                     dhwyear = 1972
                 sys_dhw['efficiency_method'] = 'shipment_weighted'
                 sys_dhw['year'] = dhwyear
-
-        self.validate_hescore_inputs(hescore_inputs)
-        return hescore_inputs
+        return sys_dhw
 
     def validate_hescore_inputs(self, hescore_inputs):
 
