@@ -95,7 +95,7 @@
                             <AtticFloorInsulation>
                                 <SystemIdentifier id="attic3ins"/>
                                 <Layer>
-                                    <NominalRValue>49</NominalRValue>
+                                    <NominalRValue>15</NominalRValue>
                                 </Layer>
                             </AtticFloorInsulation>
                             <Area>400</Area>

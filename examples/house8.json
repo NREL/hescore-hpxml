@@ -20,20 +20,36 @@
       "envelope_leakage": 6100.0
     }, 
     "zone": {
-      "zone_roof": {
-        "roof_assembly_code": "rfwf00tg", 
-        "roof_color": "medium", 
-        "roof_type": "vented_attic", 
-        "ceiling_assembly_code": "ecwf49", 
-        "zone_skylight": {
-          "skylight_area": 0
+      "zone_roof": [
+        {
+          "roof_name": "roof1", 
+          "roof_area": 1000.0, 
+          "roof_assembly_code": "rfwf00tg", 
+          "roof_color": "medium", 
+          "roof_type": "vented_attic", 
+          "ceiling_assembly_code": "ecwf30", 
+          "zone_skylight": {
+            "skylight_area": 0
+          }
+        }, 
+        {
+          "roof_name": "roof2", 
+          "roof_area": 843.0, 
+          "roof_assembly_code": "rfwf27wo", 
+          "roof_color": "medium", 
+          "roof_type": "cath_ceiling", 
+          "zone_skylight": {
+            "skylight_area": 0
+          }
         }
-      }, 
+      ], 
       "zone_floor": {
         "foundation_type": "uncond_basement", 
         "foundation_insulation_level": 0, 
         "floor_assembly_code": "efwf21ca"
       }, 
+      "wall_construction_same": false, 
+      "window_construction_same": false, 
       "zone_wall": [
         {
           "side": "back", 
@@ -71,9 +87,7 @@
             "window_code": "dpeaw"
           }
         }
-      ], 
-      "wall_construction_same": false, 
-      "window_construction_same": false
+      ]
     }, 
     "systems": {
       "heating": {

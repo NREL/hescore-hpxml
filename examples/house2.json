@@ -20,20 +20,26 @@
       "air_sealing_present": false
     }, 
     "zone": {
-      "zone_roof": {
-        "roof_assembly_code": "rfrb00co", 
-        "roof_color": "dark", 
-        "roof_type": "vented_attic", 
-        "ceiling_assembly_code": "ecwf11", 
-        "zone_skylight": {
-          "skylight_area": 0
+      "zone_roof": [
+        {
+          "roof_name": "roof1", 
+          "roof_area": 810, 
+          "roof_assembly_code": "rfrb00co", 
+          "roof_color": "dark", 
+          "roof_type": "vented_attic", 
+          "ceiling_assembly_code": "ecwf11", 
+          "zone_skylight": {
+            "skylight_area": 0
+          }
         }
-      }, 
+      ], 
       "zone_floor": {
         "foundation_type": "vented_crawl", 
         "foundation_insulation_level": 0, 
         "floor_assembly_code": "efwf30ca"
       }, 
+      "wall_construction_same": false, 
+      "window_construction_same": false, 
       "zone_wall": [
         {
           "side": "left", 
@@ -75,9 +81,7 @@
             "window_shgc": 0.42000000000000004
           }
         }
-      ], 
-      "wall_construction_same": false, 
-      "window_construction_same": false
+      ]
     }, 
     "systems": {
       "heating": {

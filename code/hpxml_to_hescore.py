@@ -482,15 +482,18 @@ class HPXMLtoHEScoreTranslator(object):
 
         # Create return dict
         hescore_inputs = OrderedDict()
-
-        # Build it
+        hescore_inputs['building_address'] = self._get_building_address(b)
         bldg = OrderedDict()
         hescore_inputs['building'] = bldg
-        hescore_inputs['building_address'] = self._get_building_address(b)
         bldg['about'] = self._get_building_about(b)
         bldg['zone'] = OrderedDict()
-        bldg['zone']['zone_roof'] = self._get_building_zone_roof(b)
+        bldg['zone']['zone_roof'] = None # to save the spot in the order
         bldg['zone']['zone_floor'] = self._get_building_zone_floor(b)
+        footprint_area = self._get_footprint_area(bldg)
+        bldg['zone']['zone_roof'] = self._get_building_zone_roof(b, footprint_area)
+        bldg['zone']['zone_roof'][0]['zone_skylight'] = self._get_skylights(b)
+        for zone_roof in bldg['zone']['zone_roof'][1:]:
+            zone_roof['zone_skylight'] = {'skylight_area': 0}
         bldg['zone']['wall_construction_same'] = False
         bldg['zone']['window_construction_same'] = False
         bldg['zone']['zone_wall'] = self._get_building_zone_wall(b, bldg['about'])
@@ -500,11 +503,32 @@ class HPXMLtoHEScoreTranslator(object):
         if not (bldg['systems']['cooling']['type'] == 'none' and bldg['systems']['heating']['type'] == 'none'):
             bldg['systems']['hvac_distribution'] = self._get_systems_hvac_distribution(b)
         bldg['systems']['domestic_hot_water'] = self._get_systems_dhw(b, bldg['systems']['heating'])
+        self._remove_hidden_keys(hescore_inputs)
 
         # Validate
-        self.validate_hescore_inputs(hescore_inputs)
+        self._validate_hescore_inputs(hescore_inputs)
 
         return hescore_inputs
+
+    @staticmethod
+    def _get_footprint_area(bldg):
+        floor_area = bldg['about']['conditioned_floor_area']
+        stories = bldg['about']['num_floor_above_grade']
+        if bldg['zone']['zone_floor']['foundation_type'] == 'cond_basement':
+            stories += 1
+        return int(floor_area / stories)
+
+    @staticmethod
+    def _remove_hidden_keys(d):
+        if isinstance(d, dict):
+            for key, value in d.items():
+                if key.startswith('_'):
+                    del d[key]
+                    continue
+                HPXMLtoHEScoreTranslator._remove_hidden_keys(value)
+        elif isinstance(d, (list, tuple)):
+            for item in d:
+                HPXMLtoHEScoreTranslator._remove_hidden_keys(item)
 
     def _get_building_address(self,b):
         xpath = self.xpath
@@ -647,12 +671,13 @@ class HPXMLtoHEScoreTranslator(object):
                 bldg_about['air_sealing_present'] = False
         return bldg_about
 
-    def _get_building_zone_roof(self, b):
+    def _get_building_zone_roof(self, b, footprint_area):
         ns = self.ns
         xpath = self.xpath
 
         # building.zone.zone_roof--------------------------------------------------
-        attics = b.xpath('//h:Attic', namespaces=ns)
+        attics = xpath(b, '//h:Attic', aslist=True)
+        roofs = xpath(b, '//h:Roof', aslist=True)
         rooftypemap = {'cape cod': 'cath_ceiling',
                        'cathedral ceiling': 'cath_ceiling',
                        'flat roof': 'cath_ceiling',
@@ -660,6 +685,7 @@ class HPXMLtoHEScoreTranslator(object):
                        'vented attic': 'vented_attic',
                        'venting unknown attic': 'vented_attic',
                        'other': None}
+        attic_floor_rvalues = (0, 3, 6, 9, 11, 19, 21, 25, 30, 38, 44, 49, 60)
         roof_center_of_cavity_rvalues = \
             {'wf': {'co': dict(zip((0, 11, 13, 15, 19, 21), (2.7, 13.6, 15.6, 17.6, 21.6, 23.6))),
                     'wo': dict(zip((0, 11, 13, 15, 19, 21, 27), (3.2, 14.1, 16.1, 18.1, 22.1, 24.1, 30.1))),
@@ -684,11 +710,21 @@ class HPXMLtoHEScoreTranslator(object):
             atticid = xpath(attic, 'h:SystemIdentifier/@id')
             roof = xpath(b, '//h:Roof[h:SystemIdentifier/@id=$roofid]', roofid=xpath(attic, 'h:AttachedToRoof/@idref'))
             if roof is None:
-                roofs = xpath(b, '//h:Roof', aslist=True)
-                if len(attics) == 1 and len(roofs) == 1:
+                if len(roofs) == 1:
                     roof = roofs[0]
                 else:
                     raise TranslationError('Attic {} does not have a roof associated with it.'.format(xpath(attic, 'h:SystemIdentifier/@id')))
+
+            # Roof id to use to match skylights later
+            atticd['_roofid'] = xpath(roof, 'h:SystemIdentifier/@id')
+
+            # Roof area
+            atticd['roof_area'] = convert_to_type(float, xpath(attic, 'h:Area/text()'))
+            if atticd['roof_area'] is None:
+                if len(attics) == 1 and len(roofs) == 1:
+                    atticd['roof_area'] = footprint_area
+                else:
+                    raise TranslationError('If there are more than one Attic elements, each needs an area.')
 
             # Roof type
             hpxml_attic_type = xpath(attic, 'h:AtticType/text()')
@@ -737,128 +773,156 @@ class HPXMLtoHEScoreTranslator(object):
             else:
                 atticd['roofconstype'] = 'wf'
 
-            # roof R-value
+            # roof center of cavity R-value
             roof_rvalue = xpath(attic,
                                 'sum(h:AtticRoofInsulation/h:Layer[not(boolean(h:InsulationMaterial/h:Rigid) and h:InstallationType="continuous")]/h:NominalRValue)')
             roof_rvalue, atticd['roof_coc_rvalue'] = \
                 min(roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']].items(),
                     key=lambda x: abs(x[0] - roof_rvalue))
 
-            # attic floor R-value
-            atticd['attic_floor_rvalue'] = xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
-
-            # Attic area
-            atticd['attic_area'] = convert_to_type(float, xpath(attic, 'h:Area/text()'))
-
-        def select_attic_category_with_most_total_area(key):
-            attic_area_by_cat = {}
-            for atticd in atticds:
-                try:
-                    attic_area_by_cat[atticd[key]] += atticd['attic_area']
-                except:
-                    attic_area_by_cat[atticd[key]] = atticd['attic_area']
-            return max(attic_area_by_cat, key=lambda x: attic_area_by_cat[x])
+            # attic floor center of cavity R-value
+            attic_floor_rvalue = xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
+            atticd['attic_floor_coc_rvalue'] = \
+                min(attic_floor_rvalues, key=lambda x: abs(x - attic_floor_rvalue)) + 0.5
 
         if len(atticds) == 0:
             raise TranslationError('There are no Attic elements in this building.')
-
-        # Get the roof type
-        rooftype = select_attic_category_with_most_total_area('rooftype')
-
-        # Make sure we're either dealing with all cathedral ceilings or not
-        if rooftype == 'cath_ceiling':
+        elif len(atticds) <= 2:
             for atticd in atticds:
-                if atticd['rooftype'] != 'cath_ceiling':
-                    atticds.remove(atticd)
-        else:
+                atticd['_roofids'] = {atticd['_roofid']}
+                del atticd['_roofid']
+        elif len(atticds) > 2:
+            # If there are more than two attics, combine and average by rooftype.
+            attics_by_rooftype = {}
             for atticd in atticds:
-                if atticd['rooftype'] == 'cath_ceiling':
-                    atticds.remove(atticd)
+                try:
+                    attics_by_rooftype[atticd['rooftype']].append(atticd)
+                except KeyError:
+                    attics_by_rooftype[atticd['rooftype']] = [atticd]
 
-        # Determine predominant roof characteristics
-        roofconstype, extfinish, roofcolor, rooftype = \
-            map(select_attic_category_with_most_total_area,
-                ('roofconstype', 'extfinish', 'roofcolor', 'rooftype'))
+            # Determine predominant roof characteristics for each rooftype.
+            attic_keys = ('roofconstype', 'extfinish', 'roofcolor', 'rooftype')
+            combined_atticds = []
+            for rooftype,atticds in attics_by_rooftype.items():
+                combined_atticd = {}
 
-        # Calculate roof area weighted average effective center-of-cavity R-value
-        if len(atticds) == 1:
-            atticds[0]['attic_area'] = 1.0
-        total_attic_area = sum([atticd['attic_area'] for atticd in atticds])
-        area_wt_coc_roof_rvalue = \
-            sum([atticd['roof_coc_rvalue'] * atticd['attic_area'] for atticd in atticds]) / \
-            total_attic_area
+                # Roof Area
+                combined_atticd['roof_area'] = sum([atticd['roof_area'] for atticd in atticds])
 
-        # Get Roof R-value
-        roffset = roof_center_of_cavity_rvalues[roofconstype][extfinish][0]
-        roof_rvalue = min(roof_center_of_cavity_rvalues[roofconstype][extfinish].keys(),
-                          key=lambda x: abs(area_wt_coc_roof_rvalue - roffset - x))
+                # Roof type, roof color, exterior finish, construction type
+                for attic_key in ('roofconstype', 'extfinish', 'roofcolor', 'rooftype'):
+                    roof_area_by_cat = {}
+                    for atticd in atticds:
+                        try:
+                            roof_area_by_cat[atticd[attic_key]] += atticd['roof_area']
+                        except KeyError:
+                            roof_area_by_cat[atticd[attic_key]] = atticd['roof_area']
+                    combined_atticd[attic_key] = max(roof_area_by_cat, key=lambda x: roof_area_by_cat[x])
 
-        # Get Attic Floor R-value
-        attic_floor_rvalues = (0, 3, 6, 9, 11, 19, 21, 25, 30, 38, 44, 49, 60)
-        attic_floor_rvalue = sum([(min(attic_floor_rvalues,
-                                       key=lambda x: abs(atticd['attic_floor_rvalue'] - x)) + 0.5) * atticd[
-                                      'attic_area']
-                                  for atticd in atticds]) / total_attic_area - 0.5
-        attic_floor_rvalue = min(attic_floor_rvalues, key=lambda x: abs(attic_floor_rvalue - x))
+                # ids of hpxml roofs along for the ride
+                combined_atticd['_roofids'] = set([atticd['_roofid'] for atticd in atticds])
 
-        # store it all
-        zone_roof = OrderedDict()
-        zone_roof['roof_assembly_code'] = 'rf%s%02d%s' % (roofconstype, roof_rvalue, extfinish)
-        zone_roof['roof_color'] = roofcolor
-        zone_roof['roof_type'] = rooftype
-        if rooftype != 'cath_ceiling':
-            zone_roof['ceiling_assembly_code'] = 'ecwf%02d' % attic_floor_rvalue
+                # Calculate roof area weighted center of cavity R-value
+                combined_atticd['roof_coc_rvalue'] = \
+                    sum([atticd['roof_coc_rvalue'] * atticd['roof_area'] for atticd in atticds]) / \
+                    combined_atticd['roof_area']
 
-        # building.zone.zone_roof.zone_skylight -----------------------------------
-        zone_skylight = OrderedDict()
-        zone_roof['zone_skylight'] = zone_skylight
-        skylights = b.xpath('//h:Skylight', namespaces=ns)
-        if len(skylights) == 0:
-            zone_skylight['skylight_area'] = 0
-        elif len(skylights) > 0:
-            uvalues, shgcs, areas = map(list, zip(
-                *[[xpath(skylight, 'h:%s/text()' % x) for x in ('UFactor', 'SHGC', 'Area')] for skylight in skylights]))
-            if None in areas:
-                raise TranslationError('Every skylight needs an area.')
-            areas = map(float, areas)
-            zone_skylight['skylight_area'] = sum(areas)
+                # Calculate attic floor weighted average center-of-cavity R-value
+                combined_atticd['attic_floor_coc_rvalue'] = \
+                    sum([atticd['attic_floor_coc_rvalue'] * atticd['roof_area'] for atticd in atticds]) / \
+                    combined_atticd['roof_area']
+                combined_atticds.append(combined_atticd)
 
-            # Remove skylights from the calculation where a uvalue or shgc isn't set.
-            idxstoremove = set()
-            for i, uvalue in enumerate(uvalues):
-                if uvalue is None:
-                    idxstoremove.add(i)
-            for i, shgc in enumerate(shgcs):
-                if shgc is None:
-                    idxstoremove.add(i)
-            for i in sorted(idxstoremove, reverse=True):
-                uvalues.pop(i)
-                shgcs.pop(i)
-                areas.pop(i)
-            assert len(uvalues) == len(shgcs)
-            uvalues = map(float, uvalues)
-            shgcs = map(float, shgcs)
+            atticds = combined_atticds
+            del combined_atticds
+            del attics_by_rooftype
 
-            if len(uvalues) > 0:
-                # Use an area weighted average of the uvalues, shgcs
-                zone_skylight['skylight_method'] = 'custom'
-                zone_skylight['skylight_u_value'] = sum(
-                    [uvalue * area for (uvalue, area) in zip(uvalues, areas)]) / sum(areas)
-                zone_skylight['skylight_shgc'] = sum([shgc * area for (shgc, area) in zip(shgcs, areas)]) / sum(areas)
-            else:
-                # use a construction code
-                skylight_type_areas = {}
-                for skylight in skylights:
-                    area = convert_to_type(float, xpath(skylight, 'h:Area/text()'))
-                    skylight_code = self.get_window_code(skylight)
-                    try:
-                        skylight_type_areas[skylight_code] += area
-                    except KeyError:
-                        skylight_type_areas[skylight_code] = area
-                zone_skylight['skylight_method'] = 'code'
-                zone_skylight['skylight_code'] = max(skylight_type_areas.items(), key=lambda x: x[1])[0]
+        # Order the attic/roofs from largest to smallest
+        atticds.sort(key=lambda x: x['roof_area'], reverse=True)
+
+        # Take the largest two
+        zone_roof = []
+        for i,atticd in enumerate(atticds[0:2], 1):
+
+            # Get Roof R-value
+            roffset = roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']][0]
+            roof_rvalue = min(roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']].keys(),
+                              key=lambda x: abs(atticd['roof_coc_rvalue'] - roffset - x))
+
+            # Get Attic Floor R-value
+            attic_floor_rvalue = min(attic_floor_rvalues,
+                                     key=lambda x: abs(atticd['attic_floor_coc_rvalue'] - 0.5 - x))
+
+            # store it all
+            zone_roof_item = OrderedDict()
+            zone_roof_item['roof_name'] = 'roof%d' % i
+            zone_roof_item['roof_area'] = atticd['roof_area']
+            zone_roof_item['roof_assembly_code'] = 'rf%s%02d%s' % (atticd['roofconstype'], roof_rvalue, atticd['extfinish'])
+            zone_roof_item['roof_color'] = atticd['roofcolor']
+            zone_roof_item['roof_type'] = atticd['rooftype']
+            zone_roof_item['_roofids'] = atticd['_roofids']
+            if atticd['rooftype'] != 'cath_ceiling':
+                zone_roof_item['ceiling_assembly_code'] = 'ecwf%02d' % attic_floor_rvalue
+            zone_roof.append(zone_roof_item)
 
         return zone_roof
+
+    def _get_skylights(self, b):
+        ns = self.ns
+        xpath = self.xpath
+        skylights = b.xpath('//h:Skylight', namespaces=ns)
+
+        zone_skylight = OrderedDict()
+
+        if len(skylights) == 0:
+            zone_skylight['skylight_area'] = 0
+            return zone_skylight
+
+        # Get areas, u-factors, and shgcs if they exist
+        uvalues, shgcs, areas = map(list, zip(*[[xpath(skylight, 'h:%s/text()' % x)
+                                                 for x in ('UFactor', 'SHGC', 'Area')]
+                                                for skylight in skylights]))
+        if None in areas:
+            raise TranslationError('Every skylight needs an area.')
+        areas = map(float, areas)
+        zone_skylight['skylight_area'] = sum(areas)
+
+        # Remove skylights from the calculation where a uvalue or shgc isn't set.
+        idxstoremove = set()
+        for i, uvalue in enumerate(uvalues):
+            if uvalue is None:
+                idxstoremove.add(i)
+        for i, shgc in enumerate(shgcs):
+            if shgc is None:
+                idxstoremove.add(i)
+        for i in sorted(idxstoremove, reverse=True):
+            uvalues.pop(i)
+            shgcs.pop(i)
+            areas.pop(i)
+        assert len(uvalues) == len(shgcs)
+        uvalues = map(float, uvalues)
+        shgcs = map(float, shgcs)
+
+        if len(uvalues) > 0:
+            # Use an area weighted average of the uvalues, shgcs
+            zone_skylight['skylight_method'] = 'custom'
+            zone_skylight['skylight_u_value'] = sum(
+                [uvalue * area for (uvalue, area) in zip(uvalues, areas)]) / sum(areas)
+            zone_skylight['skylight_shgc'] = sum([shgc * area for (shgc, area) in zip(shgcs, areas)]) / sum(areas)
+        else:
+            # use a construction code
+            skylight_type_areas = {}
+            for skylight in skylights:
+                area = convert_to_type(float, xpath(skylight, 'h:Area/text()'))
+                skylight_code = self.get_window_code(skylight)
+                try:
+                    skylight_type_areas[skylight_code] += area
+                except KeyError:
+                    skylight_type_areas[skylight_code] = area
+            zone_skylight['skylight_method'] = 'code'
+            zone_skylight['skylight_code'] = max(skylight_type_areas.items(), key=lambda x: x[1])[0]
+
+        return zone_skylight
 
     def _get_building_zone_floor(self, b):
         ns = self.ns
@@ -1525,7 +1589,7 @@ class HPXMLtoHEScoreTranslator(object):
                 sys_dhw['year'] = dhwyear
         return sys_dhw
 
-    def validate_hescore_inputs(self, hescore_inputs):
+    def _validate_hescore_inputs(self, hescore_inputs):
 
         def do_bounds_check(fieldname, value, minincl, maxincl):
             if value < minincl or value > maxincl:
@@ -1562,18 +1626,19 @@ class HPXMLtoHEScoreTranslator(object):
                             hescore_inputs['building']['about']['envelope_leakage'],
                             0, 25000)
 
-        zone_skylight = hescore_inputs['building']['zone']['zone_roof']['zone_skylight']
-        do_bounds_check('skylight_area',
-                        zone_skylight['skylight_area'],
-                        0, 300)
+        for zone_roof in hescore_inputs['building']['zone']['zone_roof']:
+            zone_skylight = zone_roof['zone_skylight']
+            do_bounds_check('skylight_area',
+                            zone_skylight['skylight_area'],
+                            0, 300)
 
-        if zone_skylight['skylight_area'] > 0 and zone_skylight['skylight_method'] == 'custom':
-            do_bounds_check('skylight_u_value',
-                            zone_skylight['skylight_u_value'],
-                            0.01, 5)
-            do_bounds_check('skylight_shgc',
-                            zone_skylight['skylight_shgc'],
-                            0, 1)
+            if zone_skylight['skylight_area'] > 0 and zone_skylight['skylight_method'] == 'custom':
+                do_bounds_check('skylight_u_value',
+                                zone_skylight['skylight_u_value'],
+                                0.01, 5)
+                do_bounds_check('skylight_shgc',
+                                zone_skylight['skylight_shgc'],
+                                0, 1)
 
         do_bounds_check('foundation_insulation_level',
                         hescore_inputs['building']['zone']['zone_floor']['foundation_insulation_level'],

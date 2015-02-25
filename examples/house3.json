@@ -20,19 +20,25 @@
       "envelope_leakage": 2500.0
     }, 
     "zone": {
-      "zone_roof": {
-        "roof_assembly_code": "rfwf15lc", 
-        "roof_color": "medium", 
-        "roof_type": "cath_ceiling", 
-        "zone_skylight": {
-          "skylight_area": 0
+      "zone_roof": [
+        {
+          "roof_name": "roof1", 
+          "roof_area": 679, 
+          "roof_assembly_code": "rfwf15lc", 
+          "roof_color": "medium", 
+          "roof_type": "cath_ceiling", 
+          "zone_skylight": {
+            "skylight_area": 0
+          }
         }
-      }, 
+      ], 
       "zone_floor": {
         "foundation_type": "slab_on_grade", 
         "foundation_insulation_level": 5, 
         "floor_assembly_code": "efwf00ca"
       }, 
+      "wall_construction_same": false, 
+      "window_construction_same": false, 
       "zone_wall": [
         {
           "side": "front", 
@@ -70,9 +76,7 @@
             "window_code": "dseab"
           }
         }
-      ], 
-      "wall_construction_same": false, 
-      "window_construction_same": false
+      ]
     }, 
     "systems": {
       "heating": {
