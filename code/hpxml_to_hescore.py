@@ -1553,7 +1553,7 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             primarydhw = water_heating_systems
         water_heater_type = xpath(primarydhw, 'h:WaterHeaterType/text()')
-        if water_heater_type in ('storage water heater', 'instantaneous water heater'):
+        if water_heater_type in ('storage water heater', 'instantaneous water heater', 'dedicated boiler with storage tank'):
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'storage'
             sys_dhw['fuel_primary'] = self.fuel_type_mapping[xpath(primarydhw, 'h:FuelType/text()')]

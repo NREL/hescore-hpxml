@@ -344,14 +344,6 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 'Cannot have a tankless coil water heater if the primary heating system is not a boiler\.', 
                                 tr.hpxml_to_hescore_dict)
         
-    def test_invalid_water_heater_type(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:WaterHeatingSystem[1]/h:WaterHeaterType')
-        el.text = 'dedicated boiler with storage tank'
-        self.assertRaisesRegexp(TranslationError, 
-                                'HEScore cannot model the water heater type: .+', 
-                                tr.hpxml_to_hescore_dict)
-
     def test_missing_attached_to_roof(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:AttachedToRoof')

@@ -28,9 +28,9 @@ The water heater type is mapped from HPXML to HEScore accordingly:
    +========================================+================+================+
    |storage water heater                    |unit            |storage         |
    +----------------------------------------+                |                |
+   |dedicated boiler with storage tank      |                |                |
+   +----------------------------------------+                |                |
    |instantaneous water heater [#f1]_       |                |                |
-   +----------------------------------------+----------------+----------------+
-   |dedicated boiler with storage tank      |*not translated*                 |
    +----------------------------------------+----------------+----------------+
    |heat pump water heater                  |unit            |heat_pump       |
    +----------------------------------------+----------------+----------------+
