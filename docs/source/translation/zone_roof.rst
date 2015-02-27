@@ -3,11 +3,13 @@ Roof and Attic
 
 .. contents:: Table of Contents
 
-HPXML allows the specification of multiple ``Attic`` elements each of which
+HPXML allows the specification of multiple ``Attic`` elements, each of which
 relates to a ``Roof`` element. That relation is optional in HPXML, but is
-required when translating to HEScore, because it is important to know which
-roof relates to each attic space. An area is required for each ``Attic``
-element if there is more than one ``Attic`` element.
+required for HEScore when there is more than one ``Attic`` or ``Roof``
+because it is important to know which roof relates to each attic space.
+An area is required for each ``Attic`` element if there is more than one
+``Attic`` element. If there is only one ``Attic`` element, the footprint area
+of the building is assumed.
 
 .. _rooftype:
 
@@ -39,10 +41,10 @@ type according to the following mapping.
    
    Items that are *not translated* will result in a translation error.
    
-The roof type that has the largest total area is entered into HEScore since it
-can only accept one roof type. The properties of the ``Attic`` elements with
+HEScore can accept up to two attic/roof constructions. If there are more than
+two specified in HPXML, the properties of the ``Attic`` elements with
 the same roof type are combined. For variables with a discrete selection the
-value that covers the greatest combined area is used. For R-values a UA
+value that covers the greatest combined area is used. For R-values a
 calculation is performed to determine the equivalent overall R-value for the
 attic. This is discussed in more detail in :ref:`roof-rvalues`.
 
