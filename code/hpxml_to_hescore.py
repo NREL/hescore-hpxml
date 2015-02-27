@@ -114,7 +114,7 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             return res
 
-    def get_wall_assembly_code(self, hpxmlwall):
+    def _get_wall_assembly_code(self, hpxmlwall):
         xpath = self.xpath
         ns = self.ns
         wallid = xpath(hpxmlwall, 'h:SystemIdentifier/@id')
@@ -194,7 +194,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         return 'ew%s%02d%s' % (wallconstype, rvalue, sidingtype)
 
-    def get_window_code(self, window):
+    def _get_window_code(self, window):
         xpath = self.xpath
         ns = self.ns
 
@@ -268,7 +268,7 @@ class HPXMLtoHEScoreTranslator(object):
                           'mini-split': 'heat_pump',
                           'ground-to-air': 'gchp'}
 
-    def get_heating_system_type(self, htgsys):
+    def _get_heating_system_type(self, htgsys):
         xpath = self.xpath
         ns = self.ns
 
@@ -314,7 +314,7 @@ class HPXMLtoHEScoreTranslator(object):
         sys_heating['capacity'] = convert_to_type(float, xpath(htgsys, 'h:HeatingCapacity/text()'))
         return sys_heating
 
-    def get_cooling_system_type(self, clgsys):
+    def _get_cooling_system_type(self, clgsys):
         xpath = self.xpath
         ns = self.ns
 
@@ -914,7 +914,7 @@ class HPXMLtoHEScoreTranslator(object):
             skylight_type_areas = {}
             for skylight in skylights:
                 area = convert_to_type(float, xpath(skylight, 'h:Area/text()'))
-                skylight_code = self.get_window_code(skylight)
+                skylight_code = self._get_window_code(skylight)
                 try:
                     skylight_type_areas[skylight_code] += area
                 except KeyError:
@@ -1049,7 +1049,7 @@ class HPXMLtoHEScoreTranslator(object):
         hpxmlwalls = dict([(side, []) for side in sidemap.values()])
         hpxmlwalls['noside'] = []
         for wall in b.xpath('h:BuildingDetails/h:Enclosure/h:Walls/h:Wall', namespaces=ns):
-            walld = {'assembly_code': self.get_wall_assembly_code(wall),
+            walld = {'assembly_code': self._get_wall_assembly_code(wall),
                      'area': convert_to_type(float, xpath(wall, 'h:Area/text()')),
                      'id': xpath(wall, 'h:SystemIdentifier/@id')}
 
@@ -1172,7 +1172,7 @@ class HPXMLtoHEScoreTranslator(object):
             if windowd['uvalue'] is not None and windowd['shgc'] is not None:
                 windowd['window_code'] = None
             else:
-                windowd['window_code'] = self.get_window_code(hpxmlwndw)
+                windowd['window_code'] = self._get_window_code(hpxmlwndw)
 
             # Window side
             window_sides = []
@@ -1300,7 +1300,7 @@ class HPXMLtoHEScoreTranslator(object):
             has_htgsys_translation_err = False
             for htgsys in b.xpath('//h:HVACPlant/h:HeatingSystem|//h:HVACPlant/h:HeatPump', namespaces=ns):
                 try:
-                    htgsysd = self.get_heating_system_type(htgsys)
+                    htgsysd = self._get_heating_system_type(htgsys)
                 except TranslationError as ex:
                     has_htgsys_translation_err = True
                     continue
@@ -1309,7 +1309,7 @@ class HPXMLtoHEScoreTranslator(object):
             if has_htgsys_translation_err and len(htgsystems) == 0:
                 raise ex
         else:
-            htgsystems = [self.get_heating_system_type(primaryhtgsys)]
+            htgsystems = [self._get_heating_system_type(primaryhtgsys)]
 
         capacities = [x['capacity'] for x in htgsystems]
         if None in capacities:
@@ -1376,7 +1376,7 @@ class HPXMLtoHEScoreTranslator(object):
             has_clgsys_translation_err = False
             for clgsys in b.xpath('//h:HVACPlant/h:CoolingSystem|//h:HVACPlant/h:HeatPump', namespaces=ns):
                 try:
-                    clgsysd = self.get_cooling_system_type(clgsys)
+                    clgsysd = self._get_cooling_system_type(clgsys)
                 except TranslationError as ex:
                     has_clgsys_translation_err = True
                     continue
@@ -1385,7 +1385,7 @@ class HPXMLtoHEScoreTranslator(object):
             if has_clgsys_translation_err and len(clgsystems) == 0:
                 raise ex
         else:
-            clgsystems = [self.get_cooling_system_type(primaryclgsys)]
+            clgsystems = [self._get_cooling_system_type(primaryclgsys)]
 
         capacities = [x['capacity'] for x in clgsystems]
         if None in capacities:
