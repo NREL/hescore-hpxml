@@ -1444,7 +1444,7 @@ class HPXMLtoHEScoreTranslator(object):
                              'crawlspace': None,
                              'unconditioned attic': 'uncond_attic',
                              'interstitial space': None,
-                             'garage': None,
+                             'garage': 'vented_crawl',
                              'outside': None}
         airdistributionxpath = '//h:HVACDistribution/h:DistributionSystemType/h:AirDistribution'
         allhave_cfaserved = True

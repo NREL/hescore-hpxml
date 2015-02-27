@@ -30,7 +30,7 @@ following mapping.
    crawlspace              *not translated*
    unconditioned attic     uncond_attic
    interstitial space      *not translated*
-   garage                  *not translated*
+   garage                  vented_crawl
    outside                 *not translated*
    ======================  ================
 
