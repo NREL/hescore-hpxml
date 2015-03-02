@@ -13,7 +13,7 @@ contains more than one heating system then either one heating system must be
 selected or heating systems must be combined and averaged into one set of
 inputs. This is done as follows:
 
-#. HPXML has a ``PrimaryHeatingSystem`` element that references with system
+#. HPXML has a ``PrimaryHeatingSystem`` element that references which system
    is the primary one. If this is present, the properties of that referenced
    heating system are translated into HEScore inputs.
 #. If there is no defined primary heating system in HPXML, each
@@ -71,6 +71,7 @@ is done according to the following mapping.
    WallFurnace                wall_furnace
    Boiler                     boiler
    ElectricResistance         baseboard
+   Stove                      wood_stove
    =========================  ====================
 
 .. note::
@@ -99,6 +100,8 @@ the primary heating system. The fuel types are mapped as follows.
    fuel oil 4             fuel_oil
    fuel oil 5/6           fuel_oil
    propane                lpg
+   wood                   cord_wood
+   wood pellets           pellet_wood
    =====================  ===========
 
 .. note::
@@ -114,7 +117,11 @@ Heating efficiency can be described in HEScore by either the rated efficiency
 (AFUE, HSPF, COP), or if that is unavailable, the year installed/manufactured
 from which HEScore estimates the efficiency based on shipment weighted
 efficiencies by year. The translator follows this methodology and looks for the
-rated efficiency first and if it cannot be found sends the year installed. 
+rated efficiency first and if it cannot be found sends the year installed.
+
+Wood stoves and electric furnaces and baseboard heating do not use the
+efficiency input in HEScore. Therefore, for these heating types an efficiency
+is not determined.
 
 Rated Efficiency
 ================

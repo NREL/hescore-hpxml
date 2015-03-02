@@ -288,11 +288,24 @@ class HPXMLtoHEScoreTranslator(object):
                 sys_heating['type'] = {'Furnace': 'central_furnace',
                                        'WallFurnace': 'wall_furnace',
                                        'Boiler': 'boiler',
-                                       'ElectricResistance': 'baseboard'}[hpxml_heating_type]
+                                       'ElectricResistance': 'baseboard',
+                                       'Stove': 'wood_stove'}[hpxml_heating_type]
             except KeyError:
                 raise TranslationError('HEScore does not support the HPXML HeatingSystemType %s' % hpxml_heating_type)
 
-        if not (sys_heating['type'] in ('furnace', 'baseboard') and sys_heating['fuel_primary'] == 'electric'):
+        allowed_fuel_types = {'heat_pump': ('electric',),
+                              'central_furnace': ('natural_gas', 'lpg', 'fuel_oil', 'electric'),
+                              'wall_furnace': ('natural_gas',),
+                              'baseboard': ('electric',),
+                              'boiler': ('natural_gas', 'lpg', 'fuel_oil'),
+                              'gchp': ('electric',),
+                              'none': tuple(),
+                              'wood_stove': ('cord_wood', 'pellet_wood')}
+
+        if sys_heating['fuel_primary'] not in allowed_fuel_types[sys_heating['type']]:
+            raise TranslationError('Heating system %(type)s cannot be used with fuel %(fuel_primary)s' % sys_heating)
+
+        if not ((sys_heating['type'] in ('furnace', 'baseboard') and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
             eff_units = {'heat_pump': 'HSPF',
                          'central_furnace': 'AFUE',
                          'wall_furnace': 'AFUE',
@@ -444,7 +457,9 @@ class HPXMLtoHEScoreTranslator(object):
                          'fuel oil 2': 'fuel_oil',
                          'fuel oil 4': 'fuel_oil',
                          'fuel oil 5/6': 'fuel_oil',
-                         'propane': 'lpg'}
+                         'propane': 'lpg',
+                         'wood': 'cord_wood',
+                         'wood pellets': 'pellet_wood'}
 
     def get_nearest_azimuth(self, azimuth=None, orientation=None):
         if azimuth is not None:
@@ -1291,8 +1306,7 @@ class HPXMLtoHEScoreTranslator(object):
         sys_heating = OrderedDict()
 
         # Use the primary heating system specified in the HPXML file if that element exists.
-        primaryhtgsys = xpath(b,
-                              '//h:HVACPlant/*[//h:HVACPlant/h:PrimarySystems/h:PrimaryHeatingSystem/@idref=h:SystemIdentifier/@id]')
+        primaryhtgsys = xpath(b, '//h:HVACPlant/*[//h:HVACPlant/h:PrimarySystems/h:PrimaryHeatingSystem/@idref=h:SystemIdentifier/@id]')
 
         if primaryhtgsys is None:
             # A primary heating system isn't specified, get the properties of all of them
@@ -1355,7 +1369,7 @@ class HPXMLtoHEScoreTranslator(object):
         if len(htgsys_by_capacity) > 0:
             sys_heating.update(max(htgsys_by_capacity.values(), key=lambda x: x['totalcapacity']))
             del sys_heating['totalcapacity']
-            if sys_heating['efficiency_method'] == 'shipment_weighted' and sys_heating['year'] < 1970:
+            if 'efficiency_method' in sys_heating and sys_heating['efficiency_method'] == 'shipment_weighted' and sys_heating['year'] < 1970:
                 sys_heating['year'] = 1970
         else:
             sys_heating = {'type': 'none'}
@@ -1658,15 +1672,18 @@ class HPXMLtoHEScoreTranslator(object):
                                 0, 1)
 
         sys_heating = hescore_inputs['building']['systems']['heating']
-        if sys_heating['efficiency_method'] == 'user':
-            do_bounds_check('heating_efficiency',
-                            sys_heating['efficiency'],
-                            0.1, 20)
+        if 'efficiency_method' in sys_heating:
+            if sys_heating['efficiency_method'] == 'user':
+                do_bounds_check('heating_efficiency',
+                                sys_heating['efficiency'],
+                                0.1, 20)
+            else:
+                assert sys_heating['efficiency_method'] == 'shipment_weighted'
+                do_bounds_check('heating_year',
+                                sys_heating['year'],
+                                1970, this_year)
         else:
-            assert sys_heating['efficiency_method'] == 'shipment_weighted'
-            do_bounds_check('heating_year',
-                            sys_heating['year'],
-                            1970, this_year)
+            assert sys_heating['type'] == 'wood_stove'
 
         sys_cooling = hescore_inputs['building']['systems']['cooling']
         if sys_cooling['efficiency_method'] == 'user':

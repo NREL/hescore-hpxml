@@ -349,6 +349,30 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         el = self.xpath('//h:AttachedToRoof')
         el.getparent().remove(el)
         self._do_compare('hescore_min')
+
+    def _wood_stove_setup(self):
+        tr = self._load_xmlfile('hescore_min')
+        htgsys = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace1"]')
+        htgsys.remove(htgsys.find(tr.addns('h:DistributionSystem')))
+        htgsystype = htgsys.find(tr.addns('h:HeatingSystemType'))
+        htgsystype.clear()
+        etree.SubElement(htgsystype, tr.addns('h:Stove'))
+        htgsys.find(tr.addns('h:HeatingSystemFuel')).text = 'wood'
+        htgsys.remove(htgsys.find(tr.addns('h:AnnualHeatingEfficiency')))
+        return htgsys
+
+    def test_wood_stove(self):
+        self._wood_stove_setup()
+        result_dict = self.translator.hpxml_to_hescore_dict()
+        self.assertEqual(result_dict['building']['systems']['heating']['type'], 'wood_stove')
+        self.assertEqual(result_dict['building']['systems']['heating']['fuel_primary'], 'cord_wood')
+
+    def test_wood_stove_invalid_fuel_type(self):
+        htgsys = self._wood_stove_setup()
+        htgsys.find(self.translator.addns('h:HeatingSystemFuel')).text = 'natural gas'
+        self.assertRaisesRegexp(TranslationError,
+                                r'Heating system wood_stove cannot be used with fuel natural_gas',
+                                self.translator.hpxml_to_hescore_dict)
         
 class TestInputOutOfBounds(unittest.TestCase,ComparatorBase):
     
