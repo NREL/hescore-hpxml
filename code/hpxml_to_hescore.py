@@ -1801,7 +1801,7 @@ class HPXMLtoHEScoreTranslator(object):
             except KeyError:
                 pass
             else:
-                if sys_heating is not None and 'efficiency_method' in sys_heating:
+                if 'efficiency_method' in sys_heating:
                     if sys_heating['efficiency_method'] == 'user':
                         do_bounds_check('heating_efficiency',
                                         sys_heating['efficiency'],
@@ -1812,7 +1812,8 @@ class HPXMLtoHEScoreTranslator(object):
                                         sys_heating['year'],
                                         1970, this_year)
                 else:
-                    assert ((sys_heating['type'] in ('furnace', 'baseboard') and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove')
+                    if not ((sys_heating['type'] in ('furnace', 'baseboard') and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
+                        raise TranslationError('Heating system %(fuel_primary)s %(type)s needs an efficiency value.' % sys_heating)
 
             try:
                 sys_cooling = sys_hvac['cooling']
