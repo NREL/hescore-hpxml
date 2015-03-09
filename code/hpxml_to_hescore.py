@@ -643,28 +643,32 @@ class HPXMLtoHEScoreTranslator(object):
         bldgaddr['state'] = xpath(b, 'h:Site/h:Address/h:StateCode/text()')
         bldgaddr['zip_code'] = xpath(b, 'h:Site/h:Address/h:ZipCode/text()')
         transaction_type = xpath(self.hpxmldoc, 'h:XMLTransactionHeaderInformation/h:Transaction/text()')
-        if transaction_type == 'create':
-            bldgaddr['assessment_type'] = {'audit': 'initial',
-                                           'proposed workscope': 'alternative',
-                                           'approved workscope': 'alternative',
-                                           'construction-period testing/daily test out': 'test',
-                                           'job completion testing/final inspection': 'final',
-                                           'quality assurance/monitoring': 'qa'}[
-                xpath(b, 'h:ProjectStatus/h:EventType/text()')]
+        is_mentor = xpath(b, 'boolean(h:ProjectStatus/h:extension/h:HEScoreMentorAssessment)')
+        if is_mentor:
+            bldgaddr['assessment_type'] = 'mentor'
         else:
-            assert transaction_type == 'update'
-            bldgaddr['assessment_type'] = 'corrected'
+            if transaction_type == 'create':
+                bldgaddr['assessment_type'] = {'audit': 'initial',
+                                               'proposed workscope': 'alternative',
+                                               'approved workscope': 'alternative',
+                                               'construction-period testing/daily test out': 'test',
+                                               'job completion testing/final inspection': 'final',
+                                               'quality assurance/monitoring': 'qa'}[
+                    xpath(b, 'h:ProjectStatus/h:EventType/text()')]
+            else:
+                assert transaction_type == 'update'
+                bldgaddr['assessment_type'] = 'corrected'
         return bldgaddr
 
     def _get_building_about(self,b):
         xpath = self.xpath
         ns = self.ns
         bldg_about = OrderedDict()
-        projstatdateel = b.find('h:ProjectStatus/h:Date', namespaces=ns)
-        if projstatdateel is None:
+        project_status_date_el = b.find('h:ProjectStatus/h:Date', namespaces=ns)
+        if project_status_date_el is None:
             bldg_about['assessment_date'] = dt.date.today()
         else:
-            bldg_about['assessment_date'] = dt.datetime.strptime(projstatdateel.text, '%Y-%m-%d').date()
+            bldg_about['assessment_date'] = dt.datetime.strptime(project_status_date_el.text, '%Y-%m-%d').date()
         bldg_about['assessment_date'] = bldg_about['assessment_date'].isoformat()
 
         # TODO: See if we can map more of these facility types

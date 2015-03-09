@@ -5,7 +5,7 @@
         <XMLType/>
         <XMLGeneratedBy/>
         <CreatedDateAndTime>2014-12-01T15:34:15</CreatedDateAndTime>
-        <Transaction>update</Transaction>
+        <Transaction>create</Transaction>
     </XMLTransactionHeaderInformation>
     <SoftwareInfo/>
     <Building>
@@ -21,8 +21,11 @@
             </Address>
         </Site>
         <ProjectStatus>
-            <EventType>proposed workscope</EventType>
+            <EventType>audit</EventType>
             <Date>2014-12-18</Date>
+            <extension>
+                <HEScoreMentorAssessment/>
+            </extension>
         </ProjectStatus>
         <BuildingDetails>
             <BuildingSummary>
