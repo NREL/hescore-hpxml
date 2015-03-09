@@ -3,28 +3,6 @@ Cooling
 
 .. contents:: Table of Contents
 
-.. _primaryclgsys:
-
-Determining the primary cooling system
-**************************************
-
-HEScore only allows the definition of one cooling system. If an HPXML document
-contains more than one cooling system then the primary one must be chosen for
-input into HEScore. The primary cooling system is determined according to the
-following logic:
-
-#. HPXML has a ``PrimaryCoolingSystem`` element that references with system
-   is the primary one. If this is present, the properties of that referenced
-   cooling system are translated into HEScore inputs.
-#. If there is no defined primary cooling system in HPXML, each
-   ``CoolingSystem`` or ``HeatPump`` is translated into HEScore inputs and
-   systems with the same ``type`` and ``efficiency_method`` are combined by
-   taking a capacity weighted average of the ``efficiency`` or ``year``
-   depending on the efficiency method. The combined system that has the
-   greatest total capacity is then used for the HEScore inputs. 
-#. Finally, if there is no ``CoolingSystem`` or ``HeatPump`` object, then the
-   house is determined to not have a cooling system in HEScore. 
-   
 Cooling system type
 *******************
 

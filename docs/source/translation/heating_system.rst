@@ -3,28 +3,6 @@ Heating
 
 .. contents:: Table of Contents
 
-.. _primaryhtgsys:
-
-Determining the primary heating system
-**************************************
-
-HEScore only allows the definition of one heating system. If an HPXML document
-contains more than one heating system then either one heating system must be
-selected or heating systems must be combined and averaged into one set of
-inputs. This is done as follows:
-
-#. HPXML has a ``PrimaryHeatingSystem`` element that references which system
-   is the primary one. If this is present, the properties of that referenced
-   heating system are translated into HEScore inputs.
-#. If there is no defined primary heating system in HPXML, each
-   ``HeatingSystem`` or ``HeatPump`` is translated into HEScore inputs and
-   systems with the same  ``type``, ``fuel_primary`` and ``efficiency_method``
-   are combined by taking a capacity weighted average of the ``efficiency`` or
-   ``year`` depending on the efficiency method. The combined system that has
-   the greatest total capacity is then used for the HEScore inputs.
-#. Finally, if there is no ``HeatingSystem`` or ``HeatPump`` object, then the
-   house is determined to not have a heating system in HEScore. 
-   
 Heating system type
 *******************
 
