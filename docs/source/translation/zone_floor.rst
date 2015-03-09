@@ -6,9 +6,15 @@ Foundation Insulation
 Determining the primary foundation
 **********************************
 
-The foundation that covers the largest square footage is selected as the primary
-foundation. This is determined by summing up the area of the ``FrameFloor`` or
+HEScore permits the specification of two foundations.
+The two foundations that cover the largest area are selected.
+This is determined by summing up the area of the ``FrameFloor`` or
 ``Slab`` elements (depending on what kind of foundation it is).
+``Area`` elements are required for all foundations unless there is only one
+foundation, then it is assumed to be the footprint area of the building.
+If there are more than two foundations, the areas of the largest two are scaled
+up to encompass the area of the remaining foundations while maintaining their
+respective area fractions relative to each other.
 
 Foundation Type
 ***************
