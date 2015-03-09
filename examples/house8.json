@@ -90,31 +90,54 @@
       ]
     }, 
     "systems": {
-      "heating": {
-        "efficiency_method": "user", 
-        "efficiency": 0.8, 
-        "fuel_primary": "natural_gas", 
-        "type": "central_furnace"
-      }, 
-      "cooling": {
-        "type": "split_dx", 
-        "efficiency": 13.7, 
-        "efficiency_method": "user"
-      }, 
-      "hvac_distribution": [
+      "hvac": [
         {
-          "name": "duct1", 
-          "location": "uncond_basement", 
-          "fraction": 50, 
-          "insulated": true, 
-          "sealed": false
+          "hvac_name": "hvac1", 
+          "hvac_fraction": 0.6944444444444444, 
+          "heating": {
+            "fuel_primary": "natural_gas", 
+            "type": "central_furnace", 
+            "efficiency_method": "user", 
+            "efficiency": 0.8
+          }, 
+          "cooling": {
+            "type": "split_dx", 
+            "efficiency_method": "user", 
+            "efficiency": 13.0
+          }, 
+          "hvac_distribution": [
+            {
+              "name": "duct1", 
+              "location": "uncond_basement", 
+              "fraction": 100, 
+              "insulated": true, 
+              "sealed": false
+            }
+          ]
         }, 
         {
-          "name": "duct2", 
-          "location": "uncond_attic", 
-          "fraction": 50, 
-          "insulated": true, 
-          "sealed": true
+          "hvac_name": "hvac2", 
+          "hvac_fraction": 0.3055555555555556, 
+          "heating": {
+            "fuel_primary": "natural_gas", 
+            "type": "central_furnace", 
+            "efficiency_method": "shipment_weighted", 
+            "year": 1990
+          }, 
+          "cooling": {
+            "type": "split_dx", 
+            "efficiency_method": "user", 
+            "efficiency": 15.0
+          }, 
+          "hvac_distribution": [
+            {
+              "name": "duct1", 
+              "location": "uncond_attic", 
+              "fraction": 100, 
+              "insulated": true, 
+              "sealed": true
+            }
+          ]
         }
       ], 
       "domestic_hot_water": {

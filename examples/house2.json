@@ -84,31 +84,37 @@
       ]
     }, 
     "systems": {
-      "heating": {
-        "efficiency_method": "user", 
-        "efficiency": 0.92, 
-        "fuel_primary": "natural_gas", 
-        "type": "central_furnace"
-      }, 
-      "cooling": {
-        "type": "split_dx", 
-        "efficiency": 13.0, 
-        "efficiency_method": "user"
-      }, 
-      "hvac_distribution": [
+      "hvac": [
         {
-          "name": "duct1", 
-          "location": "cond_space", 
-          "fraction": 50, 
-          "insulated": false, 
-          "sealed": false
-        }, 
-        {
-          "name": "duct2", 
-          "location": "vented_crawl", 
-          "fraction": 50, 
-          "insulated": true, 
-          "sealed": false
+          "hvac_name": "hvac1", 
+          "hvac_fraction": 1.0, 
+          "heating": {
+            "fuel_primary": "natural_gas", 
+            "type": "central_furnace", 
+            "efficiency_method": "user", 
+            "efficiency": 0.92
+          }, 
+          "cooling": {
+            "type": "split_dx", 
+            "efficiency_method": "user", 
+            "efficiency": 13.0
+          }, 
+          "hvac_distribution": [
+            {
+              "name": "duct1", 
+              "location": "cond_space", 
+              "fraction": 50, 
+              "insulated": false, 
+              "sealed": false
+            }, 
+            {
+              "name": "duct2", 
+              "location": "vented_crawl", 
+              "fraction": 50, 
+              "insulated": true, 
+              "sealed": false
+            }
+          ]
         }
       ], 
       "domestic_hot_water": {

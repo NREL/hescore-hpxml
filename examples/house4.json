@@ -92,24 +92,54 @@
       ]
     }, 
     "systems": {
-      "heating": {
-        "efficiency_method": "user", 
-        "efficiency": 0.85, 
-        "fuel_primary": "fuel_oil", 
-        "type": "boiler"
-      }, 
-      "cooling": {
-        "type": "split_dx", 
-        "efficiency": 13.0, 
-        "efficiency_method": "user"
-      }, 
-      "hvac_distribution": [
+      "hvac": [
         {
-          "name": "duct1", 
-          "location": "unvented_crawl", 
-          "fraction": 100, 
-          "insulated": false, 
-          "sealed": true
+          "hvac_name": "hvac1", 
+          "hvac_fraction": 0.8132586367880486, 
+          "heating": {
+            "fuel_primary": "fuel_oil", 
+            "type": "boiler", 
+            "efficiency_method": "user", 
+            "efficiency": 0.85
+          }, 
+          "cooling": {
+            "type": "split_dx", 
+            "efficiency_method": "user", 
+            "efficiency": 13.0
+          }, 
+          "hvac_distribution": [
+            {
+              "name": "duct1", 
+              "location": "unvented_crawl", 
+              "fraction": 100, 
+              "insulated": false, 
+              "sealed": true
+            }
+          ]
+        }, 
+        {
+          "hvac_name": "hvac2", 
+          "hvac_fraction": 0.18674136321195145, 
+          "heating": {
+            "fuel_primary": "electric", 
+            "type": "heat_pump", 
+            "efficiency_method": "user", 
+            "efficiency": 8.2
+          }, 
+          "cooling": {
+            "type": "heat_pump", 
+            "efficiency_method": "user", 
+            "efficiency": 15.0
+          }, 
+          "hvac_distribution": [
+            {
+              "name": "duct1", 
+              "location": "cond_space", 
+              "fraction": 100, 
+              "insulated": true, 
+              "sealed": true
+            }
+          ]
         }
       ], 
       "domestic_hot_water": {

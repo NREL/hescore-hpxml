@@ -231,6 +231,7 @@
                                 <Units>AFUE</Units>
                                 <Value>0.8</Value>
                             </AnnualHeatingEfficiency>
+                            <FloorAreaServed>1600</FloorAreaServed>
                         </HeatingSystem>
                         <HeatingSystem>
                             <SystemIdentifier id="furnace2"/>
@@ -253,6 +254,7 @@
                             </HeatingSystemType>
                             <HeatingSystemFuel>electricity</HeatingSystemFuel>
                             <HeatingCapacity>6824.28326626</HeatingCapacity><!-- 2 kW in Btu/h -->
+                            <FloorAreaServed>400</FloorAreaServed>
                         </HeatingSystem>
                         <CoolingSystem>
                             <SystemIdentifier id="centralair1"/>

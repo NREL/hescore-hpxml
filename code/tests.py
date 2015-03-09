@@ -266,58 +266,32 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 'HEScore does not support the HPXML HeatingSystemType', 
                                 tr.hpxml_to_hescore_dict)
         
-    def test_missing_heating_capacity(self):
+    def test_missing_heating_weighting_factor(self):
         tr = self._load_xmlfile('house4')
-        el = self.xpath('(//h:HeatingSystem|//h:HeatPump)[1]/h:HeatingCapacity')
+        el = self.xpath('//h:HeatingSystem[1]/h:HeatingCapacity')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError, 
-                                'If a primary heating system is not defined, each heating system must have a capacity', 
+        el = self.xpath('//h:HeatPump[1]/h:FloorAreaServed')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError,
+                                'Every heating/cooling system needs to have either FracLoadServed, FloorAreaServed, or Capacity',
                                 tr.hpxml_to_hescore_dict)
     
-    def test_primary_heating_system(self):
-        filebase = 'house4'
-        tr = self._load_xmlfile(filebase)
-        hvacplant = self.xpath('//h:HVACPlant')
-        el = etree.Element(tr.addns('h:PrimarySystems'))
-        etree.SubElement(el, tr.addns('h:PrimaryHeatingSystem'), attrib={'idref': 'boiler1'})
-        hvacplant.insert(0,el)
-        for el in self.xpath('(//h:HeatingSystem|//h:HeatPump)/h:HeatingCapacity'):
-            el.getparent().remove(el)
-        self._do_compare(filebase)
-        
-    def test_missing_cooling_capacity(self):
+    def test_missing_cooling_weighting_factor(self):
         tr = self._load_xmlfile('house5')
-        for el in self.xpath('(//h:HVACPlant/h:CoolingSystem|//h:HVACPlant/h:HeatPump)/h:CoolingCapacity'):
-            el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError, 
-                                'If a primary cooling system is not defined, each cooling system must have a capacity', 
+        el = self.xpath('//h:CoolingSystem[1]/h:CoolingCapacity')
+        el.getparent().remove(el)
+        el = self.xpath('//h:CoolingSystem[2]/h:FloorAreaServed')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError,
+                                'Every heating/cooling system needs to have either FracLoadServed, FloorAreaServed, or Capacity',
                                 tr.hpxml_to_hescore_dict)
-    
-    def test_primary_cooling_system(self):
-        filebase = 'house4'
-        tr = self._load_xmlfile(filebase)
-        hvacplant = self.xpath('//h:HVACPlant')
-        el = etree.Element(tr.addns('h:PrimarySystems'))
-        etree.SubElement(el, tr.addns('h:PrimaryCoolingSystem'), attrib={'idref': 'centralair1'})
-        hvacplant.insert(0,el)
-        for el in self.xpath('(//h:HeatingSystem|//h:HeatPump)/h:CoolingCapacity'):
-            el.getparent().remove(el)
-        self._do_compare(filebase)
-    
+
     def test_bad_duct_location(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:DuctLocation[1]')
         el.text = 'outside'
         self.assertRaisesRegexp(TranslationError, 
                                 'No comparable duct location in HEScore', 
-                                tr.hpxml_to_hescore_dict)
-    
-    def test_duct_cfa_requirement(self):
-        tr = self._load_xmlfile('house5')
-        el = self.xpath('//h:HVACDistribution[1]/h:ConditionedFloorAreaServed')
-        el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError, 
-                                'All HVACDistribution elements need to have or NOT have the ConditionFloorAreaServed subelement\.', 
                                 tr.hpxml_to_hescore_dict)
     
     def test_missing_water_heater(self):
@@ -333,7 +307,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         el = self.xpath('//h:WaterHeatingSystem[1]/h:WaterHeaterType')
         el.text = 'space-heating boiler with storage tank'
         self.assertRaisesRegexp(TranslationError, 
-                                'Cannot have an indirect water heater if the primary heating system is not a boiler\.', 
+                                'Cannot have water heater type indirect if there is no boiler heating system',
                                 tr.hpxml_to_hescore_dict)
         
     def test_tankless_coil_dhw_error(self):
@@ -341,7 +315,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         el = self.xpath('//h:WaterHeatingSystem[1]/h:WaterHeaterType')
         el.text = 'space-heating boiler with tankless coil'
         self.assertRaisesRegexp(TranslationError, 
-                                'Cannot have a tankless coil water heater if the primary heating system is not a boiler\.', 
+                                'Cannot have water heater type tankless_coil if there is no boiler heating system',
                                 tr.hpxml_to_hescore_dict)
         
     def test_missing_attached_to_roof(self):
@@ -364,8 +338,9 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     def test_wood_stove(self):
         self._wood_stove_setup()
         result_dict = self.translator.hpxml_to_hescore_dict()
-        self.assertEqual(result_dict['building']['systems']['heating']['type'], 'wood_stove')
-        self.assertEqual(result_dict['building']['systems']['heating']['fuel_primary'], 'cord_wood')
+        htg_sys = result_dict['building']['systems']['hvac'][0]['heating']
+        self.assertEqual(htg_sys['type'], 'wood_stove')
+        self.assertEqual(htg_sys['fuel_primary'], 'cord_wood')
 
     def test_wood_stove_invalid_fuel_type(self):
         htgsys = self._wood_stove_setup()
@@ -373,7 +348,49 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         self.assertRaisesRegexp(TranslationError,
                                 r'Heating system wood_stove cannot be used with fuel natural_gas',
                                 self.translator.hpxml_to_hescore_dict)
+
+    def test_too_many_duct_systems(self):
+        tr = self._load_xmlfile('house5')
+        dist_sys_el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="backfurnace"]/h:DistributionSystem')
+        htg_sys = dist_sys_el.getparent()
+        idx = htg_sys.index(dist_sys_el)
+        htg_sys.insert(idx, etree.Element(tr.addns('h:DistributionSystem'), idref='frontducts'))
+        self.assertRaisesRegexp(TranslationError,
+                                r'Each HVAC plant is only allowed to specify one duct system\. .+ references more than one',
+                                tr.hpxml_to_hescore_dict)
         
+    def test_only_duct_system_per_heating_sys(self):
+        tr = self._load_xmlfile('house5')
+        dist_sys_el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="backfurnace"]/h:DistributionSystem')
+        dist_sys_el.set('idref', 'frontducts')
+        self.assertRaisesRegexp(TranslationError,
+                                r'Each duct system is only allowed to serve one heating and one cooling system',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_dist_sys_idref(self):
+        tr = self._load_xmlfile('house5')
+        dist_sys_el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="backfurnace"]/h:DistributionSystem')
+        dist_sys_el.set('idref', 'backwindows1')
+        self.assertRaisesRegexp(TranslationError,
+                                r'HVAC plant .+ specifies an HPXML distribution system of .+, which does not exist.',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_htg_sys_has_air_dist(self):
+        tr = self._load_xmlfile('hescore_min')
+        dist_sys_el = self.xpath('//h:HeatingSystem[1]/h:DistributionSystem')
+        dist_sys_el.getparent().remove(dist_sys_el)
+        self.assertRaisesRegexp(TranslationError,
+                                r'Heating system .+ is not associated with an air distribution system\.',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_clg_sys_has_air_dist(self):
+        tr = self._load_xmlfile('hescore_min')
+        dist_sys_el = self.xpath('//h:CoolingSystem[1]/h:DistributionSystem')
+        dist_sys_el.getparent().remove(dist_sys_el)
+        self.assertRaisesRegexp(TranslationError,
+                                r'Cooling system .+ is not associated with an air distribution system\.',
+                                tr.hpxml_to_hescore_dict)
+
 class TestInputOutOfBounds(unittest.TestCase,ComparatorBase):
     
     def test_assessment_date1(self):

@@ -167,6 +167,7 @@
                         </HeatingSystem>
                         <CoolingSystem>
                             <SystemIdentifier id="centralair1"/>
+                            <DistributionSystem idref="hvacd1"/>
                             <CoolingSystemType>central air conditioning</CoolingSystemType>
                             <AnnualCoolingEfficiency>
                                 <Units>SEER</Units>

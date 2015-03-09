@@ -80,18 +80,24 @@
       ]
     }, 
     "systems": {
-      "heating": {
-        "efficiency_method": "user", 
-        "efficiency": 0.8, 
-        "fuel_primary": "natural_gas", 
-        "type": "boiler"
-      }, 
-      "cooling": {
-        "type": "packaged_dx", 
-        "efficiency": 9.0, 
-        "efficiency_method": "user"
-      }, 
-      "hvac_distribution": [], 
+      "hvac": [
+        {
+          "hvac_name": "hvac1", 
+          "hvac_fraction": 1.0, 
+          "heating": {
+            "fuel_primary": "natural_gas", 
+            "type": "boiler", 
+            "efficiency_method": "user", 
+            "efficiency": 0.8
+          }, 
+          "cooling": {
+            "type": "packaged_dx", 
+            "efficiency_method": "user", 
+            "efficiency": 9.0
+          }, 
+          "hvac_distribution": []
+        }
+      ], 
       "domestic_hot_water": {
         "category": "combined", 
         "type": "indirect"

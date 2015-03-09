@@ -79,24 +79,30 @@
       ]
     }, 
     "systems": {
-      "heating": {
-        "efficiency_method": "shipment_weighted", 
-        "year": 2000, 
-        "fuel_primary": "electric", 
-        "type": "heat_pump"
-      }, 
-      "cooling": {
-        "type": "heat_pump", 
-        "year": 2000, 
-        "efficiency_method": "shipment_weighted"
-      }, 
-      "hvac_distribution": [
+      "hvac": [
         {
-          "name": "duct1", 
-          "location": "cond_space", 
-          "fraction": 100, 
-          "insulated": false, 
-          "sealed": true
+          "hvac_name": "hvac1", 
+          "hvac_fraction": 1.0, 
+          "heating": {
+            "fuel_primary": "electric", 
+            "type": "heat_pump", 
+            "efficiency_method": "shipment_weighted", 
+            "year": 2000
+          }, 
+          "cooling": {
+            "type": "heat_pump", 
+            "efficiency_method": "shipment_weighted", 
+            "year": 2000
+          }, 
+          "hvac_distribution": [
+            {
+              "name": "duct1", 
+              "location": "cond_space", 
+              "fraction": 100, 
+              "insulated": false, 
+              "sealed": true
+            }
+          ]
         }
       ], 
       "domestic_hot_water": {
