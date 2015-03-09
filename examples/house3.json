@@ -32,11 +32,15 @@
           }
         }
       ], 
-      "zone_floor": {
-        "foundation_type": "slab_on_grade", 
-        "foundation_insulation_level": 5, 
-        "floor_assembly_code": "efwf00ca"
-      }, 
+      "zone_floor": [
+        {
+          "floor_name": "floor1", 
+          "floor_area": 679, 
+          "foundation_type": "slab_on_grade", 
+          "foundation_insulation_level": 5, 
+          "floor_assembly_code": "efwf00ca"
+        }
+      ], 
       "wall_construction_same": false, 
       "window_construction_same": false, 
       "zone_wall": [

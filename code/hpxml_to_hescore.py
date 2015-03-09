@@ -590,7 +590,7 @@ class HPXMLtoHEScoreTranslator(object):
         bldg['about'] = self._get_building_about(b)
         bldg['zone'] = OrderedDict()
         bldg['zone']['zone_roof'] = None # to save the spot in the order
-        bldg['zone']['zone_floor'] = self._get_building_zone_floor(b)
+        bldg['zone']['zone_floor'] = self._get_building_zone_floor(b, bldg['about'])
         footprint_area = self._get_footprint_area(bldg)
         bldg['zone']['zone_roof'] = self._get_building_zone_roof(b, footprint_area)
         bldg['zone']['zone_roof'][0]['zone_skylight'] = self._get_skylights(b)
@@ -613,9 +613,11 @@ class HPXMLtoHEScoreTranslator(object):
     def _get_footprint_area(bldg):
         floor_area = bldg['about']['conditioned_floor_area']
         stories = bldg['about']['num_floor_above_grade']
-        if bldg['zone']['zone_floor']['foundation_type'] == 'cond_basement':
-            stories += 1
-        return int(floor_area / stories)
+        cond_basement_floor_area = 0
+        for zone_floor in bldg['zone']['zone_floor']:
+            if zone_floor['foundation_type'] == 'cond_basement':
+                cond_basement_floor_area += zone_floor['floor_area']
+        return int(round((floor_area - cond_basement_floor_area) / stories))
 
     @staticmethod
     def _remove_hidden_keys(d):
@@ -1023,119 +1025,154 @@ class HPXMLtoHEScoreTranslator(object):
 
         return zone_skylight
 
-    def _get_building_zone_floor(self, b):
+    def _get_building_zone_floor(self, b, bldg_about):
         ns = self.ns
         xpath = self.xpath
+        smallnum = 0.01
 
         # building.zone.zone_floor-------------------------------------------------
-        zone_floor = OrderedDict()
+        zone_floors = []
 
         foundations = b.xpath('//h:Foundations/h:Foundation', namespaces=ns)
-        # get the Foundation element that covers the largest square footage of the house
-        foundation = max(foundations,
-                         key=lambda fnd: max([xpath(fnd, 'sum(h:%s/h:Area)' % x) for x in ('Slab', 'FrameFloor')]))
 
-        # Foundation type
-        hpxml_foundation_type = xpath(foundation, 'name(h:FoundationType/*)')
-        if hpxml_foundation_type == 'Basement':
-            bsmtcond = xpath(foundation, 'h:FoundationType/h:Basement/h:Conditioned="true"')
-            if bsmtcond:
-                zone_floor['foundation_type'] = 'cond_basement'
-            else:
-                # assumed unconditioned basement if h:Conditioned is missing
-                zone_floor['foundation_type'] = 'uncond_basement'
-        elif hpxml_foundation_type == 'Crawlspace':
-            crawlvented = xpath(foundation, 'h:FoundationType/h:Crawlspace/h:Vented="true"')
-            if crawlvented:
+        # Sort the foundations from largest area to smallest
+        def get_fnd_area(fnd):
+            return max([xpath(fnd, 'sum(h:%s/h:Area)' % x) for x in ('Slab', 'FrameFloor')])
+        foundations.sort(key=get_fnd_area, reverse=True)
+        areas = map(get_fnd_area, foundations)
+        if len(areas) > 1:
+            for area in areas:
+                if abs(area) < smallnum: # area == 0
+                    raise TranslationError('If there is more than one foundation, each needs an area specified on either the Slab or FrameFloor.')
+        sum_area_largest_two = sum(areas[0:2])
+        sum_area = sum(areas)
+        try:
+            area_mult = sum_area / sum_area_largest_two
+        except ZeroDivisionError:
+            area_mult = 0
+
+        # Map the top two
+        for i, (foundation, area) in enumerate(zip(foundations[0:2], areas[0:2]), 1):
+            zone_floor = OrderedDict()
+
+            # Floor name
+            zone_floor['floor_name'] = 'floor%d' % i
+
+            # Floor area
+            zone_floor['floor_area'] = area * area_mult
+
+            # Foundation type
+            hpxml_foundation_type = xpath(foundation, 'name(h:FoundationType/*)')
+            if hpxml_foundation_type == 'Basement':
+                bsmtcond = xpath(foundation, 'h:FoundationType/h:Basement/h:Conditioned="true"')
+                if bsmtcond:
+                    zone_floor['foundation_type'] = 'cond_basement'
+                else:
+                    # assumed unconditioned basement if h:Conditioned is missing
+                    zone_floor['foundation_type'] = 'uncond_basement'
+            elif hpxml_foundation_type == 'Crawlspace':
+                crawlvented = xpath(foundation, 'h:FoundationType/h:Crawlspace/h:Vented="true"')
+                if crawlvented:
+                    zone_floor['foundation_type'] = 'vented_crawl'
+                else:
+                    # assumes unvented crawlspace if h:Vented is missing.
+                    zone_floor['foundation_type'] = 'unvented_crawl'
+            elif hpxml_foundation_type == 'SlabOnGrade':
+                zone_floor['foundation_type'] = 'slab_on_grade'
+            elif hpxml_foundation_type == 'Garage':
+                zone_floor['foundation_type'] = 'unvented_crawl'
+            elif hpxml_foundation_type == 'Ambient':
                 zone_floor['foundation_type'] = 'vented_crawl'
             else:
-                # assumes unvented crawlspace if h:Vented is missing.
-                zone_floor['foundation_type'] = 'unvented_crawl'
-        elif hpxml_foundation_type == 'SlabOnGrade':
-            zone_floor['foundation_type'] = 'slab_on_grade'
-        elif hpxml_foundation_type == 'Garage':
-            zone_floor['foundation_type'] = 'unvented_crawl'
-        elif hpxml_foundation_type == 'Ambient':
-            zone_floor['foundation_type'] = 'vented_crawl'
-        else:
-            raise TranslationError('HEScore does not have a foundation type analogous to: %s' % hpxml_foundation_type)
+                raise TranslationError('HEScore does not have a foundation type analogous to: %s' % hpxml_foundation_type)
 
-        # Foundation Wall insulation R-value
-        fwra = 0
-        fwtotalarea = 0
-        foundationwalls = foundation.xpath('h:FoundationWall', namespaces=ns)
-        fw_eff_rvalues = dict(zip((0, 5, 11, 19), (4, 7.9, 11.6, 19.6)))
-        if len(foundationwalls) > 0:
-            if zone_floor['foundation_type'] == 'slab_on_grade':
-                raise TranslationError('The house is a slab on grade foundation, but has foundation walls.')
-            del fw_eff_rvalues[5]  # remove the value for slab insulation
-            for fwall in foundationwalls:
-                fwarea, fwlength, fwheight = \
-                    map(lambda x: convert_to_type(float, xpath(fwall, 'h:%s/text()' % x)),
-                        ('Area', 'Length', 'Height'))
-                if fwarea is None:
-                    try:
-                        fwarea = fwlength * fwheight
-                    except TypeError:
-                        if len(foundationwalls) == 1:
-                            fwarea = 1.0
+            # Now that we know the foundation type, we can specify the floor area as the footprint area if there's
+            # only one foundation.
+            if abs(area) < smallnum:
+                assert len(foundations) == 1  # We should only be here if there's only one foundation
+                nstories = bldg_about['num_floor_above_grade']
+                if zone_floor['foundation_type'] == 'cond_basement':
+                    nstories += 1
+                zone_floor['floor_area'] = bldg_about['conditioned_floor_area'] / nstories
+
+            # Foundation Wall insulation R-value
+            fwra = 0
+            fwtotalarea = 0
+            foundationwalls = foundation.xpath('h:FoundationWall', namespaces=ns)
+            fw_eff_rvalues = dict(zip((0, 5, 11, 19), (4, 7.9, 11.6, 19.6)))
+            if len(foundationwalls) > 0:
+                if zone_floor['foundation_type'] == 'slab_on_grade':
+                    raise TranslationError('The house is a slab on grade foundation, but has foundation walls.')
+                del fw_eff_rvalues[5]  # remove the value for slab insulation
+                for fwall in foundationwalls:
+                    fwarea, fwlength, fwheight = \
+                        map(lambda x: convert_to_type(float, xpath(fwall, 'h:%s/text()' % x)),
+                            ('Area', 'Length', 'Height'))
+                    if fwarea is None:
+                        try:
+                            fwarea = fwlength * fwheight
+                        except TypeError:
+                            if len(foundationwalls) == 1:
+                                fwarea = 1.0
+                            else:
+                                raise TranslationError(
+                                    'If there is more than one FoundationWall, an Area is required for each.')
+                    fwrvalue = xpath(fwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+                    fweffrvalue = fw_eff_rvalues[min(fw_eff_rvalues.keys(), key=lambda x: abs(fwrvalue - x))]
+                    fwra += fweffrvalue * fwarea
+                    fwtotalarea += fwarea
+                zone_floor['foundation_insulation_level'] = fwra / fwtotalarea - 4.0
+            elif zone_floor['foundation_type'] == 'slab_on_grade':
+                del fw_eff_rvalues[11]  # remove unused values
+                del fw_eff_rvalues[19]
+                slabs = foundation.xpath('h:Slab', namespaces=ns)
+                slabra = 0
+                slabtotalperimeter = 0
+                for slab in slabs:
+                    exp_perimeter = convert_to_type(float, xpath(slab, 'h:ExposedPerimeter/text()'))
+                    if exp_perimeter is None:
+                        if len(slabs) == 1:
+                            exp_perimeter = 1.0
                         else:
                             raise TranslationError(
-                                'If there is more than one FoundationWall, an Area is required for each.')
-                fwrvalue = xpath(fwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-                fweffrvalue = fw_eff_rvalues[min(fw_eff_rvalues.keys(), key=lambda x: abs(fwrvalue - x))]
-                fwra += fweffrvalue * fwarea
-                fwtotalarea += fwarea
-            zone_floor['foundation_insulation_level'] = fwra / fwtotalarea - 4.0
-        elif zone_floor['foundation_type'] == 'slab_on_grade':
-            del fw_eff_rvalues[11]  # remove unused values
-            del fw_eff_rvalues[19]
-            slabs = foundation.xpath('h:Slab', namespaces=ns)
-            slabra = 0
-            slabtotalperimeter = 0
-            for slab in slabs:
-                exp_perimeter = convert_to_type(float, xpath(slab, 'h:ExposedPerimeter/text()'))
-                if exp_perimeter is None:
-                    if len(slabs) == 1:
-                        exp_perimeter = 1.0
-                    else:
-                        raise TranslationError(
-                            'If there is more than one Slab, an ExposedPerimeter is required for each.')
-                slabrvalue = xpath(slab, 'sum(h:PerimeterInsulation/h:Layer/h:NominalRValue)')
-                slabeffrvalue = fw_eff_rvalues[min(fw_eff_rvalues.keys(), key=lambda x: abs(slabrvalue - x))]
-                slabra += slabeffrvalue * exp_perimeter
-                slabtotalperimeter += exp_perimeter
-            zone_floor['foundation_insulation_level'] = slabra / slabtotalperimeter - 4.0
-        else:
-            zone_floor['foundation_insulation_level'] = 0
-        zone_floor['foundation_insulation_level'] = min(fw_eff_rvalues.keys(), key=lambda x: abs(
-            zone_floor['foundation_insulation_level'] - x))
+                                'If there is more than one Slab, an ExposedPerimeter is required for each.')
+                    slabrvalue = xpath(slab, 'sum(h:PerimeterInsulation/h:Layer/h:NominalRValue)')
+                    slabeffrvalue = fw_eff_rvalues[min(fw_eff_rvalues.keys(), key=lambda x: abs(slabrvalue - x))]
+                    slabra += slabeffrvalue * exp_perimeter
+                    slabtotalperimeter += exp_perimeter
+                zone_floor['foundation_insulation_level'] = slabra / slabtotalperimeter - 4.0
+            else:
+                zone_floor['foundation_insulation_level'] = 0
+            zone_floor['foundation_insulation_level'] = min(fw_eff_rvalues.keys(), key=lambda x: abs(
+                zone_floor['foundation_insulation_level'] - x))
 
-        # floor above foundation insulation
-        ffra = 0
-        fftotalarea = 0
-        framefloors = foundation.xpath('h:FrameFloor', namespaces=ns)
-        floor_eff_rvalues = dict(
-            zip((0, 11, 13, 15, 19, 21, 25, 30, 38), (4.0, 15.8, 17.8, 19.8, 23.8, 25.8, 31.8, 37.8, 42.8)))
-        if len(framefloors) > 0:
-            for framefloor in framefloors:
-                ffarea = convert_to_type(float, xpath(framefloor, 'h:Area/text()'))
-                if ffarea is None:
-                    if len(framefloors) == 1:
-                        ffarea = 1.0
-                    else:
-                        raise TranslationError('If there is more than one FrameFloor, an Area is required for each.')
-                ffrvalue = xpath(framefloor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-                ffeffrvalue = floor_eff_rvalues[min(floor_eff_rvalues.keys(), key=lambda x: abs(ffrvalue - x))]
-                ffra += ffarea * ffeffrvalue
-                fftotalarea += ffarea
-            ffrvalue = ffra / fftotalarea - 4.0
-            zone_floor['floor_assembly_code'] = 'efwf%02dca' % min(floor_eff_rvalues.keys(),
-                                                                   key=lambda x: abs(ffrvalue - x))
-        else:
-            zone_floor['floor_assembly_code'] = 'efwf00ca'
+            # floor above foundation insulation
+            ffra = 0
+            fftotalarea = 0
+            framefloors = foundation.xpath('h:FrameFloor', namespaces=ns)
+            floor_eff_rvalues = dict(zip((0, 11, 13, 15, 19, 21, 25, 30, 38),
+                                         (4.0, 15.8, 17.8, 19.8, 23.8, 25.8, 31.8, 37.8, 42.8)))
+            if len(framefloors) > 0:
+                for framefloor in framefloors:
+                    ffarea = convert_to_type(float, xpath(framefloor, 'h:Area/text()'))
+                    if ffarea is None:
+                        if len(framefloors) == 1:
+                            ffarea = 1.0
+                        else:
+                            raise TranslationError('If there is more than one FrameFloor, an Area is required for each.')
+                    ffrvalue = xpath(framefloor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+                    ffeffrvalue = floor_eff_rvalues[min(floor_eff_rvalues.keys(), key=lambda x: abs(ffrvalue - x))]
+                    ffra += ffarea * ffeffrvalue
+                    fftotalarea += ffarea
+                ffrvalue = ffra / fftotalarea - 4.0
+                zone_floor['floor_assembly_code'] = 'efwf%02dca' % min(floor_eff_rvalues.keys(),
+                                                                       key=lambda x: abs(ffrvalue - x))
+            else:
+                zone_floor['floor_assembly_code'] = 'efwf00ca'
 
-        return zone_floor
+            zone_floors.append(zone_floor)
+
+        return zone_floors
 
     def _get_building_zone_wall(self, b, bldg_about):
         xpath = self.xpath
@@ -1739,9 +1776,10 @@ class HPXMLtoHEScoreTranslator(object):
                                 zone_skylight['skylight_shgc'],
                                 0, 1)
 
-        do_bounds_check('foundation_insulation_level',
-                        hescore_inputs['building']['zone']['zone_floor']['foundation_insulation_level'],
-                        0, 19)
+        for zone_floor in hescore_inputs['building']['zone']['zone_floor']:
+            do_bounds_check('foundation_insulation_level',
+                            zone_floor['foundation_insulation_level'],
+                            0, 19)
 
         for zone_wall in hescore_inputs['building']['zone']['zone_wall']:
             zone_window = zone_wall['zone_window']

@@ -33,11 +33,15 @@
           }
         }
       ], 
-      "zone_floor": {
-        "foundation_type": "vented_crawl", 
-        "foundation_insulation_level": 0, 
-        "floor_assembly_code": "efwf30ca"
-      }, 
+      "zone_floor": [
+        {
+          "floor_name": "floor1", 
+          "floor_area": 810.0, 
+          "foundation_type": "vented_crawl", 
+          "foundation_insulation_level": 0, 
+          "floor_assembly_code": "efwf30ca"
+        }
+      ], 
       "wall_construction_same": false, 
       "window_construction_same": false, 
       "zone_wall": [
