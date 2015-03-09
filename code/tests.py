@@ -391,6 +391,14 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 r'Cooling system .+ is not associated with an air distribution system\.',
                                 tr.hpxml_to_hescore_dict)
 
+    def test_floor_no_area(self):
+        tr = self._load_xmlfile('house8')
+        el = self.xpath('//h:Foundation[1]/*/h:Area')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(TranslationError,
+                                r'If there is more than one foundation, each needs an area specified on either the Slab or FrameFloor',
+                                tr.hpxml_to_hescore_dict)
+
 class TestInputOutOfBounds(unittest.TestCase,ComparatorBase):
     
     def test_assessment_date1(self):
