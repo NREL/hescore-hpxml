@@ -12,8 +12,6 @@ Contents:
    zone_floor
    zone_wall
    zone_window
-   heating_system
-   cooling_system
-   hvac_distribution
+   hvac
    domestic_hot_water
    

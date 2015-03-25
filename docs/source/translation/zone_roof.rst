@@ -3,11 +3,13 @@ Roof and Attic
 
 .. contents:: Table of Contents
 
-HPXML allows the specification of multiple ``Attic`` elements each of which
+HPXML allows the specification of multiple ``Attic`` elements, each of which
 relates to a ``Roof`` element. That relation is optional in HPXML, but is
-required when translating to HEScore, because it is important to know which
-roof relates to each attic space. An area is required for each ``Attic``
-element if there is more than one ``Attic`` element.
+required for HEScore when there is more than one ``Attic`` or ``Roof``
+because it is important to know which roof relates to each attic space.
+An area is required for each ``Attic`` element if there is more than one
+``Attic`` element. If there is only one ``Attic`` element, the footprint area
+of the building is assumed.
 
 .. _rooftype:
 
@@ -39,10 +41,10 @@ type according to the following mapping.
    
    Items that are *not translated* will result in a translation error.
    
-The roof type that has the largest total area is entered into HEScore since it
-can only accept one roof type. The properties of the ``Attic`` elements with
+HEScore can accept up to two attic/roof constructions. If there are more than
+two specified in HPXML, the properties of the ``Attic`` elements with
 the same roof type are combined. For variables with a discrete selection the
-value that covers the greatest combined area is used. For R-values a UA
+value that covers the greatest combined area is used. For R-values a
 calculation is performed to determine the equivalent overall R-value for the
 attic. This is discussed in more detail in :ref:`roof-rvalues`.
 
@@ -172,7 +174,9 @@ center-of-cavity R-value for each roof area from the table below.
    +-------------------+---------------------+------------+----------+--------------+---------------+
    |R-21               |23.6                 |24.1        |23.2      |23.2          |23.2           |
    +-------------------+---------------------+------------+----------+--------------+---------------+
-   |R-27               |#N/A                 |30.1        |29.2      |29.2          |29.2           |
+   |R-27               |29.6                 |30.1        |29.2      |29.2          |29.2           |
+   +-------------------+---------------------+------------+----------+--------------+---------------+
+   |R-30               |32.6                 |33.1        |32.2      |32.2          |32.2           |
    +-------------------+---------------------+------------+----------+--------------+---------------+
    | **w/ Radiant Barrier**                                                                         |
    +-------------------+---------------------+------------+----------+--------------+---------------+
@@ -188,9 +192,9 @@ center-of-cavity R-value for each roof area from the table below.
    +-------------------+---------------------+------------+----------+--------------+---------------+
    |R-15               |21.8                 |22.3        |21.4      |21.4          |21.4           |
    +-------------------+---------------------+------------+----------+--------------+---------------+
-   |R-19               |#N/A                 |26.3        |25.4      |25.4          |25.4           |
+   |R-19               |25.8                 |26.3        |25.4      |25.4          |25.4           |
    +-------------------+---------------------+------------+----------+--------------+---------------+
-   |R-21               |#N/A                 |28.3        |27.4      |27.4          |27.4           |
+   |R-21               |27.8                 |28.3        |27.4      |27.4          |27.4           |
    +-------------------+---------------------+------------+----------+--------------+---------------+
 
 Then a weighted average is calculated weighting the values by area. 

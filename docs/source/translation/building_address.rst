@@ -36,6 +36,8 @@ be concatenated with a space between for submission to the HEScore
 ``building_address.address`` field. All of the HPXML elements shown in the
 above code snippet are required with the exception of ``Address2``
 
+.. _assessment-type-mapping:
+
 Assessment Type
 ***************
 
@@ -63,3 +65,27 @@ is determined from HPXML via the
    +---------------------+-------------------------------------------+------------------------+
    |update               |*any*                                      |corrected               |
    +---------------------+-------------------------------------------+------------------------+
+
+Mentor Assessment Type
+======================
+
+In v2015 HEScore introduced a new assessment type called "mentor".
+It is used for new assessors in training when an assessment is supervised by a
+more qualified assessor.
+There is no equivalent way to communicate this scenario in HPXML.
+To work around this issue, the translator will look for a specifically named
+element in the ``extension`` of ``Building/ProjectStatus``:
+
+.. code-block:: xml
+    :emphasize-lines: 5
+
+    <ProjectStatus>
+        <EventType>audit</EventType>
+        <Date>2014-12-18</Date>
+        <extension>
+            <HEScoreMentorAssessment/>
+        </extension>
+    </ProjectStatus>
+
+Upon finding this ``HEScoreMentorAssessment`` element, the HEScore assessment
+type will be set to "mentor" regardless of the mapping :ref:`above <assessment-type-mapping>`.

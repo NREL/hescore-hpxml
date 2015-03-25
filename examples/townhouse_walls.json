@@ -21,22 +21,32 @@
       "envelope_leakage": 1204
     }, 
     "zone": {
-      "zone_roof": {
-        "roof_assembly_code": "rfwf00co", 
-        "roof_color": "medium", 
-        "roof_type": "vented_attic", 
-        "ceiling_assembly_code": "ecwf49", 
-        "zone_skylight": {
-          "skylight_area": 11.0, 
-          "skylight_method": "code", 
-          "skylight_code": "dcab"
+      "zone_roof": [
+        {
+          "roof_name": "roof1", 
+          "roof_area": 1200.0, 
+          "roof_assembly_code": "rfwf00co", 
+          "roof_color": "medium", 
+          "roof_type": "vented_attic", 
+          "ceiling_assembly_code": "ecwf49", 
+          "zone_skylight": {
+            "skylight_area": 11.0, 
+            "skylight_method": "code", 
+            "skylight_code": "dcab"
+          }
         }
-      }, 
-      "zone_floor": {
-        "foundation_type": "cond_basement", 
-        "foundation_insulation_level": 0, 
-        "floor_assembly_code": "efwf00ca"
-      }, 
+      ], 
+      "zone_floor": [
+        {
+          "floor_name": "floor1", 
+          "floor_area": 800, 
+          "foundation_type": "cond_basement", 
+          "foundation_insulation_level": 0, 
+          "floor_assembly_code": "efwf00ca"
+        }
+      ], 
+      "wall_construction_same": false, 
+      "window_construction_same": false, 
       "zone_wall": [
         {
           "side": "front", 
@@ -75,29 +85,33 @@
             "window_code": "dcaw"
           }
         }
-      ], 
-      "wall_construction_same": false, 
-      "window_construction_same": false
+      ]
     }, 
     "systems": {
-      "heating": {
-        "efficiency_method": "user", 
-        "efficiency": 0.95, 
-        "fuel_primary": "natural_gas", 
-        "type": "central_furnace"
-      }, 
-      "cooling": {
-        "type": "split_dx", 
-        "efficiency": 13.0, 
-        "efficiency_method": "user"
-      }, 
-      "hvac_distribution": [
+      "hvac": [
         {
-          "name": "duct1", 
-          "location": "cond_space", 
-          "fraction": 100, 
-          "insulated": false, 
-          "sealed": false
+          "hvac_name": "hvac1", 
+          "hvac_fraction": 1.0, 
+          "heating": {
+            "fuel_primary": "natural_gas", 
+            "type": "central_furnace", 
+            "efficiency_method": "user", 
+            "efficiency": 0.95
+          }, 
+          "cooling": {
+            "type": "split_dx", 
+            "efficiency_method": "user", 
+            "efficiency": 13.0
+          }, 
+          "hvac_distribution": [
+            {
+              "name": "duct1", 
+              "location": "cond_space", 
+              "fraction": 100, 
+              "insulated": false, 
+              "sealed": false
+            }
+          ]
         }
       ], 
       "domestic_hot_water": {

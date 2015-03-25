@@ -1,17 +1,17 @@
 {
   "building_address": {
-    "address": "6 API House", 
-    "city": "Bakersfield", 
-    "state": "CA", 
-    "zip_code": "93301", 
-    "assessment_type": "corrected"
+    "address": "8 API House", 
+    "city": "Kansas City", 
+    "state": "KS", 
+    "zip_code": "66101", 
+    "assessment_type": "mentor"
   }, 
   "building": {
     "about": {
       "assessment_date": "2014-12-18", 
       "shape": "rectangle", 
       "year_built": 1950, 
-      "number_bedrooms": 10, 
+      "number_bedrooms": 4, 
       "num_floor_above_grade": 2, 
       "floor_to_ceiling_height": 8, 
       "conditioned_floor_area": 2600, 
@@ -27,11 +27,9 @@
           "roof_assembly_code": "rfwf00tg", 
           "roof_color": "medium", 
           "roof_type": "vented_attic", 
-          "ceiling_assembly_code": "ecwf49", 
+          "ceiling_assembly_code": "ecwf30", 
           "zone_skylight": {
-            "skylight_area": 24.0, 
-            "skylight_method": "code", 
-            "skylight_code": "stnw"
+            "skylight_area": 0
           }
         }, 
         {
@@ -48,16 +46,16 @@
       "zone_floor": [
         {
           "floor_name": "floor1", 
-          "floor_area": 1200.0, 
+          "floor_area": 1028.5714285714287, 
           "foundation_type": "uncond_basement", 
           "foundation_insulation_level": 0, 
           "floor_assembly_code": "efwf21ca"
         }, 
         {
           "floor_name": "floor2", 
-          "floor_area": 600.0, 
+          "floor_area": 771.4285714285714, 
           "foundation_type": "slab_on_grade", 
-          "foundation_insulation_level": 5, 
+          "foundation_insulation_level": 0, 
           "floor_assembly_code": "efwf00ca"
         }
       ], 
@@ -66,38 +64,38 @@
       "zone_wall": [
         {
           "side": "back", 
-          "wall_assembly_code": "ewwf07wo", 
+          "wall_assembly_code": "ewwf00wo", 
           "zone_window": {
             "window_area": 220.0, 
             "window_method": "code", 
-            "window_code": "dpeaaw"
+            "window_code": "dpeaw"
           }
         }, 
         {
           "side": "left", 
-          "wall_assembly_code": "ewbr05nn", 
+          "wall_assembly_code": "ewwf00wo", 
           "zone_window": {
             "window_area": 40.0, 
             "window_method": "code", 
-            "window_code": "dpeaaw"
+            "window_code": "dpeaw"
           }
         }, 
         {
           "side": "front", 
-          "wall_assembly_code": "ewbr00nn", 
+          "wall_assembly_code": "ewwf00wo", 
           "zone_window": {
             "window_area": 180.0, 
             "window_method": "code", 
-            "window_code": "dpeaaw"
+            "window_code": "dpeaw"
           }
         }, 
         {
           "side": "right", 
-          "wall_assembly_code": "ewwf07wo", 
+          "wall_assembly_code": "ewwf00wo", 
           "zone_window": {
             "window_area": 70.0, 
             "window_method": "code", 
-            "window_code": "dpeaaw"
+            "window_code": "dpeaw"
           }
         }
       ]
@@ -106,17 +104,17 @@
       "hvac": [
         {
           "hvac_name": "hvac1", 
-          "hvac_fraction": 0.9380941165999501, 
+          "hvac_fraction": 0.6944444444444444, 
           "heating": {
-            "fuel_primary": "lpg", 
+            "fuel_primary": "natural_gas", 
             "type": "central_furnace", 
-            "efficiency_method": "shipment_weighted", 
-            "year": 1990
+            "efficiency_method": "user", 
+            "efficiency": 0.8
           }, 
           "cooling": {
             "type": "split_dx", 
             "efficiency_method": "user", 
-            "efficiency": 12.0
+            "efficiency": 13.0
           }, 
           "hvac_distribution": [
             {
@@ -130,12 +128,27 @@
         }, 
         {
           "hvac_name": "hvac2", 
-          "hvac_fraction": 0.06190588340004995, 
+          "hvac_fraction": 0.3055555555555556, 
           "heating": {
-            "fuel_primary": "electric", 
-            "type": "baseboard"
+            "fuel_primary": "natural_gas", 
+            "type": "central_furnace", 
+            "efficiency_method": "shipment_weighted", 
+            "year": 1990
           }, 
-          "hvac_distribution": []
+          "cooling": {
+            "type": "split_dx", 
+            "efficiency_method": "user", 
+            "efficiency": 15.0
+          }, 
+          "hvac_distribution": [
+            {
+              "name": "duct1", 
+              "location": "uncond_attic", 
+              "fraction": 100, 
+              "insulated": true, 
+              "sealed": true
+            }
+          ]
         }
       ], 
       "domestic_hot_water": {

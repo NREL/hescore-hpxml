@@ -4,7 +4,8 @@ HVAC Distribution
 .. contents:: Table of Contents
 
 In HPXML multiple ``HVACDistribution`` elements can be associated with a heating
-or cooling system. That element can then describe a ducted system, a hydronic
+or cooling system. For the purposes of this translator, it is required that only one ``HVACDistribution`` element be linked.
+That element can then describe a ducted system, a hydronic
 system, or an open ended other system. For the translation to HEScore, only
 ``HVACDistribution`` elements that are ducted are considered.
 
@@ -30,7 +31,7 @@ following mapping.
    crawlspace              *not translated*
    unconditioned attic     uncond_attic
    interstitial space      *not translated*
-   garage                  *not translated*
+   garage                  vented_crawl
    outside                 *not translated*
    ======================  ================
 
@@ -39,21 +40,11 @@ following mapping.
    If an HPXML duct location maps to *not translated* above, the 
    translation for the house will fail.
 
-Aggregating Duct Fractions
-**************************
+Duct Fractions
+**************
 
-For each air distribution system in HPXML the fraction of the ducting in each
-HEScore location are added together. The duct fractions are summed across air
-distribution systems by weighting them by the conditioned floor area served by
-the air distribution system, if that's available. If there is no
-``ConditionedFloorAreaServed`` element available, then the duct fractions
-across each system are weighted equally.
-
-.. note::
-
-   Either all of the ``HVACDistribution`` elements must have a 
-   ``ConditionedFloorAreaServed`` subelement or none of them must. If some have
-   it and others do not, the translation will fail.
+For each ``Ducts`` element in an air distribution system the ``FracDuctArea`` is summed by
+HEScore :ref:`duct location <ductlocationmapping>`.
 
 Duct Insulation
 ***************
@@ -105,27 +96,3 @@ and the following will result in a "sealed" designation:
       <DuctType>supply</DuctType>
       <LeakinessObservedVisualInspection>connections sealed w mastic</LeakinessObservedVisualInspection>
    </DuctLeakageMeasurement>
-
-When combining ducts in certain :ref:`locations <ductlocationmapping>` across
-``HVACDistribution`` systems, the duct sealing designation for the systems in
-the location that handle the largest area weighted by the percentage of the
-ducts in a location will be used. For instance, if a home has air distribution
-system (a.) that serves 2000 sq.ft. with 60% of its ducts in an unconditioned
-basement that is sealed and system (b.) that serves 2500 sq.ft. that has 40% of
-its ducts in an unconditioned basement that is *not* sealed, the ducts in the
-unconditioned basement will be marked as sealed:
-
-.. math::
-   :nowrap:
-   
-   \begin{eqnarray*}
-   \text{duct a} && \text{duct b} \\
-   2000 \times 60\% && 2500 \times 40\% \\
-   1200 &>& 1000
-   \end{eqnarray*}
-
-
-
-
-
-
