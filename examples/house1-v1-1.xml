@@ -205,14 +205,14 @@
                         <DistributionSystemType>
                             <AirDistribution>
                                 <DuctLeakageMeasurement>
-                                    <!-- indicate that it is sealed because 85% of the ducts are sealed -->
-                                    <LeakinessObservedVisualInspection>connections sealed w mastic</LeakinessObservedVisualInspection>
+                                    <!-- indicate that it is sealed because the majority of the ducts in unconditioned spaces are unsealed -->
+                                    <LeakinessObservedVisualInspection>some observable leaks</LeakinessObservedVisualInspection>
                                 </DuctLeakageMeasurement>
                                 <Ducts>
                                     <DuctInsulationRValue>4</DuctInsulationRValue>
                                     <DuctLocation>vented crawlspace</DuctLocation>
                                     <FractionDuctArea>0.5</FractionDuctArea>
-                                    <!-- sealed -->
+                                    <!-- unsealed -->
                                 </Ducts>
                                 <Ducts>
                                     <DuctInsulationRValue>0</DuctInsulationRValue>

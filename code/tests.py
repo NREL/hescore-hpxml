@@ -45,10 +45,10 @@ class TestAPIHouses(unittest.TestCase,ComparatorBase):
         self._do_full_compare('house1')
     
     def test_house1_v1_1(self):
-        self._do_full_compare('house1-v1-1','house1')
+        self._do_full_compare('house1-v1-1', 'house1')
     
     def test_house1_v2(self):
-        self._do_full_compare('house1-v2','house1')
+        self._do_full_compare('house1-v2', 'house1')
     
     def test_house2(self):
         self._do_full_compare('house2')
