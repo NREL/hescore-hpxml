@@ -77,11 +77,16 @@ based on the nearest R-value in the following table.
    R-19               16.9               
    =================  ==================
 
-Then a weighted average is calculated weighting the values by area. 
+Then a weighted average R-value is calculated by weighting the U-values by area.
 
 .. math::
-   
-   R_{eff,avg} = \frac{\sum_i R_{eff,i} A_i}{\sum_i A_i}
+   :nowrap:
+
+   \begin{align*}
+   U_i &= \frac{1}{R_i} \\
+   U_{eff,avg} &= \frac{\sum_i{U_i A_i}}{\sum_i A_i} \\
+   R_{eff,avg} &= \frac{1}{U_{eff,avg}} \\
+   \end{align*}
 
 The effective R-value of the R-0 insulation level is then subtracted.
 
@@ -110,11 +115,16 @@ nearest R-value in the following table.
    R-5                7.9                 
    =================  ==================
 
-Then a weighted average is calculated weighting the values by area. 
+Then a weighted average R-value is calculated by weighting the U-values by area.
 
 .. math::
-   
-   R_{eff,avg} = \frac{\sum_i R_{eff,i} A_i}{\sum_i A_i}
+   :nowrap:
+
+   \begin{align*}
+   U_i &= \frac{1}{R_i} \\
+   U_{eff,avg} &= \frac{\sum_i{U_i A_i}}{\sum_i A_i} \\
+   R_{eff,avg} &= \frac{1}{U_{eff,avg}} \\
+   \end{align*}
 
 The effective R-value of the R-0 insulation level is then subtracted.
 
@@ -149,11 +159,16 @@ each frame floor. The effective R-value is looked up in the following table.
    R-38               42.8                
    =================  ==================
 
-Then a weighted average is calculated weighting the values by area. 
+Then a weighted average R-value is calculated by weighting the U-values by area.
 
 .. math::
-   
-   R_{eff,avg} = \frac{\sum_i R_{eff,i} A_i}{\sum_i A_i}
+   :nowrap:
+
+   \begin{align*}
+   U_i &= \frac{1}{R_i} \\
+   U_{eff,avg} &= \frac{\sum_i{U_i A_i}}{\sum_i A_i} \\
+   R_{eff,avg} &= \frac{1}{U_{eff,avg}} \\
+   \end{align*}
 
 The effective R-value of the R-0 insulation level is then subtracted.
 

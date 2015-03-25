@@ -929,8 +929,8 @@ class HPXMLtoHEScoreTranslator(object):
 
                 # Calculate roof area weighted center of cavity R-value
                 combined_atticd['roof_coc_rvalue'] = \
-                    sum([atticd['roof_coc_rvalue'] * atticd['roof_area'] for atticd in atticds]) / \
-                    combined_atticd['roof_area']
+                    combined_atticd['roof_area'] / \
+                    sum([atticd['roof_area'] / atticd['roof_coc_rvalue'] for atticd in atticds])
 
                 # Calculate attic floor weighted average center-of-cavity R-value
                 combined_atticd['attic_floor_coc_rvalue'] = \
@@ -1100,7 +1100,7 @@ class HPXMLtoHEScoreTranslator(object):
                 zone_floor['floor_area'] = bldg_about['conditioned_floor_area'] / nstories
 
             # Foundation Wall insulation R-value
-            fwra = 0
+            fwua = 0
             fwtotalarea = 0
             foundationwalls = foundation.xpath('h:FoundationWall', namespaces=ns)
             fw_eff_rvalues = dict(zip((0, 5, 11, 19), (4, 7.9, 11.6, 19.6)))
@@ -1123,14 +1123,14 @@ class HPXMLtoHEScoreTranslator(object):
                                     'If there is more than one FoundationWall, an Area is required for each.')
                     fwrvalue = xpath(fwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
                     fweffrvalue = fw_eff_rvalues[min(fw_eff_rvalues.keys(), key=lambda x: abs(fwrvalue - x))]
-                    fwra += fweffrvalue * fwarea
+                    fwua += fwarea / fweffrvalue
                     fwtotalarea += fwarea
-                zone_floor['foundation_insulation_level'] = fwra / fwtotalarea - 4.0
+                zone_floor['foundation_insulation_level'] = fwtotalarea / fwua - 4.0
             elif zone_floor['foundation_type'] == 'slab_on_grade':
                 del fw_eff_rvalues[11]  # remove unused values
                 del fw_eff_rvalues[19]
                 slabs = foundation.xpath('h:Slab', namespaces=ns)
-                slabra = 0
+                slabua = 0
                 slabtotalperimeter = 0
                 for slab in slabs:
                     exp_perimeter = convert_to_type(float, xpath(slab, 'h:ExposedPerimeter/text()'))
@@ -1142,16 +1142,16 @@ class HPXMLtoHEScoreTranslator(object):
                                 'If there is more than one Slab, an ExposedPerimeter is required for each.')
                     slabrvalue = xpath(slab, 'sum(h:PerimeterInsulation/h:Layer/h:NominalRValue)')
                     slabeffrvalue = fw_eff_rvalues[min(fw_eff_rvalues.keys(), key=lambda x: abs(slabrvalue - x))]
-                    slabra += slabeffrvalue * exp_perimeter
+                    slabua +=  exp_perimeter / slabeffrvalue
                     slabtotalperimeter += exp_perimeter
-                zone_floor['foundation_insulation_level'] = slabra / slabtotalperimeter - 4.0
+                zone_floor['foundation_insulation_level'] = slabtotalperimeter / slabua - 4.0
             else:
                 zone_floor['foundation_insulation_level'] = 0
             zone_floor['foundation_insulation_level'] = min(fw_eff_rvalues.keys(), key=lambda x: abs(
                 zone_floor['foundation_insulation_level'] - x))
 
             # floor above foundation insulation
-            ffra = 0
+            ffua = 0
             fftotalarea = 0
             framefloors = foundation.xpath('h:FrameFloor', namespaces=ns)
             floor_eff_rvalues = dict(zip((0, 11, 13, 15, 19, 21, 25, 30, 38),
@@ -1166,9 +1166,9 @@ class HPXMLtoHEScoreTranslator(object):
                             raise TranslationError('If there is more than one FrameFloor, an Area is required for each.')
                     ffrvalue = xpath(framefloor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
                     ffeffrvalue = floor_eff_rvalues[min(floor_eff_rvalues.keys(), key=lambda x: abs(ffrvalue - x))]
-                    ffra += ffarea * ffeffrvalue
+                    ffua += ffarea / ffeffrvalue
                     fftotalarea += ffarea
-                ffrvalue = ffra / fftotalarea - 4.0
+                ffrvalue = fftotalarea / ffua - 4.0
                 zone_floor['floor_assembly_code'] = 'efwf%02dca' % min(floor_eff_rvalues.keys(),
                                                                        key=lambda x: abs(ffrvalue - x))
             else:
@@ -1265,14 +1265,14 @@ class HPXMLtoHEScoreTranslator(object):
                     side, len(hpxmlwalls[side])))
             wall_const_type_areas = dict(zip(wall_const_types, [0] * len(wall_const_types)))
             wall_ext_finish_areas = dict(zip(wall_ext_finish_types, [0] * len(wall_ext_finish_types)))
-            wallra = 0
+            wallua = 0
             walltotalarea = 0
             for walld in hpxmlwalls[side]:
                 const_type = walld['assembly_code'][2:4]
                 ext_finish = walld['assembly_code'][6:8]
                 rvalue = int(walld['assembly_code'][4:6])
                 eff_rvalue = wall_eff_rvalues[const_type][ext_finish][rvalue]
-                wallra += walld['area'] * eff_rvalue
+                wallua += walld['area'] / eff_rvalue
                 walltotalarea += walld['area']
                 wall_const_type_areas[const_type] += walld['area']
                 wall_ext_finish_areas[ext_finish] += walld['area']
@@ -1285,7 +1285,7 @@ class HPXMLtoHEScoreTranslator(object):
                 roffset = eff_rvalue - rvalue
             # if const_type == 'ps':
             #                 roffset += 4.16
-            rvalueavgeff = wallra / walltotalarea
+            rvalueavgeff = walltotalarea / wallua
             rvalueavgnom = rvalueavgeff - roffset
             comb_rvalue = min(wall_eff_rvalues[const_type][ext_finish].keys(),
                               key=lambda x: abs(rvalueavgnom - x))

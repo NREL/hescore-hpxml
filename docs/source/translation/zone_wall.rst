@@ -283,18 +283,22 @@ each ``Wall`` from the following table.
    +---------+------------------+-------+------+---------+-------------+-----+
 
 
-Then a weighted average is calculated weighting the values by area. 
+Then a weighted average is calculated by weighting the U-values values by area.
 
 .. math::
-   
-   R_{eff,avg} = \frac{\sum_i R_{eff,i} A_i}{\sum_i A_i}
+   :nowrap:
+
+   \begin{align*}
+   U_i &= \frac{1}{R_i} \\
+   U_{eff,avg} &= \frac{\sum_i{U_i A_i}}{\sum_i A_i} \\
+   R_{eff,avg} &= \frac{1}{U_{eff,avg}} \\
+   \end{align*}
 
 The R-0 effective center-of-cavity R-value (:math:`R_{offset}`) is selected for
 the highest weighted wall construction type represented in the calculation and
 is subtracted from :math:`R_{eff,avg}`. For construction types where there is
 no R-0 nominal value, the lowest nominal R-value is subtracted from the
-corresponding effective R-value. For "Wood Frame w/insulated sheathing"
-construction type an addition R-4.16 is added to :math:`R_{offset}`.
+corresponding effective R-value.
 
 .. math::
 

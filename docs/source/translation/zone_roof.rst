@@ -197,11 +197,16 @@ center-of-cavity R-value for each roof area from the table below.
    |R-21               |27.8                 |28.3        |27.4      |27.4          |27.4           |
    +-------------------+---------------------+------------+----------+--------------+---------------+
 
-Then a weighted average is calculated weighting the values by area. 
+Then a weighted average is calculated by weighting the U-values by area.
 
 .. math::
-   
-   R_{eff,avg} = \frac{\sum_i R_{eff,i} A_i}{\sum_i A_i}
+   :nowrap:
+
+   \begin{align*}
+   U_i &= \frac{1}{R_i} \\
+   U_{eff,avg} &= \frac{\sum_i{U_i A_i}}{\sum_i A_i} \\
+   R_{eff,avg} &= \frac{1}{U_{eff,avg}} \\
+   \end{align*}
 
 The R-0 effective center-of-cavity R-value (:math:`R_{offset}`) is selected for
 the highest weighted roof construction type represented in the calculation and
