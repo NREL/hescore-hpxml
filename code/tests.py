@@ -265,7 +265,15 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
         self.assertRaisesRegexp(TranslationError, 
                                 'HEScore does not support the HPXML HeatingSystemType', 
                                 tr.hpxml_to_hescore_dict)
-        
+
+    def test_impossible_cooling_system_type(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:CoolingSystem[1]/h:CoolingSystemType')
+        el.text = 'evaporative cooler'
+        self.assertRaisesRegexp(TranslationError,
+                                'HEScore does not support the HPXML CoolingSystemType',
+                                tr.hpxml_to_hescore_dict)
+
     def test_missing_heating_weighting_factor(self):
         tr = self._load_xmlfile('house4')
         el = self.xpath('//h:HeatingSystem[1]/h:HeatingCapacity')

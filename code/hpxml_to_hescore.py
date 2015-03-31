@@ -344,9 +344,12 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             assert clgsys.tag.endswith('CoolingSystem')
             hpxml_cooling_type = xpath(clgsys, 'h:CoolingSystemType/text()')
-            sys_cooling['type'] = {'central air conditioning': 'split_dx',
-                                   'room air conditioner': 'packaged_dx',
-                                   'mini-split': 'split_dx'}[hpxml_cooling_type]
+            try:
+                sys_cooling['type'] = {'central air conditioning': 'split_dx',
+                                       'room air conditioner': 'packaged_dx',
+                                       'mini-split': 'split_dx'}[hpxml_cooling_type]
+            except KeyError:
+                raise TranslationError('HEScore does not support the HPXML CoolingSystemType %s' % hpxml_cooling_type)
         # cooling efficiency
         eff_units = {'split_dx': 'SEER',
                      'packaged_dx': 'EER',
