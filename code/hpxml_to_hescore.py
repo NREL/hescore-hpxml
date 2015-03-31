@@ -781,8 +781,8 @@ class HPXMLtoHEScoreTranslator(object):
         xpath = self.xpath
 
         # building.zone.zone_roof--------------------------------------------------
-        attics = xpath(b, '//h:Attic', aslist=True)
-        roofs = xpath(b, '//h:Roof', aslist=True)
+        attics = xpath(b, 'descendant::h:Attic', aslist=True)
+        roofs = xpath(b, 'descendant::h:Roof', aslist=True)
         rooftypemap = {'cape cod': 'cath_ceiling',
                        'cathedral ceiling': 'cath_ceiling',
                        'flat roof': 'cath_ceiling',
@@ -813,7 +813,7 @@ class HPXMLtoHEScoreTranslator(object):
             atticd = {}
             atticds.append(atticd)
             atticid = xpath(attic, 'h:SystemIdentifier/@id')
-            roof = xpath(b, '//h:Roof[h:SystemIdentifier/@id=$roofid]', roofid=xpath(attic, 'h:AttachedToRoof/@idref'))
+            roof = xpath(b, 'descendant::h:Roof[h:SystemIdentifier/@id=$roofid]', roofid=xpath(attic, 'h:AttachedToRoof/@idref'))
             if roof is None:
                 if len(roofs) == 1:
                     roof = roofs[0]
@@ -975,7 +975,7 @@ class HPXMLtoHEScoreTranslator(object):
     def _get_skylights(self, b):
         ns = self.ns
         xpath = self.xpath
-        skylights = b.xpath('//h:Skylight', namespaces=ns)
+        skylights = b.xpath('descendant::h:Skylight', namespaces=ns)
 
         zone_skylight = OrderedDict()
 
@@ -1037,7 +1037,7 @@ class HPXMLtoHEScoreTranslator(object):
         # building.zone.zone_floor-------------------------------------------------
         zone_floors = []
 
-        foundations = b.xpath('//h:Foundations/h:Foundation', namespaces=ns)
+        foundations = b.xpath('descendant::h:Foundations/h:Foundation', namespaces=ns)
 
         # Sort the foundations from largest area to smallest
         def get_fnd_area(fnd):
@@ -1434,13 +1434,13 @@ class HPXMLtoHEScoreTranslator(object):
             return return_dict
 
         # Get all heating systems
-        hpxml_heating_systems = _get_dict_of_hpxml_elements_by_id('//h:HVACPlant/h:HeatingSystem|//h:HVACPlant/h:HeatPump')
+        hpxml_heating_systems = _get_dict_of_hpxml_elements_by_id('descendant::h:HVACPlant/h:HeatingSystem|descendant::h:HVACPlant/h:HeatPump')
 
         # Get all cooling systems
-        hpxml_cooling_systems = _get_dict_of_hpxml_elements_by_id('//h:HVACPlant/h:CoolingSystem|//h:HVACPlant/h:HeatPump')
+        hpxml_cooling_systems = _get_dict_of_hpxml_elements_by_id('descendant::h:HVACPlant/h:CoolingSystem|descendant::h:HVACPlant/h:HeatPump')
 
         # Get all the duct systems
-        hpxml_distribution_systems = _get_dict_of_hpxml_elements_by_id('//h:HVACDistribution')
+        hpxml_distribution_systems = _get_dict_of_hpxml_elements_by_id('descendant::h:HVACDistribution')
 
         # Connect the the heating and cooling systems to their associated distribution systems
         def _get_duct_mapping(element_list):
@@ -1685,7 +1685,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         sys_dhw = OrderedDict()
 
-        water_heating_systems = xpath(b, '//h:WaterHeatingSystem')
+        water_heating_systems = xpath(b, 'descendant::h:WaterHeatingSystem')
         if isinstance(water_heating_systems, list):
             dhwfracs = map(lambda x: None if x is None else float(x),
                            [xpath(water_heating_system, 'h:FractionDHWLoadServed/text()') for water_heating_system in
