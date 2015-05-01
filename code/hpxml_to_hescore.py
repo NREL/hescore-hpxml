@@ -334,6 +334,8 @@ class HPXMLtoHEScoreTranslator(object):
         xpath = self.xpath
         ns = self.ns
 
+        hpxml_cooling_type = None
+
         sys_cooling = OrderedDict()
         if clgsys.tag.endswith('HeatPump'):
             heat_pump_type = xpath(clgsys, 'h:HeatPumpType/text()')
@@ -347,7 +349,8 @@ class HPXMLtoHEScoreTranslator(object):
             try:
                 sys_cooling['type'] = {'central air conditioning': 'split_dx',
                                        'room air conditioner': 'packaged_dx',
-                                       'mini-split': 'split_dx'}[hpxml_cooling_type]
+                                       'mini-split': 'split_dx',
+                                       'evaporative cooler': 'split_dx'}[hpxml_cooling_type]
             except KeyError:
                 raise TranslationError('HEScore does not support the HPXML CoolingSystemType %s' % hpxml_cooling_type)
         # cooling efficiency
@@ -364,7 +367,10 @@ class HPXMLtoHEScoreTranslator(object):
                                    effunits=eff_units)
         else:
             eff_els = []
-        if len(eff_els) == 0:
+        if hpxml_cooling_type == 'evaporative cooler':
+            sys_cooling['efficiency_method'] = 'user'
+            sys_cooling['efficiency'] = 28 # SEER 28 for evap coolers
+        elif len(eff_els) == 0:
             # Use the year instead
             sys_cooling['efficiency_method'] = 'shipment_weighted'
             sys_cooling['year'] = int(clgsys.xpath('(h:YearInstalled|h:ModelYear)/text()', namespaces=ns)[0])

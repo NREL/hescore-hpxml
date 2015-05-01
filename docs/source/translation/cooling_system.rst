@@ -48,7 +48,7 @@ is done according to the following mapping.
    central air conditioning   split_dx
    room air conditioner       packaged_dx
    mini-split                 split_dx
-   evaporative cooler         *not translated*
+   evaporative cooler         split_dx
    other                      *not translated*
    =========================  ====================
 
@@ -57,8 +57,8 @@ is done according to the following mapping.
    If an HPXML cooling system type maps to *not translated* the translation
    will fail. 
    
-   While HEScore does have evaporative coolers in the API, they are not fully
-   implemented in the software and will not be used in the translation.
+   Evaporative coolers are approximated in HEScore by a high efficiency central
+   air (``split_dx``) system.
 
 Cooling Efficiency
 ******************
@@ -84,19 +84,14 @@ cooling system type.
    packaged_dx      EER
    heat_pump        SEER
    gchp             EER
-   dec              *not applicable*
-   iec              *not applicable*
-   idec             *not applicable*
    ===============  ================
-
-.. note::
-
-   Currently evaporative coolers are disabled in the translation (see 
-   :ref:`clg-sys`) and therefore do not need efficiency units specified.
 
 The translator searches the ``CoolingSystem/AnnualCoolingEfficiency`` or
 ``HeatPump/AnnualCoolEfficiency`` elements of the primary cooling system and
 uses the first one that has the correct units.
+
+Evaporative coolers are always assumed to be a ``split_dx`` system with an
+efficiency of SEER 28.
 
 .. _clg-shipment-weighted-efficiency:
 

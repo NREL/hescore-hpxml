@@ -39,6 +39,7 @@ class ComparatorBase(object):
     def xpath(self,xpathexpr,*args,**kwargs):
         return self.translator.xpath(self.translator.hpxmldoc, xpathexpr, *args, **kwargs)
 
+
 class TestAPIHouses(unittest.TestCase,ComparatorBase):
     
     def test_house1(self):
@@ -269,10 +270,21 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
     def test_impossible_cooling_system_type(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:CoolingSystem[1]/h:CoolingSystemType')
-        el.text = 'evaporative cooler'
+        el.text = 'other'
         self.assertRaisesRegexp(TranslationError,
                                 'HEScore does not support the HPXML CoolingSystemType',
                                 tr.hpxml_to_hescore_dict)
+
+    def test_evap_cooling_system_type(self):
+        tr = self._load_xmlfile('hescore_min')
+        clgsystype = self.xpath('//h:CoolingSystem[1]/h:CoolingSystemType')
+        clgsystype.text = 'evaporative cooler'
+        for el in self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency', aslist=True):
+            el.getparent().remove(el)
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual(res['building']['systems']['hvac'][0]['cooling']['type'], 'split_dx')
+        self.assertEqual(res['building']['systems']['hvac'][0]['cooling']['efficiency_method'], 'user')
+        self.assertEqual(res['building']['systems']['hvac'][0]['cooling']['efficiency'], 28)
 
     def test_missing_heating_weighting_factor(self):
         tr = self._load_xmlfile('house4')
@@ -413,6 +425,7 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 r'HPXML BuildingID not found',
                                 tr.hpxml_to_hescore_dict,
                                 hpxml_bldg_id='bldgnothere')
+
 
 class TestInputOutOfBounds(unittest.TestCase,ComparatorBase):
     
