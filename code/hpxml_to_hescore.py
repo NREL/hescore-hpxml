@@ -577,6 +577,8 @@ class HPXMLtoHEScoreTranslator(object):
         # Load the xml document into lxml etree
         if hpxml_bldg_id is not None:
             b = xpath(self.hpxmldoc, 'h:Building[h:BuildingID/@id=$bldgid]', bldgid=hpxml_bldg_id)
+            if b is None:
+                raise TranslationError('HPXML BuildingID not found')
         else:
             b = xpath(self.hpxmldoc, 'h:Building[1]')
 

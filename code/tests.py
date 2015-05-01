@@ -407,6 +407,13 @@ class TestOtherHouses(unittest.TestCase,ComparatorBase):
                                 r'If there is more than one foundation, each needs an area specified on either the Slab or FrameFloor',
                                 tr.hpxml_to_hescore_dict)
 
+    def test_bldgid_not_found(self):
+        tr = self._load_xmlfile('house1')
+        self.assertRaisesRegexp(TranslationError,
+                                r'HPXML BuildingID not found',
+                                tr.hpxml_to_hescore_dict,
+                                hpxml_bldg_id='bldgnothere')
+
 class TestInputOutOfBounds(unittest.TestCase,ComparatorBase):
     
     def test_assessment_date1(self):
