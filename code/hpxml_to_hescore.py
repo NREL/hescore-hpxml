@@ -1680,8 +1680,12 @@ class HPXMLtoHEScoreTranslator(object):
             hvac_sys['hvac_fraction'] = hvac_ids.weight / hvac_sys_weight_sum
             if hvac_ids.htg_id is not None:
                 hvac_sys['heating'] = heating_systems[hvac_ids.htg_id]
+            else:
+                hvac_sys['heating'] = {'type': 'none'}
             if hvac_ids.clg_id is not None:
                 hvac_sys['cooling'] = cooling_systems[hvac_ids.clg_id]
+            else:
+                hvac_sys['cooling'] = {'type': 'none'}
             if hvac_ids.dist_id is not None:
                 hvac_sys['hvac_distribution'] = distribution_systems[hvac_ids.dist_id]
             else:
@@ -1811,11 +1815,8 @@ class HPXMLtoHEScoreTranslator(object):
 
         for sys_hvac in hescore_inputs['building']['systems']['hvac']:
 
-            try:
-                sys_heating = sys_hvac['heating']
-            except KeyError:
-                pass
-            else:
+            sys_heating = sys_hvac['heating']
+            if sys_heating['type'] != 'none':
                 if 'efficiency_method' in sys_heating:
                     if sys_heating['efficiency_method'] == 'user':
                         do_bounds_check('heating_efficiency',
@@ -1830,11 +1831,8 @@ class HPXMLtoHEScoreTranslator(object):
                     if not ((sys_heating['type'] in ('furnace', 'baseboard') and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
                         raise TranslationError('Heating system %(fuel_primary)s %(type)s needs an efficiency value.' % sys_heating)
 
-            try:
-                sys_cooling = sys_hvac['cooling']
-            except KeyError:
-                pass
-            else:
+            sys_cooling = sys_hvac['cooling']
+            if sys_cooling['type'] != 'none':
                 if sys_cooling['efficiency_method'] == 'user':
                     do_bounds_check('cooling_efficiency',
                                     sys_cooling['efficiency'],

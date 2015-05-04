@@ -420,6 +420,20 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
                                 tr.hpxml_to_hescore_dict,
                                 hpxml_bldg_id='bldgnothere')
 
+    def test_missing_cooling_system(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]')
+        el.getparent().remove(el)
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual(res['building']['systems']['hvac'][0]['cooling']['type'], 'none')
+
+    def test_missing_heating_system(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace1"]')
+        el.getparent().remove(el)
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual(res['building']['systems']['hvac'][0]['heating']['type'], 'none')
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
     def test_assessment_date1(self):

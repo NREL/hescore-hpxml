@@ -135,6 +135,9 @@
             "fuel_primary": "electric", 
             "type": "baseboard"
           }, 
+          "cooling": {
+            "type": "none"
+          }, 
           "hvac_distribution": []
         }
       ], 
