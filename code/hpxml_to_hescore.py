@@ -1274,8 +1274,7 @@ class HPXMLtoHEScoreTranslator(object):
             elif len(hpxmlwalls[side]) > 1 and None in [x['area'] for x in hpxmlwalls[side]]:
                 raise TranslationError('The %s side of the house has %d walls and they do not all have areas.' % (
                     side, len(hpxmlwalls[side])))
-            wall_const_type_areas = dict(zip(wall_const_types, [0] * len(wall_const_types)))
-            wall_ext_finish_areas = dict(zip(wall_ext_finish_types, [0] * len(wall_ext_finish_types)))
+            wall_const_type_ext_finish_areas = defaultdict(float)
             wallua = 0
             walltotalarea = 0
             for walld in hpxmlwalls[side]:
@@ -1285,10 +1284,9 @@ class HPXMLtoHEScoreTranslator(object):
                 eff_rvalue = wall_eff_rvalues[const_type][ext_finish][rvalue]
                 wallua += walld['area'] / eff_rvalue
                 walltotalarea += walld['area']
-                wall_const_type_areas[const_type] += walld['area']
-                wall_ext_finish_areas[ext_finish] += walld['area']
-            const_type = max(wall_const_type_areas.keys(), key=lambda x: wall_const_type_areas[x])
-            ext_finish = max(wall_ext_finish_areas.keys(), key=lambda x: wall_ext_finish_areas[x])
+                wall_const_type_ext_finish_areas[(const_type, ext_finish)] += walld['area']
+            const_type, ext_finish = max(wall_const_type_ext_finish_areas.keys(),
+                                         key=lambda x: wall_const_type_ext_finish_areas[x])
             try:
                 roffset = wall_eff_rvalues[const_type][ext_finish][0]
             except KeyError:

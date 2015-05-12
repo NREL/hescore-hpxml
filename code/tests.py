@@ -434,6 +434,15 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         res = tr.hpxml_to_hescore_dict()
         self.assertEqual(res['building']['systems']['hvac'][0]['heating']['type'], 'none')
 
+    def test_wall_same_area_same_side_different_construction(self):
+        '''
+        Unit test for #37
+        '''
+        tr = self._load_xmlfile('house6')
+        el = self.xpath('//h:Wall[h:SystemIdentifier/@id="wallleft2"]/h:Area')
+        el.text = '240' # making it the same area as wallleft1
+        tr.hpxml_to_hescore_dict()
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
     def test_assessment_date1(self):
