@@ -46,7 +46,7 @@
       "window_construction_same": false, 
       "zone_wall": [
         {
-          "side": "left", 
+          "side": "right", 
           "wall_assembly_code": "ewwf00br", 
           "zone_window": {
             "window_area": 45.0, 
@@ -64,7 +64,7 @@
           }
         }, 
         {
-          "side": "right", 
+          "side": "left", 
           "wall_assembly_code": "ewwf00br", 
           "zone_window": {
             "window_area": 60.0, 

@@ -749,8 +749,8 @@ class HPXMLtoHEScoreTranslator(object):
                                      225: 'south_west',
                                      270: 'west',
                                      315: 'north_west'}[house_azimuth]
-        self.sidemap = {house_azimuth: 'front', (house_azimuth + 90) % 360: 'right',
-                        (house_azimuth + 180) % 360: 'back', (house_azimuth + 270) % 360: 'left'}
+        self.sidemap = {house_azimuth: 'front', (house_azimuth + 90) % 360: 'left',
+                        (house_azimuth + 180) % 360: 'back', (house_azimuth + 270) % 360: 'right'}
 
         blower_door_test = None
         air_infilt_est = None

@@ -54,7 +54,7 @@
           }
         }, 
         {
-          "side": "right", 
+          "side": "left", 
           "wall_assembly_code": "ewps13al", 
           "zone_window": {
             "window_area": 36.0, 
@@ -72,7 +72,7 @@
           }
         }, 
         {
-          "side": "left", 
+          "side": "right", 
           "wall_assembly_code": "ewps13al", 
           "zone_window": {
             "window_area": 75.0, 
