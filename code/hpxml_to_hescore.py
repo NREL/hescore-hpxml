@@ -320,7 +320,14 @@ class HPXMLtoHEScoreTranslator(object):
             if len(eff_els) == 0:
                 # Use the year instead
                 sys_heating['efficiency_method'] = 'shipment_weighted'
-                sys_heating['year'] = int(htgsys.xpath('(h:YearInstalled|h:ModelYear)/text()', namespaces=ns)[0])
+                try:
+                    sys_heating['year'] = int(htgsys.xpath('(h:YearInstalled|h:ModelYear)/text()', namespaces=ns)[0])
+                except IndexError:
+                    raise TranslationError(
+                        'Heating efficiency could not be determined. ' +
+                        '{} must have a cooling efficiency with units of {} '.format(sys_heating['type'], eff_units) +
+                        'or YearInstalled or ModelYear.'
+                    )
             else:
                 # Use the efficiency of the first element found.
                 sys_heating['efficiency_method'] = 'user'
@@ -373,7 +380,14 @@ class HPXMLtoHEScoreTranslator(object):
         elif len(eff_els) == 0:
             # Use the year instead
             sys_cooling['efficiency_method'] = 'shipment_weighted'
-            sys_cooling['year'] = int(clgsys.xpath('(h:YearInstalled|h:ModelYear)/text()', namespaces=ns)[0])
+            try:
+                sys_cooling['year'] = int(clgsys.xpath('(h:YearInstalled|h:ModelYear)/text()', namespaces=ns)[0])
+            except IndexError:
+                raise TranslationError(
+                    'Cooling efficiency could not be determined. ' +
+                    '{} must have a cooling efficiency with units of {} '.format(sys_cooling['type'], eff_units) +
+                    'or YearInstalled or ModelYear.'
+                )
         else:
             # Use the efficiency of the first element found.
             sys_cooling['efficiency_method'] = 'user'

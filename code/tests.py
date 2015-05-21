@@ -443,6 +443,32 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.text = '240' # making it the same area as wallleft1
         tr.hpxml_to_hescore_dict()
 
+    def test_cooling_system_wrong_efficiency_type(self):
+        '''
+        Unit test for #39
+        '''
+        tr = self._load_xmlfile('house7')
+        el = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="roomac"]/h:AnnualCoolingEfficiency/h:Units')
+        el.text = 'SEER'
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'Cooling efficiency could not be determined',
+            tr.hpxml_to_hescore_dict
+        )
+
+    def test_heating_system_wrong_efficiency_type(self):
+        '''
+        Another unit test for #39
+        '''
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:HeatingSystem/h:AnnualHeatingEfficiency/h:Units')
+        el.text = 'Percent'
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'Heating efficiency could not be determined',
+            tr.hpxml_to_hescore_dict
+        )
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
     def test_assessment_date1(self):
