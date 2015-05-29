@@ -1327,9 +1327,6 @@ class HPXMLtoHEScoreTranslator(object):
             if windowd['area'] is None:
                 raise TranslationError('All windows need an area.')
 
-            qty = convert_to_type(int, xpath(hpxmlwndw, 'h:Quantity/text()'))
-            if isinstance(qty, int):
-                windowd['area'] *= qty
             windowd['uvalue'] = convert_to_type(float, xpath(hpxmlwndw, 'h:UFactor/text()'))
             windowd['shgc'] = convert_to_type(float, xpath(hpxmlwndw, 'h:SHGC/text()'))
             if windowd['uvalue'] is not None and windowd['shgc'] is not None:

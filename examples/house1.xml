@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<HPXML xmlns="http://hpxmlonline.com/2014/6"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="2.1">
+<HPXML xmlns="http://hpxmlonline.com/2014/6" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="2.1">
     <XMLTransactionHeaderInformation>
         <XMLType/>
         <XMLGeneratedBy/>
@@ -110,7 +108,7 @@
                 <Windows>
                     <Window>
                         <SystemIdentifier id="frontwindows"/>
-                        <Area>18</Area><!-- 3x6 -->
+                        <Area>108.0</Area><!-- 3x6 -->
                         <Quantity>6</Quantity>
                         <Orientation>east</Orientation>
                         <FrameType>
@@ -120,7 +118,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="rightwindows"/>
-                        <Area>15</Area><!-- 3x5 -->
+                        <Area>60.0</Area><!-- 3x5 -->
                         <Quantity>4</Quantity>
                         <Orientation>south</Orientation>
                         <FrameType>
@@ -130,7 +128,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="backwindows1"/>
-                        <Area>18</Area><!-- 3x6 -->
+                        <Area>54.0</Area><!-- 3x6 -->
                         <Quantity>3</Quantity>
                         <Orientation>west</Orientation>
                         <FrameType>
@@ -141,7 +139,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="backwindows2"/>
-                        <Area>12</Area><!-- 3x4 -->
+                        <Area>48.0</Area><!-- 3x4 -->
                         <Quantity>4</Quantity>
                         <Orientation>west</Orientation>
                         <FrameType>
@@ -163,7 +161,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="leftwindows"/>
-                        <Area>15</Area><!-- 3x5 -->
+                        <Area>45.0</Area><!-- 3x5 -->
                         <Quantity>3</Quantity>
                         <Orientation>north</Orientation>
                         <FrameType>

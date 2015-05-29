@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<HPXML xmlns="http://hpxmlonline.com/2014/6"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="2.1">
+<HPXML xmlns="http://hpxmlonline.com/2014/6" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="2.1">
     <XMLTransactionHeaderInformation>
         <XMLType/>
         <XMLGeneratedBy/>
@@ -284,7 +282,7 @@
                 <Windows>
                     <Window>
                         <SystemIdentifier id="frontwindows1"/>
-                        <Area>18</Area><!-- 3x6 -->
+                        <Area>108.0</Area><!-- 3x6 -->
                         <Quantity>6</Quantity>
                         <Orientation>northwest</Orientation>
                         <FrameType>
@@ -305,7 +303,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="rightwindows1"/>
-                        <Area>15</Area><!-- 3x5 -->
+                        <Area>75.0</Area><!-- 3x5 -->
                         <Quantity>5</Quantity>
                         <Orientation>northeast</Orientation>
                         <FrameType>
@@ -315,7 +313,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="rightwindows2"/>
-                        <Area>4</Area><!-- 2x2 -->
+                        <Area>8.0</Area><!-- 2x2 -->
                         <Quantity>2</Quantity>
                         <Orientation>northeast</Orientation>
                         <FrameType>
@@ -336,7 +334,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="backwindows1"/>
-                        <Area>15</Area><!-- 3x5 -->
+                        <Area>60.0</Area><!-- 3x5 -->
                         <Quantity>4</Quantity>
                         <Orientation>southeast</Orientation>
                         <FrameType>
@@ -346,7 +344,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="backwindows2"/>
-                        <Area>18</Area><!-- 3x6 -->
+                        <Area>72.0</Area><!-- 3x6 -->
                         <Quantity>4</Quantity>
                         <Orientation>southeast</Orientation>
                         <FrameType>
@@ -369,7 +367,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="leftwindows1"/>
-                        <Area>15</Area><!-- 3x5 -->
+                        <Area>45.0</Area><!-- 3x5 -->
                         <Quantity>3</Quantity>
                         <Orientation>southwest</Orientation>
                         <FrameType>
@@ -379,7 +377,7 @@
                     </Window>
                     <Window>
                         <SystemIdentifier id="leftwindows2"/>
-                        <Area>18</Area><!-- 3x6 -->
+                        <Area>108.0</Area><!-- 3x6 -->
                         <Quantity>6</Quantity>
                         <Orientation>southwest</Orientation>
                         <FrameType>

@@ -1,9 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<HPXML xmlns="http://hpxmlonline.com/2014/6"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="2.1">
+<HPXML xmlns="http://hpxmlonline.com/2014/6" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="2.1">
     <XMLTransactionHeaderInformation>
         <XMLType/>
-        <XMLGeneratedBy></XMLGeneratedBy>
+        <XMLGeneratedBy/>
         <CreatedDateAndTime>2014-08-21T11:41:49.968796</CreatedDateAndTime>
         <Transaction>create</Transaction>
     </XMLTransactionHeaderInformation>
