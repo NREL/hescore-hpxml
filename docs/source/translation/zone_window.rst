@@ -8,10 +8,10 @@ Window Orientation
 
 HEScore requires that a window area be specified for each side of the building.
 To determine the window area on each side of the building, each ``Window``
-element in HPXML must have an ``Area`` subelement. If a ``Quantity`` subelement
-is present, the area will be multiplied by that quantity to calculate the total
-window area for that window. Each ``Window`` is then assigned to a side of the
-building in one of two ways:
+element in HPXML must have an ``Area`` subelement. The ``Area`` subelement is
+assumed to mean the sum of the areas of the windows that the ``Window`` element
+represents. Each ``Window`` is then assigned to a side of the building in one of
+two ways:
 
    #. By association with a particular wall.
    #. By inspecting the azimuth or orientation of the window.
