@@ -104,7 +104,7 @@
       "hvac": [
         {
           "hvac_name": "hvac1", 
-          "hvac_fraction": 0.6944444444444444, 
+          "hvac_fraction": 0.694444, 
           "heating": {
             "fuel_primary": "natural_gas", 
             "type": "central_furnace", 
@@ -128,7 +128,7 @@
         }, 
         {
           "hvac_name": "hvac2", 
-          "hvac_fraction": 0.3055555555555556, 
+          "hvac_fraction": 0.305556, 
           "heating": {
             "fuel_primary": "natural_gas", 
             "type": "central_furnace", 

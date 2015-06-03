@@ -4,6 +4,8 @@ import unittest
 import datetime as dt
 from lxml import etree
 from hpxml_to_hescore import HPXMLtoHEScoreTranslator, TranslationError, InputOutOfBounds
+import StringIO
+import json
 
 thisdir = os.path.dirname(os.path.abspath(__file__))
 exampledir = os.path.abspath(os.path.join(thisdir, '..', 'examples'))
@@ -468,6 +470,20 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             r'Heating efficiency could not be determined',
             tr.hpxml_to_hescore_dict
         )
+
+    def test_hvac_fractions_sum_to_one(self):
+        tr = self._load_xmlfile('house6')
+        for el in self.xpath('//h:HeatingSystem/h:HeatingCapacity'):
+            el.getparent().remove(el)
+        el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace"]')
+        etree.SubElement(el, tr.addns('h:FractionHeatLoadServed')).text = '0.94'
+        el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="baseboard"]')
+        etree.SubElement(el, tr.addns('h:FractionHeatLoadServed')).text = '0.06'
+        f = StringIO.StringIO()
+        tr.hpxml_to_hescore_json(f)
+        f.seek(0)
+        hesinp = json.load(f)
+        self.assertEqual(sum([x['hvac_fraction'] for x in hesinp['building']['systems']['hvac']]), 1)
 
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):

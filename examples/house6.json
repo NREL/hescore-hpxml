@@ -106,7 +106,7 @@
       "hvac": [
         {
           "hvac_name": "hvac1", 
-          "hvac_fraction": 0.9380941165999501, 
+          "hvac_fraction": 0.938094, 
           "heating": {
             "fuel_primary": "lpg", 
             "type": "central_furnace", 
@@ -130,7 +130,7 @@
         }, 
         {
           "hvac_name": "hvac2", 
-          "hvac_fraction": 0.06190588340004995, 
+          "hvac_fraction": 0.061906, 
           "heating": {
             "fuel_primary": "electric", 
             "type": "baseboard"

@@ -106,7 +106,7 @@
       "hvac": [
         {
           "hvac_name": "hvac1", 
-          "hvac_fraction": 0.8132586367880486, 
+          "hvac_fraction": 0.813259, 
           "heating": {
             "fuel_primary": "fuel_oil", 
             "type": "boiler", 
@@ -130,7 +130,7 @@
         }, 
         {
           "hvac_name": "hvac2", 
-          "hvac_fraction": 0.18674136321195145, 
+          "hvac_fraction": 0.186741, 
           "heating": {
             "fuel_primary": "electric", 
             "type": "heat_pump", 

@@ -1686,7 +1686,7 @@ class HPXMLtoHEScoreTranslator(object):
         for i, hvac_ids in enumerate(hvac_systems_ids[0:2], 1):
             hvac_sys = OrderedDict()
             hvac_sys['hvac_name'] = 'hvac%d' % i
-            hvac_sys['hvac_fraction'] = hvac_ids.weight / hvac_sys_weight_sum
+            hvac_sys['hvac_fraction'] = round(hvac_ids.weight / hvac_sys_weight_sum, 6)
             if hvac_ids.htg_id is not None:
                 hvac_sys['heating'] = heating_systems[hvac_ids.htg_id]
             else:
@@ -1700,6 +1700,9 @@ class HPXMLtoHEScoreTranslator(object):
             else:
                 hvac_sys['hvac_distribution'] = []
             hvac_systems.append(hvac_sys)
+
+        # Ensure they sum to 1
+        hvac_systems[-1]['hvac_fraction'] += 1.0 - sum([x['hvac_fraction'] for x in hvac_systems])
 
         return hvac_systems
 
