@@ -236,13 +236,16 @@
                         </HeatingSystem>
                         <HeatingSystem>
                             <SystemIdentifier id="furnace2"/>
-                            <YearInstalled>1990</YearInstalled>
                             <DistributionSystem idref="ducts2"/>
                             <HeatingSystemType>
                                 <Furnace/>
                             </HeatingSystemType>
                             <HeatingSystemFuel>natural gas</HeatingSystemFuel>
                             <HeatingCapacity>50000</HeatingCapacity>
+                            <AnnualHeatingEfficiency>
+                                <Units>AFUE</Units>
+                                <Value>0.9</Value>
+                            </AnnualHeatingEfficiency>
                             <FloorAreaServed>600</FloorAreaServed>
                         </HeatingSystem>
                         <HeatingSystem>
@@ -263,6 +266,7 @@
                             <CoolingSystemType>central air conditioning</CoolingSystemType>
                             <CoolingSystemFuel>electricity</CoolingSystemFuel>
                             <CoolingCapacity>36000</CoolingCapacity><!-- 3 ton -->
+                            <FloorAreaServed>1600</FloorAreaServed>
                             <AnnualCoolingEfficiency>
                                 <Units>SEER</Units>
                                 <Value>13</Value>
@@ -274,9 +278,19 @@
                             <CoolingSystemType>central air conditioning</CoolingSystemType>
                             <CoolingSystemFuel>electricity</CoolingSystemFuel>
                             <CoolingCapacity>18000</CoolingCapacity><!-- 1.5 ton -->
+                            <FloorAreaServed>1600</FloorAreaServed>
                             <AnnualCoolingEfficiency>
                                 <Units>SEER</Units>
                                 <Value>15</Value>
+                            </AnnualCoolingEfficiency>
+                        </CoolingSystem>
+                        <CoolingSystem>
+                            <SystemIdentifier id="roomac1"/>
+                            <CoolingSystemType>room air conditioner</CoolingSystemType>
+                            <FloorAreaServed>400</FloorAreaServed>
+                            <AnnualCoolingEfficiency>
+                                <Units>EER</Units>
+                                <Value>8</Value>
                             </AnnualCoolingEfficiency>
                         </CoolingSystem>
                     </HVACPlant>

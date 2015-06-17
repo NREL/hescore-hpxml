@@ -307,6 +307,7 @@
                             </HeatingSystemType>
                             <HeatingSystemFuel>propane</HeatingSystemFuel>
                             <HeatingCapacity>100000</HeatingCapacity>
+                            <FloorAreaServed>2200</FloorAreaServed>
                         </HeatingSystem>
                         <HeatingSystem>
                             <SystemIdentifier id="baseboard"/>
@@ -318,12 +319,14 @@
                             </HeatingSystemType>
                             <HeatingSystemFuel>electricity</HeatingSystemFuel>
                             <HeatingCapacity>6824.28326626</HeatingCapacity><!-- 2 kW in Btu/h -->
+                            <FloorAreaServed>400</FloorAreaServed>
                         </HeatingSystem>
                         <CoolingSystem>
                             <SystemIdentifier id="centralair"/>
                             <DistributionSystem idref="ducts"/>
                             <CoolingSystemType>central air conditioning</CoolingSystemType>
                             <CoolingSystemFuel>electricity</CoolingSystemFuel>
+                            <FloorAreaServed>2200</FloorAreaServed>
                             <AnnualCoolingEfficiency>
                                 <Units>SEER</Units>
                                 <Value>12</Value>

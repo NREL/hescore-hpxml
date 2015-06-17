@@ -1559,7 +1559,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         # Determine the weighting factors
         def _choose_weighting_factor(systems_dict):
-            weighting_factor_priority = ['_fracload', '_floorarea', '_capacity']
+            weighting_factor_priority = ['_floorarea', '_fracload']
             found_weighting_factor = False
             for weighting_factor in weighting_factor_priority:
                 weighting_factor_list = [item[weighting_factor] for item in systems_dict.values()]
@@ -1573,7 +1573,7 @@ class HPXMLtoHEScoreTranslator(object):
                     weighting_factor = '_fracload'
                 else:
                     raise TranslationError(
-                        'Every heating/cooling system needs to have either FracLoadServed, FloorAreaServed, or Capacity.')
+                        'Every heating/cooling system needs to have either FloorAreaServed or FracLoadServed.')
             return weighting_factor, sum(weighting_factor_list)
 
         heating_weighting_factor, heating_weight_sum = _choose_weighting_factor(heating_systems)

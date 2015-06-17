@@ -289,7 +289,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:HeatPump[1]/h:FloorAreaServed')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError,
-                                'Every heating/cooling system needs to have either FracLoadServed, FloorAreaServed, or Capacity',
+                                'Every heating/cooling system needs to have either FloorAreaServed or FracLoadServed',
                                 tr.hpxml_to_hescore_dict)
 
     def test_missing_cooling_weighting_factor(self):
@@ -299,7 +299,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:CoolingSystem[2]/h:FloorAreaServed')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError,
-                                'Every heating/cooling system needs to have either FracLoadServed, FloorAreaServed, or Capacity',
+                                'Every heating/cooling system needs to have either FloorAreaServed or FracLoadServed',
                                 tr.hpxml_to_hescore_dict)
 
     def test_bad_duct_location(self):
@@ -473,11 +473,11 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
 
     def test_hvac_fractions_sum_to_one(self):
         tr = self._load_xmlfile('house6')
-        for el in self.xpath('//h:HeatingSystem/h:HeatingCapacity'):
-            el.getparent().remove(el)
         el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace"]')
+        el.remove(el[-1])
         etree.SubElement(el, tr.addns('h:FractionHeatLoadServed')).text = '0.94'
         el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="baseboard"]')
+        el.remove(el[-1])
         etree.SubElement(el, tr.addns('h:FractionHeatLoadServed')).text = '0.06'
         f = StringIO.StringIO()
         tr.hpxml_to_hescore_json(f)
