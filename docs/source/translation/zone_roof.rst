@@ -148,7 +148,9 @@ Roof R-value
 ************
 
 R-values for the roof deck are added up by summing the values of the
-``Layer/NominalRValue`` elements where the layer is not :ref:`rigid-sheathing`.
+``Layer/NominalRValue``. If the roof construction was determined to have
+:ref:`rigid-sheathing`, an R-value of 5 is subtracted from the roof R-value sum
+to account for the R-value of the sheathing in the HEScore construction.
 If the house has more than one ``Attic`` element with roof insulation, the
 insulation values are combined by first selecting the nearest roof
 center-of-cavity R-value for each roof area from the table below.

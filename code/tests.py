@@ -485,6 +485,19 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         hesinp = json.load(f)
         self.assertEqual(sum([x['hvac_fraction'] for x in hesinp['building']['systems']['hvac']]), 1)
 
+    def test_extra_roof_sheathing_insulation(self):
+        '''
+        Unit test for #44
+        '''
+        tr = self._load_xmlfile('house3')
+        attic = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]/h:AtticRoofInsulation')
+        lyr = etree.SubElement(attic, tr.addns('h:Layer'))
+        etree.SubElement(lyr, tr.addns('h:InstallationType')).text = 'continuous'
+        insmat = etree.SubElement(lyr, tr.addns('h:InsulationMaterial'))
+        etree.SubElement(insmat, tr.addns('h:Rigid')).text = 'xps'
+        etree.SubElement(lyr, tr.addns('h:NominalRValue')).text = '20'
+        hesinp = tr.hpxml_to_hescore_dict()
+        self.assertEqual(hesinp['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfps21lc')
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
     def test_assessment_date1(self):

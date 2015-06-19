@@ -905,7 +905,10 @@ class HPXMLtoHEScoreTranslator(object):
 
             # roof center of cavity R-value
             roof_rvalue = xpath(attic,
-                                'sum(h:AtticRoofInsulation/h:Layer[not(boolean(h:InsulationMaterial/h:Rigid) and h:InstallationType="continuous")]/h:NominalRValue)')
+                                'sum(h:AtticRoofInsulation/h:Layer/h:NominalRValue)')
+            # subtract the R-value of the rigid sheating in the HEScore construction.
+            if atticd['roofconstype'] == 'ps':
+                roof_rvalue -= 5
             roof_rvalue, atticd['roof_coc_rvalue'] = \
                 min(roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']].items(),
                     key=lambda x: abs(x[0] - roof_rvalue))
