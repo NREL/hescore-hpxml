@@ -499,6 +499,26 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         hesinp = tr.hpxml_to_hescore_dict()
         self.assertEqual(hesinp['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfps21lc')
 
+    def test_extra_wall_sheathing_insulation(self):
+        '''
+        Unit test for #44
+        '''
+        tr = self._load_xmlfile('house3')
+        el = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall1"]/h:Insulation/h:Layer[h:InstallationType="continuous"]/h:NominalRValue')
+        el.text = '15'
+        hesinp = tr.hpxml_to_hescore_dict()
+        self.assertEqual(hesinp['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewps21al')
+
+    def test_wall_insulation_layer_missing_rvalue(self):
+        tr = self._load_xmlfile('house3')
+        el = self.xpath('//h:Wall[1]/h:Insulation/h:Layer[1]/h:NominalRValue')
+        el.getparent().remove(el)
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'Every wall insulation layer needs a NominalRValue',
+            tr.hpxml_to_hescore_dict
+        )
+
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
     def test_assessment_date1(self):
         tr = self._load_xmlfile('hescore_min')

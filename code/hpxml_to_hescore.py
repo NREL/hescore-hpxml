@@ -137,25 +137,23 @@ class HPXMLtoHEScoreTranslator(object):
 
         # construction type
         wall_type = xpath(hpxmlwall, 'name(h:WallType/*)')
+        for layer in xpath(hpxmlwall, 'h:Insulation/h:Layer', aslist=True):
+            if xpath(layer, 'h:NominalRValue') is None:
+                raise TranslationError('Every wall insulation layer needs a NominalRValue, (wallid = "%s")' % wallid)
         if wall_type == 'WoodStud':
-            has_rigid_ins = False
-            cavity_rvalue = 0
-            for lyr in hpxmlwall.xpath('h:Insulation/h:Layer', namespaces=ns):
-                installation_type = xpath(lyr, 'h:InstallationType/text()')
-                if xpath(lyr, 'h:InsulationMaterial/h:Rigid') is not None and \
-                                installation_type == 'continuous':
-                    has_rigid_ins = True
-                else:
-                    cavity_rvalue += float(xpath(lyr, 'h:NominalRValue/text()'))
+            wall_rvalue = xpath(hpxmlwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+            has_rigid_ins = xpath(hpxmlwall, 'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])')
             if tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')) or has_rigid_ins:
                 wallconstype = 'ps'
-                rvalue = round_to_nearest(cavity_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+                # account for the rigid foam sheathing in the construction code
+                wall_rvalue -= 5
+                rvalue = round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
             elif tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:OptimumValueEngineering/text()')):
                 wallconstype = 'ov'
-                rvalue = round_to_nearest(cavity_rvalue, (19, 21, 27, 33, 38))
+                rvalue = round_to_nearest(wall_rvalue, (19, 21, 27, 33, 38))
             else:
                 wallconstype = 'wf'
-                rvalue = round_to_nearest(cavity_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+                rvalue = round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
             hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
             try:
                 sidingtype = sidingmap[hpxmlsiding]

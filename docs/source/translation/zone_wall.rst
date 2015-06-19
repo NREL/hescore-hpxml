@@ -82,6 +82,7 @@ specified in HEScore as "Wood Frame with Rigid Foam Sheathing."
                   <!-- This can have any of the valid enumerations for this element, 
                        it only cares if the Rigid element is present. -->
               </InsulationMaterial>
+              <NominalRValue>5</NominalRValue>
           </Layer>
           ...
       </Insulation>
@@ -116,11 +117,13 @@ is selected.
 Finally, if neither of the above conditions are met, the wall is specified as
 simply "Wood Frame" in HEScore. 
 
-In all cases the cavity R-value is summed for all insulation layers and the
+In all cases the R-value is summed for all insulation layers and the
 nearest discrete R-value from the list of possible R-values for that wall type
-is used.
+is used. For walls with rigid foam sheathing, R-5 is subtracted from the
+nominal R-value sum to account for the R-value of the sheathing in the HEScore
+construction assembly.
 
-The siding is selected according to the :ref:`siding map <sidingmap>`.
+Siding is selected according to the :ref:`siding map <sidingmap>`.
 
 Structural Brick
 ================

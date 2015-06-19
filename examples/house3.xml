@@ -107,6 +107,7 @@
                                 <InsulationMaterial>
                                     <Rigid>xps</Rigid>
                                 </InsulationMaterial>
+                                <NominalRValue>5</NominalRValue>
                             </Layer>
                         </Insulation>
                     </Wall>
