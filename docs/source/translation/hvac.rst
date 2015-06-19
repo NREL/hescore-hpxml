@@ -10,8 +10,8 @@ Sometimes an HVAC system will not share ducts, for instance a central air condit
 In that case, if each of those systems serve a fraction of the home's load within 5% of each other they will be combined into the same HVAC system for HEScore.
 
 To determine the fraction of the home's heating and cooling load each system serves,
-each HPXML heating or cooling system is required to have ``FracLoadServed``, ``FloorAreaServed``, or ``Capacity``.
-If all the systems don't have ``FracLoadServed``, ``FloorAreaServed`` is checked and so on.
+each HPXML heating or cooling system is required to have ``FloorAreaServed`` or ``FracLoadServed``.
+If all the systems don't have ``FloorAreaServed``, ``FracLoadServed`` is checked.
 If a ``HeatingSystem`` and ``CoolingSystem`` that are associated with the same ``HVACDistributionSystem`` serve differing
 portions of the house's heating and cooling load, that weight is averaged to find the combined system weight.
 The two combined HVAC systems that serve the greatest portion of the house's load are sent to HEScore.
