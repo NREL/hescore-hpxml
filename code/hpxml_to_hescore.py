@@ -1528,7 +1528,7 @@ class HPXMLtoHEScoreTranslator(object):
             distribution_systems[key] = self._get_hvac_distribution(el)
 
         # Connect mini-split heat pumps to "ducts"
-        # Find heating and cooling ids that are in both singleton lists (heat pumps with do ducts)
+        # Find heating and cooling ids that are in both singleton lists (heat pumps with no ducts)
         singletons_to_combine = singleton_cooling_systems.intersection(singleton_heating_systems)
         singleton_heating_systems -= singletons_to_combine
         singleton_cooling_systems -= singletons_to_combine

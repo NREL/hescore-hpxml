@@ -520,6 +520,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         )
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
+
     def test_assessment_date1(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Building/h:ProjectStatus/h:Date')
@@ -685,6 +686,142 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
                                 'domestic_hot_water_year is out of bounds',
                                 tr.hpxml_to_hescore_dict)
 
+class TestHVACFractions(unittest.TestCase, ComparatorBase):
+    '''
+    These are tests for weird HVAC configurations, see issue #45
+    '''
+
+    def test_boiler_roomac(self):
+        '''
+        Whole house heating by boiler, room AC added for one section (30%).
+        '''
+        tr = self._load_xmlfile('house4')
+
+        # get rid of the heat pump
+        el = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]')
+        el.getparent().remove(el)
+
+        # Remove floor areas served
+        for el in self.xpath('//h:HVACPlant/*/h:FloorAreaServed'):
+            el.getparent().remove(el)
+
+        # Set the boiler to 100 of heating load
+        boiler = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="boiler1"]')
+        etree.SubElement(boiler, tr.addns('h:FractionHeatLoadServed')).text = '1'
+
+        # Convert the central air to a room a/c and set the fraction to 0.3
+        aircond = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]')
+        el = aircond.xpath('h:CoolingSystemType', namespaces=tr.ns)[0]
+        el.text = 'room air conditioner'
+        # remove distribution systems
+        el = aircond.xpath('h:DistributionSystem', namespaces=tr.ns)[0]
+        el.getparent().remove(el)
+        el = self.xpath('//h:HVACDistribution[h:SystemIdentifier/@id="aircondducts"]')
+        el.getparent().remove(el)
+        el = aircond.xpath('h:AnnualCoolingEfficiency/h:Units', namespaces=tr.ns)[0]
+        el.text = 'EER'
+        el = aircond.xpath('h:AnnualCoolingEfficiency/h:Value', namespaces=tr.ns)[0]
+        el.text = '8'
+        el = etree.Element(tr.addns('h:FractionCoolLoadServed'))
+        el.text = '0.3'
+        aircond.insert(-1, el)
+
+        b = self.xpath('h:Building[1]')
+        hvac_systems = tr._get_hvac(b)
+        hvac_systems.sort(key=lambda x: x['hvac_fraction'])
+
+        hvac1 = hvac_systems[0]
+        self.assertAlmostEqual(hvac1['hvac_fraction'], 0.3, 3)
+        self.assertEqual(hvac1['heating']['type'], 'boiler')
+        self.assertEqual(hvac1['cooling']['type'], 'packaged_dx')
+
+        hvac2 = hvac_systems[1]
+        self.assertAlmostEqual(hvac2['hvac_fraction'], 0.7, 3)
+        self.assertEqual(hvac2['heating']['type'], 'boiler')
+        self.assertEqual(hvac2['cooling']['type'], 'none')
+
+    def test_furnace_baseboard_centralac(self):
+        '''
+        Furnace and baseboard each heat a fraction of the house.
+        Central air cools whole house.
+        '''
+        tr = self._load_xmlfile('house6')
+
+        # Get total floor area
+        total_floor_area = 0
+        for htgsys_floor_area in self.xpath('//h:HeatingSystem/h:FloorAreaServed/text()'):
+            total_floor_area += float(htgsys_floor_area)
+
+        # Set each equipment to the proper fractions
+        furnace_floor_area_el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace"]/h:FloorAreaServed')
+        furnace_floor_area_el.text = str(0.6 * total_floor_area)
+        baseboard_floor_area_el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="baseboard"]/h:FloorAreaServed')
+        baseboard_floor_area_el.text = str(0.4 * total_floor_area)
+        clgsys_floor_area_el = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair"]/h:FloorAreaServed')
+        clgsys_floor_area_el.text = str(total_floor_area)
+
+        b = self.xpath('h:Building[1]')
+        hvac_systems = tr._get_hvac(b)
+        hvac_systems.sort(key=lambda x: x['hvac_fraction'])
+
+        hvac1 = hvac_systems[0]
+        self.assertAlmostEqual(hvac1['hvac_fraction'], 0.4, 3)
+        self.assertEqual(hvac1['heating']['type'], 'baseboard')
+        self.assertEqual(hvac1['cooling']['type'], 'split_dx')
+
+        hvac2 = hvac_systems[1]
+        self.assertAlmostEqual(hvac2['hvac_fraction'], 0.6, 3)
+        self.assertEqual(hvac2['heating']['type'], 'central_furnace')
+        self.assertEqual(hvac2['cooling']['type'], 'split_dx')
+
+    def test_furnace_heat_pump(self):
+        '''
+        Original house heated by central furnace 70%
+        Addition heated and cooled by heat pump
+        '''
+        tr = self._load_xmlfile('house4')
+
+        # Get total floor area
+        total_floor_area = 0
+        for htgsys_floor_area in self.xpath('//h:HeatingSystem/h:FloorAreaServed/text()|//h:HeatPump/h:FloorAreaServed/text()'):
+            total_floor_area += float(htgsys_floor_area)
+
+        # Turn the boiler into central furnace
+        furnace_el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="boiler1"]')
+        sys_type = tr.xpath(furnace_el, 'h:HeatingSystemType')
+        sys_type.clear()
+        etree.SubElement(sys_type, tr.addns('h:Furnace'))
+
+        # Attach the furnace to the air conditioning ducts
+        el = tr.xpath(furnace_el, 'h:DistributionSystem')
+        el.attrib['idref'] = 'aircondducts'
+
+        # Set the furnace to be 70% of the area
+        furnace_floor_area_el = tr.xpath(furnace_el, 'h:FloorAreaServed')
+        furnace_floor_area_el.text = str(0.7 * total_floor_area)
+
+        # Remove the air conditioner
+        el = self.xpath('//h:CoolingSystem')
+        el.getparent().remove(el)
+
+        # Set the heat pump to 30% of the area
+        heat_pump_floor_area_el = self.xpath('//h:HeatPump/h:FloorAreaServed')
+        heat_pump_floor_area_el.text = str(0.3 * total_floor_area)
+
+        # Get HEScore inputs and sort by fraction
+        b = self.xpath('h:Building[1]')
+        hvac_systems = tr._get_hvac(b)
+        hvac_systems.sort(key=lambda x: x['hvac_fraction'])
+
+        hvac1 = hvac_systems[0]
+        self.assertAlmostEqual(hvac1['hvac_fraction'], 0.3, 3)
+        self.assertEqual(hvac1['heating']['type'], 'heat_pump')
+        self.assertEqual(hvac1['cooling']['type'], 'heat_pump')
+
+        hvac2 = hvac_systems[1]
+        self.assertAlmostEqual(hvac2['hvac_fraction'], 0.7, 3)
+        self.assertEqual(hvac2['heating']['type'], 'central_furnace')
+        self.assertEqual(hvac2['cooling']['type'], 'none')
 
 if __name__ == "__main__":
     unittest.main()
