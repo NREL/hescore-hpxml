@@ -278,7 +278,7 @@
                             <CoolingSystemType>central air conditioning</CoolingSystemType>
                             <CoolingSystemFuel>electricity</CoolingSystemFuel>
                             <CoolingCapacity>18000</CoolingCapacity><!-- 1.5 ton -->
-                            <FloorAreaServed>1600</FloorAreaServed>
+                            <FloorAreaServed>600</FloorAreaServed>
                             <AnnualCoolingEfficiency>
                                 <Units>SEER</Units>
                                 <Value>15</Value>

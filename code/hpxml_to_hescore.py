@@ -15,7 +15,6 @@ import math
 import uuid
 from lxml import etree
 from collections import defaultdict, namedtuple
-from itertools import combinations
 
 try:
     from collections import OrderedDict
@@ -1527,8 +1526,56 @@ class HPXMLtoHEScoreTranslator(object):
         for key, el in hpxml_distribution_systems.items():
             distribution_systems[key] = self._get_hvac_distribution(el)
 
+        # Determine the weighting factors
+        def _choose_weighting_factor(systems_dict):
+            weighting_factor_priority = ['_floorarea', '_fracload']
+            found_weighting_factor = False
+            for weighting_factor in weighting_factor_priority:
+                weighting_factor_list = [item[weighting_factor] for item in systems_dict.values()]
+                if None not in weighting_factor_list and len(weighting_factor_list) > 0:
+                    found_weighting_factor = True
+                    break
+            if not found_weighting_factor:
+                if len(systems_dict) == 1:
+                    systems_dict.values()[0]['_fracload'] = 1.0
+                    weighting_factor_list = [1.0]
+                    weighting_factor = '_fracload'
+                else:
+                    raise TranslationError(
+                        'Every heating/cooling system needs to have either FloorAreaServed or FracLoadServed.')
+            return weighting_factor, sum(weighting_factor_list)
+        if heating_systems:
+            heating_weighting_factor, heating_weight_sum = _choose_weighting_factor(heating_systems)
+        else:
+            heating_weight_sum = 0
+            heating_weighting_factor = None
+        if cooling_systems:
+            cooling_weighting_factor, cooling_weight_sum = _choose_weighting_factor(cooling_systems)
+        else:
+            cooling_weight_sum = 0
+            cooling_weighting_factor = None
+
+        if cooling_systems and heating_systems and heating_weighting_factor != cooling_weighting_factor:
+            raise TranslationError('Every heating/cooling system needs to have either FloorAreaServed or FracLoadServed.')
+
+        weight_sum = max(heating_weight_sum, cooling_weight_sum)
+        del heating_weight_sum
+        del cooling_weight_sum
+
+        # Ensure that heating and cooling systems attached to the same ducts are within 5% of each other
+        # in terms of fraction of the load served.
+        for duct_id, (htg_id, clg_id) in dist_heating_cooling_map.items():
+            try:
+                htg_weight = heating_systems[htg_id][heating_weighting_factor] / weight_sum
+                clg_weight = cooling_systems[clg_id][cooling_weighting_factor] / weight_sum
+            except KeyError:
+                continue
+            if abs(htg_weight - clg_weight) > 0.05:
+                raise TranslationError('Heating system "%s" and cooling system "%s" are attached to the same ' % (htg_id, clg_id) +
+                                       'distribution system "%s" need to serve the same fraction of the load within 5%% but do not.' % duct_id)
+
         # Connect mini-split heat pumps to "ducts"
-        # Find heating and cooling ids that are in both singleton lists (heat pumps with do ducts)
+        # Find heating and cooling ids that are in both singleton lists (heat pumps with no ducts)
         singletons_to_combine = singleton_cooling_systems.intersection(singleton_heating_systems)
         singleton_heating_systems -= singletons_to_combine
         singleton_cooling_systems -= singletons_to_combine
@@ -1558,28 +1605,6 @@ class HPXMLtoHEScoreTranslator(object):
                 raise TranslationError('Cooling system %s is not associated with an air distribution system.' %
                                        clg_sys_id)
 
-        # Determine the weighting factors
-        def _choose_weighting_factor(systems_dict):
-            weighting_factor_priority = ['_floorarea', '_fracload']
-            found_weighting_factor = False
-            for weighting_factor in weighting_factor_priority:
-                weighting_factor_list = [item[weighting_factor] for item in systems_dict.values()]
-                if None not in weighting_factor_list:
-                    found_weighting_factor = True
-                    break
-            if not found_weighting_factor:
-                if len(systems_dict) == 1:
-                    systems_dict.values()[0]['_fracload'] = 1.0
-                    weighting_factor_list = [1.0]
-                    weighting_factor = '_fracload'
-                else:
-                    raise TranslationError(
-                        'Every heating/cooling system needs to have either FloorAreaServed or FracLoadServed.')
-            return weighting_factor, sum(weighting_factor_list)
-
-        heating_weighting_factor, heating_weight_sum = _choose_weighting_factor(heating_systems)
-        cooling_weighting_factor, cooling_weight_sum = _choose_weighting_factor(cooling_systems)
-
         # Determine a total weighting factor for each combined heating/cooling/distribution system
         # Create a list of systems including the weights that we can sort
         # hvac_systems_ids = set([('htg_id', 'clg_id', 'dist_id', weight), ...])
@@ -1588,9 +1613,9 @@ class HPXMLtoHEScoreTranslator(object):
         for dist_sys_id, (htg_sys_id, clg_sys_id) in dist_heating_cooling_map.items():
             weights_to_average = []
             if htg_sys_id is not None:
-                weights_to_average.append(heating_systems[htg_sys_id][heating_weighting_factor] / heating_weight_sum)
+                weights_to_average.append(heating_systems[htg_sys_id][heating_weighting_factor] / weight_sum)
             if clg_sys_id is not None:
-                weights_to_average.append(cooling_systems[clg_sys_id][cooling_weighting_factor] / cooling_weight_sum)
+                weights_to_average.append(cooling_systems[clg_sys_id][cooling_weighting_factor] / weight_sum)
             avg_sys_weight = sum(weights_to_average) / len(weights_to_average)
             hvac_systems_ids.add(IDsAndWeights(htg_sys_id, clg_sys_id, dist_sys_id, avg_sys_weight))
 
@@ -1600,83 +1625,86 @@ class HPXMLtoHEScoreTranslator(object):
                 htg_sys_id,
                 None,
                 None,
-                heating_systems[htg_sys_id][heating_weighting_factor] / heating_weight_sum))
+                heating_systems[htg_sys_id][heating_weighting_factor] / weight_sum))
         for clg_sys_id in singleton_cooling_systems:
             hvac_systems_ids.add(IDsAndWeights(
                 None,
                 clg_sys_id,
                 None,
-                cooling_systems[clg_sys_id][cooling_weighting_factor] / cooling_weight_sum))
+                cooling_systems[clg_sys_id][cooling_weighting_factor] / weight_sum))
 
-        # Combine systems if possible
-        combined_ids_map = {}
-        for hvac_ids1, hvac_ids2 in combinations(hvac_systems_ids, 2):
-            merged_hvac_system_ids = {}
+        # Split and combine systems by fraction as needed #45
+        singleton_heating_systems = []
+        singleton_cooling_systems = []
+        for hvac_ids in hvac_systems_ids:
+            if hvac_ids.clg_id is not None and hvac_ids.htg_id is None:
+                singleton_cooling_systems.append(hvac_ids)
+            elif hvac_ids.htg_id is not None and hvac_ids.clg_id is None:
+                singleton_heating_systems.append(hvac_ids)
+        hvac_systems_ids.difference_update(singleton_heating_systems)
+        hvac_systems_ids.difference_update(singleton_cooling_systems)
+        singleton_heating_systems.sort(key=lambda x: x.weight, reverse=True)
+        singleton_cooling_systems.sort(key=lambda x: x.weight, reverse=True)
+        singleton_heating_systems_iter = iter(singleton_heating_systems)
+        singleton_cooling_systems_iter = iter(singleton_cooling_systems)
 
-            # First they need similar weights
-            if abs(hvac_ids1.weight - hvac_ids2.weight) > 0.05:
-                continue
-            merged_hvac_system_ids['weight'] = (hvac_ids1.weight + hvac_ids2.weight) * 0.5
+        def iter_next(_iter):
+            try:
+                retval = _iter.next()
+            except StopIteration:
+                retval = None
+            return retval
 
-            # Next determine if they have colliding systems
-            can_merge = True
-            for key in ('htg_id', 'clg_id'):
-                value1 = getattr(hvac_ids1, key)
-                value2 = getattr(hvac_ids2, key)
-                if (value1 is None) ^ (value2 is None):
-                    # one exists and the other is None.
-                    if value1 is not None:
-                        merged_hvac_system_ids[key] = value1
-                    else:
-                        merged_hvac_system_ids[key] = value2
-                else:
-                    # there is a conflict in the merge.
-                    can_merge = False
-                    break
-            if not can_merge:
-                continue
-
-            def has_dist_sys(hvac_ids):
-                return len(distribution_systems.get(hvac_ids.dist_id, [])) > 0
-            neither_has_dist_id = (not has_dist_sys(hvac_ids1)) and (not has_dist_sys(hvac_ids2))
-            only_one_has_dist_id = has_dist_sys(hvac_ids1) ^ has_dist_sys(hvac_ids2)
-            if only_one_has_dist_id:
-                if has_dist_sys(hvac_ids1):
-                    merged_hvac_system_ids['dist_id'] = hvac_ids1.dist_id
-                else:
-                    merged_hvac_system_ids['dist_id'] = hvac_ids2.dist_id
-            elif neither_has_dist_id:
-                merged_hvac_system_ids['dist_id'] = None
+        def choose_dist_system(first_choice_dist_id, second_choice_dist_id):
+            if first_choice_dist_id is not None and len(distribution_systems[first_choice_dist_id]) > 0:
+                dist_id = first_choice_dist_id
             else:
-                continue
+                dist_id = second_choice_dist_id
+            return dist_id
 
-            # Convert to named tuple
-            merged_hvac_system_ids = IDsAndWeights(**merged_hvac_system_ids)
-
-            # Only allow air source heat pumps to combine with air source heat pumps (mini-split)
-            if not ((heating_systems.get(merged_hvac_system_ids.htg_id) == 'heat_pump' and
-                     cooling_systems.get(merged_hvac_system_ids.clg_id) == 'heat_pump') or
-                   (heating_systems.get(merged_hvac_system_ids.htg_id) != 'heat_pump' and
-                    cooling_systems.get(merged_hvac_system_ids.clg_id) != 'heat_pump')):
-                continue
-
-            found_matching_key = False
-            for keys, value in combined_ids_map.items():
-                if hvac_ids1 in keys or hvac_ids2 in keys:
-                    found_matching_key = True
-                    break
-
-            if found_matching_key:
-                if combined_ids_map[keys].weight < merged_hvac_system_ids.weight:
-                    del combined_ids_map[keys]
-                    combined_ids_map[keys] = merged_hvac_system_ids
+        hvac_htg = iter_next(singleton_heating_systems_iter)
+        hvac_clg = iter_next(singleton_cooling_systems_iter)
+        while not (hvac_htg is None and hvac_clg is None):
+            if hvac_htg is not None and hvac_clg is not None:
+                if hvac_htg.weight > hvac_clg.weight:
+                    hvac_comb = IDsAndWeights(
+                        htg_id=hvac_htg.htg_id,
+                        clg_id=hvac_clg.clg_id,
+                        dist_id=choose_dist_system(hvac_clg.dist_id, hvac_htg.dist_id),
+                        weight=hvac_clg.weight
+                    )
+                    hvac_systems_ids.add(hvac_comb)
+                    hvac_htg = hvac_htg._replace(weight=hvac_htg.weight - hvac_clg.weight)
+                    hvac_clg = iter_next(singleton_cooling_systems_iter)
+                elif hvac_clg.weight > hvac_htg.weight:
+                    hvac_comb = IDsAndWeights(
+                        htg_id=hvac_htg.htg_id,
+                        clg_id=hvac_clg.clg_id,
+                        dist_id=choose_dist_system(hvac_htg.dist_id, hvac_clg.dist_id),
+                        weight=hvac_htg.weight
+                    )
+                    hvac_systems_ids.add(hvac_comb)
+                    hvac_clg = hvac_clg._replace(weight=hvac_clg.weight - hvac_htg.weight)
+                    hvac_htg = iter_next(singleton_heating_systems_iter)
+                else:
+                    assert hvac_clg.weight == hvac_htg.weight
+                    hvac_comb = IDsAndWeights(
+                        htg_id=hvac_htg.htg_id,
+                        clg_id=hvac_clg.clg_id,
+                        dist_id=choose_dist_system(hvac_htg.dist_id, hvac_clg.dist_id),
+                        weight=hvac_htg.weight
+                    )
+                    hvac_systems_ids.add(hvac_comb)
+                    hvac_htg = iter_next(singleton_heating_systems_iter)
+                    hvac_clg = iter_next(singleton_cooling_systems_iter)
+            elif hvac_clg is None:
+                hvac_systems_ids.add(hvac_htg)
+                hvac_htg = iter_next(singleton_heating_systems_iter)
+            elif hvac_htg is None:
+                hvac_systems_ids.add(hvac_clg)
+                hvac_clg = iter_next(singleton_cooling_systems_iter)
             else:
-                combined_ids_map[(hvac_ids1, hvac_ids2)] = merged_hvac_system_ids
-
-        # Do the swap
-        for keys in combined_ids_map.keys():
-            hvac_systems_ids.difference_update(keys)
-        hvac_systems_ids.update(combined_ids_map.values())
+                assert False
 
         # Sort by weights
         hvac_systems_ids = sorted(hvac_systems_ids, key=lambda x: x.weight, reverse=True)
