@@ -839,7 +839,6 @@ class TestHVACFractions(unittest.TestCase, ComparatorBase):
         self.assertEqual(hvac2['heating']['type'], 'wall_furnace')
         self.assertEqual(hvac2['cooling']['type'], 'split_dx')
 
-
     def test_furnace_heat_pump(self):
         '''
         Original house heated by central furnace 70%
