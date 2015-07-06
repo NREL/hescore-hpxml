@@ -479,6 +479,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="baseboard"]')
         el.remove(el[-1])
         etree.SubElement(el, tr.addns('h:FractionHeatLoadServed')).text = '0.06'
+        el = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair"]')
+        el.getparent().remove(el)
         f = StringIO.StringIO()
         tr.hpxml_to_hescore_json(f)
         f.seek(0)
