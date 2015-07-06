@@ -6,6 +6,7 @@ from lxml import etree
 from hpxml_to_hescore import HPXMLtoHEScoreTranslator, TranslationError, InputOutOfBounds
 import StringIO
 import json
+from copy import deepcopy
 
 thisdir = os.path.dirname(os.path.abspath(__file__))
 exampledir = os.path.abspath(os.path.join(thisdir, '..', 'examples'))
@@ -745,7 +746,7 @@ class TestHVACFractions(unittest.TestCase, ComparatorBase):
     def test_furnace_baseboard_centralac(self):
         '''
         Furnace and baseboard each heat a fraction of the house.
-        Central air cools whole house.
+        2 identical Central air cools corresponding fractions.
         '''
         tr = self._load_xmlfile('house6')
 
@@ -759,8 +760,24 @@ class TestHVACFractions(unittest.TestCase, ComparatorBase):
         furnace_floor_area_el.text = str(0.6 * total_floor_area)
         baseboard_floor_area_el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="baseboard"]/h:FloorAreaServed')
         baseboard_floor_area_el.text = str(0.4 * total_floor_area)
+
+        # Set 1st central air unit
         clgsys_floor_area_el = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair"]/h:FloorAreaServed')
-        clgsys_floor_area_el.text = str(total_floor_area)
+        clgsys_floor_area_el.text = str(0.6 * total_floor_area)
+
+        # Copy central air unit
+        clgsys = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair"]')
+        clgsys2 = deepcopy(clgsys)
+        clgsys.getparent().append(clgsys2)
+        tr.xpath(clgsys2, 'h:SystemIdentifier').attrib['id'] = 'centralair2'
+        tr.xpath(clgsys2, 'h:FloorAreaServed').text = str(0.4 * total_floor_area)
+        tr.xpath(clgsys2, 'h:DistributionSystem').attrib['idref'] = 'ducts2'
+
+        # Copy the ducts
+        ducts = self.xpath('//h:HVACDistribution[h:SystemIdentifier/@id="ducts"]')
+        ducts2 = deepcopy(ducts)
+        ducts.getparent().append(ducts2)
+        tr.xpath(ducts2, 'h:SystemIdentifier').attrib['id'] = 'ducts2'
 
         b = self.xpath('h:Building[1]')
         hvac_systems = tr._get_hvac(b)
@@ -775,6 +792,53 @@ class TestHVACFractions(unittest.TestCase, ComparatorBase):
         self.assertAlmostEqual(hvac2['hvac_fraction'], 0.6, 3)
         self.assertEqual(hvac2['heating']['type'], 'central_furnace')
         self.assertEqual(hvac2['cooling']['type'], 'split_dx')
+
+    def test_wall_furnace_baseboard_centralac(self):
+        '''
+        60% wall furnace
+        40% baseboard
+        100% central air
+        '''
+        tr = self._load_xmlfile('house6')
+
+        # Get total floor area
+        total_floor_area = 0
+        for htgsys_floor_area in self.xpath('//h:HeatingSystem/h:FloorAreaServed/text()'):
+            total_floor_area += float(htgsys_floor_area)
+
+        # Set each equipment to the proper fractions
+        furnace_floor_area_el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace"]/h:FloorAreaServed')
+        furnace_floor_area_el.text = str(0.6 * total_floor_area)
+        baseboard_floor_area_el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="baseboard"]/h:FloorAreaServed')
+        baseboard_floor_area_el.text = str(0.4 * total_floor_area)
+
+        # Change to natural gas wall furnace (no ducts)
+        htgsys_type = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace"]/h:HeatingSystemType')
+        htgsys_type.clear()
+        etree.SubElement(htgsys_type, tr.addns('h:WallFurnace'))
+        distsys = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace"]/h:DistributionSystem')
+        distsys.getparent().remove(distsys)
+        htgsys_fuel = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace"]/h:HeatingSystemFuel')
+        htgsys_fuel.text = 'natural gas'
+
+        # Set central air unit
+        clgsys_floor_area_el = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair"]/h:FloorAreaServed')
+        clgsys_floor_area_el.text = str(total_floor_area)
+
+        b = self.xpath('h:Building[1]')
+        hvac_systems = tr._get_hvac(b)
+        hvac_systems.sort(key=lambda x: x['hvac_fraction'])
+
+        hvac1 = hvac_systems[0]
+        self.assertAlmostEqual(hvac1['hvac_fraction'], 0.4, 3)
+        self.assertEqual(hvac1['heating']['type'], 'baseboard')
+        self.assertEqual(hvac1['cooling']['type'], 'split_dx')
+
+        hvac2 = hvac_systems[1]
+        self.assertAlmostEqual(hvac2['hvac_fraction'], 0.6, 3)
+        self.assertEqual(hvac2['heating']['type'], 'wall_furnace')
+        self.assertEqual(hvac2['cooling']['type'], 'split_dx')
+
 
     def test_furnace_heat_pump(self):
         '''
