@@ -60,9 +60,18 @@ Below are some instructions depending on platform to get the required programs a
 Windows
 -------
 
-#. `Download Python 2.7 from python.org <https://www.python.org/downloads/>`_ and Install.
-#. `Download a precompiled lxml binary <http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml>`_ and Install.
-   Make sure it matches your version of Python and windows architecture (probably x64).
+#. `Download Python 2.7.10 from python.org <https://www.python.org/downloads/>`_ and Install. 
+#. Add ``C:\Python27`` to your path. `Here's how. <http://superuser.com/questions/143119/how-to-add-python-to-the-windows-path>`
+#. Figure out whether you have the 32-bit or 64-bit version of python. 
+   Open the command line `cmd.exe`.
+   Type in `python`. The first line returned should be something like 
+   ``Python 2.7.9 (default, Dec 10 2014, 12:24:55) [MSC v.1500 32 bit (Intel)] on win32``.
+   Type in ``quit()``. Press Enter.
+#. `Download a precompiled lxml binary <http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml>`_.
+   Make sure it matches your version of Python and windows architecture 
+   (``lxml-x.x.x-cp27-none-win32.whl`` or ``lxml-x.x.x-cp27-none-win_amd64.whl``).
+#. Install lxml using pip. Back in your command line window type: 
+   ``pip install C:\path\to\lxml-x.x.x-cp27-none-win32.whl``.
 
 Mac OS X
 --------
