@@ -61,7 +61,7 @@ Windows
 -------
 
 #. `Download Python 2.7.10 from python.org <https://www.python.org/downloads/>`_ and Install. 
-#. Add ``C:\Python27`` to your path. `Here's how. <http://superuser.com/questions/143119/how-to-add-python-to-the-windows-path>`
+#. Add ``C:\Python27`` to your path. `Here's how. <http://superuser.com/questions/143119/how-to-add-python-to-the-windows-path>`_
 #. Figure out whether you have the 32-bit or 64-bit version of python. 
    Open the command line `cmd.exe`.
    Type in `python`. The first line returned should be something like 
