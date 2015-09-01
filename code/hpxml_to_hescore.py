@@ -1213,7 +1213,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         hpxmlwalls = dict([(side, []) for side in sidemap.values()])
         hpxmlwalls['noside'] = []
-        for wall in b.xpath('h:BuildingDetails/h:Enclosure/h:Walls/h:Wall', namespaces=ns):
+        for wall in b.xpath('h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]', namespaces=ns):
             walld = {'assembly_code': self._get_wall_assembly_code(wall),
                      'area': convert_to_type(float, xpath(wall, 'h:Area/text()')),
                      'id': xpath(wall, 'h:SystemIdentifier/@id')}
