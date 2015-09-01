@@ -522,6 +522,34 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             tr.hpxml_to_hescore_dict
         )
 
+    def test_attic_knee_wall(self):
+        """
+        Unit test for #48
+        """
+        tr = self._load_xmlfile('hescore_min')
+        # make a copy of the first wall
+        wall1 = self.xpath('//h:Wall[1]')
+        wall2 = deepcopy(wall1)
+        # change the system id
+        sysid = wall2.find(tr.addns('h:SystemIdentifier'))
+        sysid.attrib['id'] = 'wall2'
+        # and the insulation id
+        ins_sysid = wall2.xpath('h:Insulation/h:SystemIdentifier', namespaces=tr.ns)[0]
+        ins_sysid.attrib['id'] = 'wall2ins'
+        # remove the siding
+        siding = wall2.find(tr.addns('h:Siding'))
+        wall2.remove(siding)
+        # add an ExteriorAdjacentTo = attic
+        ext_adj_to = etree.Element(tr.addns('h:ExteriorAdjacentTo'))
+        ext_adj_to.text = 'attic'
+        wall2.insert(1, ext_adj_to)
+        # insert new wall
+        walls = self.xpath('//h:Walls')
+        walls.append(wall2)
+        # run translation
+        tr.hpxml_to_hescore_dict()
+
+
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 
     def test_assessment_date1(self):
