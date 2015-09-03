@@ -549,6 +549,20 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         # run translation
         tr.hpxml_to_hescore_dict()
 
+    def test_wall_construction_ps_low_r(self):
+        """
+        Unit test for #47
+        """
+        tr = self._load_xmlfile('hescore_min')
+        wallins = self.xpath('//h:Wall[1]/h:Insulation')
+        wallins.xpath('h:Layer[1]/h:NominalRValue[1]', namespaces=tr.ns)[0].text = '8'
+        newlayer = etree.SubElement(wallins, tr.addns('h:Layer'))
+        etree.SubElement(newlayer, tr.addns('h:InstallationType')).text = 'continuous'
+        insmat = etree.SubElement(newlayer, tr.addns('h:InsulationMaterial'))
+        etree.SubElement(insmat, tr.addns('h:Rigid')).text = 'eps'
+        etree.SubElement(newlayer, tr.addns('h:NominalRValue')).text = '5'
+        tr.hpxml_to_hescore_dict()
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 
