@@ -561,7 +561,19 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         insmat = etree.SubElement(newlayer, tr.addns('h:InsulationMaterial'))
         etree.SubElement(insmat, tr.addns('h:Rigid')).text = 'eps'
         etree.SubElement(newlayer, tr.addns('h:NominalRValue')).text = '5'
-        tr.hpxml_to_hescore_dict()
+        b = tr.hpxml_to_hescore_dict()
+        self.assertEquals(b['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewps07br')
+
+    def test_ove_low_r(self):
+        """
+        Make sure we pick the lowest construction code for walls
+        """
+        tr = self._load_xmlfile('hescore_min')
+        wood_stud_wall_type = self.xpath('//h:Wall[1]/h:WallType/h:WoodStud')
+        etree.SubElement(wood_stud_wall_type, tr.addns('h:OptimumValueEngineering')).text = 'true'
+        self.xpath('//h:Wall[1]/h:Insulation/h:Layer[h:InstallationType="cavity"]/h:NominalRValue').text = '0'
+        b = tr.hpxml_to_hescore_dict()
+        self.assertEquals(b['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewov19br')
 
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
