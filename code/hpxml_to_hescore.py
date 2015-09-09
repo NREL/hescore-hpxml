@@ -75,8 +75,17 @@ def unspin_azimuth(azimuth):
     return azimuth
 
 
-def round_to_nearest(x, vals):
-    return min(vals, key=lambda y: abs(x - y))
+class RoundOutOfBounds(TranslationError):
+    pass
+
+
+def round_to_nearest(x, vals, tails_tolerance=None):
+    nearest = min(vals, key=lambda y: abs(x - y))
+    if tails_tolerance is not None:
+        if x < min(vals) or x > max(vals):
+            if abs(x - nearest) > tails_tolerance:
+                raise RoundOutOfBounds()
+    return nearest
 
 
 class HPXMLtoHEScoreTranslator(object):
@@ -134,6 +143,12 @@ class HPXMLtoHEScoreTranslator(object):
                      'masonite siding': 'wo',
                      'other': None}
 
+        def _round_to_nearest(*args):
+            try:
+                return round_to_nearest(*args, tails_tolerance=3)
+            except RoundOutOfBounds:
+                raise TranslationError('Envelope construction not supported, wall id: %s' % wallid)
+
         # construction type
         wall_type = xpath(hpxmlwall, 'name(h:WallType/*)')
         for layer in xpath(hpxmlwall, 'h:Insulation/h:Layer', aslist=True):
@@ -146,13 +161,13 @@ class HPXMLtoHEScoreTranslator(object):
                 wallconstype = 'ps'
                 # account for the rigid foam sheathing in the construction code
                 wall_rvalue -= 5
-                rvalue = round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+                rvalue = _round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
             elif tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:OptimumValueEngineering/text()')):
                 wallconstype = 'ov'
-                rvalue = round_to_nearest(wall_rvalue, (19, 21, 27, 33, 38))
+                rvalue = _round_to_nearest(wall_rvalue, (19, 21, 27, 33, 38))
             else:
                 wallconstype = 'wf'
-                rvalue = round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+                rvalue = _round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
             hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
             try:
                 sidingtype = sidingmap[hpxmlsiding]
@@ -169,13 +184,13 @@ class HPXMLtoHEScoreTranslator(object):
             rvalue = 0
             for lyr in hpxmlwall.xpath('h:Insulation/h:Layer', namespaces=ns):
                 rvalue += float(xpath(lyr, 'h:NominalRValue/text()'))
-            rvalue = round_to_nearest(rvalue, (0, 5, 10))
+            rvalue = _round_to_nearest(rvalue, (0, 5, 10))
         elif wall_type in ('ConcreteMasonryUnit', 'Stone'):
             wallconstype = 'cb'
             rvalue = 0
             for lyr in hpxmlwall.xpath('h:Insulation/h:Layer', namespaces=ns):
                 rvalue += float(xpath(lyr, 'h:NominalRValue/text()'))
-            rvalue = round_to_nearest(rvalue, (0, 3, 6))
+            rvalue = _round_to_nearest(rvalue, (0, 3, 6))
             hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
             if hpxmlsiding is None:
                 sidingtype = 'nn'
@@ -190,7 +205,7 @@ class HPXMLtoHEScoreTranslator(object):
             rvalue = 0
             sidingtype = 'st'
         else:
-            raise TranslationError('Wall type %s not supported' % wall_type)
+            raise TranslationError('Wall type %s not supported, wall id: %s' % (wall_type, wallid))
 
         return 'ew%s%02d%s' % (wallconstype, rvalue, sidingtype)
 
