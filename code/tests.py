@@ -108,6 +108,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         etree.SubElement(walltype, tr.addns('h:ConcreteMasonryUnit'))
         siding = self.xpath('//h:Wall[1]/h:Siding')
         siding.text = 'vinyl siding'
+        rvalue = self.xpath('//h:Wall[1]/h:Insulation/h:Layer[1]/h:NominalRValue')
+        rvalue.text = '3'
         self.assertRaisesRegexp(TranslationError,
                                 r'is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. It has a siding type of vinyl siding',
                                 tr.hpxml_to_hescore_dict)
@@ -572,8 +574,11 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         wood_stud_wall_type = self.xpath('//h:Wall[1]/h:WallType/h:WoodStud')
         etree.SubElement(wood_stud_wall_type, tr.addns('h:OptimumValueEngineering')).text = 'true'
         self.xpath('//h:Wall[1]/h:Insulation/h:Layer[h:InstallationType="cavity"]/h:NominalRValue').text = '0'
-        b = tr.hpxml_to_hescore_dict()
-        self.assertEquals(b['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewov19br')
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'Envelope construction not supported',
+            tr.hpxml_to_hescore_dict
+        )
 
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
