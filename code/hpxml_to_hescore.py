@@ -75,8 +75,17 @@ def unspin_azimuth(azimuth):
     return azimuth
 
 
-def round_to_nearest(x, vals):
-    return min(vals, key=lambda y: abs(x - y))
+class RoundOutOfBounds(TranslationError):
+    pass
+
+
+def round_to_nearest(x, vals, tails_tolerance=None):
+    nearest = min(vals, key=lambda y: abs(x - y))
+    if tails_tolerance is not None:
+        if x < min(vals) or x > max(vals):
+            if abs(x - nearest) > tails_tolerance:
+                raise RoundOutOfBounds()
+    return nearest
 
 
 class HPXMLtoHEScoreTranslator(object):
@@ -134,6 +143,12 @@ class HPXMLtoHEScoreTranslator(object):
                      'masonite siding': 'wo',
                      'other': None}
 
+        def _round_to_nearest(*args):
+            try:
+                return round_to_nearest(*args, tails_tolerance=3)
+            except RoundOutOfBounds:
+                raise TranslationError('Envelope construction not supported, wall id: %s' % wallid)
+
         # construction type
         wall_type = xpath(hpxmlwall, 'name(h:WallType/*)')
         for layer in xpath(hpxmlwall, 'h:Insulation/h:Layer', aslist=True):
@@ -146,13 +161,13 @@ class HPXMLtoHEScoreTranslator(object):
                 wallconstype = 'ps'
                 # account for the rigid foam sheathing in the construction code
                 wall_rvalue -= 5
-                rvalue = round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+                rvalue = _round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
             elif tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:OptimumValueEngineering/text()')):
                 wallconstype = 'ov'
-                rvalue = round_to_nearest(wall_rvalue, (19, 21, 27, 33, 38))
+                rvalue = _round_to_nearest(wall_rvalue, (19, 21, 27, 33, 38))
             else:
                 wallconstype = 'wf'
-                rvalue = round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+                rvalue = _round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
             hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
             try:
                 sidingtype = sidingmap[hpxmlsiding]
@@ -169,13 +184,13 @@ class HPXMLtoHEScoreTranslator(object):
             rvalue = 0
             for lyr in hpxmlwall.xpath('h:Insulation/h:Layer', namespaces=ns):
                 rvalue += float(xpath(lyr, 'h:NominalRValue/text()'))
-            rvalue = round_to_nearest(rvalue, (0, 5, 10))
+            rvalue = _round_to_nearest(rvalue, (0, 5, 10))
         elif wall_type in ('ConcreteMasonryUnit', 'Stone'):
             wallconstype = 'cb'
             rvalue = 0
             for lyr in hpxmlwall.xpath('h:Insulation/h:Layer', namespaces=ns):
                 rvalue += float(xpath(lyr, 'h:NominalRValue/text()'))
-            rvalue = round_to_nearest(rvalue, (0, 3, 6))
+            rvalue = _round_to_nearest(rvalue, (0, 3, 6))
             hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
             if hpxmlsiding is None:
                 sidingtype = 'nn'
@@ -190,7 +205,7 @@ class HPXMLtoHEScoreTranslator(object):
             rvalue = 0
             sidingtype = 'st'
         else:
-            raise TranslationError('Wall type %s not supported' % wall_type)
+            raise TranslationError('Wall type %s not supported, wall id: %s' % (wall_type, wallid))
 
         return 'ew%s%02d%s' % (wallconstype, rvalue, sidingtype)
 
@@ -1258,14 +1273,13 @@ class HPXMLtoHEScoreTranslator(object):
                                                                         (2.3, 4.4, 8.4, 12.4, 14.4, 16.4, 20.4, 22.4),
                                                                         (2.2, 4.3, 8.3, 12.3, 14.3, 16.3, 20.3, 22.3),
                                                                         (2.1, 4.2, 8.2, 12.2, 14.2, 16.2, 20.2, 22.2),
-                                                                        (
-                                                                            2.9, 5.0, 9.0, 13.0, 15.0, 17.0, 21.0, 23.0)]]))
-        wall_eff_rvalues['ps'] = dict(zip(wall_ext_finish_types[:-1], [dict(zip((11, 13, 15, 19, 21), x))
-                                                                       for x in [(17.1, 19.1, 21.1, 25.1, 27.1),
-                                                                                 (16.4, 18.4, 20.4, 24.4, 26.4),
-                                                                                 (16.3, 18.3, 20.3, 24.3, 26.3),
-                                                                                 (16.2, 18.2, 20.2, 24.2, 26.2),
-                                                                                 (17.0, 19.0, 21.0, 25.0, 27.0)]]))
+                                                                        (2.9, 5.0, 9.0, 13.0, 15.0, 17.0, 21.0, 23.0)]]))
+        wall_eff_rvalues['ps'] = dict(zip(wall_ext_finish_types[:-1], [dict(zip((0, 3, 7, 11, 13, 15, 19, 21), x))
+                                                                       for x in [(6.1, 9.1, 13.1, 17.1, 19.1, 21.1, 25.1, 27.1),
+                                                                                 (5.4, 8.4, 12.4, 16.4, 18.4, 20.4, 24.4, 26.4),
+                                                                                 (5.3, 8.3, 12.3, 16.3, 18.3, 20.3, 24.3, 26.3),
+                                                                                 (5.2, 8.2, 12.2, 16.2, 18.2, 20.2, 24.2, 26.2),
+                                                                                 (6.0, 9.0, 13.0, 17.0, 19.0, 21.0, 25.0, 27.0)]]))
         wall_eff_rvalues['ov'] = dict(zip(wall_ext_finish_types[:-1], [dict(zip((19, 21, 27, 33, 38), x))
                                                                        for x in [(21.0, 23.0, 29.0, 35.0, 40.0),
                                                                                  (20.3, 22.3, 28.3, 34.3, 39.3),

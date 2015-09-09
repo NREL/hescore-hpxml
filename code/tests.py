@@ -108,6 +108,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         etree.SubElement(walltype, tr.addns('h:ConcreteMasonryUnit'))
         siding = self.xpath('//h:Wall[1]/h:Siding')
         siding.text = 'vinyl siding'
+        rvalue = self.xpath('//h:Wall[1]/h:Insulation/h:Layer[1]/h:NominalRValue')
+        rvalue.text = '3'
         self.assertRaisesRegexp(TranslationError,
                                 r'is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. It has a siding type of vinyl siding',
                                 tr.hpxml_to_hescore_dict)
@@ -548,6 +550,35 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         walls.append(wall2)
         # run translation
         tr.hpxml_to_hescore_dict()
+
+    def test_wall_construction_ps_low_r(self):
+        """
+        Unit test for #47
+        """
+        tr = self._load_xmlfile('hescore_min')
+        wallins = self.xpath('//h:Wall[1]/h:Insulation')
+        wallins.xpath('h:Layer[1]/h:NominalRValue[1]', namespaces=tr.ns)[0].text = '8'
+        newlayer = etree.SubElement(wallins, tr.addns('h:Layer'))
+        etree.SubElement(newlayer, tr.addns('h:InstallationType')).text = 'continuous'
+        insmat = etree.SubElement(newlayer, tr.addns('h:InsulationMaterial'))
+        etree.SubElement(insmat, tr.addns('h:Rigid')).text = 'eps'
+        etree.SubElement(newlayer, tr.addns('h:NominalRValue')).text = '5'
+        b = tr.hpxml_to_hescore_dict()
+        self.assertEquals(b['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewps07br')
+
+    def test_ove_low_r(self):
+        """
+        Make sure we pick the lowest construction code for walls
+        """
+        tr = self._load_xmlfile('hescore_min')
+        wood_stud_wall_type = self.xpath('//h:Wall[1]/h:WallType/h:WoodStud')
+        etree.SubElement(wood_stud_wall_type, tr.addns('h:OptimumValueEngineering')).text = 'true'
+        self.xpath('//h:Wall[1]/h:Insulation/h:Layer[h:InstallationType="cavity"]/h:NominalRValue').text = '0'
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'Envelope construction not supported',
+            tr.hpxml_to_hescore_dict
+        )
 
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):

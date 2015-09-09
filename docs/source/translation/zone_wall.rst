@@ -215,11 +215,11 @@ HPXMl ``Wall`` as described in :ref:`wall-construction`. The wall construction
 and exterior finish that represent the largest combined area are used to
 represent the side of the house. 
 
-A weighted R-value is calculated by looking up the center-of-cavity effective
+A weighted R-value is calculated by looking up the center-of-cavity
 R-value for the wall construction, exterior finish, and nominal R-value for
 each ``Wall`` from the following table.
 
-.. table:: Wall center-of-cavity effective R-values
+.. table:: Wall center-of-cavity R-values
 
    +---------+------------------+-------+------+---------+-------------+-----+
    |Exterior |Wood Siding       |Stucco |Vinyl |Aluminum |Brick Veneer |None |
@@ -245,6 +245,12 @@ each ``Wall`` from the following table.
    |R-21     |23.7              |22.4   |22.3  |22.2     |23.0         |     |
    +---------+------------------+-------+------+---------+-------------+-----+
    |**Wood Frame w/insulated sheathing**                                     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-0      |6.1               |5.4    |5.3   |5.2      |6.0          |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-3      |9.1               |8.4    |8.3   |8.2      |9.0          |     |
+   +---------+------------------+-------+------+---------+-------------+-----+
+   |R-7      |13.1              |12.4   |12.3  |12.2     |13.0         |     |
    +---------+------------------+-------+------+---------+-------------+-----+
    |R-11     |17.1              |16.4   |16.3  |16.2     |17.0         |     |
    +---------+------------------+-------+------+---------+-------------+-----+
@@ -301,7 +307,7 @@ Then a weighted average is calculated by weighting the U-values values by area.
    R_{eff,avg} &= \frac{1}{U_{eff,avg}} \\
    \end{align*}
 
-The R-0 effective center-of-cavity R-value (:math:`R_{offset}`) is selected for
+The R-0 center-of-cavity R-value (:math:`R_{offset}`) is selected for
 the highest weighted wall construction type represented in the calculation and
 is subtracted from :math:`R_{eff,avg}`. For construction types where there is
 no R-0 nominal value, the lowest nominal R-value is subtracted from the
