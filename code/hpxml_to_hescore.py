@@ -337,7 +337,7 @@ class HPXMLtoHEScoreTranslator(object):
                 except IndexError:
                     raise TranslationError(
                         'Heating efficiency could not be determined. ' +
-                        '{} must have a cooling efficiency with units of {} '.format(sys_heating['type'], eff_units) +
+                        '{} must have a heating efficiency with units of {} '.format(sys_heating['type'], eff_units) +
                         'or YearInstalled or ModelYear.'
                     )
             else:
