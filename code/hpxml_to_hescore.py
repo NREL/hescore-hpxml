@@ -320,7 +320,7 @@ class HPXMLtoHEScoreTranslator(object):
         if sys_heating['fuel_primary'] not in allowed_fuel_types[sys_heating['type']]:
             raise TranslationError('Heating system %(type)s cannot be used with fuel %(fuel_primary)s' % sys_heating)
 
-        if not ((sys_heating['type'] in ('furnace', 'baseboard') and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
+        if not ((sys_heating['type'] in ('central_furnace', 'baseboard') and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
             eff_units = {'heat_pump': 'HSPF',
                          'central_furnace': 'AFUE',
                          'wall_furnace': 'AFUE',
@@ -1883,7 +1883,7 @@ class HPXMLtoHEScoreTranslator(object):
                                         sys_heating['year'],
                                         1970, this_year)
                 else:
-                    if not ((sys_heating['type'] in ('furnace', 'baseboard') and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
+                    if not ((sys_heating['type'] in ('central_furnace', 'baseboard') and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
                         raise TranslationError('Heating system %(fuel_primary)s %(type)s needs an efficiency value.' % sys_heating)
 
             sys_cooling = sys_hvac['cooling']

@@ -580,6 +580,48 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             tr.hpxml_to_hescore_dict
         )
 
+    def test_heating_system_no_efficiency(self):
+        """
+        #50
+        Some heating systems should ignore the efficiency value.
+        Make sure that's happening.
+        """
+        tr = self._load_xmlfile('hescore_min')
+        htgsys_fuel = self.xpath('//h:HeatingSystem[1]/h:HeatingSystemFuel')
+        htgsys_fuel.text = 'electricity'
+        annual_heating_eff = self.xpath('//h:HeatingSystem[1]/h:AnnualHeatingEfficiency')
+        d = tr.hpxml_to_hescore_dict()
+        self.assertNotIn(
+            'efficiency',
+            d['building']['systems']['hvac'][0]['heating'],
+            'Electric furnace should not have an efficiency.'
+        )
+        annual_heating_eff.getparent().remove(annual_heating_eff)
+        d = tr.hpxml_to_hescore_dict()
+        self.assertNotIn(
+            'efficiency',
+            d['building']['systems']['hvac'][0]['heating'],
+            'Electric furnace should not have an efficiency.'
+        )
+        htgsys_fuel.text = 'wood'
+        htgsys_type = self.xpath('//h:HeatingSystem[1]/h:HeatingSystemType')
+        htgsys_type.clear()
+        etree.SubElement(htgsys_type, tr.addns('h:Stove'))
+        d = tr.hpxml_to_hescore_dict()
+        self.assertNotIn(
+            'efficiency',
+            d['building']['systems']['hvac'][0]['heating'],
+            'Wood stove should not have an efficiency.'
+        )
+        htgsys = self.xpath('//h:HeatingSystem[1]')
+        htgsys.append(annual_heating_eff)
+        d = tr.hpxml_to_hescore_dict()
+        self.assertNotIn(
+            'efficiency',
+            d['building']['systems']['hvac'][0]['heating'],
+            'Wood stove should not have an efficiency.'
+        )
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 
