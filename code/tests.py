@@ -622,6 +622,20 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             'Wood stove should not have an efficiency.'
         )
 
+    def test_zipcode_missing(self):
+        """
+        #51 Should error out when zipcode is missing.
+        :return:
+        """
+        tr = self._load_xmlfile('hescore_min')
+        zipcode_el = self.xpath('//h:Building/h:Site/h:Address[h:AddressType="street"]/h:ZipCode')
+        zipcode_el.getparent().remove(zipcode_el)
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'ZipCode missing',
+            tr.hpxml_to_hescore_dict
+        )
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 

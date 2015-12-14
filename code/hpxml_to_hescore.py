@@ -679,6 +679,8 @@ class HPXMLtoHEScoreTranslator(object):
         bldgaddr['city'] = xpath(b, 'h:Site/h:Address/h:CityMunicipality/text()')
         bldgaddr['state'] = xpath(b, 'h:Site/h:Address/h:StateCode/text()')
         bldgaddr['zip_code'] = xpath(b, 'h:Site/h:Address/h:ZipCode/text()')
+        if bldgaddr['zip_code'] is None:
+            raise TranslationError('ZipCode missing.')
         transaction_type = xpath(self.hpxmldoc, 'h:XMLTransactionHeaderInformation/h:Transaction/text()')
         is_mentor = xpath(b, 'boolean(h:ProjectStatus/h:extension/h:HEScoreMentorAssessment)')
         if is_mentor:
