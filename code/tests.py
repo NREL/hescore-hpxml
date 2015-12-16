@@ -77,13 +77,53 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
     def test_townhouse_walls(self):
         self._do_full_compare('townhouse_walls')
 
-    def test_townhouse_wall_fail(self):
+    def test_townhouse_window_fail(self):
         tr = self._load_xmlfile('townhouse_walls')
         el = self.xpath('//h:Window/h:Orientation[text()="south"]')
-        el.text = 'east'
+        el.text = 'west'
         self.assertRaisesRegexp(TranslationError,
                                 r'The house has windows on shared walls\.',
                                 tr.hpxml_to_hescore_dict)
+
+    def test_townhouse_walls_all_same(self):
+        tr = self._load_xmlfile('townhouse_walls')
+        # Remove other walls
+        for el in self.xpath('//h:Wall[h:SystemIdentifier/@id!="wall1"]'):
+            el.getparent().remove(el)
+        # Remove the orientation of the first one
+        wall1_orientation = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall1"]/h:Orientation')
+        wall1_orientation.getparent().remove(wall1_orientation)
+        # This means that the interpreter should assume all walls are like the first wall.
+        d = tr.hpxml_to_hescore_dict()
+        # Check to make sure we're not getting any walls facing directions that are attached to adjacent to other units.
+        for wall in d['building']['zone']['zone_wall']:
+            self.assertIn(wall['side'], ['front', 'back', 'left'])
+
+    def test_townhouse_window_wall_all_same_fail(self):
+        tr = self._load_xmlfile('townhouse_walls')
+        # Remove other walls
+        for el in self.xpath('//h:Wall[h:SystemIdentifier/@id!="wall1"]'):
+            el.getparent().remove(el)
+        # Remove the orientation of the first one
+        wall1_orientation = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall1"]/h:Orientation')
+        wall1_orientation.getparent().remove(wall1_orientation)
+        # This means that the interpreter should assume all walls are like the first wall.
+        el = self.xpath('//h:Window/h:Orientation[text()="south"]')
+        el.text = 'west'
+        self.assertRaisesRegexp(TranslationError,
+                                r'The house has windows on shared walls\.',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_townhouse_walls_conflict(self):
+        tr = self._load_xmlfile('townhouse_walls')
+        # move a wall to the west (attached) side
+        el = self.xpath('//h:Wall[1]/h:Orientation')
+        el.text = 'west'
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'The house has walls defined for sides ((front|right|left|back)(, )?)+ and shared walls on sides ((front|right|left|back)(, )?)+',
+            tr.hpxml_to_hescore_dict
+        )
 
     def test_missing_siding(self):
         tr = self._load_xmlfile('hescore_min')

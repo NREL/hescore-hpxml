@@ -10,7 +10,7 @@
     "about": {
       "assessment_date": "2014-12-02", 
       "shape": "town_house", 
-      "town_house_walls": "back_right_front", 
+      "town_house_walls": "back_front_left", 
       "year_built": 1961, 
       "number_bedrooms": 4, 
       "num_floor_above_grade": 2, 
@@ -60,27 +60,18 @@
         }, 
         {
           "side": "left", 
-          "wall_assembly_code": "ewwf11br", 
+          "wall_assembly_code": "ewwf19wo", 
           "zone_window": {
-            "window_area": 0, 
-            "window_method": "code", 
-            "window_code": "scna"
-          }
-        }, 
-        {
-          "side": "back", 
-          "wall_assembly_code": "ewwf11br", 
-          "zone_window": {
-            "window_area": 3.0, 
+            "window_area": 4.0, 
             "window_method": "code", 
             "window_code": "dcaw"
           }
         }, 
         {
-          "side": "right", 
-          "wall_assembly_code": "ewwf11br", 
+          "side": "back", 
+          "wall_assembly_code": "ewwf15vi", 
           "zone_window": {
-            "window_area": 4.0, 
+            "window_area": 3.0, 
             "window_method": "code", 
             "window_code": "dcaw"
           }

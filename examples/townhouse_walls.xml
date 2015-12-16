@@ -98,12 +98,43 @@
                         <WallType>
                             <WoodStud/>
                         </WallType>
+                        <Orientation>north</Orientation>
                         <Siding>brick veneer</Siding>
                         <Insulation>
                             <SystemIdentifier id="wall1ins"/>
                             <Layer>
                                 <InstallationType>cavity</InstallationType>
                                 <NominalRValue>11</NominalRValue>
+                            </Layer>
+                        </Insulation>
+                    </Wall>
+                    <Wall>
+                        <SystemIdentifier id="wall2"/>
+                        <WallType>
+                            <WoodStud/>
+                        </WallType>
+                        <Orientation>south</Orientation>
+                        <Siding>vinyl siding</Siding>
+                        <Insulation>
+                            <SystemIdentifier id="wall2ins"/>
+                            <Layer>
+                                <InstallationType>cavity</InstallationType>
+                                <NominalRValue>15</NominalRValue>
+                            </Layer>
+                        </Insulation>
+                    </Wall>
+                    <Wall>
+                        <SystemIdentifier id="wall3"/>
+                        <WallType>
+                            <WoodStud/>
+                        </WallType>
+                        <Orientation>east</Orientation>
+                        <Siding>wood siding</Siding>
+                        <Insulation>
+                            <SystemIdentifier id="wall3ins"/>
+                            <Layer>
+                                <InstallationType>cavity</InstallationType>
+                                <NominalRValue>19</NominalRValue>
                             </Layer>
                         </Insulation>
                     </Wall>
@@ -128,7 +159,7 @@
                     <Window>
                         <SystemIdentifier id="window4"/>
                         <Area>4</Area>
-                        <Orientation>west</Orientation>
+                        <Orientation>east</Orientation>
                         <FrameType>
                             <Vinyl/>
                         </FrameType>

@@ -46,15 +46,6 @@
       "window_construction_same": false, 
       "zone_wall": [
         {
-          "side": "left", 
-          "wall_assembly_code": "ewbr00nn", 
-          "zone_window": {
-            "window_area": 0, 
-            "window_method": "code", 
-            "window_code": "scna"
-          }
-        }, 
-        {
           "side": "back", 
           "wall_assembly_code": "ewbr00nn", 
           "zone_window": {
@@ -64,21 +55,12 @@
           }
         }, 
         {
-          "side": "right", 
+          "side": "front", 
           "wall_assembly_code": "ewbr00nn", 
           "zone_window": {
             "window_area": 0, 
             "window_method": "code", 
             "window_code": "scna"
-          }
-        }, 
-        {
-          "side": "front", 
-          "wall_assembly_code": "ewbr00nn", 
-          "zone_window": {
-            "window_area": 112.0, 
-            "window_method": "code", 
-            "window_code": "dcaw"
           }
         }
       ]

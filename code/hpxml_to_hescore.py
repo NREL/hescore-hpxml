@@ -733,8 +733,6 @@ class HPXMLtoHEScoreTranslator(object):
             raise TranslationError(
                 'Cannot translate HPXML ResidentialFacilityType of %s into HEScore building shape' % residential_facility_type)
         if bldg_about['shape'] == 'town_house':
-            # TODO: what to do with a house that is attached on three sides?
-            # TODO: pull this info from the geometry
             hpxml_surroundings = xpath(b, 'h:BuildingDetails/h:BuildingSummary/h:Site/h:Surroundings/text()')
             try:
                 bldg_about['town_house_walls'] = {'stand-alone': None,
@@ -1255,12 +1253,14 @@ class HPXMLtoHEScoreTranslator(object):
                     hpxmlwalls[wall_side].append(walld)
 
         if len(hpxmlwalls['noside']) > 0 and map(len, [hpxmlwalls[key] for key in sidemap.values()]) == ([0] * 4):
+            all_walls_same = True
             # if none of the walls have orientation information
             # copy the walls to all sides
             for side in sidemap.values():
                 hpxmlwalls[side] = hpxmlwalls['noside']
             del hpxmlwalls['noside']
         else:
+            all_walls_same = False
             # make sure all of the walls have an orientation
             if len(hpxmlwalls['noside']) > 0:
                 raise TranslationError('Some of the HPXML walls have orientation information and others do not.')
@@ -1297,6 +1297,8 @@ class HPXMLtoHEScoreTranslator(object):
 
         # build HEScore walls
         for side in sidemap.values():
+            if len(hpxmlwalls[side]) == 0:
+                continue
             heswall = OrderedDict()
             heswall['side'] = side
             if len(hpxmlwalls[side]) == 1 and hpxmlwalls[side][0]['area'] is None:
@@ -1322,8 +1324,6 @@ class HPXMLtoHEScoreTranslator(object):
             except KeyError:
                 rvalue, eff_rvalue = min(wall_eff_rvalues[const_type][ext_finish].items(), key=lambda x: x[0])
                 roffset = eff_rvalue - rvalue
-            # if const_type == 'ps':
-            #                 roffset += 4.16
             rvalueavgeff = walltotalarea / wallua
             rvalueavgnom = rvalueavgeff - roffset
             comb_rvalue = min(wall_eff_rvalues[const_type][ext_finish].keys(),
@@ -1382,22 +1382,54 @@ class HPXMLtoHEScoreTranslator(object):
                 windowd['area'] /= float(len(window_sides))
                 hpxmlwindows[window_side].append(dict(windowd))
 
-        # Make sure the windows aren't on shared walls if it's a townhouse.
+        def get_shared_wall_sides():
+            return set(sidemap.values()) - set(bldg_about['town_house_walls'].split('_'))
+
         def windows_are_on_shared_walls():
-            shared_wall_sides = set(sidemap.values()) - set(bldg_about['town_house_walls'].split('_'))
+            shared_wall_sides = get_shared_wall_sides()
             for side in shared_wall_sides:
                 if len(hpxmlwindows[side]) > 0:
                     return True
             return False
 
         if bldg_about['shape'] == 'town_house':
-            window_on_shared_wall_fail = windows_are_on_shared_walls()
-            if window_on_shared_wall_fail:
-                if bldg_about['town_house_walls'] == 'back_right_front':
-                    bldg_about['town_house_walls'] = 'back_front_left'
-                    window_on_shared_wall_fail = windows_are_on_shared_walls()
-            if window_on_shared_wall_fail:
-                raise TranslationError('The house has windows on shared walls.')
+            if all_walls_same:
+                # Check to make sure the windows aren't on shared walls.
+                window_on_shared_wall_fail = windows_are_on_shared_walls()
+                if window_on_shared_wall_fail:
+                    # Change which walls are shared and check again.
+                    if bldg_about['town_house_walls'] == 'back_right_front':
+                        bldg_about['town_house_walls'] = 'back_front_left'
+                        window_on_shared_wall_fail = windows_are_on_shared_walls()
+                if window_on_shared_wall_fail:
+                    raise TranslationError('The house has windows on shared walls.')
+                # Since there was one wall construction for the whole building,
+                # remove the construction for shared walls.
+                for side in get_shared_wall_sides():
+                    for heswall in zone_wall:
+                        if heswall['side'] == side:
+                            zone_wall.remove(heswall)
+                            break
+            else:
+                # Make sure that there are walls defined for each side of the house that isn't a shared wall.
+                sides_without_heswall = set(self.sidemap.values())
+                for heswall in zone_wall:
+                    sides_without_heswall.remove(heswall['side'])
+                shared_wall_fail = sides_without_heswall != get_shared_wall_sides()
+                if shared_wall_fail:
+                    # Change which walls are shared and check again.
+                    if bldg_about['town_house_walls'] == 'back_right_front':
+                        bldg_about['town_house_walls'] = 'back_front_left'
+                        shared_wall_fail = sides_without_heswall != get_shared_wall_sides()
+                if shared_wall_fail:
+                    raise TranslationError(
+                        'The house has walls defined for sides {} and shared walls on sides {}.'.format(
+                            ', '.join(set(self.sidemap.values()) - sides_without_heswall),
+                            ', '.join(get_shared_wall_sides())
+                        )
+                    )
+                if windows_are_on_shared_walls():
+                    raise TranslationError('The house has windows on shared walls.')
 
         # Determine the predominant window characteristics and create HEScore windows
         for side, windows in hpxmlwindows.items():
