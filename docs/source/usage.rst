@@ -36,7 +36,7 @@ An example of how to do this in Python is:
 
 Similar libraries and functionality exist in many languages.
 
-Much more information on how to use the HEScore API including the ``submit_hpxml_inputs`` method is available on the `LBL Home Energy Scoring Tool API Documentation site <https://developers.buildingsapi.lbl.gov/hescore>`_.
+Much more information on how to use the HEScore API including the ``submit_hpxml_inputs`` method is available on the `Home Energy Scoring Tool API Documentation site <http://hes-documentation.labworks.org/home>`_.
 
 .. _stand-alone:
 
