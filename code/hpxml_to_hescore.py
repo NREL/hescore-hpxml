@@ -1365,7 +1365,6 @@ class HPXMLtoHEScoreTranslator(object):
                 try:
                     wndw_azimuth = self.get_nearest_azimuth(xpath(hpxmlwndw, 'h:Azimuth/text()'),
                                                             xpath(hpxmlwndw, 'h:Orientation/text()'))
-                    window_sides = [sidemap[wndw_azimuth]]
                 except TranslationError:
                     # there's no directional information in the window
                     raise TranslationError(
@@ -1435,9 +1434,13 @@ class HPXMLtoHEScoreTranslator(object):
         for side, windows in hpxmlwindows.items():
 
             # Add to the correct wall
+            wall_found = False
             for heswall in zone_wall:
                 if heswall['side'] == side:
+                    wall_found = True
                     break
+            if not wall_found:
+                continue
 
             zone_window = OrderedDict()
             heswall['zone_window'] = zone_window

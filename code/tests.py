@@ -125,6 +125,34 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             tr.hpxml_to_hescore_dict
         )
 
+    def test_townhouse_windows_area_wrong(self):
+        tr = self._load_xmlfile('townhouse_walls')
+        el = self.xpath('//h:OrientationOfFrontOfHome')
+        el.text = 'west'
+        for wall in self.xpath('//h:Wall/h:Orientation'):
+            if wall.text == 'north':
+                wall.text = 'west'
+        for i, window in enumerate(self.xpath('//h:Window')):
+            if i == 0:
+                window.xpath('h:Area', namespaces=tr.ns)[0].text = '20'
+                window.xpath('h:Orientation', namespaces=tr.ns)[0].text = 'west'
+            elif i == 1:
+                window.xpath('h:Area', namespaces=tr.ns)[0].text = '4'
+                window.xpath('h:Orientation', namespaces=tr.ns)[0].text = 'south'
+            else:
+                window.getparent().remove(window)
+        hesd = tr.hpxml_to_hescore_dict()
+        walls_found = set()
+        for wall in hesd['building']['zone']['zone_wall']:
+            walls_found.add(wall['side'])
+            if wall['side'] == 'front':
+                self.assertEqual(wall['zone_window']['window_area'], 20)
+            elif wall['side'] == 'right':
+                self.assertEqual(wall['zone_window']['window_area'], 4)
+            elif wall['side'] == 'back':
+                self.assertEqual(wall['zone_window']['window_area'], 0)
+        self.assertEqual(set(['front', 'right', 'back']), walls_found)
+
     def test_missing_siding(self):
         tr = self._load_xmlfile('hescore_min')
         siding = self.xpath('//h:Wall[1]/h:Siding')
