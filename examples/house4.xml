@@ -436,7 +436,7 @@
                         <HeatPump>
                             <SystemIdentifier id="heatpump1"/>
                             <YearInstalled>2005</YearInstalled><!-- when the addition was built -->
-                            <HeatPumpType>air-to-air</HeatPumpType>
+                            <HeatPumpType>mini-split</HeatPumpType>
                             <HeatingCapacity>18000</HeatingCapacity><!-- 1.5 ton -->
                             <CoolingCapacity>18000</CoolingCapacity><!-- 1.5 ton -->
                             <FloorAreaServed>600</FloorAreaServed>

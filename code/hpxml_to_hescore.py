@@ -280,7 +280,7 @@ class HPXMLtoHEScoreTranslator(object):
     heat_pump_type_map = {'water-to-air': 'gchp',
                           'water-to-water': 'gchp',
                           'air-to-air': 'heat_pump',
-                          'mini-split': 'heat_pump',
+                          'mini-split': 'mini_split',
                           'ground-to-air': 'gchp'}
 
     def _get_heating_system_type(self, htgsys):
@@ -309,6 +309,7 @@ class HPXMLtoHEScoreTranslator(object):
                 raise TranslationError('HEScore does not support the HPXML HeatingSystemType %s' % hpxml_heating_type)
 
         allowed_fuel_types = {'heat_pump': ('electric',),
+                              'mini_split': ('electric',),
                               'central_furnace': ('natural_gas', 'lpg', 'fuel_oil', 'electric'),
                               'wall_furnace': ('natural_gas',),
                               'baseboard': ('electric',),
@@ -322,6 +323,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         if not ((sys_heating['type'] in ('central_furnace', 'baseboard') and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
             eff_units = {'heat_pump': 'HSPF',
+                         'mini_split': 'HSPF',
                          'central_furnace': 'AFUE',
                          'wall_furnace': 'AFUE',
                          'boiler': 'AFUE',
@@ -353,8 +355,6 @@ class HPXMLtoHEScoreTranslator(object):
         xpath = self.xpath
         ns = self.ns
 
-        hpxml_cooling_type = None
-
         sys_cooling = OrderedDict()
         if clgsys.tag.endswith('HeatPump'):
             heat_pump_type = xpath(clgsys, 'h:HeatPumpType/text()')
@@ -369,13 +369,14 @@ class HPXMLtoHEScoreTranslator(object):
                 sys_cooling['type'] = {'central air conditioning': 'split_dx',
                                        'room air conditioner': 'packaged_dx',
                                        'mini-split': 'split_dx',
-                                       'evaporative cooler': 'split_dx'}[hpxml_cooling_type]
+                                       'evaporative cooler': 'dec'}[hpxml_cooling_type]
             except KeyError:
                 raise TranslationError('HEScore does not support the HPXML CoolingSystemType %s' % hpxml_cooling_type)
         # cooling efficiency
         eff_units = {'split_dx': 'SEER',
                      'packaged_dx': 'EER',
                      'heat_pump': 'SEER',
+                     'mini_split': 'SEER',
                      'gchp': 'EER',
                      'dec': None,
                      'iec': None,
@@ -384,26 +385,22 @@ class HPXMLtoHEScoreTranslator(object):
             clgeffxpathexpr = '(h:AnnualCoolingEfficiency|h:AnnualCoolEfficiency)[h:Units=$effunits]/h:Value/text()'
             eff_els = clgsys.xpath(clgeffxpathexpr, namespaces=ns,
                                    effunits=eff_units)
-        else:
-            eff_els = []
-        if hpxml_cooling_type == 'evaporative cooler':
-            sys_cooling['efficiency_method'] = 'user'
-            sys_cooling['efficiency'] = 28 # SEER 28 for evap coolers
-        elif len(eff_els) == 0:
-            # Use the year instead
-            sys_cooling['efficiency_method'] = 'shipment_weighted'
-            try:
-                sys_cooling['year'] = int(clgsys.xpath('(h:YearInstalled|h:ModelYear)/text()', namespaces=ns)[0])
-            except IndexError:
-                raise TranslationError(
-                    'Cooling efficiency could not be determined. ' +
-                    '{} must have a cooling efficiency with units of {} '.format(sys_cooling['type'], eff_units) +
-                    'or YearInstalled or ModelYear.'
-                )
-        else:
-            # Use the efficiency of the first element found.
-            sys_cooling['efficiency_method'] = 'user'
-            sys_cooling['efficiency'] = float(eff_els[0])
+            if len(eff_els) == 0:
+                # Use the year instead
+                sys_cooling['efficiency_method'] = 'shipment_weighted'
+                try:
+                    sys_cooling['year'] = int(clgsys.xpath('(h:YearInstalled|h:ModelYear)/text()', namespaces=ns)[0])
+                except IndexError:
+                    raise TranslationError(
+                        'Cooling efficiency could not be determined. ' +
+                        '{} must have a cooling efficiency with units of {} '.format(sys_cooling['type'], eff_units) +
+                        'or YearInstalled or ModelYear.'
+                    )
+            else:
+                # Use the efficiency of the first element found.
+                sys_cooling['efficiency_method'] = 'user'
+                sys_cooling['efficiency'] = float(eff_els[0])
+
         sys_cooling['_capacity'] = convert_to_type(float, xpath(clgsys, 'h:CoolingCapacity/text()'))
         sys_cooling['_fracload'] = convert_to_type(float, xpath(clgsys, 'h:FractionCoolLoadServed/text()'))
         sys_cooling['_floorarea'] = convert_to_type(float, xpath(clgsys, 'h:FloorAreaServed/text()'))
@@ -639,6 +636,9 @@ class HPXMLtoHEScoreTranslator(object):
         bldg['systems'] = OrderedDict()
         bldg['systems']['hvac'] = self._get_hvac(b)
         bldg['systems']['domestic_hot_water'] = self._get_systems_dhw(b)
+        generation = self._get_generation(b)
+        if generation:
+            bldg['systems']['generation'] = generation
         self._remove_hidden_keys(hescore_inputs)
 
         # Validate
@@ -1513,7 +1513,7 @@ class HPXMLtoHEScoreTranslator(object):
         # Get all the duct systems
         hpxml_distribution_systems = _get_dict_of_hpxml_elements_by_id('descendant::h:HVACDistribution')
 
-        # Connect the the heating and cooling systems to their associated distribution systems
+        # Connect the heating and cooling systems to their associated distribution systems
         def _get_duct_mapping(element_list):
             return_dict = {}
             for system_id, el in element_list.items():
@@ -1631,6 +1631,8 @@ class HPXMLtoHEScoreTranslator(object):
         singleton_heating_systems -= singletons_to_combine
         singleton_cooling_systems -= singletons_to_combine
         for heatpump_id in singletons_to_combine:
+            if heating_systems[heatpump_id]['type'] != 'mini_split' or cooling_systems[heatpump_id]['type'] != 'mini_split':
+                continue
             dummy_duct_id = str(uuid.uuid4())
             dist_heating_cooling_map[dummy_duct_id] = (heatpump_id, heatpump_id)
             dist_heating_map[dummy_duct_id] = heatpump_id
@@ -1836,6 +1838,53 @@ class HPXMLtoHEScoreTranslator(object):
                 sys_dhw['year'] = dhwyear
         return sys_dhw
 
+    def _get_generation(self, b):
+        generation = OrderedDict()
+        pvsystems = self.xpath(b, 'descendant::h:PVSystem', aslist=True)
+        if not pvsystems:
+            return generation
+
+        solar_electric = OrderedDict()
+        generation['solar_electric'] = solar_electric
+
+        capacities = []
+        years = []
+        azimuths = []
+        for pvsystem in pvsystems:
+
+            max_power_output = self.xpath(pvsystem, 'h:MaxPowerOutput/text()')
+            if max_power_output:
+                capacities.append(float(max_power_output))  # W
+            else:
+                raise TranslationError('MaxPowerOutput is required for every PVSystem.')
+
+            manufacture_years = map(int, self.xpath(pvsystem, 'h:YearInverterManufactured/text()|h:YearModulesManufactured/text()', aslist=True))
+            if manufacture_years:
+                years.append(max(manufacture_years))  # Use the latest year of manufacture
+            else:
+                raise TranslationError('Either YearInverterManufactured or YearModulesManufactured is required foe every PVSystem.')
+
+            azimuth = self.xpath(pvsystem, 'h:ArrayAzimuth/text()')
+            orientation = self.xpath(pvsystem, 'h:ArrayOrientation/text()')
+            if azimuth:
+                azimuths.append(int(azimuth))
+            elif orientation:
+                azimuths.append(self.hpxml_orientation_to_azimuth[orientation])
+            else:
+                raise TranslationError('ArrayAzimuth or ArrayOrientation is required for every PVSystem.')
+
+        solar_electric['capacity_known'] = True
+        total_capacity = sum(capacities)
+        solar_electric['system_capacity'] = total_capacity / 1000.
+        solar_electric['year'] = int(sum([year * capacity for year, capacity in zip(years, capacities)]) / total_capacity)
+
+        wtavg_azimuth = sum([azimuth * capacity for azimuth, capacity in zip(azimuths, capacities)]) / total_capacity
+        nearest_azimuth = self.get_nearest_azimuth(azimuth=wtavg_azimuth)
+        direction_map = dict([(value, key) for key, value in self.hpxml_orientation_to_azimuth.items()])
+        solar_electric['array_azimuth'] = direction_map[nearest_azimuth]
+
+        return generation
+
     def _validate_hescore_inputs(self, hescore_inputs):
 
         def do_bounds_check(fieldname, value, minincl, maxincl):
@@ -1924,7 +1973,7 @@ class HPXMLtoHEScoreTranslator(object):
                         raise TranslationError('Heating system %(fuel_primary)s %(type)s needs an efficiency value.' % sys_heating)
 
             sys_cooling = sys_hvac['cooling']
-            if sys_cooling['type'] != 'none':
+            if sys_cooling['type'] not in ('none', 'dec'):
                 if sys_cooling['efficiency_method'] == 'user':
                     do_bounds_check('cooling_efficiency',
                                     sys_cooling['efficiency'],
