@@ -14,4 +14,4 @@ Contents:
    zone_window
    hvac
    domestic_hot_water
-   
+   generation
