@@ -30,7 +30,7 @@ import os
 # ones.
 extensions = [
     'sphinx.ext.todo',
-    'sphinx.ext.imgmath',
+    'sphinx.ext.pngmath',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
