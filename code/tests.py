@@ -1116,13 +1116,13 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
 
     def test_pv(self):
         tr = self._load_xmlfile('hescore_min')
-        self._add_pv()
+        self._add_pv(orientation='southeast', azimuth=None)
         hesd = tr.hpxml_to_hescore_dict()
         pv = hesd['building']['systems']['generation']['solar_electric']
         self.assertTrue(pv['capacity_known'])
         self.assertEqual(pv['system_capacity'], 5)
         self.assertEqual(pv['year'], 2015)
-        self.assertEqual(pv['array_azimuth'], 'south')
+        self.assertEqual(pv['array_azimuth'], 'south_east')
 
     def test_capacity_missing(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1165,7 +1165,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
         hesd = tr.hpxml_to_hescore_dict()
         pv = hesd['building']['systems']['generation']['solar_electric']
         self.assertEqual(pv['system_capacity'], 10)
-        self.assertEqual(pv['array_azimuth'], 'southwest')
+        self.assertEqual(pv['array_azimuth'], 'south_west')
         self.assertEqual(pv['year'], 2014)
 
 

@@ -558,14 +558,27 @@ class HPXMLtoHEScoreTranslator(object):
                 siding_el.text = 'stucco'
                 self.insert_element_in_order(wall, siding_el, wall_element_order)
 
-    hpxml_orientation_to_azimuth = {'north': 0,
-                                    'northeast': 45,
-                                    'east': 90,
-                                    'southeast': 135,
-                                    'south': 180,
-                                    'southwest': 225,
-                                    'west': 270,
-                                    'northwest': 315}
+    hpxml_orientation_to_azimuth = {
+        'north': 0,
+        'northeast': 45,
+        'east': 90,
+        'southeast': 135,
+        'south': 180,
+        'southwest': 225,
+        'west': 270,
+        'northwest': 315
+    }
+
+    azimuth_to_hescore_orientation = {
+        0: 'north',
+        45: 'north_east',
+        90: 'east',
+        135: 'south_east',
+        180: 'south',
+        225: 'south_west',
+        270: 'west',
+        315: 'north_west'
+    }
 
     fuel_type_mapping = {'electricity': 'electric',
                          'renewable electricity': 'electric',
@@ -767,14 +780,7 @@ class HPXMLtoHEScoreTranslator(object):
         site_el = xpath(b, 'h:BuildingDetails/h:BuildingSummary/h:Site')
         house_azimuth = self.get_nearest_azimuth(xpath(site_el, 'h:AzimuthOfFrontOfHome/text()'),
                                                  xpath(site_el, 'h:OrientationOfFrontOfHome/text()'))
-        bldg_about['orientation'] = {0: 'north',
-                                     45: 'north_east',
-                                     90: 'east',
-                                     135: 'south_east',
-                                     180: 'south',
-                                     225: 'south_west',
-                                     270: 'west',
-                                     315: 'north_west'}[house_azimuth]
+        bldg_about['orientation'] = self.azimuth_to_hescore_orientation[house_azimuth]
         self.sidemap = {house_azimuth: 'front', (house_azimuth + 90) % 360: 'left',
                         (house_azimuth + 180) % 360: 'back', (house_azimuth + 270) % 360: 'right'}
 
@@ -1880,8 +1886,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         wtavg_azimuth = sum([azimuth * capacity for azimuth, capacity in zip(azimuths, capacities)]) / total_capacity
         nearest_azimuth = self.get_nearest_azimuth(azimuth=wtavg_azimuth)
-        direction_map = dict([(value, key) for key, value in self.hpxml_orientation_to_azimuth.items()])
-        solar_electric['array_azimuth'] = direction_map[nearest_azimuth]
+        solar_electric['array_azimuth'] = self.azimuth_to_hescore_orientation[nearest_azimuth]
 
         return generation
 
