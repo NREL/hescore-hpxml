@@ -1946,7 +1946,7 @@ class HPXMLtoHEScoreTranslator(object):
             if dhw['efficiency_method'] == 'user':
                 do_bounds_check('domestic_hot_water_energy_factor',
                                 dhw['energy_factor'],
-                                0.1, 3.0)
+                                0.1, 4.0)
             else:
                 assert dhw['efficiency_method'] == 'shipment_weighted'
                 do_bounds_check('domestic_hot_water_year',

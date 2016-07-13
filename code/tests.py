@@ -859,10 +859,13 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
     def test_dhw_efficiency(self):
         tr = self._load_xmlfile('house1')
         el = self.xpath('//h:WaterHeatingSystem/h:EnergyFactor')
-        el.text = '4'
+        el.text = '4.1'
         self.assertRaisesRegexp(InputOutOfBounds,
                                 'domestic_hot_water_energy_factor is out of bounds',
                                 tr.hpxml_to_hescore_dict)
+        el.text = '4.0'
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual(res['building']['systems']['domestic_hot_water']['energy_factor'], 4.0)
 
     def test_dhw_year(self):
         tr = self._load_xmlfile('hescore_min')
