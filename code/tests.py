@@ -899,10 +899,9 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         self.xpath('//h:CoolingSystem/h:CoolingSystemType').text = 'evaporative cooler'
         res = tr.hpxml_to_hescore_dict()
         clg_sys = res['building']['systems']['hvac'][0]['cooling']
-        # FIXME: uncomment in v2016 branch
-        # self.assertEqual(clg_sys['type'], 'dec')
-        # self.assertNotIn('efficiency', clg_sys.keys())
-        # self.assertNotIn('efficiency_method', clg_sys.keys())
+        self.assertEqual(clg_sys['type'], 'dec')
+        self.assertNotIn('efficiency', clg_sys.keys())
+        self.assertNotIn('efficiency_method', clg_sys.keys())
 
 
     def test_cooling_year(self):
