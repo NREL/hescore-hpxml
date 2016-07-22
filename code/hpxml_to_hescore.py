@@ -1854,6 +1854,7 @@ class HPXMLtoHEScoreTranslator(object):
         generation['solar_electric'] = solar_electric
 
         capacities = []
+        collector_areas = []
         years = []
         azimuths = []
         for pvsystem in pvsystems:
@@ -1861,8 +1862,14 @@ class HPXMLtoHEScoreTranslator(object):
             max_power_output = self.xpath(pvsystem, 'h:MaxPowerOutput/text()')
             if max_power_output:
                 capacities.append(float(max_power_output))  # W
+                collector_areas.append(None)
             else:
-                raise TranslationError('MaxPowerOutput is required for every PVSystem.')
+                capacities.append(None)
+                collector_area = self.xpath(pvsystem, 'h:CollectorArea/text()')
+                if collector_area:
+                    collector_areas.append(float(collector_area))
+                else:
+                    raise TranslationError('MaxPowerOutput or CollectorArea is required for every PVSystem.')
 
             manufacture_years = map(int, self.xpath(pvsystem, 'h:YearInverterManufactured/text()|h:YearModulesManufactured/text()', aslist=True))
             if manufacture_years:
@@ -1879,12 +1886,23 @@ class HPXMLtoHEScoreTranslator(object):
             else:
                 raise TranslationError('ArrayAzimuth or ArrayOrientation is required for every PVSystem.')
 
-        solar_electric['capacity_known'] = True
-        total_capacity = sum(capacities)
-        solar_electric['system_capacity'] = total_capacity / 1000.
-        solar_electric['year'] = int(sum([year * capacity for year, capacity in zip(years, capacities)]) / total_capacity)
+        if None not in capacities:
+            solar_electric['capacity_known'] = True
+            total_capacity = sum(capacities)
+            solar_electric['system_capacity'] = total_capacity / 1000.
+            solar_electric['year'] = int(sum([year * capacity for year, capacity in zip(years, capacities)]) / total_capacity)
+            wtavg_azimuth = sum(
+                [azimuth * capacity for azimuth, capacity in zip(azimuths, capacities)]) / total_capacity
+        elif None not in collector_areas:
+            solar_electric['capacity_known'] = False
+            total_area = sum(collector_areas)
+            solar_electric['num_panels'] = int(round(total_area / 17.6))
+            solar_electric['year'] = int(sum([year * area for year, area in zip(years, collector_areas)]) / total_area)
+            wtavg_azimuth = sum(
+                [azimuth * area for azimuth, area in zip(azimuths, collector_areas)]) / total_area
+        else:
+            raise TranslationError('Either a MaxPowerOutput must be specified for every PVSystem or CollectorArea must be specified for every PVSystem.')
 
-        wtavg_azimuth = sum([azimuth * capacity for azimuth, capacity in zip(azimuths, capacities)]) / total_capacity
         nearest_azimuth = self.get_nearest_azimuth(azimuth=wtavg_azimuth)
         solar_electric['array_azimuth'] = self.azimuth_to_hescore_orientation[nearest_azimuth]
 

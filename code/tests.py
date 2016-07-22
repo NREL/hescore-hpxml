@@ -1163,7 +1163,7 @@ class TestHVACFractions(unittest.TestCase, ComparatorBase):
 
 class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
 
-    def _add_pv(self, sysid='pv1', orientation='south', azimuth=180, capacity=5, inverter_year=2015, module_year=2013):
+    def _add_pv(self, sysid='pv1', orientation='south', azimuth=180, capacity=5, inverter_year=2015, module_year=2013, collector_area=None):
         addns = self.translator.addns
 
         def add_elem(parent, subname, text=None):
@@ -1185,6 +1185,8 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             add_elem(pv_system, 'ArrayAzimuth', azimuth)
         if capacity is not None:
             add_elem(pv_system, 'MaxPowerOutput', capacity * 1000)
+        if collector_area is not None:
+            add_elem(pv_system, 'CollectorArea', collector_area)
         if inverter_year is not None:
             add_elem(pv_system, 'YearInverterManufactured', inverter_year)
         if module_year is not None:
@@ -1196,6 +1198,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
         hesd = tr.hpxml_to_hescore_dict()
         pv = hesd['building']['systems']['generation']['solar_electric']
         self.assertTrue(pv['capacity_known'])
+        self.assertNotIn('num_panels', pv.keys())
         self.assertEqual(pv['system_capacity'], 5)
         self.assertEqual(pv['year'], 2015)
         self.assertEqual(pv['array_azimuth'], 'south_east')
@@ -1205,9 +1208,18 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
         self._add_pv(capacity=None)
         self.assertRaisesRegexp(
             TranslationError,
-            r'MaxPowerOutput is required',
+            r'MaxPowerOutput or CollectorArea is required',
             tr.hpxml_to_hescore_dict
         )
+
+    def test_collector_area(self):
+        tr = self._load_xmlfile('hescore_min')
+        self._add_pv(capacity=None, collector_area=176)
+        hesd = tr.hpxml_to_hescore_dict()
+        pv = hesd['building']['systems']['generation']['solar_electric']
+        self.assertFalse(pv['capacity_known'])
+        self.assertNotIn('capacity', pv.keys())
+        self.assertEqual(pv['num_panels'], 10)
 
     def test_orientation(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1244,9 +1256,15 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
         self.assertEqual(pv['array_azimuth'], 'south_west')
         self.assertEqual(pv['year'], 2014)
 
-
-
-
+    def test_two_sys_different_capacity_error(self):
+        tr = self._load_xmlfile('hescore_min')
+        self._add_pv('pv1', capacity=5, azimuth=None, orientation='south', inverter_year=None, module_year=2015)
+        self._add_pv('pv2', capacity=None, collector_area=50, azimuth=None, orientation='west', inverter_year=None, module_year=2013)
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'Either a MaxPowerOutput must be specified for every PVSystem or CollectorArea',
+            tr.hpxml_to_hescore_dict
+        )
 
 
 if __name__ == "__main__":
