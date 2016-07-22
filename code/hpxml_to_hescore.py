@@ -1962,27 +1962,28 @@ class HPXMLtoHEScoreTranslator(object):
         for sys_hvac in hescore_inputs['building']['systems']['hvac']:
 
             sys_heating = sys_hvac['heating']
-            if sys_heating['type'] != 'none':
+            if sys_heating['type'] not in ('none', 'baseboard', 'wood_stove'):
                 if 'efficiency_method' in sys_heating:
                     if sys_heating['efficiency_method'] == 'user':
-                        do_bounds_check('heating_efficiency',
-                                        sys_heating['efficiency'],
-                                        0.1, 20)
+                        if sys_heating['type'] in ('central_furnace', 'wall_furnace', 'boiler'):
+                            do_bounds_check('heating_efficiency', sys_heating['efficiency'], 0.6, 1)
+                        elif sys_heating['type'] in ('heat_pump', 'mini_split'):
+                            do_bounds_check('heating_efficiency', sys_heating['efficiency'], 6, 20)
+                        else:
+                            assert sys_heating['type'] == 'gchp'
+                            do_bounds_check('heating_efficiency', sys_heating['efficiency'], 2, 5)
                     else:
                         assert sys_heating['efficiency_method'] == 'shipment_weighted'
-                        do_bounds_check('heating_year',
-                                        sys_heating['year'],
-                                        1970, this_year)
+                        do_bounds_check('heating_year', sys_heating['year'], 1970, this_year)
                 else:
                     if not ((sys_heating['type'] in ('central_furnace', 'baseboard') and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
                         raise TranslationError('Heating system %(fuel_primary)s %(type)s needs an efficiency value.' % sys_heating)
 
             sys_cooling = sys_hvac['cooling']
             if sys_cooling['type'] not in ('none', 'dec'):
+                assert sys_cooling['type'] in ('packaged_dx', 'split_dx', 'heat_pump', 'gchp', 'mini_split')
                 if sys_cooling['efficiency_method'] == 'user':
-                    do_bounds_check('cooling_efficiency',
-                                    sys_cooling['efficiency'],
-                                    0.1, 30)
+                    do_bounds_check('cooling_efficiency', sys_cooling['efficiency'], 8, 40)
                 else:
                     assert sys_cooling['efficiency_method'] == 'shipment_weighted'
                     do_bounds_check('cooling_year',
@@ -1998,9 +1999,11 @@ class HPXMLtoHEScoreTranslator(object):
         dhw = hescore_inputs['building']['systems']['domestic_hot_water']
         if dhw['type'] in ('storage', 'heat_pump'):
             if dhw['efficiency_method'] == 'user':
-                do_bounds_check('domestic_hot_water_energy_factor',
-                                dhw['energy_factor'],
-                                0.1, 4.0)
+                if dhw['type'] == 'storage':
+                    do_bounds_check('domestic_hot_water_energy_factor', dhw['energy_factor'], 0.45, 1.0)
+                else:
+                    assert dhw['type'] == 'heat_pump'
+                    do_bounds_check('domestic_hot_water_energy_factor', dhw['energy_factor'], 1.0, 4.0)
             else:
                 assert dhw['efficiency_method'] == 'shipment_weighted'
                 do_bounds_check('domestic_hot_water_year',

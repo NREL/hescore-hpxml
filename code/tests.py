@@ -832,10 +832,42 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
                                 'window_u_value is out of bounds',
                                 tr.hpxml_to_hescore_dict)
 
-    def test_heating_efficiency(self):
+    def test_heating_efficiency_furnace(self):
         tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:HeatingSystem/h:AnnualHeatingEfficiency/h:Value')
-        el.text = '20.1'
+        htg_eff_el = self.xpath('//h:HeatingSystem/h:AnnualHeatingEfficiency/h:Value')
+        htg_eff_el.text = '1.01'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'heating_efficiency is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+        htg_eff_el.text = '0.59'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'heating_efficiency is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_heating_efficiency_heat_pump(self):
+        tr = self._load_xmlfile('house4')
+        htg_eff_el = self.xpath('//h:HeatPump/h:AnnualHeatEfficiency/h:Value')
+        htg_eff_el.text = '5.9'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'heating_efficiency is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+        htg_eff_el.text = '20.1'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'heating_efficiency is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_heating_efficiency_gchp(self):
+        tr = self._load_xmlfile('house3')
+        self.xpath('//h:HeatPump/h:HeatPumpType').text = 'ground-to-air'
+        hp_el = self.xpath('//h:HeatPump')
+        eff_el = etree.SubElement(hp_el, tr.addns('h:AnnualHeatEfficiency'))
+        etree.SubElement(eff_el, tr.addns('h:Units')).text = 'COP'
+        eff_value_el = etree.SubElement(eff_el, tr.addns('h:Value'))
+        eff_value_el.text = '1.9'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'heating_efficiency is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+        eff_value_el.text = '5.1'
         self.assertRaisesRegexp(InputOutOfBounds,
                                 'heating_efficiency is out of bounds',
                                 tr.hpxml_to_hescore_dict)
@@ -851,10 +883,27 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
     def test_cooling_efficiency(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency/h:Value')
-        el.text = '30.1'
+        el.text = '40.1'
         self.assertRaisesRegexp(InputOutOfBounds,
                                 'cooling_efficiency is out of bounds',
                                 tr.hpxml_to_hescore_dict)
+        el.text = '7.9'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'cooling_efficiency is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_evap_cooler_missing_efficiency(self):
+        tr = self._load_xmlfile('hescore_min')
+        eff_el = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency')
+        eff_el.getparent().remove(eff_el)
+        self.xpath('//h:CoolingSystem/h:CoolingSystemType').text = 'evaporative cooler'
+        res = tr.hpxml_to_hescore_dict()
+        clg_sys = res['building']['systems']['hvac'][0]['cooling']
+        # FIXME: uncomment in v2016 branch
+        # self.assertEqual(clg_sys['type'], 'dec')
+        # self.assertNotIn('efficiency', clg_sys.keys())
+        # self.assertNotIn('efficiency_method', clg_sys.keys())
+
 
     def test_cooling_year(self):
         tr = self._load_xmlfile('house1')
@@ -866,16 +915,44 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
                                 'cooling_year is out of bounds',
                                 tr.hpxml_to_hescore_dict)
 
-    def test_dhw_efficiency(self):
+    def test_dhw_storage_efficiency(self):
         tr = self._load_xmlfile('house1')
         el = self.xpath('//h:WaterHeatingSystem/h:EnergyFactor')
-        el.text = '4.1'
+        el.text = '0.44'
         self.assertRaisesRegexp(InputOutOfBounds,
                                 'domestic_hot_water_energy_factor is out of bounds',
                                 tr.hpxml_to_hescore_dict)
-        el.text = '4.0'
+        el.text = '1.1'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'domestic_hot_water_energy_factor is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+        el.text = '1.0'
         res = tr.hpxml_to_hescore_dict()
-        self.assertEqual(res['building']['systems']['domestic_hot_water']['energy_factor'], 4.0)
+        dhw = res['building']['systems']['domestic_hot_water']
+        self.assertEqual(dhw['efficiency_method'], 'user')
+        self.assertEqual(dhw['energy_factor'], 1.0)
+
+    def test_dhw_heat_pump_efficiency(self):
+        tr = self._load_xmlfile('hescore_min')
+        self.xpath('//h:WaterHeatingSystem/h:FuelType').text = 'electricity'
+        self.xpath('//h:WaterHeatingSystem/h:WaterHeaterType').text = 'heat pump water heater'
+        year_el = self.xpath('//h:WaterHeatingSystem/h:YearInstalled')
+        year_el.getparent().remove(year_el)
+        dhw_sys_el = self.xpath('//h:WaterHeatingSystem')
+        ef_el = etree.SubElement(dhw_sys_el, tr.addns('h:EnergyFactor'))
+        ef_el.text = '0.9'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'domestic_hot_water_energy_factor is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+        ef_el.text = '4.1'
+        self.assertRaisesRegexp(InputOutOfBounds,
+                                'domestic_hot_water_energy_factor is out of bounds',
+                                tr.hpxml_to_hescore_dict)
+        ef_el.text = '4.0'
+        res = tr.hpxml_to_hescore_dict()
+        dhw = res['building']['systems']['domestic_hot_water']
+        self.assertEqual(dhw['efficiency_method'], 'user')
+        self.assertEqual(dhw['energy_factor'], 4.0)
 
     def test_dhw_year(self):
         tr = self._load_xmlfile('hescore_min')
