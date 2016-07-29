@@ -436,6 +436,23 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
                                 r'Heating system wood_stove cannot be used with fuel natural_gas',
                                 self.translator.hpxml_to_hescore_dict)
 
+    def test_wall_furnace_fuel_type(self):
+        tr = self._load_xmlfile('house1')
+
+        # Change to natural gas wall furnace (no ducts)
+        htgsys_type = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace1"]/h:HeatingSystemType')
+        htgsys_type.clear()
+        etree.SubElement(htgsys_type, tr.addns('h:WallFurnace'))
+        distsys = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace1"]/h:DistributionSystem')
+        distsys.getparent().remove(distsys)
+        htgsys_fuel = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace1"]/h:HeatingSystemFuel')
+        htgsys_fuel.text = 'propane'
+
+        res = tr.hpxml_to_hescore_dict()
+        htg_sys = res['building']['systems']['hvac'][0]['heating']
+        self.assertEqual(htg_sys['type'], 'wall_furnace')
+        self.assertEqual(htg_sys['fuel_primary'], 'lpg')
+
     def test_too_many_duct_systems(self):
         tr = self._load_xmlfile('house5')
         dist_sys_el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="backfurnace"]/h:DistributionSystem')

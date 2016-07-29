@@ -310,7 +310,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         allowed_fuel_types = {'heat_pump': ('electric',),
                               'central_furnace': ('natural_gas', 'lpg', 'fuel_oil', 'electric'),
-                              'wall_furnace': ('natural_gas',),
+                              'wall_furnace': ('natural_gas', 'lpg'),
                               'baseboard': ('electric',),
                               'boiler': ('natural_gas', 'lpg', 'fuel_oil'),
                               'gchp': ('electric',),
