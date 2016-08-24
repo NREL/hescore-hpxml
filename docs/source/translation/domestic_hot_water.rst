@@ -39,10 +39,6 @@ The water heater type is mapped from HPXML to HEScore accordingly:
    |space-heating boiler with tankless coil |combined        |tankless_coil   |
    +----------------------------------------+----------------+----------------+
 
-.. warning::
-
-   *not translated* above means the translation will fail for this house.
-
 The fuel type is mapped according to the same mapping used in
 :ref:`fuel-mapping`.
 

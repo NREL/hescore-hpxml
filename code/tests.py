@@ -48,6 +48,9 @@ class TestAPIHouses(unittest.TestCase, ComparatorBase):
     def test_house1_v2(self):
         self._do_full_compare('house1-v2', 'house1')
 
+    def test_house1_v2_1(self):
+        self._do_full_compare('house1-v2-1', 'house1')
+
     def test_house2(self):
         self._do_full_compare('house2')
 
@@ -704,6 +707,12 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             tr.hpxml_to_hescore_dict
         )
 
+    def test_mentor_extension(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:Building/h:ProjectStatus')
+        etree.SubElement(etree.SubElement(el, tr.addns('h:extension')), tr.addns('h:HEScoreMentorAssessment'))
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual(res['building_address']['assessment_type'], 'mentor')
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 
