@@ -5,3 +5,4 @@ docs/build
 .settings
 *.pyc
 .idea
+.DS_Store
