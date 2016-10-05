@@ -724,6 +724,15 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         res = tr.hpxml_to_hescore_dict()
         self.assertEqual(res['building_address']['assessment_type'], 'mentor')
 
+    def test_window_area_sum_on_angled_front_door(self):
+        tr = self._load_xmlfile('house1')
+        el = self.xpath('//h:OrientationOfFrontOfHome')
+        el.text = 'northeast'
+        hpxml_window_area = sum(map(float, self.xpath('//h:Window/h:Area/text()')))
+        res = tr.hpxml_to_hescore_dict()
+        hes_window_area = sum([wall['zone_window']['window_area'] for wall in res['building']['zone']['zone_wall']])
+        self.assertAlmostEqual(hpxml_window_area, hes_window_area)
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 

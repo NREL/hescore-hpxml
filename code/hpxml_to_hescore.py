@@ -1383,8 +1383,8 @@ class HPXMLtoHEScoreTranslator(object):
                         window_sides = [sidemap[unspin_azimuth(wndw_azimuth + x)] for x in (-45, 45)]
 
             # Assign properties and areas to the correct side of the house
+            windowd['area'] /= float(len(window_sides))
             for window_side in window_sides:
-                windowd['area'] /= float(len(window_sides))
                 hpxmlwindows[window_side].append(dict(windowd))
 
         def get_shared_wall_sides():
