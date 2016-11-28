@@ -352,9 +352,9 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         for el in self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency', aslist=True):
             el.getparent().remove(el)
         res = tr.hpxml_to_hescore_dict()
-        self.assertEqual(res['building']['systems']['hvac'][0]['cooling']['type'], 'split_dx')
-        self.assertEqual(res['building']['systems']['hvac'][0]['cooling']['efficiency_method'], 'user')
-        self.assertEqual(res['building']['systems']['hvac'][0]['cooling']['efficiency'], 28)
+        self.assertEqual(res['building']['systems']['hvac'][0]['cooling']['type'], 'dec')
+        self.assertNotIn('efficiency_method', res['building']['systems']['hvac'][0]['cooling'])
+        self.assertNotIn('efficiency', res['building']['systems']['hvac'][0]['cooling'])
 
     def test_missing_heating_weighting_factor(self):
         tr = self._load_xmlfile('house4')
@@ -707,6 +707,16 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             tr.hpxml_to_hescore_dict
         )
 
+    def test_air_source_heat_pump_has_no_ducts(self):
+        tr = self._load_xmlfile('house4')
+        el = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:HeatPumpType')
+        el.text = 'air-to-air'
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'(Cooling|Heating) system heatpump1 is not associated with an air distribution system',
+            tr.hpxml_to_hescore_dict
+        )
+
     def test_mentor_extension(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Building/h:ProjectStatus')
@@ -908,10 +918,9 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         self.xpath('//h:CoolingSystem/h:CoolingSystemType').text = 'evaporative cooler'
         res = tr.hpxml_to_hescore_dict()
         clg_sys = res['building']['systems']['hvac'][0]['cooling']
-        # FIXME: uncomment in v2016 branch
-        # self.assertEqual(clg_sys['type'], 'dec')
-        # self.assertNotIn('efficiency', clg_sys.keys())
-        # self.assertNotIn('efficiency_method', clg_sys.keys())
+        self.assertEqual(clg_sys['type'], 'dec')
+        self.assertNotIn('efficiency', clg_sys.keys())
+        self.assertNotIn('efficiency_method', clg_sys.keys())
 
 
     def test_cooling_year(self):
@@ -1162,13 +1171,120 @@ class TestHVACFractions(unittest.TestCase, ComparatorBase):
 
         hvac1 = hvac_systems[0]
         self.assertAlmostEqual(hvac1['hvac_fraction'], 0.3, 3)
-        self.assertEqual(hvac1['heating']['type'], 'heat_pump')
-        self.assertEqual(hvac1['cooling']['type'], 'heat_pump')
+        self.assertEqual(hvac1['heating']['type'], 'mini_split')
+        self.assertEqual(hvac1['cooling']['type'], 'mini_split')
 
         hvac2 = hvac_systems[1]
         self.assertAlmostEqual(hvac2['hvac_fraction'], 0.7, 3)
         self.assertEqual(hvac2['heating']['type'], 'central_furnace')
         self.assertEqual(hvac2['cooling']['type'], 'none')
+
+
+class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
+
+    def _add_pv(self, sysid='pv1', orientation='south', azimuth=180, capacity=5, inverter_year=2015, module_year=2013, collector_area=None):
+        addns = self.translator.addns
+
+        def add_elem(parent, subname, text=None):
+            el = etree.SubElement(parent, addns('h:' + subname))
+            if text:
+                el.text = str(text)
+            return el
+
+        pv_container = self.xpath('//h:Photovoltaics')
+        if pv_container is None:
+            systems_el = self.xpath('//h:Systems')
+            pv_container = add_elem(systems_el, 'Photovoltaics')
+        pv_system = add_elem(pv_container, 'PVSystem')
+        sys_id = add_elem(pv_system, 'SystemIdentifier')
+        sys_id.attrib['id'] = sysid
+        if orientation is not None:
+            add_elem(pv_system, 'ArrayOrientation', orientation)
+        if azimuth is not None:
+            add_elem(pv_system, 'ArrayAzimuth', azimuth)
+        if capacity is not None:
+            add_elem(pv_system, 'MaxPowerOutput', capacity * 1000)
+        if collector_area is not None:
+            add_elem(pv_system, 'CollectorArea', collector_area)
+        if inverter_year is not None:
+            add_elem(pv_system, 'YearInverterManufactured', inverter_year)
+        if module_year is not None:
+            add_elem(pv_system, 'YearModulesManufactured', module_year)
+
+    def test_pv(self):
+        tr = self._load_xmlfile('hescore_min')
+        self._add_pv(orientation='southeast', azimuth=None)
+        hesd = tr.hpxml_to_hescore_dict()
+        pv = hesd['building']['systems']['generation']['solar_electric']
+        self.assertTrue(pv['capacity_known'])
+        self.assertNotIn('num_panels', pv.keys())
+        self.assertEqual(pv['system_capacity'], 5)
+        self.assertEqual(pv['year'], 2015)
+        self.assertEqual(pv['array_azimuth'], 'south_east')
+
+    def test_capacity_missing(self):
+        tr = self._load_xmlfile('hescore_min')
+        self._add_pv(capacity=None)
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'MaxPowerOutput or CollectorArea is required',
+            tr.hpxml_to_hescore_dict
+        )
+
+    def test_collector_area(self):
+        tr = self._load_xmlfile('hescore_min')
+        self._add_pv(capacity=None, collector_area=176)
+        hesd = tr.hpxml_to_hescore_dict()
+        pv = hesd['building']['systems']['generation']['solar_electric']
+        self.assertFalse(pv['capacity_known'])
+        self.assertNotIn('capacity', pv.keys())
+        self.assertEqual(pv['num_panels'], 10)
+
+    def test_orientation(self):
+        tr = self._load_xmlfile('hescore_min')
+        self._add_pv(orientation='east', azimuth=None)
+        hesd = tr.hpxml_to_hescore_dict()
+        pv = hesd['building']['systems']['generation']['solar_electric']
+        self.assertEqual(pv['array_azimuth'], 'east')
+
+    def test_azimuth_orientation_missing(self):
+        tr = self._load_xmlfile('hescore_min')
+        self._add_pv(azimuth=None, orientation=None)
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'ArrayAzimuth or ArrayOrientation is required for every PVSystem',
+            tr.hpxml_to_hescore_dict
+        )
+
+    def test_years_missing(self):
+        tr = self._load_xmlfile('hescore_min')
+        self._add_pv(module_year=None, inverter_year=None)
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'Either YearInverterManufactured or YearModulesManufactured is required foe every PVSystem',
+            tr.hpxml_to_hescore_dict
+        )
+
+    def test_two_sys_avg(self):
+        tr = self._load_xmlfile('hescore_min')
+        self._add_pv('pv1', azimuth=None, orientation='south', inverter_year=None, module_year=2015)
+        self._add_pv('pv2', azimuth=None, orientation='west', inverter_year=None, module_year=2013)
+        hesd = tr.hpxml_to_hescore_dict()
+        pv = hesd['building']['systems']['generation']['solar_electric']
+        self.assertEqual(pv['system_capacity'], 10)
+        self.assertEqual(pv['array_azimuth'], 'south_west')
+        self.assertEqual(pv['year'], 2014)
+
+    def test_two_sys_different_capacity_error(self):
+        tr = self._load_xmlfile('hescore_min')
+        self._add_pv('pv1', capacity=5, azimuth=None, orientation='south', inverter_year=None, module_year=2015)
+        self._add_pv('pv2', capacity=None, collector_area=50, azimuth=None, orientation='west', inverter_year=None, module_year=2013)
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'Either a MaxPowerOutput must be specified for every PVSystem or CollectorArea',
+            tr.hpxml_to_hescore_dict
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -26,11 +26,17 @@ mapping.
    water-to-air                  gchp
    water-to-water                gchp
    air-to-air                    heat_pump
-   mini-split                    heat_pump
+   mini-split                    mini_split
    ground-to-air                 gchp
    ============================  ============================
    
 The primary heating fuel is assumed to be electric.
+
+.. note::
+
+   Prior to HEScore v2016 mini-split heat pumps were translated as ducted air-source heat pumps with ducts in conditioned space.
+   With the addition of mini split heat pumps in HEScore v2016, they are now categorized appropriately.
+
 
 Heating System
 ==============
@@ -82,7 +88,7 @@ the primary heating system. The fuel types are mapped as follows.
    wood pellets           pellet_wood
    =====================  ===========
 
-.. note::
+.. warning::
 
    HPXML supports other fuel types that could not be mapped into 
    existing HEScore fuel types (i.e. coal, wood). Encountering an
@@ -113,6 +119,7 @@ heating system type.
    Heating Type     Efficiency Units
    ===============  ================
    heat_pump        HSPF
+   mini_split       HSPF
    central_furnace  AFUE
    wall_furnace     AFUE
    boiler           AFUE

@@ -26,9 +26,14 @@ mapping.
    water-to-air                  gchp
    water-to-water                gchp
    air-to-air                    heat_pump
-   mini-split                    heat_pump
+   mini-split                    mini_split
    ground-to-air                 gchp
    ============================  ============================
+
+.. note::
+
+   Prior to HEScore v2016 mini-split heat pumps were translated as ducted air-source heat pumps with ducts in conditioned space.
+   With the addition of mini split heat pumps in HEScore v2016, they are now categorized appropriately.
 
 .. _clg-sys:
 
@@ -48,17 +53,22 @@ is done according to the following mapping.
    central air conditioning   split_dx
    room air conditioner       packaged_dx
    mini-split                 split_dx
-   evaporative cooler         split_dx
+   evaporative cooler         dec
    other                      *not translated*
    =========================  ====================
 
+.. warning::
+   
+   If an HPXML cooling system type maps to *not translated* the translation will fail.
+
 .. note::
-   
-   If an HPXML cooling system type maps to *not translated* the translation
-   will fail. 
-   
-   Evaporative coolers are approximated in HEScore by a high efficiency central
-   air (``split_dx``) system.
+
+   A cooling-only mini-split is not available in HEScore, therefore the mini-split type is translated into a ``split_dx``.
+
+.. note::
+
+   Prior to v2016, HEScore did not have an evaporative cooler type and these were translated as high efficiency ``split_dx`` systems.
+   Now that evaporative cooling has been added in HEScore v2016, they are categorized accordingly.
 
 Cooling Efficiency
 ******************
@@ -68,6 +78,7 @@ Cooling efficiency can be described in HEScore by either the rated efficiency
 which HEScore estimates the efficiency based on shipment weighted efficiencies
 by year. The translator follows this methodology and looks for the rated
 efficiency first and if it cannot be found sends the year installed. 
+Evaporative coolers do not require an efficiency input in HEScore, and it is therefore omitted.
 
 Rated Efficiency
 ================
@@ -83,15 +94,13 @@ cooling system type.
    split_dx         SEER
    packaged_dx      EER
    heat_pump        SEER
+   mini_split       SEER
    gchp             EER
    ===============  ================
 
 The translator searches the ``CoolingSystem/AnnualCoolingEfficiency`` or
 ``HeatPump/AnnualCoolEfficiency`` elements of the primary cooling system and
 uses the first one that has the correct units.
-
-Evaporative coolers are always assumed to be a ``split_dx`` system with an
-efficiency of SEER 28.
 
 .. _clg-shipment-weighted-efficiency:
 

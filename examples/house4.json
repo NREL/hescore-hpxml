@@ -133,12 +133,12 @@
           "hvac_fraction": 0.186741, 
           "heating": {
             "fuel_primary": "electric", 
-            "type": "heat_pump", 
+            "type": "mini_split", 
             "efficiency_method": "user", 
             "efficiency": 8.2
           }, 
           "cooling": {
-            "type": "heat_pump", 
+            "type": "mini_split", 
             "efficiency_method": "user", 
             "efficiency": 15.0
           }, 
