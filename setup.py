@@ -12,7 +12,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='hescore-hpxml',
-    version='2017.01',
+    version='3.0',
     description='HPXML Translator for the HEScore API',
     long_description=long_description,
     url='https://github.com/NREL/hescore-hpxml',
