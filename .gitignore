@@ -6,3 +6,5 @@ docs/build
 *.pyc
 .idea
 .DS_Store
+hescore_hpxml.egg-info
+
