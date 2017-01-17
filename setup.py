@@ -33,9 +33,7 @@ setup(
     keywords='home energy score hescore doe nrel',
     packages=['hescorehpxml'],
     install_requires=['lxml'],
-    package_data={
-        'hescorehpxml': 'schemas/hpxml-*/*.xsd',
-    },
+    include_package_data=True,
     entry_points={
         'console_scripts': [
             'hpxml2hescore=hescorehpxml:main',
@@ -43,3 +41,4 @@ setup(
         ]
     }
 )
+
