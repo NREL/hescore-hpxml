@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 # To use a consistent encoding
 from codecs import open
 from os import path
@@ -31,7 +31,7 @@ setup(
         'Topic :: Text Processing :: Markup :: XML',
     ],
     keywords='home energy score hescore doe nrel',
-    packages=find_packages(exclude=['docs', 'examples', 'tests']),
+    packages=['hescorehpxml'],
     install_requires=['lxml'],
     package_data={
         'hescorehpxml': 'schemas/hpxml-*/*.xsd',
