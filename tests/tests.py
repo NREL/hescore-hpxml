@@ -3,7 +3,7 @@ import json
 import unittest
 import datetime as dt
 from lxml import etree
-from hpxml_to_hescore import HPXMLtoHEScoreTranslator, TranslationError, InputOutOfBounds
+from hescorehpxml import HPXMLtoHEScoreTranslator, TranslationError, InputOutOfBounds
 import StringIO
 import json
 from copy import deepcopy

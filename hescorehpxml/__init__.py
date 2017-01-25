@@ -1,8 +1,3 @@
-'''
-Created on Mar 4, 2014
-
-@author: nmerket
-'''
 # Python standard library imports
 import os
 import sys

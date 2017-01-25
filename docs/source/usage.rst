@@ -50,39 +50,16 @@ It it useful to run it this way for debugging a translation of your particular f
 Set Up
 ======
 
-First, get a copy of the `source code from GitHub <https://github.com/NREL/hescore-hpxml>`_, using your preferred method.
-If you're not sure, just click "Download ZIP".
-
-The program runs using `Python 2.7 <https://www.python.org/>`_. Python 2.6 will work, but the outputs will be all out of order.
-It also requires the `lxml <http://lxml.de/>`_ Python library for parsing the xml file, and the argparse module if you're using Python 2.6.
-Below are some instructions depending on platform to get the required programs and libraries if you need help.
+The program runs using `Python 2.7 <https://www.python.org/>`_. The instructions below will help you set up Python
+on your platform and get the translator installed.
 
 Windows
 -------
 
-`Download Python 2.7.10 from python.org <https://www.python.org/downloads/>`_ and Install. 
-
-Add ``C:\Python27`` to your path. `Here's how. <http://superuser.com/questions/143119/how-to-add-python-to-the-windows-path>`_
-
-Figure out whether you have the 32-bit or 64-bit version of python. 
-Open the command line ``cmd.exe``.
-Type in ``python`` and press Enter. The first line returned should be something like:
-
-.. code:: 
-
-    Python 2.7.9 (default, Dec 10 2014, 12:24:55) [MSC v.1500 32 bit (Intel)] on win32
-
-Type in ``quit()``, press Enter.
-
-`Download a precompiled lxml binary <http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml>`_.
-Make sure it matches your version of Python and windows architecture 
-(``lxml-x.x.x-cp27-none-win32.whl`` or ``lxml-x.x.x-cp27-none-win_amd64.whl``).
-
-Install lxml using pip. Back in your command line window type: 
-
-.. code::
-
-	pip install C:\path\to\lxml-x.x.x-cp27-none-win32.whl
+#. `Download Python 2.7.x (not the 3.x version) from python.org <https://www.python.org/downloads/>`_ and Install.
+#. Add ``C:\Python27`` to your path.
+   `Here's how <http://superuser.com/questions/143119/how-to-add-python-to-the-windows-path>`_.
+#. Follow instructions for :ref:`all_platforms_install_instructions`.
 
 Mac OS X
 --------
@@ -90,12 +67,33 @@ Mac OS X
 #. Install `Homebrew <http://brew.sh/>`_.
 #. Open a terminal.
 #. Install Python 2.7 using homebrew: ``brew install python``
-#. Install lxml using pip: ``pip install lxml``
+#. Follow instructions for :ref:`all_platforms_install_instructions`.
 
 Linux
 -----
 
-You don't need help.
+#. Install Python 2.7 using the package manager for your platform.
+#. Follow instructions for :ref:`all_platforms_install_instructions`.
+
+.. _all_platforms_install_instructions:
+
+All Platforms
+-------------
+
+Optionally install and activate a virtual environment.
+`Instructions here <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_.
+
+Install the package using ``pip``::
+
+    pip install hescore-hpxml
+
+Alternatively, you can install the latest and greatest directly from GitHub, which is useful if you're going to do some development on the translator.
+To do so, get a copy of the `source code from GitHub <https://github.com/NREL/hescore-hpxml>`_, using your preferred method.
+If you're not sure, just click "Download ZIP".
+
+Open a terminal and use ``pip`` to install it in developer mode::
+
+    pip install -e path/to/hescore-hpxml
 
 Running the Translator
 ======================
@@ -104,30 +102,5 @@ The best way to figure out how to run the translator is to call it with the ``-h
 
 .. code::
 
-    python hpxml_to_hescore.py -h
+    hpxml2hescore -h
 
-It is pretty self-explanatory::
-
-    usage: hpxml_to_hescore.py [-h] [-o OUTPUT] [--bldgid BLDGID]
-                               [--nrelassumptions]
-                               hpxml_input
-
-    Convert HPXML v1.1.1 or v2.x files to HEScore inputs
-
-    positional arguments:
-      hpxml_input           Filename of hpxml file
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      -o OUTPUT, --output OUTPUT
-                            Filename of output file in json format. If not
-                            provided, will go to stdout.
-      --bldgid BLDGID       HPXML building id to score if there are more than one
-                            <Building/> elements. Default: first one.
-      --nrelassumptions     Use the NREL assumptions to guess at data elements
-                            that are missing.
-
-
-
-
-The ``--nrelassumptions`` flag activates some assumptions we make to have our files run that you probably don't want in a production environment.

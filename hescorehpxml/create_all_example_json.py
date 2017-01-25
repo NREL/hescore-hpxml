@@ -1,10 +1,5 @@
-'''
-Created on Jan 2, 2015
-
-@author: nmerket
-'''
 import os
-from hpxml_to_hescore import HPXMLtoHEScoreTranslator
+from hescorehpxml import HPXMLtoHEScoreTranslator
 
 def main():
     thisdir = os.path.dirname(os.path.abspath(__file__))
