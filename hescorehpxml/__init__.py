@@ -16,8 +16,6 @@ try:
 except ImportError:
     OrderedDict = dict
 
-logging.basicConfig(level=logging.ERROR, format='%(levelname)s:%(message)s')
-
 # My imports
 thisdir = os.path.dirname(os.path.abspath(__file__))
 nsre = re.compile(r'([a-zA-Z][a-zA-Z0-9]*):')
@@ -508,6 +506,8 @@ class HPXMLtoHEScoreTranslator(object):
                 if idx > childidx:
                     parent.insert(i, child)
                     return
+            if idx < childidx:
+                parent.append(child)
 
     def apply_nrel_assumptions(self, b):
         xpath = self.xpath
@@ -803,7 +803,7 @@ class HPXMLtoHEScoreTranslator(object):
                     'conditioned_floor_area'] * \
                                                  float(xpath(blower_door_test,
                                                              'h:BuildingAirLeakage/h:AirLeakage/text()')) / 60.
-                bldg_about['envelope_leakage'] = int(round(bldg_about['envelope_leakage']))
+            bldg_about['envelope_leakage'] = int(round(bldg_about['envelope_leakage']))
         else:
             bldg_about['blower_door_test'] = False
             if b.xpath('count(h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirSealing)', namespaces=ns) > 0 or \
@@ -2045,7 +2045,7 @@ def main():
                         help='Use the NREL assumptions to guess at data elements that are missing.')
 
     args = parser.parse_args()
-
+    logging.basicConfig(level=logging.ERROR, format='%(levelname)s:%(message)s')
     try:
         t = HPXMLtoHEScoreTranslator(args.hpxml_input)
         t.hpxml_to_hescore_json(args.output, hpxml_bldg_id=args.bldgid, nrel_assumptions=args.nrelassumptions)
