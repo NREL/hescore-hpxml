@@ -75,7 +75,7 @@ class RoundOutOfBounds(TranslationError):
 def round_to_nearest(x, vals, tails_tolerance=None):
     nearest = min(vals, key=lambda y: abs(x - y))
     if tails_tolerance is not None:
-        if x < min(vals) or x > max(vals):
+        if x < min(vals):
             if abs(x - nearest) > tails_tolerance:
                 raise RoundOutOfBounds()
     return nearest
@@ -304,7 +304,7 @@ class HPXMLtoHEScoreTranslator(object):
         allowed_fuel_types = {'heat_pump': ('electric',),
                               'mini_split': ('electric',),
                               'central_furnace': ('natural_gas', 'lpg', 'fuel_oil', 'electric'),
-                              'wall_furnace': ('natural_gas',),
+                              'wall_furnace': ('natural_gas', 'lpg'),
                               'baseboard': ('electric',),
                               'boiler': ('natural_gas', 'lpg', 'fuel_oil'),
                               'gchp': ('electric',),
@@ -1870,7 +1870,7 @@ class HPXMLtoHEScoreTranslator(object):
             if manufacture_years:
                 years.append(max(manufacture_years))  # Use the latest year of manufacture
             else:
-                raise TranslationError('Either YearInverterManufactured or YearModulesManufactured is required foe every PVSystem.')
+                raise TranslationError('Either YearInverterManufactured or YearModulesManufactured is required for every PVSystem.')
 
             azimuth = self.xpath(pvsystem, 'h:ArrayAzimuth/text()')
             orientation = self.xpath(pvsystem, 'h:ArrayOrientation/text()')
