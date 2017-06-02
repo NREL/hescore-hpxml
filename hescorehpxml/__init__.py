@@ -711,6 +711,11 @@ class HPXMLtoHEScoreTranslator(object):
         xpath = self.xpath
         ns = self.ns
         bldg_about = OrderedDict()
+
+        sending_system_id_value = xpath(b, 'h:BuildingID/h:SendingSystemIdentifierValue/text()')
+        if sending_system_id_value is not None:
+            bldg_about['external_building_id'] = sending_system_id_value
+
         project_status_date_el = b.find('h:ProjectStatus/h:Date', namespaces=ns)
         if project_status_date_el is None:
             bldg_about['assessment_date'] = dt.date.today()

@@ -7,6 +7,7 @@ from hescorehpxml import HPXMLtoHEScoreTranslator, TranslationError, InputOutOfB
 import StringIO
 import json
 from copy import deepcopy
+import uuid
 
 thisdir = os.path.dirname(os.path.abspath(__file__))
 exampledir = os.path.abspath(os.path.join(thisdir, '..', 'examples'))
@@ -733,6 +734,15 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         hes_window_area = sum([wall['zone_window']['window_area'] for wall in res['building']['zone']['zone_wall']])
         self.assertAlmostEqual(hpxml_window_area, hes_window_area)
 
+    def test_external_id_passthru(self):
+        tr = self._load_xmlfile('hescore_min')
+        bldgidel = self.xpath('//h:Building/h:BuildingID')
+        el = etree.SubElement(bldgidel, tr.addns('h:SendingSystemIdentifierValue'))
+        myid = uuid.uuid4().hex
+        el.text = myid
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual(myid, res['building']['about'].get('external_building_id'))
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 
@@ -1261,7 +1271,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
         self._add_pv(module_year=None, inverter_year=None)
         self.assertRaisesRegexp(
             TranslationError,
-            r'Either YearInverterManufactured or YearModulesManufactured is required foe every PVSystem',
+            r'Either YearInverterManufactured or YearModulesManufactured is required for every PVSystem',
             tr.hpxml_to_hescore_dict
         )
 
