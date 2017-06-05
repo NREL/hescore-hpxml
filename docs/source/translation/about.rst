@@ -10,6 +10,13 @@ HEScore requires an assessment date. If a date is stored in the element
 ``Building/ProjectStatus/Date``, that date is used. If not, the current date is
 used.
 
+External Building ID
+********************
+
+The value of ``Building/BuildingID/SendingSystemIdentifierValue``, if present, is copied into the
+``building.about.external_building_id`` field in HEScore. This is optional, but may be useful for those
+wanting to pass an additional building identifier for their own tracking purposes.
+
 Building Shape
 **************
 
