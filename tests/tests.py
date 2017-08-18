@@ -743,6 +743,19 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         res = tr.hpxml_to_hescore_dict()
         self.assertEqual(myid, res['building']['about'].get('external_building_id'))
 
+    def test_external_id_extension_passthru(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = etree.SubElement(
+            etree.SubElement(self.xpath('//h:Building'), tr.addns('h:extension')),
+            tr.addns('h:HESExternalID')
+        )
+        myid = uuid.uuid4().hex
+        el.text = myid
+        el = etree.SubElement(self.xpath('//h:Building/h:BuildingID'), tr.addns('h:SendingSystemIdentifierValue'))
+        el.text = uuid.uuid4().hex
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual(myid, res['building']['about'].get('external_building_id'))
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 

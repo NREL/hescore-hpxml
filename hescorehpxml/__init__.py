@@ -712,9 +712,15 @@ class HPXMLtoHEScoreTranslator(object):
         ns = self.ns
         bldg_about = OrderedDict()
 
-        sending_system_id_value = xpath(b, 'h:BuildingID/h:SendingSystemIdentifierValue/text()')
-        if sending_system_id_value is not None:
-            bldg_about['external_building_id'] = sending_system_id_value
+        ext_id_xpath_exprs = (
+            'h:extension/h:HESExternalID/text()',
+            'h:BuildingID/h:SendingSystemIdentifierValue/text()'
+        )
+        for ext_id_xpath_expr in ext_id_xpath_exprs:
+            external_id_value = xpath(b, ext_id_xpath_expr)
+            if external_id_value is not None:
+                bldg_about['external_building_id'] = external_id_value
+                break
 
         project_status_date_el = b.find('h:ProjectStatus/h:Date', namespaces=ns)
         if project_status_date_el is None:

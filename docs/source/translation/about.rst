@@ -13,9 +13,11 @@ used.
 External Building ID
 ********************
 
-The value of ``Building/BuildingID/SendingSystemIdentifierValue``, if present, is copied into the
-``building.about.external_building_id`` field in HEScore. This is optional, but may be useful for those
-wanting to pass an additional building identifier for their own tracking purposes.
+The value of ``Building/extension/HESExternalID`` or
+``Building/BuildingID/SendingSystemIdentifierValue``, if present, is copied into the
+``building.about.external_building_id`` field in HEScore.
+Preference is given to the `extension` element if both are present.
+This is optional, but may be useful for those wanting to pass an additional building identifier for their own tracking purposes.
 
 Building Shape
 **************
