@@ -82,7 +82,7 @@ def round_to_nearest(x, vals, tails_tolerance=None):
 
 
 class HPXMLtoHEScoreTranslator(object):
-    schemaversions = ('hpxml-2.1.0', 'hpxml-1.1.1', 'hpxml-2.2.0')
+    schemaversions = ('hpxml-2.2.1', 'hpxml-2.2.0', 'hpxml-2.1.0', 'hpxml-1.1.1')
 
     def __init__(self, hpxmlfilename):
 
@@ -695,13 +695,15 @@ class HPXMLtoHEScoreTranslator(object):
             bldgaddr['assessment_type'] = 'mentor'
         else:
             if transaction_type == 'create':
-                bldgaddr['assessment_type'] = {'audit': 'initial',
-                                               'proposed workscope': 'alternative',
-                                               'approved workscope': 'alternative',
-                                               'construction-period testing/daily test out': 'test',
-                                               'job completion testing/final inspection': 'final',
-                                               'quality assurance/monitoring': 'qa'}[
-                    xpath(b, 'h:ProjectStatus/h:EventType/text()')]
+                bldgaddr['assessment_type'] = {
+                    'audit': 'initial',
+                    'proposed workscope': 'alternative',
+                    'approved workscope': 'alternative',
+                    'construction-period testing/daily test out': 'test',
+                    'job completion testing/final inspection': 'final',
+                    'quality assurance/monitoring': 'qa',
+                    'preconstruction': 'preconstruction'
+                }[xpath(b, 'h:ProjectStatus/h:EventType/text()')]
             else:
                 assert transaction_type == 'update'
                 bldgaddr['assessment_type'] = 'corrected'

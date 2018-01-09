@@ -756,6 +756,15 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         res = tr.hpxml_to_hescore_dict()
         self.assertEqual(myid, res['building']['about'].get('external_building_id'))
 
+    def test_preconstruction_event_type(self):
+        tr = self._load_xmlfile('hescore_min')
+        root = self.xpath('/h:HPXML')
+        root.attrib['schemaVersion'] = '2.2.1'
+        el = self.xpath('//h:Building/h:ProjectStatus/h:EventType')
+        el.text = 'preconstruction'
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual('preconstruction', res['building_address']['assessment_type'])
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 
@@ -1002,6 +1011,7 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         self.assertRaisesRegexp(InputOutOfBounds,
                                 'domestic_hot_water_year is out of bounds',
                                 tr.hpxml_to_hescore_dict)
+
 
 class TestHVACFractions(unittest.TestCase, ComparatorBase):
     '''
