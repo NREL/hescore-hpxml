@@ -10,6 +10,7 @@ import math
 import uuid
 from lxml import etree
 from collections import defaultdict, namedtuple
+from decimal import Decimal
 
 try:
     from collections import OrderedDict
@@ -1521,8 +1522,24 @@ class HPXMLtoHEScoreTranslator(object):
         # Get all heating systems
         hpxml_heating_systems = _get_dict_of_hpxml_elements_by_id('descendant::h:HVACPlant/h:HeatingSystem|descendant::h:HVACPlant/h:HeatPump')
 
+        # Remove heating systems that serve 0% of the heating load
+        for key, el in hpxml_heating_systems.items():
+            frac_load_str = self.xpath(el, 'h:FractionHeatLoadServed/text()')
+            if frac_load_str is not None:
+                frac_load = Decimal(frac_load_str)
+                if frac_load == Decimal(0):
+                    del hpxml_heating_systems[key]
+
         # Get all cooling systems
         hpxml_cooling_systems = _get_dict_of_hpxml_elements_by_id('descendant::h:HVACPlant/h:CoolingSystem|descendant::h:HVACPlant/h:HeatPump')
+
+        # Remove cooling systems that serve 0% of the cooling load
+        for key, el in hpxml_cooling_systems.items():
+            frac_load_str = self.xpath(el, 'h:FractionCoolLoadServed/text()')
+            if frac_load_str is not None:
+                frac_load = Decimal(frac_load_str)
+                if frac_load == Decimal(0):
+                    del hpxml_cooling_systems[key]
 
         # Get all the duct systems
         hpxml_distribution_systems = _get_dict_of_hpxml_elements_by_id('descendant::h:HVACDistribution')
