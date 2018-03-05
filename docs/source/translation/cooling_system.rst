@@ -35,6 +35,13 @@ mapping.
    Prior to HEScore v2016 mini-split heat pumps were translated as ducted air-source heat pumps with ducts in conditioned space.
    With the addition of mini split heat pumps in HEScore v2016, they are now categorized appropriately.
 
+If a heat pump has a `FractionHeatlLoadServed` set to zero, the heat pump is
+assumed to provide only space cooling. If the heat pump is connected to the
+same distribution system as a separate heating system and serves the same
+portion of the house, the house will translate but fail in Home Energy Score
+because that configuration is not supported.
+
+
 .. _clg-sys:
 
 Cooling System

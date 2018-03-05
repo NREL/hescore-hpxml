@@ -765,6 +765,26 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         res = tr.hpxml_to_hescore_dict()
         self.assertEqual('preconstruction', res['building_address']['assessment_type'])
 
+    def test_heatpump_no_heating(self):
+        tr = self._load_xmlfile('house3')
+        el = self.xpath('//h:HeatPump')
+        frac_load = etree.SubElement(el, tr.addns('h:FractionHeatLoadServed'))
+        frac_load.text = '0'
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual(1, len(res['building']['systems']['hvac']))
+        self.assertEqual('heat_pump', res['building']['systems']['hvac'][0]['cooling']['type'])
+        self.assertEqual('none', res['building']['systems']['hvac'][0]['heating']['type'])
+
+    def test_heatpump_no_cooling(self):
+        tr = self._load_xmlfile('house3')
+        el = self.xpath('//h:HeatPump')
+        frac_load = etree.SubElement(el, tr.addns('h:FractionCoolLoadServed'))
+        frac_load.text = '0'
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual(1, len(res['building']['systems']['hvac']))
+        self.assertEqual('heat_pump', res['building']['systems']['hvac'][0]['heating']['type'])
+        self.assertEqual('none', res['building']['systems']['hvac'][0]['cooling']['type'])
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 
