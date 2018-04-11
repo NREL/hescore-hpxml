@@ -1652,7 +1652,7 @@ class HPXMLtoHEScoreTranslator(object):
                 clg_weight = cooling_systems[clg_id][cooling_weighting_factor] / weight_sum
             except KeyError:
                 continue
-            if abs(htg_weight - clg_weight) > 0.05:
+            if abs(htg_weight - clg_weight) > 0.051:
                 raise TranslationError('Heating system "%s" and cooling system "%s" are attached to the same ' % (htg_id, clg_id) +
                                        'distribution system "%s" need to serve the same fraction of the load within 5%% but do not.' % duct_id)
 
