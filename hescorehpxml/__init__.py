@@ -83,7 +83,7 @@ def round_to_nearest(x, vals, tails_tolerance=None):
 
 
 class HPXMLtoHEScoreTranslator(object):
-    schemaversions = ('hpxml-2.2.1', 'hpxml-2.1.0', 'hpxml-1.1.1')
+    schemaversions = ('hpxml-2.3.0', 'hpxml-2.2.1', 'hpxml-2.1.0', 'hpxml-1.1.1')
 
     def __init__(self, hpxmlfilename):
 
@@ -296,6 +296,7 @@ class HPXMLtoHEScoreTranslator(object):
             try:
                 sys_heating['type'] = {'Furnace': 'central_furnace',
                                        'WallFurnace': 'wall_furnace',
+                                       'FloorFurnace': 'wall_furnace',
                                        'Boiler': 'boiler',
                                        'ElectricResistance': 'baseboard',
                                        'Stove': 'wood_stove'}[hpxml_heating_type]
@@ -892,11 +893,21 @@ class HPXMLtoHEScoreTranslator(object):
                                                                                                 hpxml_attic_type))
 
             # Roof color
-            try:
-                atticd['roofcolor'] = {'light': 'light', 'medium': 'medium', 'dark': 'dark', 'reflective': 'white'}[
-                    xpath(roof, 'h:RoofColor/text()')]
-            except KeyError:
-                raise TranslationError('Attic {}: Invalid or missing RoofColor'.format(atticid))
+            solar_absorptance = convert_to_type(float, xpath(roof, 'h:SolarAbsorptance/text()'))
+            if solar_absorptance is not None:
+                atticd['roofcolor'] = 'cool_color'
+                atticd['roof_absorptance'] = solar_absorptance
+            else:
+                try:
+                    atticd['roofcolor'] = {
+                        'light': 'light',
+                        'medium': 'medium',
+                        'medium dark': 'medium_dark',
+                        'dark': 'dark',
+                        'reflective': 'white'
+                    }[xpath(roof, 'h:RoofColor/text()')]
+                except KeyError:
+                    raise TranslationError('Attic {}: Invalid or missing RoofColor'.format(atticid))
 
             # Exterior finish
             hpxml_roof_type = xpath(roof, 'h:RoofType/text()')
@@ -1019,6 +1030,8 @@ class HPXMLtoHEScoreTranslator(object):
             zone_roof_item['roof_area'] = atticd['roof_area']
             zone_roof_item['roof_assembly_code'] = 'rf%s%02d%s' % (atticd['roofconstype'], roof_rvalue, atticd['extfinish'])
             zone_roof_item['roof_color'] = atticd['roofcolor']
+            if 'roof_absorptance' in atticd:
+                zone_roof_item['roof_absorptance'] = atticd['roof_absorptance']
             zone_roof_item['roof_type'] = atticd['rooftype']
             zone_roof_item['_roofids'] = atticd['_roofids']
             if atticd['rooftype'] != 'cath_ceiling':
