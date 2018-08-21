@@ -1,5 +1,4 @@
 import os
-import json
 import unittest
 import datetime as dt
 from lxml import etree
@@ -1349,6 +1348,41 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             r'Either a MaxPowerOutput must be specified for every PVSystem or CollectorArea',
             tr.hpxml_to_hescore_dict
         )
+
+
+class TesHPXMLVersion2Point3(unittest.TestCase, ComparatorBase):
+
+    def test_floor_furnace(self):
+        tr = self._load_xmlfile('hescore_min')
+        htg_sys_type = self.xpath('//h:HeatingSystemType')
+        htg_sys_type.clear()
+        etree.SubElement(htg_sys_type, tr.addns('h:FloorFurnace'))
+        d = tr.hpxml_to_hescore_dict()
+        self.assertEqual(
+            d['building']['systems']['hvac'][0]['heating']['type'],
+            'wall_furnace'
+        )
+
+    def test_medium_dark_roof_color(self):
+        tr = self._load_xmlfile('hescore_min')
+        roof_color = self.xpath('//h:RoofColor')
+        roof_color.text = 'medium dark'
+        d = tr.hpxml_to_hescore_dict()
+        self.assertEqual(
+            d['building']['zone']['zone_roof'][0]['roof_color'],
+            'medium_dark'
+        )
+
+    def test_roof_absorptance(self):
+        tr = self._load_xmlfile('hescore_min')
+        roof_color = self.xpath('//h:RoofColor')
+        el = etree.Element(tr.addns('h:SolarAbsorptance'))
+        el.text = '0.3'
+        roof_color.addnext(el)
+        d = tr.hpxml_to_hescore_dict()
+        roofd = d['building']['zone']['zone_roof'][0]
+        self.assertEqual(roofd['roof_color'], 'cool_color')
+        self.assertAlmostEqual(roofd['roof_absorptance'], 0.3)
 
 
 if __name__ == "__main__":

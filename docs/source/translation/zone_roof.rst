@@ -56,22 +56,19 @@ according to the following mapping.
 
 .. table:: HPXML to HEScore roof color mapping
 
-   ==========  =======
-   HPXML       HEScore
-   ==========  =======
-   light       light
-   medium      medium
-   dark        dark
-   reflective  white
-   ==========  =======
+   ===========  ===========
+   HPXML        HEScore
+   ===========  ===========
+   light        light
+   medium       medium
+   medium dark  medium_dark
+   dark         dark
+   reflective   white
+   ===========  ===========
 
-.. note::
-
-   HEScore allows for more detailed roof color descriptions than HPXML. 
-   There is no way in HPXML to specify the following HEScore roof colors:
-   
-   - medium_dark
-   - cool_color (along with the absorptivity, which is also missing an HPXML element.)
+If the ``Roof/SolarAbsorptance`` element is present, the HEScore roof color is
+set to "cool_color" and the recorded absorptance will be sent to HEScore under
+the "roof_absorptance" element.
 
 Exterior Finish
 ***************

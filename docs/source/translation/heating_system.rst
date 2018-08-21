@@ -59,6 +59,7 @@ is done according to the following mapping.
    =========================  ====================
    Furnace                    central_furnace
    WallFurnace                wall_furnace
+   FloorFurnace               wall_furnace
    Boiler                     boiler
    ElectricResistance         baseboard
    Stove                      wood_stove
