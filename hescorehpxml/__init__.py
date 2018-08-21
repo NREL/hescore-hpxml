@@ -913,7 +913,7 @@ class HPXMLtoHEScoreTranslator(object):
             hpxml_roof_type = xpath(roof, 'h:RoofType/text()')
             try:
                 atticd['extfinish'] = {'shingles': 'co',
-                                       'slate or tile shingles': 'lc',
+                                       'slate or tile shingles': 'rc',
                                        'wood shingles or shakes': 'wo',
                                        'asphalt or fiberglass shingles': 'co',
                                        'metal surfacing': 'co',

@@ -573,7 +573,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         etree.SubElement(insmat, tr.addns('h:Rigid')).text = 'xps'
         etree.SubElement(lyr, tr.addns('h:NominalRValue')).text = '20'
         hesinp = tr.hpxml_to_hescore_dict()
-        self.assertEqual(hesinp['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfps21lc')
+        self.assertEqual(hesinp['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfps21rc')
 
     def test_extra_wall_sheathing_insulation(self):
         '''
