@@ -325,7 +325,21 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:Window[h:GlassLayers="single-pane"]/h:FrameType/h:Aluminum')
         etree.SubElement(el, tr.addns('h:ThermalBreak')).text = "true"
         self.assertRaisesRegexp(TranslationError,
-                                'Cannot translate window type\.',
+                                'There is no compatible HEScore window type for',
+                                tr.hpxml_to_hescore_dict)
+
+    def test_impossible_triple_pane_window(self):
+        tr = self._load_xmlfile('hescore_min')
+        frame_type = self.xpath('//h:Window[h:SystemIdentifier/@id="window4"]/h:FrameType')
+        frame_type.clear()
+        etree.SubElement(frame_type, tr.addns('h:Aluminum'))
+        window = frame_type.getparent()
+        glass_layers = self.xpath('//h:Window[h:SystemIdentifier/@id="window4"]/h:GlassLayers')
+        glass_layers.text = 'triple-pane'
+        etree.SubElement(window, tr.addns('h:GlassType')).text = 'low-e'
+        etree.SubElement(window, tr.addns('h:GasFill')).text = 'argon'
+        self.assertRaisesRegexp(TranslationError,
+                                'There is no compatible HEScore window type for',
                                 tr.hpxml_to_hescore_dict)
 
     def test_impossible_heating_system_type(self):

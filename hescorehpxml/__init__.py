@@ -209,6 +209,8 @@ class HPXMLtoHEScoreTranslator(object):
 
         window_code = None
         frame_type = xpath(window, 'name(h:FrameType/*)')
+        if frame_type == '':
+            frame_type = None
         glass_layers = xpath(window, 'h:GlassLayers/text()')
         glass_type = xpath(window, 'h:GlassType/text()')
         gas_fill = xpath(window, 'h:GasFill/text()')
@@ -268,7 +270,12 @@ class HPXMLtoHEScoreTranslator(object):
                 window_code = 'thmabw'
 
         if window_code is None:
-            raise TranslationError('Cannot translate window type.')
+            raise TranslationError('There is no compatible HEScore window type for FrameType="{}", GlassLayers="{}", GlassType="{}", GasFill="{}"'.format(
+                frame_type,
+                glass_layers,
+                glass_type,
+                gas_fill
+            ))
         return window_code
 
     heat_pump_type_map = {'water-to-air': 'gchp',
