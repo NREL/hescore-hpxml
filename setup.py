@@ -7,14 +7,15 @@ here = path.abspath(path.dirname(__file__))
 
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='hescore-hpxml',
-    version='3.1.4',
+    version='4.0.0',
     description='HPXML Translator for the HEScore API',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/NREL/hescore-hpxml',
     author='Noel Merket (NREL)',
     author_email='noel.merket@nrel.gov',
