@@ -1103,8 +1103,8 @@ class HPXMLtoHEScoreTranslator(object):
             zone_skylight['skylight_code'] = max(skylight_type_areas.items(), key=lambda x: x[1])[0]
         skylight_sunscreen_areas = {}
         for skylight in skylights:
-            solar_screen = bool(xpath(skylight, 'h:Treatments/text()') is 'solar screen'
-                                or xpath(skylight, 'h:ExteriorShading/text()') is 'solar screens')
+            solar_screen = bool(xpath(skylight, 'h:Treatments/text()') == 'solar screen'
+                                or xpath(skylight, 'h:ExteriorShading/text()') == 'solar screens')
             area = convert_to_type(float, xpath(skylight, 'h:Area/text()'))
             try:
                 skylight_sunscreen_areas[str(solar_screen)] += area
@@ -1389,8 +1389,8 @@ class HPXMLtoHEScoreTranslator(object):
 
             windowd['uvalue'] = convert_to_type(float, xpath(hpxmlwndw, 'h:UFactor/text()'))
             windowd['shgc'] = convert_to_type(float, xpath(hpxmlwndw, 'h:SHGC/text()'))
-            windowd['sun_screen'] = bool(xpath(hpxmlwndw, 'h:Treatments/text()') is 'solar screen'
-                                         or xpath(hpxmlwndw, 'h:ExteriorShading/text()') is 'solar screens')
+            windowd['sun_screen'] = bool(xpath(hpxmlwndw, 'h:Treatments/text()') == 'solar screen'
+                                         or xpath(hpxmlwndw, 'h:ExteriorShading/text()') == 'solar screens')
             if windowd['uvalue'] is not None and windowd['shgc'] is not None:
                 windowd['window_code'] = None
             else:
@@ -1500,8 +1500,8 @@ class HPXMLtoHEScoreTranslator(object):
                 continue
 
             # Get the list of uvalues and shgcs for the windows on this side of the house.
-            uvalues, shgcs, areas, sun_screen = map(list,
-                                        zip(*[[window[x] for x in ('uvalue', 'shgc', 'area','sun_screen')] for window in windows]))
+            uvalues, shgcs, areas = map(list,
+                                        zip(*[[window[x] for x in ('uvalue', 'shgc', 'area')] for window in windows]))
 
             zone_window['window_area'] = sum(areas)
 
