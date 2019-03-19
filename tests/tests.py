@@ -1399,5 +1399,22 @@ class TesHPXMLVersion2Point3(unittest.TestCase, ComparatorBase):
         self.assertAlmostEqual(roofd['roof_absorptance'], 0.3)
 
 
+class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
+
+    def test_solar_screens(self):
+        tr = self._load_xmlfile('house6')
+        gasfill1 = self.xpath('//h:Window[h:SystemIdentifier/@id="frontwindows"]/h:GasFill')
+        el = etree.Element(tr.addns('h:Treatments'))
+        el.text = 'solar screen'
+        gasfill1.addnext(el)
+
+        d = tr.hpxml_to_hescore_dict()
+
+        for wall in d['building']['zone']['zone_wall']:
+            if wall['side'] == 'front':
+                self.assertTrue(wall['zone_window']['solar_screen'])
+            else:
+                self.assertFalse(wall['zone_window']['solar_screen'])
+
 if __name__ == "__main__":
     unittest.main()
