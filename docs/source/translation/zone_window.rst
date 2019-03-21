@@ -50,8 +50,8 @@ Preference is given to the first choice above if those values are available in
 the HPXML document. If U-Factor and SHGC are not available, then one of the
 window codes is chosen based on the other properties of the windows. A boolean
 is used to describe if the solar screen method is used for each window. Both
-"ExteriorShading" and "Treatments" in HPXML specifying "solar screens" / "solar
-screen" would turn on the "solar_screen" boolean. Since
+``ExteriorShading`` and ``Treatments`` in HPXML specifying ``solar screens`` / ``solar
+screen`` would turn on the "solar_screen" boolean. Since
 HPXML stores the window properties for each window, the properties for the
 windows on each side of the house must be aggregated across all of the windows
 on that side. The NFRC used area weighted average for aggregation while the window type
