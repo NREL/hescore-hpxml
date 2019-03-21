@@ -1,0 +1,43 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:2
+    steps:
+      - checkout
+      - run:
+          name: Install hescore-hpxml
+          command: |
+            pip install --user virtualenv
+            python -m virtualenv env
+            source env/bin/activate
+            pip install --progress-bar off .[dev]
+      - run:
+          name: Run Unittests
+          command: |
+            source env/bin/activate
+            python -m unittest discover -s tests
+      - run:
+          name: Run coverage tests
+          when: always
+          command: |
+            set +e
+            source env/bin/activate
+            python -m coverage run --source=hescorehpxml -m unittest discover -s tests > /dev/null 2>&1
+            python -m coverage report -m
+            python -m coverage html -d /tmp/coverage_report
+      - store_artifacts:
+          path: /tmp/coverage_report
+          destination: coverage-report
+      - run:
+          name: Build documentation
+          when: always
+          command: |
+            source env/bin/activate
+            cd docs
+            make html
+            mkdir /tmp/docs
+            cp -r build/html/* /tmp/docs
+      - store_artifacts:
+          path: /tmp/docs
+          destination: docs
