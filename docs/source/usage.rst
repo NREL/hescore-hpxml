@@ -93,7 +93,8 @@ If you're not sure, just click "Download ZIP".
 
 Open a terminal and use ``pip`` to install it in developer mode::
 
-    pip install -e path/to/hescore-hpxml
+    cd path/to/hescore-hpxml
+    pip install -e .[dev]
 
 Running the Translator
 ======================

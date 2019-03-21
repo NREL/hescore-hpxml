@@ -34,6 +34,15 @@ setup(
     keywords='home energy score hescore doe nrel',
     packages=['hescorehpxml'],
     install_requires=['lxml'],
+    extras_require={
+        'dev': [
+            'flake8',
+            'coverage',
+            'sphinx',
+            'sphinx_rtd_theme',
+            'sphinx-autobuild'
+        ]
+    },
     include_package_data=True,
     entry_points={
         'console_scripts': [

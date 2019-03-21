@@ -239,4 +239,9 @@ if "%1" == "pseudoxml" (
 	goto end
 )
 
+if "%1" == "livehtml" (
+	sphinx-autobuild --open-browser -b html %ALLSPHINXOPTS% %BUILDDIR%/html
+	goto end
+)
+
 :end
