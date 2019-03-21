@@ -1107,10 +1107,10 @@ class HPXMLtoHEScoreTranslator(object):
                                 or xpath(skylight, 'h:ExteriorShading/text()') == 'solar screens')
             area = convert_to_type(float, xpath(skylight, 'h:Area/text()'))
             try:
-                skylight_sunscreen_areas[str(solar_screen)] += area
+                skylight_sunscreen_areas[solar_screen] += area
             except KeyError:
-                skylight_sunscreen_areas[str(solar_screen)] = area
-        zone_skylight['solar_screen'] = json.loads(max(skylight_sunscreen_areas.items(), key=lambda x: x[1])[0].lower())
+                skylight_sunscreen_areas[solar_screen] = area
+        zone_skylight['solar_screen'] = max(skylight_sunscreen_areas.items(), key=lambda x: x[1])[0]
         return zone_skylight
 
     def _get_building_zone_floor(self, b, bldg_about):
@@ -1539,10 +1539,10 @@ class HPXMLtoHEScoreTranslator(object):
             window_sunscreen_areas = {}
             for window in windows:
                 try:
-                    window_sunscreen_areas[str(window['sun_screen'])] += window['area']
+                    window_sunscreen_areas[window['sun_screen']] += window['area']
                 except KeyError:
-                    window_sunscreen_areas[str(window['sun_screen'])] = window['area']
-            zone_window['solar_screen'] = json.loads(max(window_sunscreen_areas.items(), key=lambda x: x[1])[0].lower())
+                    window_sunscreen_areas[window['sun_screen']] = window['area']
+            zone_window['solar_screen'] = max(window_sunscreen_areas.items(), key=lambda x: x[1])[0]
         return zone_wall
 
     eff_method_map = {'user': 'efficiency', 'shipment_weighted': 'year'}
