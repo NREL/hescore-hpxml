@@ -15,7 +15,7 @@ setup(
     version='4.0.0',
     description='HPXML Translator for the HEScore API',
     long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description_content type='text/markdown',
     url='https://github.com/NREL/hescore-hpxml',
     author='Noel Merket (NREL)',
     author_email='noel.merket@nrel.gov',
