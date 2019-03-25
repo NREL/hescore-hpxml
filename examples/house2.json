@@ -52,7 +52,8 @@
             "window_area": 45.0, 
             "window_method": "custom", 
             "window_u_value": 0.65, 
-            "window_shgc": 0.8
+            "window_shgc": 0.8, 
+            "solar_screen": false
           }
         }, 
         {
@@ -62,7 +63,8 @@
             "window_area": 108.0, 
             "window_method": "custom", 
             "window_u_value": 0.51, 
-            "window_shgc": 0.35
+            "window_shgc": 0.35, 
+            "solar_screen": false
           }
         }, 
         {
@@ -72,7 +74,8 @@
             "window_area": 60.0, 
             "window_method": "custom", 
             "window_u_value": 0.67, 
-            "window_shgc": 0.55
+            "window_shgc": 0.55, 
+            "solar_screen": false
           }
         }, 
         {
@@ -82,7 +85,8 @@
             "window_area": 135.3333333, 
             "window_method": "custom", 
             "window_u_value": 0.25, 
-            "window_shgc": 0.42000000000000004
+            "window_shgc": 0.42000000000000004, 
+            "solar_screen": false
           }
         }
       ]

@@ -51,7 +51,8 @@
           "zone_window": {
             "window_area": 45.0, 
             "window_method": "code", 
-            "window_code": "dcaa"
+            "window_code": "dcaa", 
+            "solar_screen": false
           }
         }, 
         {
@@ -60,7 +61,8 @@
           "zone_window": {
             "window_area": 108.0, 
             "window_method": "code", 
-            "window_code": "dcaa"
+            "window_code": "dcaa", 
+            "solar_screen": false
           }
         }, 
         {
@@ -69,7 +71,8 @@
           "zone_window": {
             "window_area": 60.0, 
             "window_method": "code", 
-            "window_code": "dcaw"
+            "window_code": "dcaw", 
+            "solar_screen": false
           }
         }, 
         {
@@ -78,7 +81,8 @@
           "zone_window": {
             "window_area": 135.3333333, 
             "window_method": "code", 
-            "window_code": "stnw"
+            "window_code": "stnw", 
+            "solar_screen": false
           }
         }
       ]

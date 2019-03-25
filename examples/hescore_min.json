@@ -31,7 +31,8 @@
           "zone_skylight": {
             "skylight_area": 11.0, 
             "skylight_method": "code", 
-            "skylight_code": "dcab"
+            "skylight_code": "dcab", 
+            "solar_screen": false
           }
         }
       ], 
@@ -54,7 +55,8 @@
             "window_area": 1.0, 
             "window_method": "custom", 
             "window_u_value": 1.0, 
-            "window_shgc": 0.75
+            "window_shgc": 0.75, 
+            "solar_screen": false
           }
         }, 
         {
@@ -63,7 +65,8 @@
           "zone_window": {
             "window_area": 2.0, 
             "window_method": "code", 
-            "window_code": "dcaw"
+            "window_code": "dcaw", 
+            "solar_screen": false
           }
         }, 
         {
@@ -72,7 +75,8 @@
           "zone_window": {
             "window_area": 3.0, 
             "window_method": "code", 
-            "window_code": "dcaw"
+            "window_code": "dcaw", 
+            "solar_screen": false
           }
         }, 
         {
@@ -81,7 +85,8 @@
           "zone_window": {
             "window_area": 4.0, 
             "window_method": "code", 
-            "window_code": "dcaw"
+            "window_code": "dcaw", 
+            "solar_screen": false
           }
         }
       ]

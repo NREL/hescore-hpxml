@@ -1,7 +1,7 @@
 HPXML to Home Energy Score Translator
 =====================================
 
-[![image](https://travis-ci.org/NREL/hescore-hpxml.svg?branch=master)](https://travis-ci.org/NREL/hescore-hpxml)
+[![CircleCI](https://circleci.com/gh/NREL/hescore-hpxml.svg?style=svg)](https://circleci.com/gh/NREL/hescore-hpxml)
 
 This translator script takes an HPXML file or directory of files as an
 input and generates HEScore inputs from it. The HEScore inputs are

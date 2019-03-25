@@ -17,7 +17,7 @@
       "conditioned_floor_area": 2323, 
       "orientation": "south_east", 
       "blower_door_test": true, 
-      "envelope_leakage": 4200.0
+      "envelope_leakage": 4200
     }, 
     "zone": {
       "zone_roof": [
@@ -58,7 +58,8 @@
           "zone_window": {
             "window_area": 80.0, 
             "window_method": "code", 
-            "window_code": "thmabw"
+            "window_code": "thmabw", 
+            "solar_screen": false
           }
         }, 
         {
@@ -67,7 +68,8 @@
           "zone_window": {
             "window_area": 144.0, 
             "window_method": "code", 
-            "window_code": "thmabw"
+            "window_code": "thmabw", 
+            "solar_screen": false
           }
         }, 
         {
@@ -76,7 +78,8 @@
           "zone_window": {
             "window_area": 72.0, 
             "window_method": "code", 
-            "window_code": "thmabw"
+            "window_code": "thmabw", 
+            "solar_screen": false
           }
         }, 
         {
@@ -85,7 +88,8 @@
           "zone_window": {
             "window_area": 105.0, 
             "window_method": "code", 
-            "window_code": "thmabw"
+            "window_code": "thmabw", 
+            "solar_screen": false
           }
         }
       ]

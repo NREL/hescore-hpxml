@@ -51,7 +51,8 @@
           "zone_window": {
             "window_area": 108.0, 
             "window_method": "code", 
-            "window_code": "dcaw"
+            "window_code": "dcaw", 
+            "solar_screen": false
           }
         }, 
         {
@@ -60,7 +61,8 @@
           "zone_window": {
             "window_area": 112.0, 
             "window_method": "code", 
-            "window_code": "dcaw"
+            "window_code": "dcaw", 
+            "solar_screen": false
           }
         }
       ]
