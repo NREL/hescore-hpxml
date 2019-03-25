@@ -1859,7 +1859,7 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             primarydhw = water_heating_systems
         water_heater_type = xpath(primarydhw, 'h:WaterHeaterType/text()')
-        if water_heater_type in ('storage water heater', 'instantaneous water heater', 'dedicated boiler with storage tank'):
+        if water_heater_type in ('storage water heater',  'dedicated boiler with storage tank'):
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'storage'
             sys_dhw['fuel_primary'] = self.fuel_type_mapping[xpath(primarydhw, 'h:FuelType/text()')]
@@ -1873,6 +1873,9 @@ class HPXMLtoHEScoreTranslator(object):
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'heat_pump'
             sys_dhw['fuel_primary'] = 'electric'
+        elif water_heater_type == 'instantaneous water heater':
+            sys_dhw['category'] = 'unit'
+            sys_dhw['type'] = 'tankless'
         else:
             raise TranslationError('HEScore cannot model the water heater type: %s' % water_heater_type)
 
@@ -1881,6 +1884,8 @@ class HPXMLtoHEScoreTranslator(object):
             if energyfactor is not None:
                 sys_dhw['efficiency_method'] = 'user'
                 sys_dhw['energy_factor'] = round(float(energyfactor), 2)
+            elif sys_dhw['type'] == 'tankless':
+                raise TranslationError('Tankless water heater efficiency cannot be estimated by shipment weighted method.')
             else:
                 dhwyear = int(xpath(primarydhw, '(h:YearInstalled|h:ModelYear)[1]/text()'))
                 if dhwyear < 1972:
