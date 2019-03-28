@@ -48,15 +48,10 @@ Windows can be specified in one of two different ways in HEScore:
 
 Preference is given to the first choice above if those values are available in
 the HPXML document. If U-Factor and SHGC are not available, then one of the
-window codes is chosen based on the other properties of the windows. A boolean
-is used to describe if the solar screen method is used for each window. Both
-``ExteriorShading`` and ``Treatments`` in HPXML specifying ``solar screens`` / ``solar
-screen`` would turn on the "solar_screen" boolean. Since
+window codes is chosen based on the other properties of the windows. Since
 HPXML stores the window properties for each window, the properties for the
 windows on each side of the house must be aggregated across all of the windows
-on that side. The NFRC used area weighted average for aggregation while the window type
-selection subjects to the most predominant window code by area. Solar screen output follows the same rule as the latter one.
-The processes described below are done independently for the
+on that side. The processes described below are done independently for the
 windows on each side of the house.
 
 Defining windows using NFRC specifications
@@ -420,4 +415,17 @@ If the ``GlassLayers`` in HPXML specifies a "triple-paned" window, the HEScore
 ``GlassType`` and ``GasFill`` elements are not considered since this is the
 only triple-pane glazing option in HEScore.
 
+Solar Screens
+*************
 
+For each side of the house in HEScore, a solar screen may be present. 
+To determine if a solar screen should be specified, the translator looks for either 
+of the following subelements of ``Window`` or ``Skylight``:
+
+- ``<ExteriorShading>solar screens</ExteriorShading>``
+- ``<Treatments>solar screen</Treatments>`` 
+
+If the majority of the window area on a side of the house (or skylights facing upwards)
+meet that criteria, that side of the house will have solar screens in the HEScore model. 
+This determination is made independent of whether the other window properties were set 
+using NFRC specifications or inferred based on window type.
