@@ -415,4 +415,17 @@ If the ``GlassLayers`` in HPXML specifies a "triple-paned" window, the HEScore
 ``GlassType`` and ``GasFill`` elements are not considered since this is the
 only triple-pane glazing option in HEScore.
 
+Solar Screens
+*************
 
+For each side of the house in HEScore, a solar screen may be present. 
+To determine if a solar screen should be specified, the translator looks for either 
+of the following subelements of ``Window`` or ``Skylight``:
+
+- ``<ExteriorShading>solar screens</ExteriorShading>``
+- ``<Treatments>solar screen</Treatments>`` 
+
+If the majority of the window area on a side of the house (or skylights facing upwards)
+meet that criteria, that side of the house will have solar screens in the HEScore model. 
+This determination is made independent of whether the other window properties were set 
+using NFRC specifications or inferred based on window type.

@@ -1399,5 +1399,44 @@ class TesHPXMLVersion2Point3(unittest.TestCase, ComparatorBase):
         self.assertAlmostEqual(roofd['roof_absorptance'], 0.3)
 
 
+class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
+
+    def test_window_solar_screens(self):
+        tr = self._load_xmlfile('house6')
+        gasfill_front = self.xpath('//h:Window[h:SystemIdentifier/@id="frontwindows"]/h:GasFill')
+        gassfil_back = self.xpath('//h:Window[h:SystemIdentifier/@id="backwindows"]/h:GasFill')
+        el1 = etree.Element(tr.addns('h:Treatments'))
+        el2 = etree.Element(tr.addns('h:ExteriorShading'))
+        el1.text = 'solar screen'
+        el2.text = 'solar screens'
+        gasfill_front.addnext(el1)
+        gassfil_back.addnext(el2)
+        d = tr.hpxml_to_hescore_dict()
+
+        for wall in d['building']['zone']['zone_wall']:
+            if wall['side'] == 'front' or wall['side'] == 'back':
+                self.assertTrue(wall['zone_window']['solar_screen'])
+            else:
+                self.assertFalse(wall['zone_window']['solar_screen'])
+
+    def test_skylight_solar_screens_Treatments(self):
+        tr = self._load_xmlfile('house4')
+        glasstype = self.xpath('//h:Skylight[h:SystemIdentifier/@id="skylights"]/h:GlassType')
+        el = etree.Element(tr.addns('h:Treatments'))
+        el.text = 'solar screen'
+        glasstype.addnext(el)
+        d = tr.hpxml_to_hescore_dict()
+        self.assertTrue(d['building']['zone']['zone_roof'][0]['zone_skylight']['solar_screen'])
+
+    def test_skylight_solar_screens_ExteriorShading(self):
+        tr = self._load_xmlfile('house4')
+        glasstype = self.xpath('//h:Skylight[h:SystemIdentifier/@id="skylights"]/h:GlassType')
+        el2 = etree.Element(tr.addns('h:ExteriorShading'))
+        el2.text = 'solar screens'
+        glasstype.addnext(el2)
+        d = tr.hpxml_to_hescore_dict()
+        self.assertTrue(d['building']['zone']['zone_roof'][0]['zone_skylight']['solar_screen'])
+
+
 if __name__ == "__main__":
     unittest.main()

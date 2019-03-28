@@ -1101,7 +1101,16 @@ class HPXMLtoHEScoreTranslator(object):
                     skylight_type_areas[skylight_code] = area
             zone_skylight['skylight_method'] = 'code'
             zone_skylight['skylight_code'] = max(skylight_type_areas.items(), key=lambda x: x[1])[0]
-
+        skylight_sunscreen_areas = {}
+        for skylight in skylights:
+            solar_screen = bool(xpath(skylight, 'h:Treatments/text()') == 'solar screen'
+                                or xpath(skylight, 'h:ExteriorShading/text()') == 'solar screens')
+            area = convert_to_type(float, xpath(skylight, 'h:Area/text()'))
+            try:
+                skylight_sunscreen_areas[solar_screen] += area
+            except KeyError:
+                skylight_sunscreen_areas[solar_screen] = area
+        zone_skylight['solar_screen'] = max(skylight_sunscreen_areas.items(), key=lambda x: x[1])[0]
         return zone_skylight
 
     def _get_building_zone_floor(self, b, bldg_about):
@@ -1371,7 +1380,7 @@ class HPXMLtoHEScoreTranslator(object):
         hpxmlwindows = dict([(side, []) for side in sidemap.values()])
         for hpxmlwndw in b.xpath('h:BuildingDetails/h:Enclosure/h:Windows/h:Window', namespaces=ns):
 
-            # Get the area, uvalue, SHGC, or window_code
+            # Get the area, solar screen, uvalue, SHGC, or window_code
             windowd = {'area': convert_to_type(float, xpath(hpxmlwndw, 'h:Area/text()'))}
 
             # Make sure every window has an area
@@ -1380,6 +1389,8 @@ class HPXMLtoHEScoreTranslator(object):
 
             windowd['uvalue'] = convert_to_type(float, xpath(hpxmlwndw, 'h:UFactor/text()'))
             windowd['shgc'] = convert_to_type(float, xpath(hpxmlwndw, 'h:SHGC/text()'))
+            windowd['sun_screen'] = bool(xpath(hpxmlwndw, 'h:Treatments/text()') == 'solar screen'
+                                         or xpath(hpxmlwndw, 'h:ExteriorShading/text()') == 'solar screens')
             if windowd['uvalue'] is not None and windowd['shgc'] is not None:
                 windowd['window_code'] = None
             else:
@@ -1485,6 +1496,7 @@ class HPXMLtoHEScoreTranslator(object):
                 zone_window['window_area'] = 0
                 zone_window['window_method'] = 'code'
                 zone_window['window_code'] = 'scna'
+                zone_window['sun_screen'] = False
                 continue
 
             # Get the list of uvalues and shgcs for the windows on this side of the house.
@@ -1506,7 +1518,6 @@ class HPXMLtoHEScoreTranslator(object):
                 shgcs.pop(i)
                 areas.pop(i)
             assert len(uvalues) == len(shgcs)
-
             if len(uvalues) > 0:
                 # Use an area weighted average of the uvalues, shgcs
                 zone_window['window_method'] = 'custom'
@@ -1525,7 +1536,13 @@ class HPXMLtoHEScoreTranslator(object):
                     except KeyError:
                         window_code_areas[window['window_code']] = window['area']
                 zone_window['window_code'] = max(window_code_areas.items(), key=lambda x: x[1])[0]
-
+            window_sunscreen_areas = {}
+            for window in windows:
+                try:
+                    window_sunscreen_areas[window['sun_screen']] += window['area']
+                except KeyError:
+                    window_sunscreen_areas[window['sun_screen']] = window['area']
+            zone_window['solar_screen'] = max(window_sunscreen_areas.items(), key=lambda x: x[1])[0]
         return zone_wall
 
     eff_method_map = {'user': 'efficiency', 'shipment_weighted': 'year'}
