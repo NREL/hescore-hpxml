@@ -1476,5 +1476,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         self.assertEqual(system['efficiency_method'], 'uef')
         self.assertEqual(system['type'], 'tankless')
         self.assertAlmostEqual(system['energy_factor'],0.7)
+
+
 if __name__ == "__main__":
     unittest.main()
