@@ -1439,16 +1439,31 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
 
     def test_duct_location_validation(self):
         tr = self._load_xmlfile('house1')
-        ductloc1 = self.xpath('//h:HVACDistribution[h:SystemIdentifier/@id="ductsys1"]/h:DistributionSystemType/h:AirDistribution/h:Ducts/h:DuctLocation')[2]
-        ductloc1.text = 'unvented crawlspace'
+        #duct1:vented crawl duct2:uncond_attic duct3:cond_space
+        #two duct type covered, two not
+        duct3oc1 = self.xpath('//h:HVACDistribution[h:SystemIdentifier/@id="ductsys1"]/h:DistributionSystemType/h:AirDistribution/h:Ducts/h:DuctLocation')[1]
+        duct3oc1.text = 'unvented crawlspace'
         rooftype = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]/h:AtticType')
+        Crawtype = self.xpath('//h:Foundation[h:SystemIdentifier/@id="crawl1"]/h:FoundationType/h:Crawlspace/h:Vented')
         self.assertRaisesRegexp(TranslationError,
-                                'HVAC distribution: duct2 location: unvented_crawl not exists in zone_floor/foundation_type: unvented_crawl.',
+                                'HVAC distribution: duct3 location: unvented_crawl not exists in zone_floor/foundation_type: unvented_crawl.',
                                 tr.hpxml_to_hescore_dict)
-        ductloc1.text =  'unconditioned attic'
-        rooftype.text = 'flat roof'
+
+        duct3oc1.text = 'unconditioned basement'
+        self.assertRaisesRegexp(TranslationError,
+                                'HVAC distribution: duct3 location: uncond_basement not exists in zone_floor/foundation_type: uncond_basement.',
+                                tr.hpxml_to_hescore_dict)
+
+        duct3oc1.text = 'conditioned space' #set back to cond_space to avoid previous error message
+        rooftype.text = 'flat roof' #change attic type
         self.assertRaisesRegexp(TranslationError,
                                 'HVAC distribution: duct2 location: uncond_attic not exists in zone_roof/roof_type: vented_attic.',
+                                tr.hpxml_to_hescore_dict)
+
+        rooftype.text = 'vented attic' #set back to vented_attic to avoid previous error message
+        Crawtype.text = 'false'
+        self.assertRaisesRegexp(TranslationError,
+                                'HVAC distribution: duct1 location: vented_crawl not exists in zone_floor/foundation_type: vented_crawl.',
                                 tr.hpxml_to_hescore_dict)
 
 
