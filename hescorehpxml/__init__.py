@@ -2076,6 +2076,33 @@ class HPXMLtoHEScoreTranslator(object):
                                     hvacd['fraction'],
                                     0, 100)
 
+                    #Test if the duct location exists in roof and floor types
+                    Duct_location_error = True
+                    if hvacd['location'] == 'uncond_basement':
+                        for zone_floor in hescore_inputs['building']['zone']['zone_floor']:
+                            if zone_floor['foundation_type'] == 'uncond_basement':Duct_location_error = False
+                        if Duct_location_error == True:
+                            raise TranslationError(
+                                'HVAC distribution: %(name)s location: %(location)s not exists in zone_floor/foundation_type: uncond_basement.' % hvacd)
+                    elif hvacd['location']=='unvented_crawl':
+                        for zone_floor in hescore_inputs['building']['zone']['zone_floor']:
+                            if zone_floor['foundation_type'] == 'unvented_crawl':Duct_location_error = False
+                        if Duct_location_error == True:
+                            raise TranslationError(
+                                'HVAC distribution: %(name)s location: %(location)s not exists in zone_floor/foundation_type: unvented_crawl.' % hvacd)
+                    elif hvacd['location']=='vented_crawl':
+                        for zone_floor in hescore_inputs['building']['zone']['zone_floor']:
+                            if zone_floor['foundation_type'] == 'vented_crawl':Duct_location_error = False
+                        if Duct_location_error == True:
+                            raise TranslationError(
+                                'HVAC distribution: %(name)s location: %(location)s not exists in zone_floor/foundation_type: vented_crawl.' % hvacd)
+                    elif hvacd['location']=='uncond_attic':
+                        for zone_roof in hescore_inputs['building']['zone']['zone_roof']:
+                            if zone_roof['roof_type'] == 'vented_attic':Duct_location_error = False
+                        if Duct_location_error == True:
+                            raise TranslationError(
+                                'HVAC distribution: %(name)s location: %(location)s not exists in zone_roof/roof_type: vented_attic.' % hvacd)
+
         dhw = hescore_inputs['building']['systems']['domestic_hot_water']
         if dhw['type'] in ('storage', 'heat_pump'):
             if dhw['efficiency_method'] == 'user':

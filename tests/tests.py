@@ -1437,6 +1437,20 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore_dict()
         self.assertTrue(d['building']['zone']['zone_roof'][0]['zone_skylight']['solar_screen'])
 
+    def test_duct_location_validation(self):
+        tr = self._load_xmlfile('house1')
+        ductloc1 = self.xpath('//h:HVACDistribution[h:SystemIdentifier/@id="ductsys1"]/h:DistributionSystemType/h:AirDistribution/h:Ducts/h:DuctLocation')[2]
+        ductloc1.text = 'unvented crawlspace'
+        rooftype = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]/h:AtticType')
+        self.assertRaisesRegexp(TranslationError,
+                                'HVAC distribution: duct2 location: unvented_crawl not exists in zone_floor/foundation_type: unvented_crawl.',
+                                tr.hpxml_to_hescore_dict)
+        ductloc1.text =  'unconditioned attic'
+        rooftype.text = 'flat roof'
+        self.assertRaisesRegexp(TranslationError,
+                                'HVAC distribution: duct2 location: uncond_attic not exists in zone_roof/roof_type: vented_attic.',
+                                tr.hpxml_to_hescore_dict)
+
 
 if __name__ == "__main__":
     unittest.main()
