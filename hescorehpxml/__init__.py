@@ -1545,8 +1545,6 @@ class HPXMLtoHEScoreTranslator(object):
             zone_window['solar_screen'] = max(window_sunscreen_areas.items(), key=lambda x: x[1])[0]
         return zone_wall
 
-    eff_method_map = {'user': 'efficiency', 'shipment_weighted': 'year'}
-
     def _get_hvac(self, b):
 
         def _get_dict_of_hpxml_elements_by_id(xpathexpr):
@@ -1876,7 +1874,7 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             primarydhw = water_heating_systems
         water_heater_type = xpath(primarydhw, 'h:WaterHeaterType/text()')
-        if water_heater_type in ('storage water heater', 'instantaneous water heater', 'dedicated boiler with storage tank'):
+        if water_heater_type in ('storage water heater',  'dedicated boiler with storage tank'):
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'storage'
             sys_dhw['fuel_primary'] = self.fuel_type_mapping[xpath(primarydhw, 'h:FuelType/text()')]
@@ -1890,20 +1888,35 @@ class HPXMLtoHEScoreTranslator(object):
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'heat_pump'
             sys_dhw['fuel_primary'] = 'electric'
+        elif water_heater_type == 'instantaneous water heater':
+            sys_dhw['category'] = 'unit'
+            sys_dhw['type'] = 'tankless'
         else:
             raise TranslationError('HEScore cannot model the water heater type: %s' % water_heater_type)
 
         if not sys_dhw['category'] == 'combined':
             energyfactor = xpath(primarydhw, 'h:EnergyFactor/text()')
-            if energyfactor is not None:
+            unified_energy_factor = xpath(primarydhw, 'h:UniformEnergyFactor/text()')
+            if unified_energy_factor is not None:
+                sys_dhw['efficiency_method'] = 'uef'
+                # Is the uniform energy factor also named "energy_factor"? Does it occur the situation both energy
+                # factors are given? This part automatically gives priority to uef since it's a new metric to replace \
+                # the old one.
+                sys_dhw['energy_factor'] = round(float(unified_energy_factor), 2)
+            elif energyfactor is not None:
                 sys_dhw['efficiency_method'] = 'user'
                 sys_dhw['energy_factor'] = round(float(energyfactor), 2)
             else:
-                dhwyear = int(xpath(primarydhw, '(h:YearInstalled|h:ModelYear)[1]/text()'))
-                if dhwyear < 1972:
-                    dhwyear = 1972
-                sys_dhw['efficiency_method'] = 'shipment_weighted'
-                sys_dhw['year'] = dhwyear
+                # Tankless type must use energy factor method
+                if sys_dhw['type'] == 'tankless':
+                    raise TranslationError(
+                        'Tankless water heater efficiency cannot be estimated by shipment weighted method.')
+                else:
+                    dhwyear = int(xpath(primarydhw, '(h:YearInstalled|h:ModelYear)[1]/text()'))
+                    if dhwyear < 1972:
+                        dhwyear = 1972
+                    sys_dhw['efficiency_method'] = 'shipment_weighted'
+                    sys_dhw['year'] = dhwyear
         return sys_dhw
 
     def _get_generation(self, b):
@@ -2092,9 +2105,10 @@ class HPXMLtoHEScoreTranslator(object):
                                 'HVAC distribution: %(name)s location: %(location)s not exists in zone_roof/floor types.' % hvacd)
 
         dhw = hescore_inputs['building']['systems']['domestic_hot_water']
-        if dhw['type'] in ('storage', 'heat_pump'):
-            if dhw['efficiency_method'] == 'user':
-                if dhw['type'] == 'storage':
+        # check range of uef with the same range as ef, add tankless into "type to check" list
+        if dhw['type'] in ('storage', 'heat_pump','tankless'):
+            if dhw['efficiency_method'] == 'user' or dhw['efficiency_method'] == 'uef':
+                if dhw['type'] == 'storage' or dhw['type'] == 'tankless':
                     do_bounds_check('domestic_hot_water_energy_factor', dhw['energy_factor'], 0.45, 1.0)
                 else:
                     assert dhw['type'] == 'heat_pump'
