@@ -1446,24 +1446,24 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         rooftype = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]/h:AtticType')
         Crawtype = self.xpath('//h:Foundation[h:SystemIdentifier/@id="crawl1"]/h:FoundationType/h:Crawlspace/h:Vented')
         self.assertRaisesRegexp(TranslationError,
-                                'HVAC distribution: duct3 location: unvented_crawl not exists in zone_floor/foundation_type: unvented_crawl.',
+                                'HVAC distribution: duct3 location: unvented_crawl not exists in zone_roof/floor types.',
                                 tr.hpxml_to_hescore_dict)
 
         duct3oc1.text = 'unconditioned basement'
         self.assertRaisesRegexp(TranslationError,
-                                'HVAC distribution: duct3 location: uncond_basement not exists in zone_floor/foundation_type: uncond_basement.',
+                                'HVAC distribution: duct3 location: uncond_basement not exists in zone_roof/floor types.',
                                 tr.hpxml_to_hescore_dict)
 
         duct3oc1.text = 'conditioned space' #set back to cond_space to avoid previous error message
         rooftype.text = 'flat roof' #change attic type
         self.assertRaisesRegexp(TranslationError,
-                                'HVAC distribution: duct2 location: uncond_attic not exists in zone_roof/roof_type: vented_attic.',
+                                'HVAC distribution: duct2 location: uncond_attic not exists in zone_roof/floor types.',
                                 tr.hpxml_to_hescore_dict)
 
         rooftype.text = 'vented attic' #set back to vented_attic to avoid previous error message
         Crawtype.text = 'false'
         self.assertRaisesRegexp(TranslationError,
-                                'HVAC distribution: duct1 location: vented_crawl not exists in zone_floor/foundation_type: vented_crawl.',
+                                'HVAC distribution: duct1 location: vented_crawl not exists in zone_roof/floor types.',
                                 tr.hpxml_to_hescore_dict)
 
 
