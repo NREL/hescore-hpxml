@@ -45,12 +45,15 @@ The fuel type is mapped according to the same mapping used in
 Water heating efficiency
 ************************
 
-If the ``WaterHeatingSystem/EnergyFactor`` or ``WaterHeatingSystem/UniformEnergyFactor`` element exists, that energy factor is
-sent to HEScore. When an energy factor cannot be found, HEScore can accept the
+If the ``WaterHeating/UniformEnergyFactor`` element exists, that is passed to 
+HEScore with an efficiency method of "uef".
+Otherwise if the ``WaterHeatingSystem/EnergyFactor`` element exists, that energy factor is
+sent to HEScore along with an efficiency method of "user", which tells it that to interpret it
+as a traditional energy factor. 
+When an energy factor cannot be found, HEScore can accept the
 year the equipment was installed and estimate the efficiency based on that. The
 year is retrieved from the ``YearInstalled`` element, and if that is not
 present the ``ModelYear`` element.
 
-If the DHW type is tankless, only energy factor could be used to describe efficiency, the estimation based on installed year is no longer available.
-
-
+If the DHW type is tankless, only energy factor or unified energy factor could be used to describe efficiency, 
+the estimation based on installed year is no longer available.

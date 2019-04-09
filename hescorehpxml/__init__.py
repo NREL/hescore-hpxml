@@ -1545,8 +1545,6 @@ class HPXMLtoHEScoreTranslator(object):
             zone_window['solar_screen'] = max(window_sunscreen_areas.items(), key=lambda x: x[1])[0]
         return zone_wall
 
-    eff_method_map = {'user': 'efficiency','uef':'efficiency', 'shipment_weighted': 'year'}
-
     def _get_hvac(self, b):
 
         def _get_dict_of_hpxml_elements_by_id(xpathexpr):
