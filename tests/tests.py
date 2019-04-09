@@ -1437,6 +1437,46 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore_dict()
         self.assertTrue(d['building']['zone']['zone_roof'][0]['zone_skylight']['solar_screen'])
 
+    def test_tankless_energyfactorerror(self):
+        tr = self._load_xmlfile('house4')
+        WHtype = self.xpath('//h:WaterHeatingSystem[h:SystemIdentifier/@id="dhw1"]/h:WaterHeaterType')
+        WHtype.text = 'instantaneous water heater'
+        self.assertRaisesRegexp(TranslationError,'Tankless water heater efficiency cannot be estimated by shipment weighted method\.',tr.hpxml_to_hescore_dict)
+
+    def test_tankless(self):
+        tr = self._load_xmlfile('house5')
+        WHtype = self.xpath('//h:WaterHeatingSystem[h:SystemIdentifier/@id="dhw1"]/h:WaterHeaterType')
+        WHtype.text = 'instantaneous water heater'
+        d = tr.hpxml_to_hescore_dict()
+        system = d['building']['systems']['domestic_hot_water']
+        self.assertEqual(system['efficiency_method'], 'user')
+        self.assertEqual(system['type'],'tankless')
+
+    # two energy factors
+    def test_uef_over_ef(self):
+        tr = self._load_xmlfile('house5')
+        EF = self.xpath('//h:WaterHeatingSystem[h:SystemIdentifier/@id="dhw1"]/h:EnergyFactor')
+        UEF = etree.Element(tr.addns('h:UniformEnergyFactor'))
+        UEF.text = '0.7'
+        EF.addnext(UEF)
+        d = tr.hpxml_to_hescore_dict()
+        system = d['building']['systems']['domestic_hot_water']
+        self.assertEqual(system['efficiency_method'], 'uef')
+        self.assertAlmostEqual(system['energy_factor'],0.7)
+
+    def test_uef_with_tankless(self):
+        tr = self._load_xmlfile('house4')
+        WHtype = self.xpath('//h:WaterHeatingSystem[h:SystemIdentifier/@id="dhw1"]/h:WaterHeaterType')
+        WHtype.text = 'instantaneous water heater'
+        UEF = etree.Element(tr.addns('h:UniformEnergyFactor'))
+        UEF.text = '0.7'
+        WHtype.addnext(UEF)
+        d = tr.hpxml_to_hescore_dict()
+        system = d['building']['systems']['domestic_hot_water']
+        self.assertEqual(system['efficiency_method'], 'uef')
+        self.assertEqual(system['type'], 'tankless')
+        self.assertAlmostEqual(system['energy_factor'],0.7)
+
 
 if __name__ == "__main__":
     unittest.main()
