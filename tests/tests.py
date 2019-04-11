@@ -1437,6 +1437,20 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore_dict()
         self.assertTrue(d['building']['zone']['zone_roof'][0]['zone_skylight']['solar_screen'])
 
+    def test_bldg_about_comment(self):
+        tr = self._load_xmlfile('house4')
+        project_el = etree.Element(tr.addns('h:Project'))
+        building_el = self.xpath('//h:Building')
+        building_el.addnext(project_el)
+        etree.SubElement(project_el, tr.addns('h:BuildingID'))
+        etree.SubElement(etree.SubElement(project_el, tr.addns('h:ProjectDetails')), tr.addns('h:ProjectSystemIdentifiers'))
+        etree.SubElement(self.xpath('//h:ProjectDetails'), tr.addns('Notes')).text = 'Project comment to test'
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual(res['building']['about']['comments'], 'Project comment to test')
+        comment = etree.SubElement(etree.SubElement(building_el, tr.addns('h:extension')), tr.addns('h:Comments'))
+        comment.text = 'Any comment to test'
+        self.assertEqual(res['building']['about']['comments'], 'Any comment to test')
+
 
 if __name__ == "__main__":
     unittest.main()
