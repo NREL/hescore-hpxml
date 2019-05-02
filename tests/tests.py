@@ -1444,11 +1444,12 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         building_el.addnext(project_el)
         etree.SubElement(project_el, tr.addns('h:BuildingID'))
         etree.SubElement(etree.SubElement(project_el, tr.addns('h:ProjectDetails')), tr.addns('h:ProjectSystemIdentifiers'))
-        etree.SubElement(self.xpath('//h:ProjectDetails'), tr.addns('Notes')).text = 'Project comment to test'
+        etree.SubElement(self.xpath('//h:ProjectDetails'), tr.addns('h:Notes')).text = 'Project comment to test'
         res = tr.hpxml_to_hescore_dict()
         self.assertEqual(res['building']['about']['comments'], 'Project comment to test')
         comment = etree.SubElement(etree.SubElement(building_el, tr.addns('h:extension')), tr.addns('h:Comments'))
         comment.text = 'Any comment to test'
+        res = tr.hpxml_to_hescore_dict()
         self.assertEqual(res['building']['about']['comments'], 'Any comment to test')
 
 
