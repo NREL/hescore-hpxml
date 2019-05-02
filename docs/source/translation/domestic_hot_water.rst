@@ -29,8 +29,8 @@ The water heater type is mapped from HPXML to HEScore accordingly:
    |storage water heater                    |unit            |storage         |
    +----------------------------------------+                |                |
    |dedicated boiler with storage tank      |                |                |
-   +----------------------------------------+                |                |
-   |instantaneous water heater [#f1]_       |                |                |
+   +----------------------------------------+----------------+----------------+
+   |instantaneous water heater              |unit            |tankless        |
    +----------------------------------------+----------------+----------------+
    |heat pump water heater                  |unit            |heat_pump       |
    +----------------------------------------+----------------+----------------+
@@ -45,13 +45,15 @@ The fuel type is mapped according to the same mapping used in
 Water heating efficiency
 ************************
 
-If the ``WaterHeatingSystem/EnergyFactor`` element exists, that energy factor is
-sent to HEScore. When an energy factor cannot be found, HEScore can accept the
+If the ``WaterHeating/UniformEnergyFactor`` element exists, that is passed to 
+HEScore with an efficiency method of "uef".
+Otherwise if the ``WaterHeatingSystem/EnergyFactor`` element exists, that energy factor is
+sent to HEScore along with an efficiency method of "user", which tells it that to interpret it
+as a traditional energy factor. 
+When an energy factor cannot be found, HEScore can accept the
 year the equipment was installed and estimate the efficiency based on that. The
 year is retrieved from the ``YearInstalled`` element, and if that is not
 present the ``ModelYear`` element.
 
-
-.. rubric:: Footnotes
-
-.. [#f1] The HEScore help instructs, "If the water heater is a tankless model (aka: on-demand or instantaneous water heater) it should be characterized the same as a storage model that uses the same fuel. An electric tankless should be entered as Electric Storage, a natural gas tankless should be entered as Natural Gas Storage, and an LPG or propane tankless should be entered as LPG Storage."
+If the DHW type is tankless, only energy factor or unified energy factor could be used to describe efficiency, 
+the estimation based on installed year is no longer available.
