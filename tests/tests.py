@@ -1437,6 +1437,35 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore_dict()
         self.assertTrue(d['building']['zone']['zone_roof'][0]['zone_skylight']['solar_screen'])
 
+    def test_duct_location_validation(self):
+        tr = self._load_xmlfile('house1')
+        #duct1:vented crawl duct2:uncond_attic duct3:cond_space
+        #two duct type covered, two not
+        duct3oc1 = self.xpath('//h:HVACDistribution[h:SystemIdentifier/@id="ductsys1"]/h:DistributionSystemType/h:AirDistribution/h:Ducts/h:DuctLocation')[1]
+        duct3oc1.text = 'unvented crawlspace'
+        rooftype = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]/h:AtticType')
+        Crawtype = self.xpath('//h:Foundation[h:SystemIdentifier/@id="crawl1"]/h:FoundationType/h:Crawlspace/h:Vented')
+        self.assertRaisesRegexp(TranslationError,
+                                'HVAC distribution: duct3 location: unvented_crawl not exists in zone_roof/floor types.',
+                                tr.hpxml_to_hescore_dict)
+
+        duct3oc1.text = 'unconditioned basement'
+        self.assertRaisesRegexp(TranslationError,
+                                'HVAC distribution: duct3 location: uncond_basement not exists in zone_roof/floor types.',
+                                tr.hpxml_to_hescore_dict)
+
+        duct3oc1.text = 'conditioned space' #set back to cond_space to avoid previous error message
+        rooftype.text = 'flat roof' #change attic type
+        self.assertRaisesRegexp(TranslationError,
+                                'HVAC distribution: duct2 location: uncond_attic not exists in zone_roof/floor types.',
+                                tr.hpxml_to_hescore_dict)
+
+        rooftype.text = 'vented attic' #set back to vented_attic to avoid previous error message
+        Crawtype.text = 'false'
+        self.assertRaisesRegexp(TranslationError,
+                                'HVAC distribution: duct1 location: vented_crawl not exists in zone_roof/floor types.',
+                                tr.hpxml_to_hescore_dict)
+
     def test_tankless_energyfactorerror(self):
         tr = self._load_xmlfile('house4')
         WHtype = self.xpath('//h:WaterHeatingSystem[h:SystemIdentifier/@id="dhw1"]/h:WaterHeaterType')
