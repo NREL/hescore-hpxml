@@ -1419,7 +1419,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
             else:
                 self.assertFalse(wall['zone_window']['solar_screen'])
 
-    def test_skylight_solar_screens_Treatments(self):
+    def test_skylight_solar_screens_treatments(self):
         tr = self._load_xmlfile('house4')
         glasstype = self.xpath('//h:Skylight[h:SystemIdentifier/@id="skylights"]/h:GlassType')
         el = etree.Element(tr.addns('h:Treatments'))
@@ -1428,7 +1428,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore_dict()
         self.assertTrue(d['building']['zone']['zone_roof'][0]['zone_skylight']['solar_screen'])
 
-    def test_skylight_solar_screens_ExteriorShading(self):
+    def test_skylight_solar_screens_exteriorshading(self):
         tr = self._load_xmlfile('house4')
         glasstype = self.xpath('//h:Skylight[h:SystemIdentifier/@id="skylights"]/h:GlassType')
         el2 = etree.Element(tr.addns('h:ExteriorShading'))
@@ -1437,6 +1437,99 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore_dict()
         self.assertTrue(d['building']['zone']['zone_roof'][0]['zone_skylight']['solar_screen'])
 
+    def test_hvac_combinations(self):
+        '''
+        Test if translator allows added heating and cooling system combinations
+        '''
+        tr = self._load_xmlfile('house4')
+
+        # Replace dhw system to one independent to heating systems
+        dhw_new_system = '<WaterHeating xmlns="http://hpxmlonline.com/2014/6">' \
+                         '<WaterHeatingSystem>' \
+                         '<SystemIdentifier id="dhw"/>' \
+                         '<FuelType>electricity</FuelType>' \
+                         '<WaterHeaterType>storage water heater</WaterHeaterType>' \
+                         '<YearInstalled>1995</YearInstalled>' \
+                         '<EnergyFactor>0.8</EnergyFactor>' \
+                         '</WaterHeatingSystem>' \
+                         '</WaterHeating>'
+        dhw_el = etree.XML(dhw_new_system)
+        dhw = self.xpath('//h:WaterHeating')
+        dhw.addnext(dhw_el)
+        dhw.getparent().remove(dhw)
+
+        # Lists of tested systems
+        htg_sys_test_heating_type = ['h:Furnace','h:WallFurnace','h:FloorFurnace','h:Boiler','h:ElectricResistance','h:Stove']
+        clg_sys_test_cooling_type = ['central air conditioning','room air conditioner','mini-split','evaporative cooler']
+        hp_test_type = ['water-to-air','water-to-water','air-to-air','mini-split','ground-to-air']
+
+        # System elements
+        htg_sys = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="boiler1"]')
+        clg_sys = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]')
+        hp = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]')
+
+        # system type maps between HPXML and HEScore API
+        heat_pump_type_map = {'water-to-air': 'gchp',
+                              'water-to-water': 'gchp',
+                              'air-to-air': 'heat_pump',
+                              'mini-split': 'mini_split',
+                              'ground-to-air': 'gchp'}
+        htg_system_type_map = {'Furnace': 'central_furnace',
+                               'WallFurnace': 'wall_furnace',
+                               'FloorFurnace': 'wall_furnace',
+                               'Boiler': 'boiler',
+                               'ElectricResistance': 'baseboard',
+                               'Stove': 'wood_stove'}
+
+        # Test the HPXML heating system + heat pump cooling first
+        htg_sys_fuel = tr.xpath(htg_sys, 'h:HeatingSystemFuel')
+        # most popular fuel type
+        htg_sys_fuel.text = "natural gas"
+        hvac_air_dist =  self.xpath('//h:HVACDistribution[h:SystemIdentifier/@id="aircondducts"]')
+        # Get distributions ready for heating and cooling systems, in case of require distribution error
+        tr.xpath(hvac_air_dist, 'h:SystemIdentifier').attrib['id'] = "ducts1"
+        hp_air_dist = deepcopy(hvac_air_dist)
+        tr.xpath(hp_air_dist, 'h:SystemIdentifier').attrib['id'] = "ducts2"
+        hvac_air_dist.getparent().append(hp_air_dist)
+        tr.xpath(htg_sys,'h:DistributionSystem').attrib['idref'] = "ducts1"
+        hpdist = etree.Element(tr.addns('h:DistributionSystem'))
+        hpdist.attrib['idref'] = "ducts2"
+        tr.xpath(hp, 'h:YearInstalled').addnext(hpdist)
+
+        # Change the floor area to the total conditioned area to remove heat pump for heating
+        tr.xpath(htg_sys,'h:FloorAreaServed').text = "3213"
+
+        # Remove existing cooling system, only heat pump system serves cooling
+        clg_sys.getparent().remove(clg_sys)
+
+        for htg_system_type in htg_sys_test_heating_type:
+            # change heating types
+            htgsys_type = tr.xpath(htg_sys, 'h:HeatingSystemType')
+            htgsys_type.clear()
+            etree.SubElement(htgsys_type, tr.addns(htg_system_type))
+            # change fuel types for specific heating systems
+            if htg_system_type == "h:ElectricResistance":
+                htg_sys_fuel.text = "electricity"
+            elif htg_system_type == "h:Stove":
+                htg_sys_fuel.text = "wood"
+            for clg_system_type in hp_test_type:
+                # change cooling types
+                hp_type = tr.xpath(hp, 'h:HeatPumpType')
+                hp_type.text = clg_system_type
+                tr.xpath(hp,'h:FloorAreaServed').text = "3213"
+                d = tr.hpxml_to_hescore_dict()
+                # expect tested types correctly load and translated
+                self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'],htg_system_type_map[htg_system_type[2:]])
+                self.assertEqual(d['building']['systems']['hvac'][1]['cooling']['type'],heat_pump_type_map[clg_system_type])
+                #check the output json data
+                print(json.dumps(d))
+                # Summary:
+                # The seperate systems heating system + heatpump(cooling) are available to run, but the weight is not
+                # justifiable. The heat pump is regarded as serving both heating and cooling system. So the heating
+                # system floor area summed for weighing is twice the conditioned area
+                # Suggestion: Maybe we could change codes to add conditions to determine which system(cooling or
+                # heating or both) heat pump is serving for, so that it could restrict the total area not exceed
+                # conditioned area for each system
 
 if __name__ == "__main__":
     unittest.main()
