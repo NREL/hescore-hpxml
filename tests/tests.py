@@ -1496,8 +1496,21 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         hpdist.attrib['idref'] = "ducts2"
         tr.xpath(hp, 'h:YearInstalled').addnext(hpdist)
 
-        # Change the floor area to the total conditioned area to remove heat pump for heating
+        # Change the floor area to the total conditioned area
         tr.xpath(htg_sys,'h:FloorAreaServed').text = "3213"
+        # Remove heat pump for heating (3 ways checked)
+        htg_capacity = tr.xpath(hp,'h:HeatingCapacity')
+        clg_capacity = tr.xpath(hp,'h:CoolingCapacity')
+        # htg_capacity.text = "0"
+
+        # el = etree.Element(tr.addns('h:HeatingCapacity17F'))
+        # el.text = "0"
+        # htg_capacity.addnext(el)
+        # htg_capacity.getparent().remove(htg_capacity)
+
+        el = etree.Element(tr.addns('h:FractionHeatLoadServed'))
+        el.text = "0"
+        clg_capacity.addnext(el)
 
         # Remove existing cooling system, only heat pump system serves cooling
         clg_sys.getparent().remove(clg_sys)
@@ -1520,7 +1533,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
                 d = tr.hpxml_to_hescore_dict()
                 # expect tested types correctly load and translated
                 self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'],htg_system_type_map[htg_system_type[2:]])
-                self.assertEqual(d['building']['systems']['hvac'][1]['cooling']['type'],heat_pump_type_map[clg_system_type])
+                self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'],heat_pump_type_map[clg_system_type])
                 #check the output json data
                 print(json.dumps(d))
                 # Summary:
