@@ -222,6 +222,6 @@ of ``Building``:
     </Building>
 
 
-If there's no comment found in above ``extension`` element, translator would search the ``Project/ProjectDetails/Notes``
+If there's no comment found in ``extension`` element, translator would look for the ``Project/ProjectDetails/Notes``
 element to pass comments from. In this way, only the first ``Project`` node would be picked. For complicated cases
 where buildings are assigned to multiple projects, using the extension element is recommended.
