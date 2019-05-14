@@ -628,6 +628,7 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             b = xpath(self.hpxmldoc, 'h:Building[1]')
 
+        p = xpath(self.hpxmldoc, 'h:Project[1]')
         # Apply NREL assumptions, if requested
         if nrel_assumptions:
             self.apply_nrel_assumptions(b)
@@ -638,7 +639,7 @@ class HPXMLtoHEScoreTranslator(object):
         hescore_inputs['building_address'] = self._get_building_address(b)
         bldg = OrderedDict()
         hescore_inputs['building'] = bldg
-        bldg['about'] = self._get_building_about(b)
+        bldg['about'] = self._get_building_about(b,p)
         bldg['zone'] = OrderedDict()
         bldg['zone']['zone_roof'] = None # to save the spot in the order
         bldg['zone']['zone_floor'] = self._get_building_zone_floor(b, bldg['about'])
@@ -718,7 +719,7 @@ class HPXMLtoHEScoreTranslator(object):
                 bldgaddr['assessment_type'] = 'corrected'
         return bldgaddr
 
-    def _get_building_about(self,b):
+    def _get_building_about(self,b,p):
         xpath = self.xpath
         ns = self.ns
         bldg_about = OrderedDict()
@@ -834,6 +835,12 @@ class HPXMLtoHEScoreTranslator(object):
                 bldg_about['air_sealing_present'] = True
             else:
                 bldg_about['air_sealing_present'] = False
+        # Get comments
+        extension_comment = xpath(b, 'h:extension/h:Comments/text()')
+        if extension_comment is not None:
+            bldg_about['comments'] = extension_comment
+        elif p is not None:
+            bldg_about['comments'] = xpath(p,'h:ProjectDetails/h:Notes/text()')
         return bldg_about
 
     def _get_building_zone_roof(self, b, footprint_area):
