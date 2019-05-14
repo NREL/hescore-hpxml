@@ -207,10 +207,10 @@ to specify an estimate, the building is assumed to not have air sealing present.
    
 
 Comments
-************
+********
 
 The hpxml-hescore translator allows passing through comments. Since there's no equivalent way to communicate this
-information in HPXML under building nodes, the translator would look for a specifically named element in ``extension``
+information in HPXML under the ``Building`` node, the translator will look for a specifically named element in ``extension``
 of ``Building``:
 
 .. code-block:: xml
@@ -222,6 +222,6 @@ of ``Building``:
     </Building>
 
 
-If there's no comment found in ``extension`` element, translator would look for the ``Project/ProjectDetails/Notes``
-element to pass comments from. In this way, only the first ``Project`` node would be picked. For complicated cases
+If there's no comment found in ``extension`` element, the translator will look for the ``Project/ProjectDetails/Notes``
+element for comments. Only the first ``Project`` node will be selected. For complicated cases
 where buildings are assigned to multiple projects, using the extension element is recommended.
