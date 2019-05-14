@@ -2096,6 +2096,21 @@ class HPXMLtoHEScoreTranslator(object):
                                     hvacd['fraction'],
                                     0, 100)
 
+                    #Test if the duct location exists in roof and floor types
+                    duct_location_error = False
+                    if hvacd['location'] == 'uncond_basement':
+                        duct_location_error = 'uncond_basement' not in [zone_floor['foundation_type'] for zone_floor in hescore_inputs['building']['zone']['zone_floor']]
+                    elif hvacd['location']=='unvented_crawl':
+                        duct_location_error = 'unvented_crawl' not in [zone_floor['foundation_type'] for zone_floor in hescore_inputs['building']['zone']['zone_floor']]
+                    elif hvacd['location']=='vented_crawl':
+                        duct_location_error = 'vented_crawl' not in [zone_floor['foundation_type'] for zone_floor in hescore_inputs['building']['zone']['zone_floor']]
+                    elif hvacd['location']=='uncond_attic':
+                        duct_location_error = 'vented_attic' not in [zone_roof['roof_type'] for zone_roof in hescore_inputs['building']['zone']['zone_roof']]
+
+                    if duct_location_error == True:
+                            raise TranslationError(
+                                'HVAC distribution: %(name)s location: %(location)s not exists in zone_roof/floor types.' % hvacd)
+
         dhw = hescore_inputs['building']['systems']['domestic_hot_water']
         # check range of uef with the same range as ef, add tankless into "type to check" list
         if dhw['type'] in ('storage', 'heat_pump','tankless'):
