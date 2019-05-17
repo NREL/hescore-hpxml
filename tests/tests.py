@@ -1534,15 +1534,78 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
                 # expect tested types correctly load and translated
                 self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'],htg_system_type_map[htg_system_type[2:]])
                 self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'],heat_pump_type_map[clg_system_type])
-                #check the output json data
-                print(json.dumps(d))
-                # Summary:
-                # The seperate systems heating system + heatpump(cooling) are available to run, but the weight is not
-                # justifiable. The heat pump is regarded as serving both heating and cooling system. So the heating
-                # system floor area summed for weighing is twice the conditioned area
-                # Suggestion: Maybe we could change codes to add conditions to determine which system(cooling or
-                # heating or both) heat pump is serving for, so that it could restrict the total area not exceed
-                # conditioned area for each system
+                # check the output json data
+                # print(json.dumps(d))
+
+        # Next, test cooling system + heat pump for heating
+        # restore the cooling system
+        clg_restore_system = '<CoolingSystem xmlns="http://hpxmlonline.com/2014/6">' \
+                         '<SystemIdentifier id="centralair1"/>' \
+                         '<YearInstalled>2005</YearInstalled>' \
+                         '<DistributionSystem idref="aircondducts"/>' \
+                         '<CoolingSystemType>central air conditioning</CoolingSystemType>' \
+                         '<CoolingCapacity>48000</CoolingCapacity><!-- 4 ton -->' \
+                         '<FloorAreaServed>3213</FloorAreaServed>' \
+                         '<AnnualCoolingEfficiency >' \
+                         '<Units>SEER</Units>' \
+                         '<Value>13</Value>' \
+                         '</AnnualCoolingEfficiency>' \
+                         '</CoolingSystem>'
+        clg_el = etree.XML(clg_restore_system)
+        htg_sys.addnext(clg_el)
+        clg_sys = self.xpath('//h:CoolingSystem')
+        # add distribution for cooling system
+        tr.xpath(clg_sys,'h:DistributionSystem').attrib['idref'] = "ducts1"
+
+        # set cooling fraction as 0, remove previous 0 heating fraction
+        hp_heatingfraction = tr.xpath(hp,'h:FractionHeatLoadServed')
+        el = etree.Element(tr.addns('h:FractionCoolLoadServed'))
+        el.text = "0"
+        hp_heatingfraction.addnext(el)
+        hp_heatingfraction.getparent().remove(hp_heatingfraction)
+
+        # set cooling capacity as 0
+        # clg_capacity.text = 0
+
+        # remove heating system
+        htg_sys.getparent().remove(htg_sys)
+
+        # cooling system map between hpxml and hescore api
+        clg_system_map = {'central air conditioning': 'split_dx',
+                           'room air conditioner': 'packaged_dx',
+                           'mini-split': 'split_dx',
+                           'evaporative cooler': 'dec'}
+
+        for clg_system_type in clg_sys_test_cooling_type:
+            # change cooling types
+            clgsys_type = tr.xpath(clg_sys, 'h:CoolingSystemType')
+            clgsys_type.text = clg_system_type
+            # Change efficiency units in hpxml for different systems
+            eff_units = {'split_dx': 'SEER',
+                         'packaged_dx': 'EER',
+                         'heat_pump': 'SEER',
+                         'mini_split': 'SEER',
+                         'gchp': 'EER',
+                         'dec': None,
+                         'iec': None,
+                         'idec': None}[clg_system_map[clg_system_type]]
+            clgsys_units = tr.xpath(clg_sys, 'h:AnnualCoolingEfficiency/h:Units')
+            if eff_units is not None:
+                clgsys_units.text = eff_units
+            else:
+                clgsys_units.getparent().getparent().remove(clgsys_units.getparent())
+            for htg_system_type in hp_test_type:
+                # change heating types
+                hp_type = tr.xpath(hp, 'h:HeatPumpType')
+                hp_type.text = htg_system_type
+                tr.xpath(hp,'h:FloorAreaServed').text = "3213"
+                d = tr.hpxml_to_hescore_dict()
+                # expect tested types correctly load and translated
+                self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'],clg_system_map[clg_system_type])
+                self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'],heat_pump_type_map[htg_system_type])
+                # check the output json data
+                # print(json.dumps(d))
+
 
     def test_duct_location_validation(self):
         tr = self._load_xmlfile('house1')
