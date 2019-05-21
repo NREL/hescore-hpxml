@@ -1802,6 +1802,22 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
 
 
+    def test_bldg_about_comment(self):
+        tr = self._load_xmlfile('house4')
+        project_el = etree.Element(tr.addns('h:Project'))
+        building_el = self.xpath('//h:Building')
+        building_el.addnext(project_el)
+        etree.SubElement(project_el, tr.addns('h:BuildingID'))
+        etree.SubElement(etree.SubElement(project_el, tr.addns('h:ProjectDetails')), tr.addns('h:ProjectSystemIdentifiers'))
+        etree.SubElement(self.xpath('//h:ProjectDetails'), tr.addns('h:Notes')).text = 'Project comment to test'
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual(res['building']['about']['comments'], 'Project comment to test')
+        comment = etree.SubElement(etree.SubElement(building_el, tr.addns('h:extension')), tr.addns('h:Comments'))
+        comment.text = 'Any comment to test'
+        res = tr.hpxml_to_hescore_dict()
+        self.assertEqual(res['building']['about']['comments'], 'Any comment to test')
+        
+
     def test_duct_location_validation(self):
         tr = self._load_xmlfile('house1')
         #duct1:vented crawl duct2:uncond_attic duct3:cond_space
