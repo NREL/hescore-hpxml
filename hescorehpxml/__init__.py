@@ -1835,6 +1835,7 @@ class HPXMLtoHEScoreTranslator(object):
         hvac_systems_ids = sorted(hvac_systems_ids, key=lambda x: x.weight, reverse=True)
 
         # Return the first two
+        hp_list = ['heat_pump', 'gchp', 'mini_split']
         hvac_systems = []
         hvac_sys_weight_sum = sum([x.weight for x in hvac_systems_ids[0:2]])
         for i, hvac_ids in enumerate(hvac_systems_ids[0:2], 1):
@@ -1853,10 +1854,21 @@ class HPXMLtoHEScoreTranslator(object):
                 hvac_sys['hvac_distribution'] = distribution_systems[hvac_ids.dist_id]
             else:
                 hvac_sys['hvac_distribution'] = []
-            hvac_systems.append(hvac_sys)
+                
+            # Added a error check for separate cooling and heating heat pump system
+            if hvac_sys['heating']['type'] in hp_list and hvac_sys['cooling']['type'] in hp_list and hvac_sys['heating']['type'] != hvac_sys['cooling']['type']:
+                raise TranslationError('Two different heat pump systems: %s for heating, and %s for cooling '
+                                       'are not supported in one hvac system.'
+                                       % (hvac_sys['heating']['type'], hvac_sys['cooling']['type']))
+            else:
+                hvac_systems.append(hvac_sys)
 
-        # Ensure they sum to 1
-        hvac_systems[-1]['hvac_fraction'] += 1.0 - sum([x['hvac_fraction'] for x in hvac_systems])
+        # Add two checks for hvac system errors
+        if len(hvac_systems) > 0:
+            # Ensure they sum to 1
+            hvac_systems[-1]['hvac_fraction'] += 1.0 - sum([x['hvac_fraction'] for x in hvac_systems])
+        else:
+            raise TranslationError('No hvac system found.')
 
         return hvac_systems
 

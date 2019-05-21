@@ -1634,10 +1634,10 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
                 if j != i and heat_pump_type_map[htg_hp_type] != heat_pump_type_map[clg_hp_type]:
                     hp2_type = tr.xpath(hp2, 'h:HeatPumpType')
                     hp2_type.text = clg_hp_type
-                    d = tr.hpxml_to_hescore_dict()
+                    self.assertRaisesRegexp(TranslationError,
+                                            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.',
+                                            tr.hpxml_to_hescore_dict)
                     # print(json.dumps(d))
-                    # Not supposed to be passed, but passed,
-                    # Error not checked in translator
 
         # Green area: Clg+htg heat pump
         hp2.getparent().remove(hp2)
@@ -1795,11 +1795,11 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
             # Passed
 
         # Red area: No system.
+        # If no hvac system existing, should give a error message describing the problem.
         clg_sys.getparent().remove(clg_sys)
-        d = tr.hpxml_to_hescore_dict()
-        # prevented by popping up error message: list index out of range
-        # The error message was caused because of 0 length of hvac system list sorted by weight (trimmed for first 2)
-        # Could add a check before that to pop up the proper error message
+        self.assertRaisesRegexp(TranslationError,
+                                'No hvac system found.',
+                                tr.hpxml_to_hescore_dict)
 
 
     def test_duct_location_validation(self):
