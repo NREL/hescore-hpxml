@@ -1419,7 +1419,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
             else:
                 self.assertFalse(wall['zone_window']['solar_screen'])
 
-    def test_skylight_solar_screens_Treatments(self):
+    def test_skylight_solar_screens_treatments(self):
         tr = self._load_xmlfile('house4')
         glasstype = self.xpath('//h:Skylight[h:SystemIdentifier/@id="skylights"]/h:GlassType')
         el = etree.Element(tr.addns('h:Treatments'))
@@ -1428,7 +1428,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore_dict()
         self.assertTrue(d['building']['zone']['zone_roof'][0]['zone_skylight']['solar_screen'])
 
-    def test_skylight_solar_screens_ExteriorShading(self):
+    def test_skylight_solar_screens_exteriorshading(self):
         tr = self._load_xmlfile('house4')
         glasstype = self.xpath('//h:Skylight[h:SystemIdentifier/@id="skylights"]/h:GlassType')
         el2 = etree.Element(tr.addns('h:ExteriorShading'))
@@ -1436,6 +1436,371 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         glasstype.addnext(el2)
         d = tr.hpxml_to_hescore_dict()
         self.assertTrue(d['building']['zone']['zone_roof'][0]['zone_skylight']['solar_screen'])
+
+    def test_hvac_combinations(self):
+        '''
+        Test if translator allows added heating and cooling system combinations
+        '''
+        tr = self._load_xmlfile('house4')
+
+        # Replace dhw system to one independent to heating systems
+        dhw_new_system = '<WaterHeating xmlns="http://hpxmlonline.com/2014/6">' \
+                         '<WaterHeatingSystem>' \
+                         '<SystemIdentifier id="dhw"/>' \
+                         '<FuelType>electricity</FuelType>' \
+                         '<WaterHeaterType>storage water heater</WaterHeaterType>' \
+                         '<YearInstalled>1995</YearInstalled>' \
+                         '<EnergyFactor>0.8</EnergyFactor>' \
+                         '</WaterHeatingSystem>' \
+                         '</WaterHeating>'
+        dhw_el = etree.XML(dhw_new_system)
+        dhw = self.xpath('//h:WaterHeating')
+        dhw.addnext(dhw_el)
+        dhw.getparent().remove(dhw)
+
+        # Lists of tested systems
+        htg_sys_test_heating_type = ['h:Furnace','h:WallFurnace','h:FloorFurnace','h:Boiler','h:ElectricResistance','h:Stove']
+        clg_sys_test_cooling_type = ['central air conditioning','room air conditioner','mini-split','evaporative cooler']
+        hp_test_type = ['water-to-air','water-to-water','air-to-air','mini-split','ground-to-air']
+
+        # System elements
+        htg_sys = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="boiler1"]')
+        clg_sys = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]')
+        hp = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]')
+
+        # system type maps between HPXML and HEScore API
+        heat_pump_type_map = {'water-to-air': 'gchp',
+                              'water-to-water': 'gchp',
+                              'air-to-air': 'heat_pump',
+                              'mini-split': 'mini_split',
+                              'ground-to-air': 'gchp'}
+        htg_system_type_map = {'Furnace': 'central_furnace',
+                               'WallFurnace': 'wall_furnace',
+                               'FloorFurnace': 'wall_furnace',
+                               'Boiler': 'boiler',
+                               'ElectricResistance': 'baseboard',
+                               'Stove': 'wood_stove'}
+
+        # 1. Orange area test
+
+        # Test the HPXML heating systems + heat pump cooling
+        htg_sys_fuel = tr.xpath(htg_sys, 'h:HeatingSystemFuel')
+        # most popular fuel type
+        htg_sys_fuel.text = "natural gas"
+        hvac_air_dist =  self.xpath('//h:HVACDistribution[h:SystemIdentifier/@id="aircondducts"]')
+        # Get distributions ready for heating and cooling systems, in case of require distribution error
+        tr.xpath(hvac_air_dist, 'h:SystemIdentifier').attrib['id'] = "ducts1"
+        hp_air_dist = deepcopy(hvac_air_dist)
+        tr.xpath(hp_air_dist, 'h:SystemIdentifier').attrib['id'] = "ducts2"
+        hvac_air_dist.getparent().append(hp_air_dist)
+        tr.xpath(htg_sys,'h:DistributionSystem').attrib['idref'] = "ducts1"
+        hpdist = etree.Element(tr.addns('h:DistributionSystem'))
+        hpdist.attrib['idref'] = "ducts2"
+        tr.xpath(hp, 'h:YearInstalled').addnext(hpdist)
+
+        # Change the floor area to the total conditioned area
+        tr.xpath(htg_sys,'h:FloorAreaServed').text = "3213"
+        # Remove heat pump for heating (3 ways checked)
+        htg_capacity = tr.xpath(hp,'h:HeatingCapacity')
+        clg_capacity = tr.xpath(hp,'h:CoolingCapacity')
+        # htg_capacity.text = "0"
+
+        # el = etree.Element(tr.addns('h:HeatingCapacity17F'))
+        # el.text = "0"
+        # htg_capacity.addnext(el)
+        # htg_capacity.getparent().remove(htg_capacity)
+
+        el = etree.Element(tr.addns('h:FractionHeatLoadServed'))
+        el.text = "0"
+        clg_capacity.addnext(el)
+
+        # Remove existing cooling system, only heat pump system serves cooling
+        clg_sys.getparent().remove(clg_sys)
+
+        for htg_system_type in htg_sys_test_heating_type:
+            # change heating types
+            htgsys_type = tr.xpath(htg_sys, 'h:HeatingSystemType')
+            htgsys_type.clear()
+            etree.SubElement(htgsys_type, tr.addns(htg_system_type))
+            # change fuel types for specific heating systems
+            if htg_system_type == "h:ElectricResistance":
+                htg_sys_fuel.text = "electricity"
+            elif htg_system_type == "h:Stove":
+                htg_sys_fuel.text = "wood"
+            for clg_system_type in hp_test_type:
+                # change cooling types
+                hp_type = tr.xpath(hp, 'h:HeatPumpType')
+                hp_type.text = clg_system_type
+                tr.xpath(hp,'h:FloorAreaServed').text = "3213"
+                d = tr.hpxml_to_hescore_dict()
+                # expect tested types correctly load and translated
+                self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'],htg_system_type_map[htg_system_type[2:]])
+                self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'],heat_pump_type_map[clg_system_type])
+                # check the output json data
+                # print(json.dumps(d))
+                # Passed
+
+        # Test HPXML cooling system + heat pump for heating
+        # restore the cooling system
+        clg_restore_system = '<CoolingSystem xmlns="http://hpxmlonline.com/2014/6">' \
+                         '<SystemIdentifier id="centralair1"/>' \
+                         '<YearInstalled>2005</YearInstalled>' \
+                         '<DistributionSystem idref="ducts1"/>' \
+                         '<CoolingSystemType>central air conditioning</CoolingSystemType>' \
+                         '<CoolingCapacity>48000</CoolingCapacity><!-- 4 ton -->' \
+                         '<FloorAreaServed>3213</FloorAreaServed>' \
+                         '<AnnualCoolingEfficiency >' \
+                         '<Units>SEER</Units>' \
+                         '<Value>13</Value>' \
+                         '</AnnualCoolingEfficiency>' \
+                         '</CoolingSystem>'
+        clg_el = etree.XML(clg_restore_system)
+        htg_sys.addnext(clg_el)
+        clg_sys = self.xpath('//h:CoolingSystem')
+
+        # set cooling fraction as 0, remove previous 0 heating fraction
+        hp_heatingfraction = tr.xpath(hp,'h:FractionHeatLoadServed')
+        el = etree.Element(tr.addns('h:FractionCoolLoadServed'))
+        el.text = "0"
+        hp_heatingfraction.addnext(el)
+        hp_heatingfraction.getparent().remove(hp_heatingfraction)
+
+        # set cooling capacity as 0
+        # clg_capacity.text = 0
+
+        # remove heating system
+        htg_sys.getparent().remove(htg_sys)
+
+        # cooling system map between hpxml and hescore api
+        clg_system_map = {'central air conditioning': 'split_dx',
+                           'room air conditioner': 'packaged_dx',
+                           'mini-split': 'split_dx',
+                           'evaporative cooler': 'dec'}
+
+        for clg_system_type in clg_sys_test_cooling_type:
+            # change cooling types
+            clgsys_type = tr.xpath(clg_sys, 'h:CoolingSystemType')
+            clgsys_type.text = clg_system_type
+            # Change efficiency units in hpxml for different systems
+            eff_units = {'split_dx': 'SEER',
+                         'packaged_dx': 'EER',
+                         'heat_pump': 'SEER',
+                         'mini_split': 'SEER',
+                         'gchp': 'EER',
+                         'dec': None,
+                         'iec': None,
+                         'idec': None}[clg_system_map[clg_system_type]]
+            clgsys_units = tr.xpath(clg_sys, 'h:AnnualCoolingEfficiency/h:Units')
+            if eff_units is not None:
+                clgsys_units.text = eff_units
+            else:
+                clgsys_units.getparent().getparent().remove(clgsys_units.getparent())
+            for htg_system_type in hp_test_type:
+                # change heating types
+                hp_type = tr.xpath(hp, 'h:HeatPumpType')
+                hp_type.text = htg_system_type
+                tr.xpath(hp,'h:FloorAreaServed').text = "3213"
+                d = tr.hpxml_to_hescore_dict()
+                # expect tested types correctly load and translated
+                self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'],clg_system_map[clg_system_type])
+                self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'],heat_pump_type_map[htg_system_type])
+                # check the output json data
+                # print(json.dumps(d))
+                # Passed
+
+
+        # 2. Green + red area test
+
+        # Red area( not supported by HEScore): two heat pump systems for individual heating and cooling.
+        # Remove the cooling systems in previous HPXML schema
+        clg_sys.getparent().remove(clg_sys)
+        # Create a new heat pump system "hp2" for cooling only
+        hp2 = deepcopy(hp)
+        hp.getparent().append(hp2)
+        tr.xpath(hp2, 'h:SystemIdentifier').attrib['id'] = 'heatpump2'
+        # Used the "ducts1" for "hp2" since the "hp" took the "ducts2"
+        tr.xpath(hp2, 'h:DistributionSystem').attrib['idref'] = 'ducts1'
+        # Hp2 only for cooling
+        htg_fraction_el = etree.Element(tr.addns('h:FractionHeatLoadServed'))
+        htg_fraction_el.text = "0"
+        hp2_coolingfraction = tr.xpath(hp2,'h:FractionCoolLoadServed')
+        hp2_coolingfraction.addnext(htg_fraction_el)
+        hp2_coolingfraction.getparent().remove(hp2_coolingfraction)
+        # Loop the system types to separate cooling and heating systems
+        for i, htg_hp_type in enumerate(hp_test_type):
+            hp_type = tr.xpath(hp, 'h:HeatPumpType')
+            hp_type.text = htg_hp_type
+            for j, clg_hp_type in enumerate(hp_test_type):
+                if j != i and heat_pump_type_map[htg_hp_type] != heat_pump_type_map[clg_hp_type]:
+                    hp2_type = tr.xpath(hp2, 'h:HeatPumpType')
+                    hp2_type.text = clg_hp_type
+                    self.assertRaisesRegexp(TranslationError,
+                                            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.',
+                                            tr.hpxml_to_hescore_dict)
+                    # print(json.dumps(d))
+
+        # Green area: Clg+htg heat pump
+        hp2.getparent().remove(hp2)
+        hp_coolingfraction = tr.xpath(hp, 'h:FractionCoolLoadServed')
+        hp_coolingfraction.getparent().remove(hp_coolingfraction)
+        for hp_system_type in hp_test_type:
+            hp_type = tr.xpath(hp, 'h:HeatPumpType')
+            hp_type.text = hp_system_type
+            tr.xpath(hp, 'h:FloorAreaServed').text = "3213"
+            d = tr.hpxml_to_hescore_dict()
+            # expect tested types correctly load and translated
+            self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'],heat_pump_type_map[hp_system_type])
+            self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'],heat_pump_type_map[hp_system_type])
+            # print(json.dumps(d))
+            # Passed
+
+        # Green area: Clg + htg systems.
+        # Reload HPXML
+        tr = self._load_xmlfile('house4')
+
+        # System elements
+        htg_sys = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="boiler1"]')
+        clg_sys = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]')
+        hp = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]')
+
+        # Replace dhw system to one independent to heating systems
+        dhw_new_system = '<WaterHeating xmlns="http://hpxmlonline.com/2014/6">' \
+                         '<WaterHeatingSystem>' \
+                         '<SystemIdentifier id="dhw"/>' \
+                         '<FuelType>electricity</FuelType>' \
+                         '<WaterHeaterType>storage water heater</WaterHeaterType>' \
+                         '<YearInstalled>1995</YearInstalled>' \
+                         '<EnergyFactor>0.8</EnergyFactor>' \
+                         '</WaterHeatingSystem>' \
+                         '</WaterHeating>'
+        dhw_el = etree.XML(dhw_new_system)
+        dhw = self.xpath('//h:WaterHeating')
+        dhw.addnext(dhw_el)
+        dhw.getparent().remove(dhw)
+
+        # Remove heat pump system
+        hp.getparent().remove(hp)
+
+        htg_sys_fuel = tr.xpath(htg_sys, 'h:HeatingSystemFuel')
+        # most popular fuel type
+        htg_sys_fuel.text = "natural gas"
+
+        # Set up distribution systems for heating and cooling systems
+        hvac_air_dist = self.xpath('//h:HVACDistribution[h:SystemIdentifier/@id="aircondducts"]')
+        tr.xpath(hvac_air_dist, 'h:SystemIdentifier').attrib['id'] = "ducts1"
+        clg_air_dist = deepcopy(hvac_air_dist)
+        tr.xpath(clg_air_dist, 'h:SystemIdentifier').attrib['id'] = "ducts2"
+        hvac_air_dist.getparent().append(clg_air_dist)
+        tr.xpath(htg_sys,'h:DistributionSystem').attrib['idref'] = "ducts1"
+        tr.xpath(clg_sys,'h:DistributionSystem').attrib['idref'] = "ducts2"
+
+        for htg_system_type in htg_sys_test_heating_type:
+            # change heating types
+            htgsys_type = tr.xpath(htg_sys, 'h:HeatingSystemType')
+            htgsys_type.clear()
+            etree.SubElement(htgsys_type, tr.addns(htg_system_type))
+            # change fuel types for specific heating systems
+            if htg_system_type == "h:ElectricResistance":
+                htg_sys_fuel.text = "electricity"
+            elif htg_system_type == "h:Stove":
+                htg_sys_fuel.text = "wood"
+            for clg_system_type in clg_sys_test_cooling_type:
+                # change cooling types
+                clgsys_type = tr.xpath(clg_sys, 'h:CoolingSystemType')
+                clgsys_type.text = clg_system_type
+                # Change efficiency units in hpxml for different systems
+                eff_units = {'split_dx': 'SEER',
+                             'packaged_dx': 'EER',
+                             'heat_pump': 'SEER',
+                             'mini_split': 'SEER',
+                             'gchp': 'EER',
+                             'dec': None,
+                             'iec': None,
+                             'idec': None}[clg_system_map[clg_system_type]]
+                clgsys_units = tr.xpath(clg_sys, 'h:AnnualCoolingEfficiency/h:Units')
+                if eff_units is not None:
+                    clgsys_units.text = eff_units
+                else:
+                    clgsys_units.text = 'SEER'  # In case of error, if None, it won't be translated
+                d = tr.hpxml_to_hescore_dict()
+                # expect tested types correctly load and translated
+                self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'],clg_system_map[clg_system_type])
+                self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'],htg_system_type_map[htg_system_type[2:]])
+                # print(json.dumps(d))
+                # Passed
+
+
+        # Green area: Single systems.
+        # single heating
+        clg_sys.getparent().remove(clg_sys)
+        htg_sys_fuel.text = "natural gas"
+        for htg_system_type in htg_sys_test_heating_type:
+            # change heating types
+            htgsys_type = tr.xpath(htg_sys, 'h:HeatingSystemType')
+            htgsys_type.clear()
+            etree.SubElement(htgsys_type, tr.addns(htg_system_type))
+            # change fuel types for specific heating systems
+            if htg_system_type == "h:ElectricResistance":
+                htg_sys_fuel.text = "electricity"
+            elif htg_system_type == "h:Stove":
+                htg_sys_fuel.text = "wood"
+            d = tr.hpxml_to_hescore_dict()
+            # expect tested types correctly load and translated
+            self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'],'none')
+            self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'],
+                             htg_system_type_map[htg_system_type[2:]])
+            # print(json.dumps(d))
+            # Passed
+
+        # single cooling
+        # restore clg system
+        clg_restore_system = '<CoolingSystem xmlns="http://hpxmlonline.com/2014/6">' \
+                         '<SystemIdentifier id="centralair1"/>' \
+                         '<YearInstalled>2005</YearInstalled>' \
+                         '<DistributionSystem idref="ducts1"/>' \
+                         '<CoolingSystemType>central air conditioning</CoolingSystemType>' \
+                         '<CoolingCapacity>48000</CoolingCapacity><!-- 4 ton -->' \
+                         '<FloorAreaServed>3213</FloorAreaServed>' \
+                         '<AnnualCoolingEfficiency >' \
+                         '<Units>SEER</Units>' \
+                         '<Value>13</Value>' \
+                         '</AnnualCoolingEfficiency>' \
+                         '</CoolingSystem>'
+        clg_el = etree.XML(clg_restore_system)
+        htg_sys.addnext(clg_el)
+        clg_sys = self.xpath('//h:CoolingSystem')
+        htg_sys.getparent().remove(htg_sys)
+        for clg_system_type in clg_sys_test_cooling_type:
+            # change cooling types
+            clgsys_type = tr.xpath(clg_sys, 'h:CoolingSystemType')
+            clgsys_type.text = clg_system_type
+            # Change efficiency units in hpxml for different systems
+            eff_units = {'split_dx': 'SEER',
+                         'packaged_dx': 'EER',
+                         'heat_pump': 'SEER',
+                         'mini_split': 'SEER',
+                         'gchp': 'EER',
+                         'dec': None,
+                         'iec': None,
+                         'idec': None}[clg_system_map[clg_system_type]]
+            clgsys_units = tr.xpath(clg_sys, 'h:AnnualCoolingEfficiency/h:Units')
+            if eff_units is not None:
+                clgsys_units.text = eff_units
+            else:
+                clgsys_units.text = 'SEER'  # In case of error, if None, it won't be translated
+            d = tr.hpxml_to_hescore_dict()
+            self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], clg_system_map[clg_system_type])
+            self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'none')
+            # print(json.dumps(d))
+            # Passed
+
+        # Red area: No system.
+        # If no hvac system existing, should give a error message describing the problem.
+        clg_sys.getparent().remove(clg_sys)
+        self.assertRaisesRegexp(TranslationError,
+                                'No hvac system found.',
+                                tr.hpxml_to_hescore_dict)
+
 
     def test_bldg_about_comment(self):
         tr = self._load_xmlfile('house4')
@@ -1452,6 +1817,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         res = tr.hpxml_to_hescore_dict()
         self.assertEqual(res['building']['about']['comments'], 'Any comment to test')
         
+
     def test_duct_location_validation(self):
         tr = self._load_xmlfile('house1')
         #duct1:vented crawl duct2:uncond_attic duct3:cond_space

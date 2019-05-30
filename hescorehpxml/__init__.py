@@ -1561,16 +1561,23 @@ class HPXMLtoHEScoreTranslator(object):
                 return_dict[system_id] = el
             return return_dict
 
+        def remove_hp_by_zero_value(test_variable):
+            if test_variable is not None:
+                test_variable_value = Decimal(test_variable)
+                if test_variable_value == Decimal(0):
+                    return True
+
         # Get all heating systems
         hpxml_heating_systems = _get_dict_of_hpxml_elements_by_id('descendant::h:HVACPlant/h:HeatingSystem|descendant::h:HVACPlant/h:HeatPump')
 
         # Remove heating systems that serve 0% of the heating load
         for key, el in hpxml_heating_systems.items():
             frac_load_str = self.xpath(el, 'h:FractionHeatLoadServed/text()')
-            if frac_load_str is not None:
-                frac_load = Decimal(frac_load_str)
-                if frac_load == Decimal(0):
-                    del hpxml_heating_systems[key]
+            htg_capacity_str = self.xpath(el, 'h:HeatingCapacity/text()')
+            htg_capacity_17_str = self.xpath(el, 'h:HeatingCapacity17F/text()')
+            if remove_hp_by_zero_value(frac_load_str) or remove_hp_by_zero_value(htg_capacity_str) or \
+                    remove_hp_by_zero_value(htg_capacity_17_str):
+                del hpxml_heating_systems[key]
 
         # Get all cooling systems
         hpxml_cooling_systems = _get_dict_of_hpxml_elements_by_id('descendant::h:HVACPlant/h:CoolingSystem|descendant::h:HVACPlant/h:HeatPump')
@@ -1578,10 +1585,9 @@ class HPXMLtoHEScoreTranslator(object):
         # Remove cooling systems that serve 0% of the cooling load
         for key, el in hpxml_cooling_systems.items():
             frac_load_str = self.xpath(el, 'h:FractionCoolLoadServed/text()')
-            if frac_load_str is not None:
-                frac_load = Decimal(frac_load_str)
-                if frac_load == Decimal(0):
-                    del hpxml_cooling_systems[key]
+            clg_capacity_str = self.xpath(el, 'h:CoolingCapacity/text()')
+            if remove_hp_by_zero_value(frac_load_str) or remove_hp_by_zero_value(clg_capacity_str):
+                del hpxml_cooling_systems[key]
 
         # Get all the duct systems
         hpxml_distribution_systems = _get_dict_of_hpxml_elements_by_id('descendant::h:HVACDistribution')
@@ -1836,6 +1842,7 @@ class HPXMLtoHEScoreTranslator(object):
         hvac_systems_ids = sorted(hvac_systems_ids, key=lambda x: x.weight, reverse=True)
 
         # Return the first two
+        hp_list = ['heat_pump', 'gchp', 'mini_split']
         hvac_systems = []
         hvac_sys_weight_sum = sum([x.weight for x in hvac_systems_ids[0:2]])
         for i, hvac_ids in enumerate(hvac_systems_ids[0:2], 1):
@@ -1854,10 +1861,21 @@ class HPXMLtoHEScoreTranslator(object):
                 hvac_sys['hvac_distribution'] = distribution_systems[hvac_ids.dist_id]
             else:
                 hvac_sys['hvac_distribution'] = []
-            hvac_systems.append(hvac_sys)
+                
+            # Added a error check for separate cooling and heating heat pump system
+            if hvac_sys['heating']['type'] in hp_list and hvac_sys['cooling']['type'] in hp_list and hvac_sys['heating']['type'] != hvac_sys['cooling']['type']:
+                raise TranslationError('Two different heat pump systems: %s for heating, and %s for cooling '
+                                       'are not supported in one hvac system.'
+                                       % (hvac_sys['heating']['type'], hvac_sys['cooling']['type']))
+            else:
+                hvac_systems.append(hvac_sys)
 
-        # Ensure they sum to 1
-        hvac_systems[-1]['hvac_fraction'] += 1.0 - sum([x['hvac_fraction'] for x in hvac_systems])
+        # Add two checks for hvac system errors
+        if len(hvac_systems) > 0:
+            # Ensure they sum to 1
+            hvac_systems[-1]['hvac_fraction'] += 1.0 - sum([x['hvac_fraction'] for x in hvac_systems])
+        else:
+            raise TranslationError('No hvac system found.')
 
         return hvac_systems
 
