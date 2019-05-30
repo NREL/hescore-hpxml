@@ -18,6 +18,11 @@ jobs:
             source env/bin/activate
             python -m unittest discover -s tests
       - run:
+          name: Run Style Checks
+          command: |
+            source env/bin/activate
+            python -m flake8
+      - run:
           name: Run coverage tests
           when: always
           command: |
