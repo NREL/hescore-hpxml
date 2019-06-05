@@ -5,6 +5,7 @@ docs/build
 .settings
 *.pyc
 .idea
+.vscode
 .DS_Store
 hescore_hpxml.egg-info
 dist
