@@ -637,11 +637,20 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         ext_adj_to = etree.Element(tr.addns('h:ExteriorAdjacentTo'))
         ext_adj_to.text = 'attic'
         wall2.insert(1, ext_adj_to)
+        # add an area
+        area_el = etree.Element(tr.addns('h:Area'))
+        area_el.text = '200'
+        wall2.find(tr.addns('h:WallType')).addnext(area_el)
         # insert new wall
         walls = self.xpath('//h:Walls')
         walls.append(wall2)
+        # Reference wall in Attic
+        attic_type = self.xpath('//h:Attic/h:AtticType')
+        attic_type.addprevious(etree.Element(tr.addns('h:AtticKneeWall'), {'idref': 'wall2'}))
         # run translation
-        tr.hpxml_to_hescore_dict()
+        resp = tr.hpxml_to_hescore_dict()
+        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf30')
+        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
 
     def test_wall_construction_ps_low_r(self):
         """
