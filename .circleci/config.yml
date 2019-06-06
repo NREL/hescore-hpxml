@@ -68,6 +68,5 @@ workflows:
   test_all_py_versions:
     jobs:
       - build-py27
-      - build-py35
       - build-py36
       - build-py37
