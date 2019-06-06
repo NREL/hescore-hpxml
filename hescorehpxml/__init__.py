@@ -976,8 +976,26 @@ class HPXMLtoHEScoreTranslator(object):
                 min(roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']].items(),
                     key=lambda x: abs(x[0] - roof_rvalue))
 
+            # knee walls
+            knee_walls = []
+            for kneewall_idref in xpath(attic, 'h:AtticKneeWall/@idref', aslist=True):
+                wall = xpath(b, 'descendant::h:Wall[h:SystemIdentifier/@id=$kneewallid]', kneewallid=kneewall_idref)
+                wall_rvalue = xpath(wall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+                wall_area = xpath(wall, 'h:Area/text()')
+                if wall_area is None:
+                    raise TranslationError('All attic knee walls need an Area specified')
+                wall_area = float(wall_area)
+                knee_walls.append({'area': wall_area, 'rvalue': wall_rvalue})
+
             # attic floor center of cavity R-value
             attic_floor_rvalue = xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
+            if knee_walls:
+                knee_wall_ua = sum(x['area'] / x['rvalue'] for x in knee_walls)
+                knee_wall_area = sum([x['area'] for x in knee_walls])
+                attic_floor_adj_ua = knee_wall_ua + atticd['roof_area'] / attic_floor_rvalue
+                attic_floor_adj_area = knee_wall_area + atticd['roof_area']
+                attic_floor_rvalue = attic_floor_adj_area / attic_floor_adj_ua
+                atticd['roof_area'] = attic_floor_adj_area
             atticd['attic_floor_coc_rvalue'] = \
                 min(attic_floor_rvalues, key=lambda x: abs(x - attic_floor_rvalue)) + 0.5
 

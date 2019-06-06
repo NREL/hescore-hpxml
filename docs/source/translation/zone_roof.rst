@@ -229,3 +229,11 @@ the enumeration list.
 
 If the primary roof type is determined to be a cathedral ceiling, then an attic
 R-value is not calculated.
+
+Knee Walls
+**********
+
+If an attic has knee walls specified via the ``Attic/AtticKneeWall`` element, 
+the area of the knee walls will be added to the attic floor area. 
+If the insulation for the knee walls is different than the attic floor, a UA 
+calculation is performed to determine the average R-value.
