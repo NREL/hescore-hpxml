@@ -46,14 +46,6 @@ jobs:
       - store_artifacts:
           path: /tmp/docs
           destination: docs
-  build-py35:
-    docker:
-      - image: circleci/python:3.5
-    steps:
-      - checkout
-      - run: *install
-      - run: *unittests
-      - run: *stylechecks
   build-py36:
     docker:
       - image: circleci/python:3.6
