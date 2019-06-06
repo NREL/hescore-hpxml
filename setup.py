@@ -12,7 +12,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='hescore-hpxml',
-    version='4.0.0',
+    version='5.0.0',
     description='HPXML Translator for the HEScore API',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -28,6 +28,9 @@ setup(
         'Natural Language :: English',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Scientific/Engineering',
         'Topic :: Text Processing :: Markup :: XML',
     ],
@@ -40,7 +43,8 @@ setup(
             'coverage',
             'sphinx',
             'sphinx_rtd_theme',
-            'sphinx-autobuild'
+            'sphinx-autobuild',
+            'future'
         ]
     },
     include_package_data=True,

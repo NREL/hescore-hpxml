@@ -1,4 +1,10 @@
+from __future__ import division
 # Python standard library imports
+from builtins import str
+from builtins import map
+from builtins import zip
+from builtins import object
+from past.utils import old_div
 import os
 import sys
 import argparse
@@ -37,6 +43,12 @@ def convert_to_type(type_, value):
         return value
     else:
         return type_(value)
+
+
+def python2round(f):
+    if round(f + 1) - round(f) != 1:
+        return f + abs(f) / f * 0.5
+    return round(f)
 
 
 # Base class for errors in this module
@@ -461,20 +473,20 @@ class HPXMLtoHEScoreTranslator(object):
 
         # Renormalize duct fractions so they add up to one (handles supply/return method if both are specified)
         total_duct_frac = sum(duct_fracs_by_hescore_duct_loc.values())
-        duct_fracs_by_hescore_duct_loc = dict([(key, value / total_duct_frac)
+        duct_fracs_by_hescore_duct_loc = dict([(key, old_div(value, total_duct_frac))
                                                for key, value
-                                               in duct_fracs_by_hescore_duct_loc.items()])
+                                               in list(duct_fracs_by_hescore_duct_loc.items())])
 
         # Gather the ducts by type
         hvacd_sortlist = []
-        for duct_loc, duct_frac in duct_fracs_by_hescore_duct_loc.items():
+        for duct_loc, duct_frac in list(duct_fracs_by_hescore_duct_loc.items()):
             hvacd = {}
             hvacd['location'] = duct_loc
             hvacd['fraction'] = duct_frac
             hvacd_sortlist.append(hvacd)
 
         # Sort them
-        hvacd_sortlist.sort(key=lambda x: x['fraction'], reverse=True)
+        hvacd_sortlist.sort(key=lambda x: (x['fraction'], x['location']), reverse=True)
 
         # Get the top 3
         sum_of_top_3_fractions = sum([x['fraction'] for x in hvacd_sortlist])
@@ -482,7 +494,7 @@ class HPXMLtoHEScoreTranslator(object):
             hvacd_out = OrderedDict()
             hvacd_out['name'] = 'duct%d' % i
             hvacd_out['location'] = hvacd['location']
-            hvacd_out['fraction'] = int(round(hvacd['fraction'] / sum_of_top_3_fractions * 100))
+            hvacd_out['fraction'] = int(python2round(hvacd['fraction'] / sum_of_top_3_fractions * 100))
             hvacd_out['insulated'] = hescore_duct_loc_has_insulation[hvacd['location']]
             hvacd_out['sealed'] = is_sealed
             hvac_distribution.append(hvacd_out)
@@ -506,7 +518,7 @@ class HPXMLtoHEScoreTranslator(object):
         return nsre.sub(repl, x)
 
     def insert_element_in_order(self, parent, child, elorder):
-        fullelorder = map(self.addns, elorder)
+        fullelorder = list(map(self.addns, elorder))
         childidx = fullelorder.index(child.tag)
         if len(parent) == 0:
             parent.append(child)
@@ -552,7 +564,7 @@ class HPXMLtoHEScoreTranslator(object):
                     window_areas[azimuth] += window_area
                 except KeyError:
                     window_areas[azimuth] = window_area
-            back_azimuth = max(window_areas.items(), key=lambda x: x[1])[0]
+            back_azimuth = max(list(window_areas.items()), key=lambda x: x[1])[0]
             front_azimuth = (back_azimuth + 180) % 360
             azimuth_el = etree.Element(addns('h:AzimuthOfFrontOfHome'))
             azimuth_el.text = str(front_azimuth)
@@ -604,7 +616,7 @@ class HPXMLtoHEScoreTranslator(object):
 
     def get_nearest_azimuth(self, azimuth=None, orientation=None):
         if azimuth is not None:
-            return int(round(float(azimuth) / 45.)) % 8 * 45
+            return int(python2round(float(azimuth) / 45.)) % 8 * 45
         else:
             if orientation is None:
                 raise TranslationError('Either an orientation or azimuth is required.')
@@ -676,12 +688,12 @@ class HPXMLtoHEScoreTranslator(object):
         for zone_floor in bldg['zone']['zone_floor']:
             if zone_floor['foundation_type'] == 'cond_basement':
                 cond_basement_floor_area += zone_floor['floor_area']
-        return int(round((floor_area - cond_basement_floor_area) / stories))
+        return int(python2round(old_div((floor_area - cond_basement_floor_area), stories)))
 
     @staticmethod
     def _remove_hidden_keys(d):
         if isinstance(d, dict):
-            for key, value in d.items():
+            for key, value in list(d.items()):
                 if key.startswith('_'):
                     del d[key]
                     continue
@@ -797,8 +809,8 @@ class HPXMLtoHEScoreTranslator(object):
                 float(xpath(bldg_cons_el, 'h:ConditionedFloorArea/text()'))
         else:
             avg_ceiling_ht = float(avg_ceiling_ht)
-        bldg_about['floor_to_ceiling_height'] = int(round(avg_ceiling_ht))
-        bldg_about['conditioned_floor_area'] = int(round(float(
+        bldg_about['floor_to_ceiling_height'] = int(python2round(avg_ceiling_ht))
+        bldg_about['conditioned_floor_area'] = int(python2round(float(
             xpath(b, 'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ConditionedFloorArea/text()'))))
 
         site_el = xpath(b, 'h:BuildingDetails/h:BuildingSummary/h:Site')
@@ -832,7 +844,7 @@ class HPXMLtoHEScoreTranslator(object):
                     'conditioned_floor_area'] * \
                     float(xpath(blower_door_test,
                                 'h:BuildingAirLeakage/h:AirLeakage/text()')) / 60.
-            bldg_about['envelope_leakage'] = int(round(bldg_about['envelope_leakage']))
+            bldg_about['envelope_leakage'] = int(python2round(bldg_about['envelope_leakage']))
         else:
             bldg_about['blower_door_test'] = False
             if b.xpath('count(h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirSealing)', namespaces=ns) > 0 or \
@@ -973,7 +985,7 @@ class HPXMLtoHEScoreTranslator(object):
             if atticd['roofconstype'] == 'ps':
                 roof_rvalue -= 5
             roof_rvalue, atticd['roof_coc_rvalue'] = \
-                min(roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']].items(),
+                min(list(roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']].items()),
                     key=lambda x: abs(x[0] - roof_rvalue))
 
             # knee walls
@@ -990,11 +1002,11 @@ class HPXMLtoHEScoreTranslator(object):
             # attic floor center of cavity R-value
             attic_floor_rvalue = xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
             if knee_walls:
-                knee_wall_ua = sum(x['area'] / x['rvalue'] for x in knee_walls)
+                knee_wall_ua = sum(old_div(x['area'], x['rvalue']) for x in knee_walls)
                 knee_wall_area = sum([x['area'] for x in knee_walls])
-                attic_floor_adj_ua = knee_wall_ua + atticd['roof_area'] / attic_floor_rvalue
+                attic_floor_adj_ua = knee_wall_ua + old_div(atticd['roof_area'], attic_floor_rvalue)
                 attic_floor_adj_area = knee_wall_area + atticd['roof_area']
-                attic_floor_rvalue = attic_floor_adj_area / attic_floor_adj_ua
+                attic_floor_rvalue = old_div(attic_floor_adj_area, attic_floor_adj_ua)
                 atticd['roof_area'] = attic_floor_adj_area
             atticd['attic_floor_coc_rvalue'] = \
                 min(attic_floor_rvalues, key=lambda x: abs(x - attic_floor_rvalue)) + 0.5
@@ -1016,7 +1028,7 @@ class HPXMLtoHEScoreTranslator(object):
 
             # Determine predominant roof characteristics for each rooftype.
             combined_atticds = []
-            for rooftype, atticds in attics_by_rooftype.items():
+            for rooftype, atticds in list(attics_by_rooftype.items()):
                 combined_atticd = {}
 
                 # Roof Area
@@ -1038,7 +1050,7 @@ class HPXMLtoHEScoreTranslator(object):
                 # Calculate roof area weighted center of cavity R-value
                 combined_atticd['roof_coc_rvalue'] = \
                     combined_atticd['roof_area'] / \
-                    sum([atticd['roof_area'] / atticd['roof_coc_rvalue'] for atticd in atticds])
+                    sum([old_div(atticd['roof_area'], atticd['roof_coc_rvalue']) for atticd in atticds])
 
                 # Calculate attic floor weighted average center-of-cavity R-value
                 combined_atticd['attic_floor_coc_rvalue'] = \
@@ -1059,7 +1071,7 @@ class HPXMLtoHEScoreTranslator(object):
 
             # Get Roof R-value
             roffset = roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']][0]
-            roof_rvalue = min(roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']].keys(),
+            roof_rvalue = min(list(roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']].keys()),
                               key=lambda x: abs(atticd['roof_coc_rvalue'] - roffset - x))
 
             # Get Attic Floor R-value
@@ -1100,7 +1112,7 @@ class HPXMLtoHEScoreTranslator(object):
                                                 for skylight in skylights]))
         if None in areas:
             raise TranslationError('Every skylight needs an area.')
-        areas = map(float, areas)
+        areas = list(map(float, areas))
         zone_skylight['skylight_area'] = sum(areas)
 
         # Remove skylights from the calculation where a uvalue or shgc isn't set.
@@ -1116,14 +1128,14 @@ class HPXMLtoHEScoreTranslator(object):
             shgcs.pop(i)
             areas.pop(i)
         assert len(uvalues) == len(shgcs)
-        uvalues = map(float, uvalues)
-        shgcs = map(float, shgcs)
+        uvalues = list(map(float, uvalues))
+        shgcs = list(map(float, shgcs))
 
         if len(uvalues) > 0:
             # Use an area weighted average of the uvalues, shgcs
             zone_skylight['skylight_method'] = 'custom'
-            zone_skylight['skylight_u_value'] = sum(
-                [uvalue * area for (uvalue, area) in zip(uvalues, areas)]) / sum(areas)
+            zone_skylight['skylight_u_value'] = old_div(sum(
+                [uvalue * area for (uvalue, area) in zip(uvalues, areas)]), sum(areas))
             zone_skylight['skylight_shgc'] = sum([shgc * area for (shgc, area) in zip(shgcs, areas)]) / sum(areas)
         else:
             # use a construction code
@@ -1136,7 +1148,7 @@ class HPXMLtoHEScoreTranslator(object):
                 except KeyError:
                     skylight_type_areas[skylight_code] = area
             zone_skylight['skylight_method'] = 'code'
-            zone_skylight['skylight_code'] = max(skylight_type_areas.items(), key=lambda x: x[1])[0]
+            zone_skylight['skylight_code'] = max(list(skylight_type_areas.items()), key=lambda x: x[1])[0]
         skylight_sunscreen_areas = {}
         for skylight in skylights:
             solar_screen = bool(xpath(skylight, 'h:Treatments/text()') == 'solar screen'
@@ -1146,7 +1158,7 @@ class HPXMLtoHEScoreTranslator(object):
                 skylight_sunscreen_areas[solar_screen] += area
             except KeyError:
                 skylight_sunscreen_areas[solar_screen] = area
-        zone_skylight['solar_screen'] = max(skylight_sunscreen_areas.items(), key=lambda x: x[1])[0]
+        zone_skylight['solar_screen'] = max(list(skylight_sunscreen_areas.items()), key=lambda x: x[1])[0]
         return zone_skylight
 
     def _get_building_zone_floor(self, b, bldg_about):
@@ -1163,7 +1175,7 @@ class HPXMLtoHEScoreTranslator(object):
         def get_fnd_area(fnd):
             return max([xpath(fnd, 'sum(h:%s/h:Area)' % x) for x in ('Slab', 'FrameFloor')])
         foundations.sort(key=get_fnd_area, reverse=True)
-        areas = map(get_fnd_area, foundations)
+        areas = list(map(get_fnd_area, foundations))
         if len(areas) > 1:
             for area in areas:
                 if abs(area) < smallnum:  # area == 0
@@ -1173,7 +1185,7 @@ class HPXMLtoHEScoreTranslator(object):
         sum_area_largest_two = sum(areas[0:2])
         sum_area = sum(areas)
         try:
-            area_mult = sum_area / sum_area_largest_two
+            area_mult = old_div(sum_area, sum_area_largest_two)
         except ZeroDivisionError:
             area_mult = 0
 
@@ -1221,21 +1233,20 @@ class HPXMLtoHEScoreTranslator(object):
                 nstories = bldg_about['num_floor_above_grade']
                 if zone_floor['foundation_type'] == 'cond_basement':
                     nstories += 1
-                zone_floor['floor_area'] = bldg_about['conditioned_floor_area'] / nstories
+                zone_floor['floor_area'] = old_div(bldg_about['conditioned_floor_area'], nstories)
 
             # Foundation Wall insulation R-value
             fwua = 0
             fwtotalarea = 0
             foundationwalls = foundation.xpath('h:FoundationWall', namespaces=ns)
-            fw_eff_rvalues = dict(zip((0, 5, 11, 19), (4, 7.9, 11.6, 19.6)))
+            fw_eff_rvalues = dict(list(zip((0, 5, 11, 19), (4, 7.9, 11.6, 19.6))))
             if len(foundationwalls) > 0:
                 if zone_floor['foundation_type'] == 'slab_on_grade':
                     raise TranslationError('The house is a slab on grade foundation, but has foundation walls.')
                 del fw_eff_rvalues[5]  # remove the value for slab insulation
                 for fwall in foundationwalls:
                     fwarea, fwlength, fwheight = \
-                        map(lambda x: convert_to_type(float, xpath(fwall, 'h:%s/text()' % x)),
-                            ('Area', 'Length', 'Height'))
+                        [convert_to_type(float, xpath(fwall, 'h:%s/text()' % x)) for x in ('Area', 'Length', 'Height')]
                     if fwarea is None:
                         try:
                             fwarea = fwlength * fwheight
@@ -1246,10 +1257,10 @@ class HPXMLtoHEScoreTranslator(object):
                                 raise TranslationError(
                                     'If there is more than one FoundationWall, an Area is required for each.')
                     fwrvalue = xpath(fwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-                    fweffrvalue = fw_eff_rvalues[min(fw_eff_rvalues.keys(), key=lambda x: abs(fwrvalue - x))]
-                    fwua += fwarea / fweffrvalue
+                    fweffrvalue = fw_eff_rvalues[min(list(fw_eff_rvalues.keys()), key=lambda x: abs(fwrvalue - x))]
+                    fwua += old_div(fwarea, fweffrvalue)
                     fwtotalarea += fwarea
-                zone_floor['foundation_insulation_level'] = fwtotalarea / fwua - 4.0
+                zone_floor['foundation_insulation_level'] = old_div(fwtotalarea, fwua) - 4.0
             elif zone_floor['foundation_type'] == 'slab_on_grade':
                 del fw_eff_rvalues[11]  # remove unused values
                 del fw_eff_rvalues[19]
@@ -1265,13 +1276,13 @@ class HPXMLtoHEScoreTranslator(object):
                             raise TranslationError(
                                 'If there is more than one Slab, an ExposedPerimeter is required for each.')
                     slabrvalue = xpath(slab, 'sum(h:PerimeterInsulation/h:Layer/h:NominalRValue)')
-                    slabeffrvalue = fw_eff_rvalues[min(fw_eff_rvalues.keys(), key=lambda x: abs(slabrvalue - x))]
-                    slabua += exp_perimeter / slabeffrvalue
+                    slabeffrvalue = fw_eff_rvalues[min(list(fw_eff_rvalues.keys()), key=lambda x: abs(slabrvalue - x))]
+                    slabua += old_div(exp_perimeter, slabeffrvalue)
                     slabtotalperimeter += exp_perimeter
-                zone_floor['foundation_insulation_level'] = slabtotalperimeter / slabua - 4.0
+                zone_floor['foundation_insulation_level'] = old_div(slabtotalperimeter, slabua) - 4.0
             else:
                 zone_floor['foundation_insulation_level'] = 0
-            zone_floor['foundation_insulation_level'] = min(fw_eff_rvalues.keys(), key=lambda x: abs(
+            zone_floor['foundation_insulation_level'] = min(list(fw_eff_rvalues.keys()), key=lambda x: abs(
                 zone_floor['foundation_insulation_level'] - x))
 
             # floor above foundation insulation
@@ -1290,11 +1301,14 @@ class HPXMLtoHEScoreTranslator(object):
                             raise TranslationError(
                                 'If there is more than one FrameFloor, an Area is required for each.')
                     ffrvalue = xpath(framefloor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-                    ffeffrvalue = floor_eff_rvalues[min(floor_eff_rvalues.keys(), key=lambda x: abs(ffrvalue - x))]
-                    ffua += ffarea / ffeffrvalue
+                    ffeffrvalue = floor_eff_rvalues[min(
+                        list(floor_eff_rvalues.keys()),
+                        key=lambda x: abs(ffrvalue - x)
+                    )]
+                    ffua += old_div(ffarea, ffeffrvalue)
                     fftotalarea += ffarea
-                ffrvalue = fftotalarea / ffua - 4.0
-                zone_floor['floor_assembly_code'] = 'efwf%02dca' % min(floor_eff_rvalues.keys(),
+                ffrvalue = old_div(fftotalarea, ffua) - 4.0
+                zone_floor['floor_assembly_code'] = 'efwf%02dca' % min(list(floor_eff_rvalues.keys()),
                                                                        key=lambda x: abs(ffrvalue - x))
             else:
                 zone_floor['floor_assembly_code'] = 'efwf00ca'
@@ -1311,7 +1325,7 @@ class HPXMLtoHEScoreTranslator(object):
         # building.zone.zone_wall--------------------------------------------------
         zone_wall = []
 
-        hpxmlwalls = dict([(side, []) for side in sidemap.values()])
+        hpxmlwalls = dict([(side, []) for side in list(sidemap.values())])
         hpxmlwalls['noside'] = []
         for wall in b.xpath(
             'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]',
@@ -1339,11 +1353,11 @@ class HPXMLtoHEScoreTranslator(object):
                 else:
                     hpxmlwalls[wall_side].append(walld)
 
-        if len(hpxmlwalls['noside']) > 0 and map(len, [hpxmlwalls[key] for key in sidemap.values()]) == ([0] * 4):
+        if len(hpxmlwalls['noside']) > 0 and list(map(len, [hpxmlwalls[key] for key in sidemap.values()])) == ([0] * 4):
             all_walls_same = True
             # if none of the walls have orientation information
             # copy the walls to all sides
-            for side in sidemap.values():
+            for side in list(sidemap.values()):
                 hpxmlwalls[side] = hpxmlwalls['noside']
             del hpxmlwalls['noside']
         else:
@@ -1355,34 +1369,34 @@ class HPXMLtoHEScoreTranslator(object):
         # Wall effective R-value map
         wall_ext_finish_types = ('wo', 'st', 'vi', 'al', 'br', 'nn')
         wall_eff_rvalues = {}
-        wall_eff_rvalues['wf'] = dict(zip(wall_ext_finish_types[:-1], [dict(zip((0, 3, 7, 11, 13, 15, 19, 21), x))
+        wall_eff_rvalues['wf'] = dict(list(zip(wall_ext_finish_types[:-1], [dict(list(zip((0, 3, 7, 11, 13, 15, 19, 21), x)))  # noqa: E501
                                                                        for x in
                                                                        [(3.6, 5.7, 9.7, 13.7, 15.7, 17.7, 21.7, 23.7),
                                                                         (2.3, 4.4, 8.4, 12.4, 14.4, 16.4, 20.4, 22.4),
                                                                         (2.2, 4.3, 8.3, 12.3, 14.3, 16.3, 20.3, 22.3),
                                                                         (2.1, 4.2, 8.2, 12.2, 14.2, 16.2, 20.2, 22.2),
-                                                                        (2.9, 5.0, 9.0, 13.0, 15.0, 17.0, 21.0, 23.0)]]))  # noqa: E501
-        wall_eff_rvalues['ps'] = dict(zip(wall_ext_finish_types[:-1], [dict(zip((0, 3, 7, 11, 13, 15, 19, 21), x))
+                                                                        (2.9, 5.0, 9.0, 13.0, 15.0, 17.0, 21.0, 23.0)]])))  # noqa: E501
+        wall_eff_rvalues['ps'] = dict(list(zip(wall_ext_finish_types[:-1], [dict(list(zip((0, 3, 7, 11, 13, 15, 19, 21), x)))  # noqa: E501
                                                                        for x in [(6.1, 9.1, 13.1, 17.1, 19.1, 21.1, 25.1, 27.1),  # noqa: E501
                                                                                  (5.4, 8.4, 12.4, 16.4, 18.4, 20.4, 24.4, 26.4),  # noqa: E501
                                                                                  (5.3, 8.3, 12.3, 16.3, 18.3, 20.3, 24.3, 26.3),  # noqa: E501
                                                                                  (5.2, 8.2, 12.2, 16.2, 18.2, 20.2, 24.2, 26.2),  # noqa: E501
-                                                                                 (6.0, 9.0, 13.0, 17.0, 19.0, 21.0, 25.0, 27.0)]]))  # noqa: E501
-        wall_eff_rvalues['ov'] = dict(zip(wall_ext_finish_types[:-1], [dict(zip((19, 21, 27, 33, 38), x))
-                                                                       for x in [(21.0, 23.0, 29.0, 35.0, 40.0),
-                                                                                 (20.3, 22.3, 28.3, 34.3, 39.3),
-                                                                                 (20.1, 22.1, 28.1, 34.1, 39.1),
-                                                                                 (20.1, 22.1, 28.1, 34.1, 39.1),
-                                                                                 (20.9, 22.9, 28.9, 34.9, 39.9)]]))
-        wall_eff_rvalues['br'] = {'nn': dict(zip((0, 5, 10), (2.9, 7.9, 12.8)))}
-        wall_eff_rvalues['cb'] = dict(zip(('st', 'br', 'nn'), [dict(zip((0, 3, 6), x))
-                                                               for x in [(4.1, 5.7, 8.5),
-                                                                         (5.6, 7.2, 10),
-                                                                         (4, 5.6, 8.3)]]))
+                                                                                 (6.0, 9.0, 13.0, 17.0, 19.0, 21.0, 25.0, 27.0)]])))  # noqa: E501
+        wall_eff_rvalues['ov'] = dict(list(zip(wall_ext_finish_types[:-1], [dict(list(zip((19, 21, 27, 33, 38), x)))
+                                                                            for x in [(21.0, 23.0, 29.0, 35.0, 40.0),
+                                                                                      (20.3, 22.3, 28.3, 34.3, 39.3),
+                                                                                      (20.1, 22.1, 28.1, 34.1, 39.1),
+                                                                                      (20.1, 22.1, 28.1, 34.1, 39.1),
+                                                                                      (20.9, 22.9, 28.9, 34.9, 39.9)]])))  # noqa: E501
+        wall_eff_rvalues['br'] = {'nn': dict(list(zip((0, 5, 10), (2.9, 7.9, 12.8))))}
+        wall_eff_rvalues['cb'] = dict(list(zip(('st', 'br', 'nn'), [dict(list(zip((0, 3, 6), x)))
+                                                                    for x in [(4.1, 5.7, 8.5),
+                                                                              (5.6, 7.2, 10),
+                                                                              (4, 5.6, 8.3)]])))
         wall_eff_rvalues['sb'] = {'st': {0: 58.8}}
 
         # build HEScore walls
-        for side in sidemap.values():
+        for side in list(sidemap.values()):
             if len(hpxmlwalls[side]) == 0:
                 continue
             heswall = OrderedDict()
@@ -1400,26 +1414,26 @@ class HPXMLtoHEScoreTranslator(object):
                 ext_finish = walld['assembly_code'][6:8]
                 rvalue = int(walld['assembly_code'][4:6])
                 eff_rvalue = wall_eff_rvalues[const_type][ext_finish][rvalue]
-                wallua += walld['area'] / eff_rvalue
+                wallua += old_div(walld['area'], eff_rvalue)
                 walltotalarea += walld['area']
                 wall_const_type_ext_finish_areas[(const_type, ext_finish)] += walld['area']
-            const_type, ext_finish = max(wall_const_type_ext_finish_areas.keys(),
+            const_type, ext_finish = max(list(wall_const_type_ext_finish_areas.keys()),
                                          key=lambda x: wall_const_type_ext_finish_areas[x])
             try:
                 roffset = wall_eff_rvalues[const_type][ext_finish][0]
             except KeyError:
-                rvalue, eff_rvalue = min(wall_eff_rvalues[const_type][ext_finish].items(), key=lambda x: x[0])
+                rvalue, eff_rvalue = min(list(wall_eff_rvalues[const_type][ext_finish].items()), key=lambda x: x[0])
                 roffset = eff_rvalue - rvalue
-            rvalueavgeff = walltotalarea / wallua
+            rvalueavgeff = old_div(walltotalarea, wallua)
             rvalueavgnom = rvalueavgeff - roffset
-            comb_rvalue = min(wall_eff_rvalues[const_type][ext_finish].keys(),
+            comb_rvalue = min(list(wall_eff_rvalues[const_type][ext_finish].keys()),
                               key=lambda x: abs(rvalueavgnom - x))
             heswall['wall_assembly_code'] = 'ew%s%02d%s' % (const_type, comb_rvalue, ext_finish)
             zone_wall.append(heswall)
 
         # building.zone.zone_wall.zone_window--------------------------------------
         # Assign each window to a side of the house
-        hpxmlwindows = dict([(side, []) for side in sidemap.values()])
+        hpxmlwindows = dict([(side, []) for side in list(sidemap.values())])
         for hpxmlwndw in b.xpath('h:BuildingDetails/h:Enclosure/h:Windows/h:Window', namespaces=ns):
 
             # Get the area, solar screen, uvalue, SHGC, or window_code
@@ -1443,7 +1457,7 @@ class HPXMLtoHEScoreTranslator(object):
             attached_to_wall_id = xpath(hpxmlwndw, 'h:AttachedToWall/@idref')
             if attached_to_wall_id is not None:
                 # Give preference to the Attached to Wall element to determine the side of the house.
-                for side, walls in hpxmlwalls.items():
+                for side, walls in list(hpxmlwalls.items()):
                     for wall in walls:
                         if attached_to_wall_id == wall['id']:
                             window_sides.append(side)
@@ -1519,7 +1533,7 @@ class HPXMLtoHEScoreTranslator(object):
                     raise TranslationError('The house has windows on shared walls.')
 
         # Determine the predominant window characteristics and create HEScore windows
-        for side, windows in hpxmlwindows.items():
+        for side, windows in list(hpxmlwindows.items()):
 
             # Add to the correct wall
             wall_found = False
@@ -1563,9 +1577,10 @@ class HPXMLtoHEScoreTranslator(object):
             if len(uvalues) > 0:
                 # Use an area weighted average of the uvalues, shgcs
                 zone_window['window_method'] = 'custom'
-                zone_window['window_u_value'] = sum([uvalue * area for (uvalue, area) in zip(uvalues, areas)]) / sum(
-                    areas)
-                zone_window['window_shgc'] = sum([shgc * area for (shgc, area) in zip(shgcs, areas)]) / sum(areas)
+                zone_window['window_u_value'] = \
+                    sum([uvalue * area for (uvalue, area) in zip(uvalues, areas)]) / sum(areas)
+                zone_window['window_shgc'] = \
+                    sum([shgc * area for (shgc, area) in zip(shgcs, areas)]) / sum(areas)
             else:
                 # Use a window construction code
                 zone_window['window_method'] = 'code'
@@ -1577,14 +1592,14 @@ class HPXMLtoHEScoreTranslator(object):
                         window_code_areas[window['window_code']] += window['area']
                     except KeyError:
                         window_code_areas[window['window_code']] = window['area']
-                zone_window['window_code'] = max(window_code_areas.items(), key=lambda x: x[1])[0]
+                zone_window['window_code'] = max(list(window_code_areas.items()), key=lambda x: x[1])[0]
             window_sunscreen_areas = {}
             for window in windows:
                 try:
                     window_sunscreen_areas[window['sun_screen']] += window['area']
                 except KeyError:
                     window_sunscreen_areas[window['sun_screen']] = window['area']
-            zone_window['solar_screen'] = max(window_sunscreen_areas.items(), key=lambda x: x[1])[0]
+            zone_window['solar_screen'] = max(list(window_sunscreen_areas.items()), key=lambda x: x[1])[0]
         return zone_wall
 
     def _get_hvac(self, b):
@@ -1607,7 +1622,7 @@ class HPXMLtoHEScoreTranslator(object):
             'descendant::h:HVACPlant/h:HeatingSystem|descendant::h:HVACPlant/h:HeatPump')
 
         # Remove heating systems that serve 0% of the heating load
-        for key, el in hpxml_heating_systems.items():
+        for key, el in list(hpxml_heating_systems.items()):
             frac_load_str = self.xpath(el, 'h:FractionHeatLoadServed/text()')
             htg_capacity_str = self.xpath(el, 'h:HeatingCapacity/text()')
             htg_capacity_17_str = self.xpath(el, 'h:HeatingCapacity17F/text()')
@@ -1620,7 +1635,7 @@ class HPXMLtoHEScoreTranslator(object):
             'descendant::h:HVACPlant/h:CoolingSystem|descendant::h:HVACPlant/h:HeatPump')
 
         # Remove cooling systems that serve 0% of the cooling load
-        for key, el in hpxml_cooling_systems.items():
+        for key, el in list(hpxml_cooling_systems.items()):
             frac_load_str = self.xpath(el, 'h:FractionCoolLoadServed/text()')
             clg_capacity_str = self.xpath(el, 'h:CoolingCapacity/text()')
             if remove_hp_by_zero_value(frac_load_str) or remove_hp_by_zero_value(clg_capacity_str):
@@ -1632,7 +1647,7 @@ class HPXMLtoHEScoreTranslator(object):
         # Connect the heating and cooling systems to their associated distribution systems
         def _get_duct_mapping(element_list):
             return_dict = {}
-            for system_id, el in element_list.items():
+            for system_id, el in list(element_list.items()):
                 distribution_system_id = self.xpath(el, 'h:DistributionSystem/@idref')
                 if distribution_system_id is None:
                     continue
@@ -1656,22 +1671,23 @@ class HPXMLtoHEScoreTranslator(object):
         dist_cooling_map = _get_duct_mapping(hpxml_cooling_systems)
 
         # Remove distribution systems that aren't referenced by any equipment.
-        for dist_sys_id, el in hpxml_distribution_systems.items():
+        for dist_sys_id, el in list(hpxml_distribution_systems.items()):
             if not (dist_sys_id in dist_heating_map or dist_sys_id in dist_cooling_map):
                 del hpxml_distribution_systems[dist_sys_id]
 
         # Merge the maps
         # {'duct1': ('furnace1', 'centralair1'), 'duct2': ('furnace2', None), ... }
         dist_heating_cooling_map = {}
-        for dist_sys_id in hpxml_distribution_systems.keys():
-            dist_heating_cooling_map[dist_sys_id] = tuple(map(lambda x: x.get(dist_sys_id),
-                                                              (dist_heating_map, dist_cooling_map)))
+        for dist_sys_id in list(hpxml_distribution_systems.keys()):
+            dist_heating_cooling_map[dist_sys_id] = tuple(
+                [x.get(dist_sys_id) for x in (dist_heating_map, dist_cooling_map)]
+            )
 
         # Find the heating and cooling systems not associated with a distribution system
         singleton_heating_systems = set(hpxml_heating_systems.keys())
         singleton_cooling_systems = set(hpxml_cooling_systems.keys())
         if len(dist_heating_cooling_map) > 0:
-            associated_heating_systems, associated_cooling_systems = zip(*dist_heating_cooling_map.values())
+            associated_heating_systems, associated_cooling_systems = list(zip(*list(dist_heating_cooling_map.values())))
         else:
             associated_heating_systems = []
             associated_cooling_systems = []
@@ -1680,17 +1696,17 @@ class HPXMLtoHEScoreTranslator(object):
 
         # Translate each heating system into HEScore inputs
         heating_systems = {}
-        for key, el in hpxml_heating_systems.items():
+        for key, el in list(hpxml_heating_systems.items()):
             heating_systems[key] = self._get_heating_system_type(el)
 
         # Translate each cooling system into HEScore inputs
         cooling_systems = {}
-        for key, el in hpxml_cooling_systems.items():
+        for key, el in list(hpxml_cooling_systems.items()):
             cooling_systems[key] = self._get_cooling_system_type(el)
 
         # Translate each duct system into HEScore inputs
         distribution_systems = {}
-        for key, el in hpxml_distribution_systems.items():
+        for key, el in list(hpxml_distribution_systems.items()):
             distribution_systems[key] = self._get_hvac_distribution(el)
 
         # Determine the weighting factors
@@ -1698,13 +1714,13 @@ class HPXMLtoHEScoreTranslator(object):
             weighting_factor_priority = ['_floorarea', '_fracload']
             found_weighting_factor = False
             for weighting_factor in weighting_factor_priority:
-                weighting_factor_list = [item[weighting_factor] for item in systems_dict.values()]
+                weighting_factor_list = [item[weighting_factor] for item in list(systems_dict.values())]
                 if None not in weighting_factor_list and len(weighting_factor_list) > 0:
                     found_weighting_factor = True
                     break
             if not found_weighting_factor:
                 if len(systems_dict) == 1:
-                    systems_dict.values()[0]['_fracload'] = 1.0
+                    list(systems_dict.values())[0]['_fracload'] = 1.0
                     weighting_factor_list = [1.0]
                     weighting_factor = '_fracload'
                 else:
@@ -1732,10 +1748,10 @@ class HPXMLtoHEScoreTranslator(object):
 
         # Ensure that heating and cooling systems attached to the same ducts are within 5% of each other
         # in terms of fraction of the load served.
-        for duct_id, (htg_id, clg_id) in dist_heating_cooling_map.items():
+        for duct_id, (htg_id, clg_id) in list(dist_heating_cooling_map.items()):
             try:
-                htg_weight = heating_systems[htg_id][heating_weighting_factor] / weight_sum
-                clg_weight = cooling_systems[clg_id][cooling_weighting_factor] / weight_sum
+                htg_weight = old_div(heating_systems[htg_id][heating_weighting_factor], weight_sum)
+                clg_weight = old_div(cooling_systems[clg_id][cooling_weighting_factor], weight_sum)
             except KeyError:
                 continue
             if abs(htg_weight - clg_weight) > 0.051:
@@ -1770,12 +1786,12 @@ class HPXMLtoHEScoreTranslator(object):
 
         # Check to make sure heating and cooling systems that need a distribution system have them.
         heating_sys_types_requiring_ducts = ('gchp', 'heat_pump', 'central_furnace')
-        for htg_sys_id, htg_sys in heating_systems.items():
+        for htg_sys_id, htg_sys in list(heating_systems.items()):
             if htg_sys['type'] in heating_sys_types_requiring_ducts and htg_sys_id not in dist_heating_map.values():
                 raise TranslationError('Heating system %s is not associated with an air distribution system.' %
                                        htg_sys_id)
         cooling_sys_types_requiring_ducts = ('split_dx', 'heat_pump', 'gchp')
-        for clg_sys_id, clg_sys in cooling_systems.items():
+        for clg_sys_id, clg_sys in list(cooling_systems.items()):
             if clg_sys['type'] in cooling_sys_types_requiring_ducts and clg_sys_id not in dist_cooling_map.values():
                 raise TranslationError('Cooling system %s is not associated with an air distribution system.' %
                                        clg_sys_id)
@@ -1785,13 +1801,13 @@ class HPXMLtoHEScoreTranslator(object):
         # hvac_systems_ids = set([('htg_id', 'clg_id', 'dist_id', weight), ...])
         hvac_systems_ids = set()
         IDsAndWeights = namedtuple('IDsAndWeights', ['htg_id', 'clg_id', 'dist_id', 'weight'])
-        for dist_sys_id, (htg_sys_id, clg_sys_id) in dist_heating_cooling_map.items():
+        for dist_sys_id, (htg_sys_id, clg_sys_id) in list(dist_heating_cooling_map.items()):
             weights_to_average = []
             if htg_sys_id is not None:
-                weights_to_average.append(heating_systems[htg_sys_id][heating_weighting_factor] / weight_sum)
+                weights_to_average.append(old_div(heating_systems[htg_sys_id][heating_weighting_factor], weight_sum))
             if clg_sys_id is not None:
-                weights_to_average.append(cooling_systems[clg_sys_id][cooling_weighting_factor] / weight_sum)
-            avg_sys_weight = sum(weights_to_average) / len(weights_to_average)
+                weights_to_average.append(old_div(cooling_systems[clg_sys_id][cooling_weighting_factor], weight_sum))
+            avg_sys_weight = old_div(sum(weights_to_average), len(weights_to_average))
             hvac_systems_ids.add(IDsAndWeights(htg_sys_id, clg_sys_id, dist_sys_id, avg_sys_weight))
 
         # Add the singletons to the list
@@ -1800,13 +1816,13 @@ class HPXMLtoHEScoreTranslator(object):
                 htg_sys_id,
                 None,
                 None,
-                heating_systems[htg_sys_id][heating_weighting_factor] / weight_sum))
+                old_div(heating_systems[htg_sys_id][heating_weighting_factor], weight_sum)))
         for clg_sys_id in singleton_cooling_systems:
             hvac_systems_ids.add(IDsAndWeights(
                 None,
                 clg_sys_id,
                 None,
-                cooling_systems[clg_sys_id][cooling_weighting_factor] / weight_sum))
+                old_div(cooling_systems[clg_sys_id][cooling_weighting_factor], weight_sum)))
 
         # Split and combine systems by fraction as needed #45
         singleton_heating_systems = []
@@ -1825,7 +1841,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         def iter_next(_iter):
             try:
-                retval = _iter.next()
+                retval = next(_iter)
             except StopIteration:
                 retval = None
             return retval
@@ -1891,7 +1907,7 @@ class HPXMLtoHEScoreTranslator(object):
         for i, hvac_ids in enumerate(hvac_systems_ids[0:2], 1):
             hvac_sys = OrderedDict()
             hvac_sys['hvac_name'] = 'hvac%d' % i
-            hvac_sys['hvac_fraction'] = round(hvac_ids.weight / hvac_sys_weight_sum, 6)
+            hvac_sys['hvac_fraction'] = round(old_div(hvac_ids.weight, hvac_sys_weight_sum), 6)
             if hvac_ids.htg_id is not None:
                 hvac_sys['heating'] = heating_systems[hvac_ids.htg_id]
             else:
@@ -1929,13 +1945,17 @@ class HPXMLtoHEScoreTranslator(object):
 
         water_heating_systems = xpath(b, 'descendant::h:WaterHeatingSystem')
         if isinstance(water_heating_systems, list):
-            dhwfracs = map(lambda x: None if x is None else float(x),
-                           [xpath(water_heating_system, 'h:FractionDHWLoadServed/text()') for water_heating_system in
-                            water_heating_systems])
+            dhwfracs = [
+                None if x is None else float(x)
+                for x in [
+                    xpath(water_heating_system, 'h:FractionDHWLoadServed/text()')
+                    for water_heating_system in water_heating_systems
+                ]
+            ]
             if None in dhwfracs:
                 primarydhw = water_heating_systems[0]
             else:
-                primarydhw = max(zip(water_heating_systems, dhwfracs), key=lambda x: x[1])[0]
+                primarydhw = max(list(zip(water_heating_systems, dhwfracs)), key=lambda x: x[1])[0]
         elif water_heating_systems is None:
             raise TranslationError('No water heating systems found.')
         else:
@@ -2013,12 +2033,12 @@ class HPXMLtoHEScoreTranslator(object):
                 else:
                     raise TranslationError('MaxPowerOutput or CollectorArea is required for every PVSystem.')
 
-            manufacture_years = map(
+            manufacture_years = list(map(
                 int,
                 self.xpath(
                     pvsystem,
                     'h:YearInverterManufactured/text()|h:YearModulesManufactured/text()',
-                    aslist=True))
+                    aslist=True)))
             if manufacture_years:
                 years.append(max(manufacture_years))  # Use the latest year of manufacture
             else:
@@ -2039,17 +2059,17 @@ class HPXMLtoHEScoreTranslator(object):
             total_capacity = sum(capacities)
             solar_electric['system_capacity'] = total_capacity / 1000.
             solar_electric['year'] = int(
-                sum([year * capacity for year, capacity in zip(years, capacities)]) / total_capacity)
-            wtavg_azimuth = sum(
-                [az * capacity for az, capacity in zip(azimuths, capacities)]) / total_capacity
+                old_div(sum([year * capacity for year, capacity in zip(years, capacities)]), total_capacity))
+            wtavg_azimuth = old_div(sum(
+                [az * capacity for az, capacity in zip(azimuths, capacities)]), total_capacity)
         elif None not in collector_areas:
             solar_electric['capacity_known'] = False
             total_area = sum(collector_areas)
-            solar_electric['num_panels'] = int(round(total_area / 17.6))
+            solar_electric['num_panels'] = int(python2round(total_area / 17.6))
             solar_electric['year'] = int(sum([year * area for year, area in zip(years, collector_areas)]) / total_area)
-            wtavg_azimuth = sum(
+            wtavg_azimuth = old_div(sum(
                 [az * area for az, area in zip(azimuths, collector_areas)]
-            ) / total_area
+            ), total_area)
         else:
             raise TranslationError(
                 'Either a MaxPowerOutput must be specified for every PVSystem '

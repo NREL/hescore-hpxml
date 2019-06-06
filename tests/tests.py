@@ -1,12 +1,18 @@
+from future import standard_library
+standard_library.install_aliases()  # noqa: 402
+from builtins import map
+from builtins import str
+from builtins import object
 import os
 import unittest
 import datetime as dt
 from lxml import etree
 from hescorehpxml import HPXMLtoHEScoreTranslator, TranslationError, InputOutOfBounds
-import StringIO
+import io
 import json
 from copy import deepcopy
 import uuid
+import sys
 
 thisdir = os.path.dirname(os.path.abspath(__file__))
 exampledir = os.path.abspath(os.path.join(thisdir, '..', 'examples'))
@@ -18,6 +24,24 @@ class ComparatorBase(object):
         self.translator = HPXMLtoHEScoreTranslator(xmlfilepath)
         return self.translator
 
+    def _compare_item(self, x, y, curpath=[]):
+        if isinstance(x, dict):
+            self.assertEqual(set(x.keys()), set(y.keys()), '{}: dict keys of not equal'.format('.'.join(curpath)))
+            for k, xv in x.items():
+                self._compare_item(xv, y[k], curpath + [k])
+        elif isinstance(x, list):
+            self.assertEqual(len(x), len(y), '{}: list lengths not equal'.format('.'.join(curpath)))
+            if curpath[-1] == 'zone_wall':
+                x.sort(key=lambda k: k.get('side'))
+                y.sort(key=lambda k: k.get('side'))
+            for i, (xitem, yitem) in enumerate(zip(x, y)):
+                self._compare_item(xitem, yitem, curpath + [str(i)])
+        elif isinstance(x, float):
+            self.assertTrue(isinstance(y, float))
+            self.assertAlmostEqual(x, y)
+        else:
+            self.assertEqual(x, y, '{}: item not equal'.format('.'.join(curpath)))
+
     def _do_compare(self, filebase, jsonfilebase=None):
         if not jsonfilebase:
             jsonfilebase = filebase
@@ -25,7 +49,7 @@ class ComparatorBase(object):
         jsonfilepath = os.path.join(exampledir, jsonfilebase + '.json')
         with open(os.path.join(exampledir, jsonfilepath)) as f:
             hescore_truth = json.load(f)
-        self.assertEqual(hescore_trans, hescore_truth, '{} not equal'.format(filebase))
+        self._compare_item(hescore_trans, hescore_truth)
 
     def _do_full_compare(self, filebase, jsonfilebase=None):
         self._load_xmlfile(filebase)
@@ -574,7 +598,10 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         etree.SubElement(el, tr.addns('h:FractionHeatLoadServed')).text = '0.06'
         el = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair"]')
         el.getparent().remove(el)
-        f = StringIO.StringIO()
+        if sys.version_info[0] == 3:
+            f = io.StringIO()
+        else:
+            f = io.BytesIO()
         tr.hpxml_to_hescore_json(f)
         f.seek(0)
         hesinp = json.load(f)
@@ -1000,8 +1027,8 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         res = tr.hpxml_to_hescore_dict()
         clg_sys = res['building']['systems']['hvac'][0]['cooling']
         self.assertEqual(clg_sys['type'], 'dec')
-        self.assertNotIn('efficiency', clg_sys.keys())
-        self.assertNotIn('efficiency_method', clg_sys.keys())
+        self.assertNotIn('efficiency', list(clg_sys.keys()))
+        self.assertNotIn('efficiency_method', list(clg_sys.keys()))
 
     def test_cooling_year(self):
         tr = self._load_xmlfile('house1')
@@ -1319,7 +1346,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
         hesd = tr.hpxml_to_hescore_dict()
         pv = hesd['building']['systems']['generation']['solar_electric']
         self.assertTrue(pv['capacity_known'])
-        self.assertNotIn('num_panels', pv.keys())
+        self.assertNotIn('num_panels', list(pv.keys()))
         self.assertEqual(pv['system_capacity'], 5)
         self.assertEqual(pv['year'], 2015)
         self.assertEqual(pv['array_azimuth'], 'south_east')
@@ -1339,7 +1366,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
         hesd = tr.hpxml_to_hescore_dict()
         pv = hesd['building']['systems']['generation']['solar_electric']
         self.assertFalse(pv['capacity_known'])
-        self.assertNotIn('capacity', pv.keys())
+        self.assertNotIn('capacity', list(pv.keys()))
         self.assertEqual(pv['num_panels'], 10)
 
     def test_orientation(self):
