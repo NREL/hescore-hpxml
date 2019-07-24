@@ -1986,5 +1986,6 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         roof_type = d['building']['zone']['zone_roof'][0]['roof_type']
         self.assertEqual(roof_type, 'cond_attic')
 
+
 if __name__ == "__main__":
     unittest.main()
