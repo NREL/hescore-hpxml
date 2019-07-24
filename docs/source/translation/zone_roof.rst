@@ -30,16 +30,19 @@ type according to the following mapping.
    unvented attic         vented_attic
    vented attic           vented_attic
    venting unknown attic  vented_attic
-   other                  *not translated*
+   other                  *see note below*
    =====================  ================
 
-.. warning:: 
+.. note::
    
-   There is no way to get a HEScore ``cond_attic``.
+   Currently, there's no existing HPXML element capturing a conditioned attic.
+   The only way to model a HEScore ``cond_attic`` is to specify HPXML Attic Type
+   to be ``other`` with an extra element ``Attic/extension/Conditioned`` to be
+   ``true``.
 
-.. note::   
-   
-   Items that are *not translated* will result in a translation error.
+   Otherwise, HPXML Attic Type ``other`` will not be translated and will
+   result in a translation error.
+
    
 HEScore can accept up to two attic/roof constructions. If there are more than
 two specified in HPXML, the properties of the ``Attic`` elements with
