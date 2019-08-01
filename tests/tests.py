@@ -1970,6 +1970,33 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         self.assertEqual(system['type'], 'tankless')
         self.assertAlmostEqual(system['energy_factor'], 0.7)
 
+    def test_conditioned_attic(self):
+        tr = self._load_xmlfile('house4')
+        attic = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]')
+        attic_type = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]/h:AtticType')
+        attic_type.text = 'other'
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'Attic attic1: Cannot translate HPXML AtticType other to HEScore rooftype.',
+            tr.hpxml_to_hescore_dict
+        )
+        is_attic_cond = etree.SubElement(etree.SubElement(attic, tr.addns('h:extension')), tr.addns('h:Conditioned'))
+        is_attic_cond.text = 'true'
+        d = tr.hpxml_to_hescore_dict()
+        roof_type = d['building']['zone']['zone_roof'][0]['roof_type']
+        self.assertEqual(roof_type, 'cond_attic')
+        is_attic_cond.text = 'false'
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'Attic \w+: Cannot translate HPXML AtticType other to HEScore rooftype.',
+            tr.hpxml_to_hescore_dict
+        )
+        attic_type.text = 'vented attic'
+        is_attic_cond.text = 'true'
+        d = tr.hpxml_to_hescore_dict()
+        roof_type = d['building']['zone']['zone_roof'][0]['roof_type']
+        self.assertEqual(roof_type, 'vented_attic')
+
 
 if __name__ == "__main__":
     unittest.main()

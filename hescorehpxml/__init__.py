@@ -923,9 +923,13 @@ class HPXMLtoHEScoreTranslator(object):
             hpxml_attic_type = xpath(attic, 'h:AtticType/text()')
             atticd['rooftype'] = rooftypemap[hpxml_attic_type]
             if atticd['rooftype'] is None:
-                raise TranslationError(
-                    'Attic {}: Cannot translate HPXML AtticType {} to HEScore rooftype.'.format(atticid,
-                                                                                                hpxml_attic_type))
+                attc_is_cond = xpath(attic, 'h:extension/h:Conditioned/text()')
+                if attc_is_cond == 'true':
+                    atticd['rooftype'] = 'cond_attic'
+                else:
+                    raise TranslationError(
+                        'Attic {}: Cannot translate HPXML AtticType {} to HEScore rooftype.'.format(atticid,
+                                                                                                    hpxml_attic_type))
 
             # Roof color
             solar_absorptance = convert_to_type(float, xpath(roof, 'h:SolarAbsorptance/text()'))
