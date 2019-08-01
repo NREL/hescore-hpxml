@@ -1985,6 +1985,12 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore_dict()
         roof_type = d['building']['zone']['zone_roof'][0]['roof_type']
         self.assertEqual(roof_type, 'cond_attic')
+        is_attic_cond.text = 'false'
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'Attic \w+: Cannot translate HPXML AtticType other to HEScore rooftype.',
+            tr.hpxml_to_hescore_dict
+        )
 
 
 if __name__ == "__main__":
