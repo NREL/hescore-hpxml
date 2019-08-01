@@ -12,7 +12,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='hescore-hpxml',
-    version='5.0.1',
+    version='5.0.2',
     description='HPXML Translator for the HEScore API',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -35,7 +35,10 @@ setup(
     ],
     keywords='home energy score hescore doe nrel',
     packages=['hescorehpxml'],
-    install_requires=['lxml'],
+    install_requires=[
+        'lxml',
+        'future',
+    ],
     extras_require={
         'dev': [
             'flake8',
@@ -43,7 +46,13 @@ setup(
             'sphinx',
             'sphinx_rtd_theme',
             'sphinx-autobuild',
-            'future'
+        ],
+        'test': [
+            'flake8',
+            'coverage',
+            'sphinx',
+            'sphinx_rtd_theme',
+            'sphinx-autobuild',
         ]
     },
     include_package_data=True,
