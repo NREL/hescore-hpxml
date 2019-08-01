@@ -1991,6 +1991,11 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
             r'Attic \w+: Cannot translate HPXML AtticType other to HEScore rooftype.',
             tr.hpxml_to_hescore_dict
         )
+        attic_type.text = 'vented attic'
+        is_attic_cond.text = 'true'
+        d = tr.hpxml_to_hescore_dict()
+        roof_type = d['building']['zone']['zone_roof'][0]['roof_type']
+        self.assertEqual(roof_type, 'vented_attic')
 
 
 if __name__ == "__main__":
