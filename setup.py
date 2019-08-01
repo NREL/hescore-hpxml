@@ -44,6 +44,13 @@ setup(
             'sphinx_rtd_theme',
             'sphinx-autobuild',
             'future'
+        ],
+        'test': [
+            'flake8',
+            'coverage',
+            'sphinx',
+            'sphinx_rtd_theme',
+            'sphinx-autobuild',
         ]
     },
     include_package_data=True,
