@@ -923,8 +923,8 @@ class HPXMLtoHEScoreTranslator(object):
             hpxml_attic_type = xpath(attic, 'h:AtticType/text()')
             atticd['rooftype'] = rooftypemap[hpxml_attic_type]
             if atticd['rooftype'] is None:
-                attc_is_cond = xpath(attic, 'boolean(h:extension/h:Conditioned)')
-                if attc_is_cond:
+                attc_is_cond = xpath(attic, 'h:extension/h:Conditioned/text()')
+                if attc_is_cond == 'true':
                     atticd['rooftype'] = 'cond_attic'
                 else:
                     raise TranslationError(
