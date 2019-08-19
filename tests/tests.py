@@ -1997,6 +1997,74 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         roof_type = d['building']['zone']['zone_roof'][0]['roof_type']
         self.assertEqual(roof_type, 'vented_attic')
 
+    def test_hpwes(self):
+        tr = self._load_xmlfile('hescore_min')
+        project_el = etree.Element(tr.addns('h:Project'))
+        contractor_el = etree.Element(tr.addns('h:Contractor'))
+        building_el = self.xpath('//h:Building')
+        res = tr.hpxml_to_hescore_dict()
+        #project not connected with building, nothing passed
+        self.assertEqual(len(res['hpwes']), 0)
+
+        building_el.addnext(project_el)
+        # project bldg id = building bldg id
+        etree.SubElement(project_el, tr.addns('h:BuildingID'), attrib={'id': self.xpath('h:Building/h:BuildingID/@id')})
+        project_details = etree.SubElement(project_el, tr.addns('h:ProjectDetails'))
+        # income eligible
+        is_income_eligible = etree.SubElement(etree.SubElement(project_el, tr.addns('h:extension')), tr.addns('h:isIncomeEligible'))
+        is_income_eligible.text = 'true'
+        etree.SubElement(project_details, tr.addns('h:ProjectSystemIdentifiers'), attrib = {'id':'p1'})
+        project_program_name = etree.SubElement(project_details, tr.addns('h:ProgramName'))
+        # start date
+        start_date = etree.SubElement(project_details, tr.addns('h:StartDate'))
+        start_date.text = '2017-08-20'
+        # completion date
+        complete_date = etree.SubElement(project_details, tr.addns('h:CompleteDateActual'))
+        complete_date.text = '2018-12-14'
+        res2 = tr.hpxml_to_hescore_dict()
+        # not specified as hpwes program, pass nothing
+        self.assertEqual(len(res2['hpwes']), 0)
+
+        project_program_name.text = 'hpwes'
+        res3 = tr.hpxml_to_hescore_dict()
+        # if hpwes program, pass existing information
+        self.assertEqual(res3['hpwes']['improvement_installation_start_date'], '2017-08-20')
+        self.assertEqual(res3['hpwes']['improvement_installation_completion_date'], '2018-12-14')
+        self.assertEqual(res3['hpwes']['building_id'], 'bldg1')
+        self.assertTrue(res3['hpwes']['is_income_eligible_program'])
+
+        building_el.addprevious(contractor_el)
+        contractor_details = etree.SubElement(contractor_el, tr.addns('h:ContractorDetails'))
+        etree.SubElement(contractor_details, tr.addns('h:SystemIdentifier'), attrib = {'id': 'c1'})
+        contractor_business_info = etree.SubElement(contractor_details, tr.addns('h:BusinessInfo'))
+        etree.SubElement(contractor_business_info, tr.addns('h:SystemIdentifier'), attrib ={'id': 'bussiness'})
+        b_name = etree.SubElement(contractor_business_info, tr.addns('h:BusinessName'))
+        b_name.text = 'Contractor Business 1'
+        zip_code = etree.SubElement(etree.SubElement(contractor_business_info, tr.addns('h:extension')), tr.addns('h:ZipCode'))
+        zip_code.text = '12345'
+        res4 = tr.hpxml_to_hescore_dict()
+        # no contractor information passed
+        self.assertEqual(len(res4['hpwes']), 4)
+
+        # contractor ID has to be unique through the whole xml in both places, or error would be given:
+        # "DocumentInvalid: Element '{http://hpxmlonline.com/2014/6}SystemIdentifiersInfo',
+        # attribute 'id': 'c1' is not a valid value of the atomic type 'xs:ID'."
+
+        # At this point, couldn't change Project/ProjectDetails/ContractorSystemIdentifiers/SystemIdentifiersInfo
+        # @id to be the same as
+        # Contractor/ContractorDetails/SystemIdentifier @id
+
+        # Following Building ID logic, it should be done like this:
+        # id under contractor node to be xs:ID type, id under project node could be normal ID type
+
+        project_contractor_id = etree.Element(tr.addns('h:ContractorSystemIdentifiers'))
+        etree.SubElement(project_contractor_id, tr.addns('h:SystemIdentifiersInfo'), attrib ={'id':'c1'})
+        project_program_name.addnext(project_contractor_id)
+        res5 = tr.hpxml_to_hescore_dict()
+        # contractor information passed
+        self.assertEqual(res5['hpwes']['contractor_business_name'], 'Contractor Business 1')
+        self.assertEqual(res5['hpwes']['contractor_zip_code'], '12345')
+
 
 if __name__ == "__main__":
     unittest.main()
