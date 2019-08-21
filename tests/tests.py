@@ -2014,7 +2014,6 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         is_income_eligible = etree.SubElement(etree.SubElement(project_el, tr.addns('h:extension')), tr.addns('h:isIncomeEligible'))
         is_income_eligible.text = 'true'
         etree.SubElement(project_details, tr.addns('h:ProjectSystemIdentifiers'), attrib = {'id':'p1'})
-        project_program_name = etree.SubElement(project_details, tr.addns('h:ProgramName'))
         # start date
         start_date = etree.SubElement(project_details, tr.addns('h:StartDate'))
         start_date.text = '2017-08-20'
@@ -2025,7 +2024,9 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         # not specified as hpwes program, pass nothing
         self.assertEqual(len(res2['hpwes']), 0)
 
-        project_program_name.text = 'hpwes'
+        project_program_cert = etree.Element(tr.addns('h:ProgramCertificate'))
+        project_program_cert.text = 'Home Performance with Energy Star'
+        start_date.addprevious(project_program_cert)
         res3 = tr.hpxml_to_hescore_dict()
         # if hpwes program, pass existing information
         self.assertEqual(res3['hpwes']['improvement_installation_start_date'], '2017-08-20')
@@ -2059,7 +2060,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
 
         project_contractor_id = etree.Element(tr.addns('h:ContractorSystemIdentifiers'))
         etree.SubElement(project_contractor_id, tr.addns('h:SystemIdentifiersInfo'), attrib ={'id':'c1'})
-        project_program_name.addnext(project_contractor_id)
+        project_program_cert.addprevious(project_contractor_id)
         res5 = tr.hpxml_to_hescore_dict()
         # contractor information passed
         self.assertEqual(res5['hpwes']['contractor_business_name'], 'Contractor Business 1')

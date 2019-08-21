@@ -644,21 +644,21 @@ class HPXMLtoHEScoreTranslator(object):
         if hpxml_bldg_id is not None:
             b = xpath(self.hpxmldoc, 'h:Building[h:BuildingID/@id=$bldgid]', bldgid=hpxml_bldg_id)
             if b is None:
-                raise TranslationError('HPXML BuildingID not found')
+                raise TranslationError('HPXML BuildingID: "{}" not found'.format(hpxml_bldg_id))
         else:
             b = xpath(self.hpxmldoc, 'h:Building[1]')
 
         if hpxml_project_id is not None:
             p = xpath(self.hpxmldoc, 'h:Project[h:ProjectID/@id=$projectid]', projectid=hpxml_project_id)
             if p is None:
-                raise TranslationError('HPXML ProjectID not found')
+                raise TranslationError('HPXML ProjectID: "{}" not found'.format(hpxml_project_id))
         else:
             p = xpath(self.hpxmldoc, 'h:Project[1]')
 
         if hpxml_contractor_id is not None:
             c = xpath(self.hpxmldoc, 'h:ContractorDetails[h:SystemIdentifier/@id=$contractorid]', contractorid=hpxml_contractor_id)
             if c is None:
-                raise TranslationError('HPXML ContractorID not found')
+                raise TranslationError('HPXML ContractorID: "{}" not found'.format(hpxml_contractor_id))
         else:
             c = xpath(self.hpxmldoc, 'h:Contractor[1]')
 
@@ -758,14 +758,13 @@ class HPXMLtoHEScoreTranslator(object):
         hpwes = OrderedDict()
 
         if p is not None:
-            # need to check if the project is a hpwes program (any other check point?) because "Project" might be used
+            # need to check if the project is a hpwes program because "Project" might be used
             # for other purpose
             # if not, return blank dict()
-            hpwes_name = ['Home Performance With Energy Star'.upper(), 'HPwES'.upper()]
-            program_name = xpath(p, 'h:ProjectDetails/h:ProgramName')
-            if program_name is None or program_name.text is None:
+            program_c = xpath(p, 'h:ProjectDetails/h:ProgramCertificate/text()')
+            if program_c is None:
                 return hpwes
-            elif program_name.text.upper() not in hpwes_name:
+            elif program_c != 'Home Performance with Energy Star':
                 return hpwes
 
             # if bldg, project not matching, return blank dict
@@ -795,8 +794,7 @@ class HPXMLtoHEScoreTranslator(object):
                     hpwes['contractor_business_name'] = xpath(c, '//h:BusinessName')
                     hpwes['contractor_zip_code'] = xpath(c, '//h:BusinessInfo/h:extension/h:ZipCode/text()')
         # remaining question:
-        # 1. There're two required inputs that I didn't know what they exactly are: "session_token" and "user_key"
-        # 2. Error or warning message?
+        # 1. Error or warning message?
         return hpwes
 
     def _get_building_about(self, b, p):
