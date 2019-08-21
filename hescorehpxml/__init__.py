@@ -670,7 +670,12 @@ class HPXMLtoHEScoreTranslator(object):
         # Create return dict
         hescore_inputs = OrderedDict()
         hescore_inputs['building_address'] = self._get_building_address(b)
-        hescore_inputs['hpwes'] = self._get_hpwes(b, p, c)
+
+        if p is not None:
+            program_c = xpath(p, 'h:ProjectDetails/h:ProgramCertificate/text()')
+            if program_c is not None and program_c == 'Home Performance with Energy Star':
+                hescore_inputs['hpwes'] = self._get_hpwes(b, p, c)
+
         bldg = OrderedDict()
         hescore_inputs['building'] = bldg
         bldg['about'] = self._get_building_about(b, p)
@@ -757,42 +762,32 @@ class HPXMLtoHEScoreTranslator(object):
         xpath = self.xpath
         hpwes = OrderedDict()
 
-        if p is not None:
-            # need to check if the project is a hpwes program because "Project" might be used
-            # for other purpose
-            # if not, return blank dict()
-            program_c = xpath(p, 'h:ProjectDetails/h:ProgramCertificate/text()')
-            if program_c is None:
-                return hpwes
-            elif program_c != 'Home Performance with Energy Star':
-                return hpwes
+        # if bldg, project not matching, return blank dict
+        project_bldg_id = xpath(p, 'h:BuildingID/@id')
+        building_bldg_id = xpath(b, 'h:BuildingID/@id')
+        project_contractor_id = xpath(p, '//h:ContractorSystemIdentifier/h:SystemIdentifiersInfo/@id')
+        building_contractor_id = xpath(b, 'h:ContractorID/@id')
+        if project_bldg_id == building_bldg_id:
+            hpwes['building_id'] = building_bldg_id
+        else:
+            return hpwes
 
-            # if bldg, project not matching, return blank dict
-            project_bldg_id = xpath(p, 'h:BuildingID/@id')
-            building_bldg_id = xpath(b, 'h:BuildingID/@id')
-            project_contractor_id = xpath(p, '//h:ContractorSystemIdentifier/h:SystemIdentifiersInfo/@id')
-            building_contractor_id = xpath(b, 'h:ContractorID/@id')
-            if project_bldg_id == building_bldg_id:
-                hpwes['building_id'] = building_bldg_id
-            else:
-                return hpwes
+        # project information
+        hpwes['improvement_installation_start_date'] = xpath(p, '//h:StartDate/text()')
+        # if need to check Project/ProjectDetails/CompleteDateActual as well?
+        hpwes['improvement_installation_completion_date'] = xpath(p, '//h:CompleteDateActual/text()')
+        income_eligible_txt = xpath(p, 'h:extension/h:isIncomeEligible/text()')
+        if income_eligible_txt == 'true':
+            hpwes['is_income_eligible_program'] = True
+        else:
+            hpwes['is_income_eligible_program'] = False
 
-            # project information
-            hpwes['improvement_installation_start_date'] = xpath(p, '//h:StartDate/text()')
-            # if need to check Project/ProjectDetails/CompleteDateActual as well?
-            hpwes['improvement_installation_completion_date'] = xpath(p, '//h:CompleteDateActual/text()')
-            income_eligible_txt = xpath(p, 'h:extension/h:isIncomeEligible/text()')
-            if income_eligible_txt == 'true':
-                hpwes['is_income_eligible_program'] = True
-            else:
-                hpwes['is_income_eligible_program'] = False
-
-            #contractor information
-            if c is not None:
-                contractor_id = xpath(c, 'h:ContractorDetails/h:SystemIdentifier/@id')
-                if contractor_id == building_contractor_id or contractor_id == project_contractor_id:
-                    hpwes['contractor_business_name'] = xpath(c, '//h:BusinessName')
-                    hpwes['contractor_zip_code'] = xpath(c, '//h:BusinessInfo/h:extension/h:ZipCode/text()')
+        #contractor information
+        if c is not None:
+            contractor_id = xpath(c, 'h:ContractorDetails/h:SystemIdentifier/@id')
+            if contractor_id == building_contractor_id or contractor_id == project_contractor_id:
+                hpwes['contractor_business_name'] = xpath(c, '//h:BusinessName')
+                hpwes['contractor_zip_code'] = xpath(c, '//h:BusinessInfo/h:extension/h:ZipCode/text()')
         # remaining question:
         # 1. Error or warning message?
         return hpwes

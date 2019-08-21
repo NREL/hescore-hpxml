@@ -535,7 +535,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
     def test_bldgid_not_found(self):
         tr = self._load_xmlfile('house1')
         self.assertRaisesRegexp(TranslationError,
-                                r'HPXML BuildingID not found',
+                                r'HPXML BuildingID: "bldgnothere" not found',
                                 tr.hpxml_to_hescore_dict,
                                 hpxml_bldg_id='bldgnothere')
 
@@ -2004,7 +2004,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         building_el = self.xpath('//h:Building')
         res = tr.hpxml_to_hescore_dict()
         #project not connected with building, nothing passed
-        self.assertEqual(len(res['hpwes']), 0)
+        self.assertIsNone(res.get('hpwes'))
 
         building_el.addnext(project_el)
         # project bldg id = building bldg id
@@ -2022,7 +2022,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         complete_date.text = '2018-12-14'
         res2 = tr.hpxml_to_hescore_dict()
         # not specified as hpwes program, pass nothing
-        self.assertEqual(len(res2['hpwes']), 0)
+        self.assertIsNone(res.get('hpwes'))
 
         project_program_cert = etree.Element(tr.addns('h:ProgramCertificate'))
         project_program_cert.text = 'Home Performance with Energy Star'
