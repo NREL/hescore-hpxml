@@ -626,7 +626,13 @@ class HPXMLtoHEScoreTranslator(object):
         hescore_bldg = self.hpxml_to_hescore_dict(*args, **kwargs)
         json.dump(hescore_bldg, outfile, indent=2)
 
-    def hpxml_to_hescore_dict(self, hpxml_bldg_id=None, hpxml_project_id = None, hpxml_contractor_id = None, nrel_assumptions=False):
+    def hpxml_to_hescore_dict(
+        self,
+        hpxml_bldg_id=None,
+        hpxml_project_id=None,
+        hpxml_contractor_id=None,
+        nrel_assumptions=False
+    ):
         '''
         Convert a HPXML building file to a python dict with the same structure as the HEScore API
 
@@ -647,6 +653,7 @@ class HPXMLtoHEScoreTranslator(object):
                 raise TranslationError('HPXML BuildingID: "{}" not found'.format(hpxml_bldg_id))
         else:
             b = xpath(self.hpxmldoc, 'h:Building[1]')
+            hpxml_bldg_id = xpath(b, 'h:BuildingID/@id')
 
         if hpxml_project_id is not None:
             p = xpath(self.hpxmldoc, 'h:Project[h:ProjectID/@id=$projectid]', projectid=hpxml_project_id)
@@ -656,11 +663,21 @@ class HPXMLtoHEScoreTranslator(object):
             p = xpath(self.hpxmldoc, 'h:Project[1]')
 
         if hpxml_contractor_id is not None:
-            c = xpath(self.hpxmldoc, 'h:ContractorDetails[h:SystemIdentifier/@id=$contractorid]', contractorid=hpxml_contractor_id)
+            c = xpath(
+                self.hpxmldoc,
+                'h:ContractorDetails[h:SystemIdentifier/@id=$contractorid]',
+                contractorid=hpxml_contractor_id
+            )
             if c is None:
                 raise TranslationError('HPXML ContractorID: "{}" not found'.format(hpxml_contractor_id))
         else:
-            c = xpath(self.hpxmldoc, 'h:Contractor[1]')
+            c = xpath(
+                self.hpxmldoc,
+                'h:Contractor[h:ContractorDetails/h:SystemIdentifier/@id=//h:Building[BuildingID/@id=$bldg_id]/h:ContractorID/@id]', # noqa E501
+                bldg_id=hpxml_bldg_id
+            )
+            if c is None:
+                c = xpath(self.hpxmldoc, 'h:Contractor[1]')
 
         # Apply NREL assumptions, if requested
         if nrel_assumptions:
@@ -672,8 +689,8 @@ class HPXMLtoHEScoreTranslator(object):
         hescore_inputs['building_address'] = self._get_building_address(b)
 
         if p is not None:
-            program_c = xpath(p, 'h:ProjectDetails/h:ProgramCertificate/text()')
-            if program_c is not None and program_c == 'Home Performance with Energy Star':
+            is_hpwes = xpath(p, 'h:ProjectDetails/h:ProgramCertificate="Home Performance with Energy Star"')
+            if is_hpwes:
                 hescore_inputs['hpwes'] = self._get_hpwes(b, p, c)
 
         bldg = OrderedDict()
@@ -762,34 +779,24 @@ class HPXMLtoHEScoreTranslator(object):
         xpath = self.xpath
         hpwes = OrderedDict()
 
-        # if bldg, project not matching, return blank dict
-        project_bldg_id = xpath(p, 'h:BuildingID/@id')
-        building_bldg_id = xpath(b, 'h:BuildingID/@id')
-        project_contractor_id = xpath(p, '//h:ContractorSystemIdentifier/h:SystemIdentifiersInfo/@id')
-        building_contractor_id = xpath(b, 'h:ContractorID/@id')
-        if project_bldg_id == building_bldg_id:
-            hpwes['building_id'] = building_bldg_id
-        else:
-            return hpwes
-
         # project information
-        hpwes['improvement_installation_start_date'] = xpath(p, '//h:StartDate/text()')
-        # if need to check Project/ProjectDetails/CompleteDateActual as well?
-        hpwes['improvement_installation_completion_date'] = xpath(p, '//h:CompleteDateActual/text()')
-        income_eligible_txt = xpath(p, 'h:extension/h:isIncomeEligible/text()')
-        if income_eligible_txt == 'true':
+        hpwes['improvement_installation_start_date'] = xpath(p, 'h:ProjectDetails/h:StartDate/text()')
+
+        hpwes['improvement_installation_completion_date'] = xpath(p, 'h:ProjectDetails/h:CompleteDateActual/text()')
+
+        if xpath(p, 'h:ProjectDetails/h:extension/h:isIncomeEligible/text()') == 'true':
             hpwes['is_income_eligible_program'] = True
         else:
             hpwes['is_income_eligible_program'] = False
 
-        #contractor information
+        # Contractor information
         if c is not None:
-            contractor_id = xpath(c, 'h:ContractorDetails/h:SystemIdentifier/@id')
-            if contractor_id == building_contractor_id or contractor_id == project_contractor_id:
-                hpwes['contractor_business_name'] = xpath(c, '//h:BusinessName')
-                hpwes['contractor_zip_code'] = xpath(c, '//h:BusinessInfo/h:extension/h:ZipCode/text()')
-        # remaining question:
-        # 1. Error or warning message?
+            hpwes['contractor_business_name'] = xpath(c, 'h:ContractorDetails/h:BusinessInfo/h:BusinessName/text()')
+            hpwes['contractor_zip_code'] = xpath(c, 'h:ContractorDetails/h:BusinessInfo/h:extension/h:ZipCode/text()')
+        else:
+            hpwes['contractor_business_name'] = None
+            hpwes['contractor_zip_code'] = None
+
         return hpwes
 
     def _get_building_about(self, b, p):
