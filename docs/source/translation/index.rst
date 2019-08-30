@@ -5,8 +5,9 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-   
+
    building_address
+   hpwes
    about
    zone_roof
    zone_floor

@@ -2313,20 +2313,46 @@ class HPXMLtoHEScoreTranslator(object):
 
 def main():
     parser = argparse.ArgumentParser(description='Convert HPXML v1.1.1 or v2.x files to HEScore inputs')
-    parser.add_argument('hpxml_input', type=argparse.FileType('r'), help='Filename of hpxml file')
-    parser.add_argument('-o', '--output', type=argparse.FileType('w'), default=sys.stdout,
-                        help='Filename of output file in json format. If not provided, will go to stdout.')
+    parser.add_argument(
+        'hpxml_input',
+        type=argparse.FileType('r'),
+        help='Filename of hpxml file'
+    )
+    parser.add_argument(
+        '-o', '--output', 
+        type=argparse.FileType('w'), 
+        default=sys.stdout,
+        help='Filename of output file in json format. If not provided, will go to stdout.'
+    )
     parser.add_argument(
         '--bldgid',
-        help='HPXML building id to score if there are more than one <Building/> elements. Default: first one.')
-    parser.add_argument('--nrelassumptions', action='store_true',
-                        help='Use the NREL assumptions to guess at data elements that are missing.')
+        help='HPXML building id to score if there are more than one <Building/> elements. Default: first one.'
+    )
+    parser.add_argument(
+        '--projectid',
+        help='HPXML project id to use in translating HPwES data if there are more than one <Project/> elements. Default: first one.' # noqa 501
+    )
+    parser.add_argument(
+        '--contractorid',
+        help='HPXML contractor id to use in translating HPwES data if there are more than one <Contractor/> elements. Default: first one.' # noqa 501
+    )
+    parser.add_argument(
+        '--nrelassumptions',
+        action='store_true',
+        help='Use the NREL assumptions to guess at data elements that are missing.'
+    )
 
     args = parser.parse_args()
     logging.basicConfig(level=logging.ERROR, format='%(levelname)s:%(message)s')
     try:
         t = HPXMLtoHEScoreTranslator(args.hpxml_input)
-        t.hpxml_to_hescore_json(args.output, hpxml_bldg_id=args.bldgid, nrel_assumptions=args.nrelassumptions)
+        t.hpxml_to_hescore_json(
+            args.output,
+            hpxml_bldg_id=args.bldgid,
+            hpxml_project_id=args.projectid,
+            hpxml_contractor_id=args.contractorid,
+            nrel_assumptions=args.nrelassumptions
+        )
     except HPXMLtoHEScoreError as ex:
         exclass = type(ex).__name__
         exmsg = ex.message
