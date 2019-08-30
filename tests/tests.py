@@ -64,8 +64,7 @@ class ComparatorBase(object):
     def element_maker(self):
         E = objectify.ElementMaker(
             annotate=False,
-            namespace=self.translator.ns['h'],
-            nsmap=self.translator.ns
+            namespace=self.translator.ns['h']
         )
         return E
 
@@ -2067,6 +2066,32 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         self.assertFalse(res3['hpwes']['is_income_eligible_program'])
         self.assertEqual(res3['hpwes']['contractor_business_name'], 'Contractor Business 1')
         self.assertEqual(res3['hpwes']['contractor_zip_code'], '12345')
+
+        contractor_el2 = E.Contractor(
+            E.ContractorDetails(
+                E.SystemIdentifier(id='c2'),
+                E.BusinessInfo(
+                    E.SystemIdentifier(id='business2'),
+                    E.BusinessName('Contractor Business 2'),
+                    E.extension(
+                        E.ZipCode('80401')
+                    )
+                )
+            )
+        )
+        contractor_el.addnext(contractor_el2)
+        site_el = self.xpath('//h:Building/h:Site')
+        site_el.addnext(
+            E.ContractorID(id='c2')
+        )
+
+        res4 = tr.hpxml_to_hescore_dict()
+
+        self.assertEqual(res4['hpwes']['improvement_installation_start_date'], '2017-08-20')
+        self.assertEqual(res4['hpwes']['improvement_installation_completion_date'], '2018-12-14')
+        self.assertFalse(res4['hpwes']['is_income_eligible_program'])
+        self.assertEqual(res4['hpwes']['contractor_business_name'], 'Contractor Business 2')
+        self.assertEqual(res4['hpwes']['contractor_zip_code'], '80401')
 
 
 if __name__ == "__main__":

@@ -673,7 +673,7 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             c = xpath(
                 self.hpxmldoc,
-                'h:Contractor[h:ContractorDetails/h:SystemIdentifier/@id=//h:Building[BuildingID/@id=$bldg_id]/h:ContractorID/@id]', # noqa E501
+                'h:Contractor[h:ContractorDetails/h:SystemIdentifier/@id=//h:Building[h:BuildingID/@id=$bldg_id]/h:ContractorID/@id]', # noqa E501
                 bldg_id=hpxml_bldg_id
             )
             if c is None:
