@@ -6,7 +6,7 @@ from builtins import object
 import os
 import unittest
 import datetime as dt
-from lxml import etree
+from lxml import etree, objectify
 from hescorehpxml import HPXMLtoHEScoreTranslator, TranslationError, InputOutOfBounds
 import io
 import json
@@ -60,6 +60,15 @@ class ComparatorBase(object):
 
     def xpath(self, xpathexpr, *args, **kwargs):
         return self.translator.xpath(self.translator.hpxmldoc, xpathexpr, *args, **kwargs)
+
+    @property
+    def E(self):
+        E = objectify.ElementMaker(
+            annotate=False,
+            namespace=self.translator.ns['h'],
+            nsmap=self.translator.ns
+        )
+        return E
 
 
 class TestAPIHouses(unittest.TestCase, ComparatorBase):
@@ -1996,6 +2005,40 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore_dict()
         roof_type = d['building']['zone']['zone_roof'][0]['roof_type']
         self.assertEqual(roof_type, 'vented_attic')
+
+    def test_window_code_mappings_aluminum(self):
+        tr = self._load_xmlfile('hescore_min')
+
+        window2_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window2"]/h:FrameType')
+        window2_frametype.clear()
+        window2_frametype.append(self.E.Aluminum())
+        window2_frametype.getparent().append(self.E.GlassType('low-e'))
+
+        window3_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window3"]/h:FrameType')
+        window3_frametype.clear()
+        window3_frametype.append(self.E.Aluminum(self.E.ThermalBreak(True)))
+
+        window4_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window4"]/h:FrameType')
+        window4_frametype.clear()
+        window4_frametype.append(self.E.Aluminum(self.E.ThermalBreak(True)))
+        window4_frametype.getparent().append(self.E.GlassType('low-e'))
+
+        d = tr.hpxml_to_hescore_dict()
+        walls = {}
+        for wall in d['building']['zone']['zone_wall']:
+            walls[wall['side']] = wall
+        self.assertEqual(
+            walls['left']['zone_window']['window_code'],
+            'dseaa'
+        )
+        self.assertEqual(
+            walls['back']['zone_window']['window_code'],
+            'dcab'
+        )
+        self.assertEqual(
+            walls['right']['zone_window']['window_code'],
+            'dseab'
+        )
 
 
 if __name__ == "__main__":
