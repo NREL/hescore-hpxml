@@ -2319,8 +2319,8 @@ def main():
         help='Filename of hpxml file'
     )
     parser.add_argument(
-        '-o', '--output', 
-        type=argparse.FileType('w'), 
+        '-o', '--output',
+        type=argparse.FileType('w'),
         default=sys.stdout,
         help='Filename of output file in json format. If not provided, will go to stdout.'
     )
