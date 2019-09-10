@@ -1536,7 +1536,6 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         clg_sys_test_cooling_type = [
             'central air conditioning',
             'room air conditioner',
-            'mini-split',
             'evaporative cooler']
         hp_test_type = ['water-to-air', 'water-to-water', 'air-to-air', 'mini-split', 'ground-to-air']
 
@@ -1652,7 +1651,6 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         # cooling system map between hpxml and hescore api
         clg_system_map = {'central air conditioning': 'split_dx',
                           'room air conditioner': 'packaged_dx',
-                          'mini-split': 'split_dx',
                           'evaporative cooler': 'dec'}
 
         for clg_system_type in clg_sys_test_cooling_type:
@@ -2039,6 +2037,16 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
             walls['right']['zone_window']['window_code'],
             'dseab'
         )
+
+    def test_mini_split_cooling_only(self):
+        tr = self._load_xmlfile('hescore_min')
+
+        clg_type = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]/h:CoolingSystemType')
+        clg_type.text  = 'mini-split'
+
+        d = tr.hpxml_to_hescore_dict()
+        self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], 'mini_split')
+        self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'central_furnace')
 
 
 if __name__ == "__main__":

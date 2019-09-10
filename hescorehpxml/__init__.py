@@ -386,7 +386,7 @@ class HPXMLtoHEScoreTranslator(object):
             try:
                 sys_cooling['type'] = {'central air conditioning': 'split_dx',
                                        'room air conditioner': 'packaged_dx',
-                                       'mini-split': 'split_dx',
+                                       'mini-split': 'mini_split',
                                        'evaporative cooler': 'dec'}[hpxml_cooling_type]
             except KeyError:
                 raise TranslationError('HEScore does not support the HPXML CoolingSystemType %s' % hpxml_cooling_type)
