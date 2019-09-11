@@ -2064,33 +2064,48 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         clg_sys = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]')
         clg_sys.addnext(heatpump)
         clg_sys.getparent().remove(clg_sys)
+        # Add fraction to heating system for system weight calculation
         htg_sys = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace1"]')
         htg_sys.append(self.E.FractionHeatLoadServed('1.0'))
         d = tr.hpxml_to_hescore_dict()
         self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], 'mini_split')
         self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'central_furnace')
 
-        # heatpump system type: mini-split + cooling system
-        cooling_sys = self.E.CoolingSystem(
+        # clg system mini-split + heatpump for heating: should give error for two different heat pump systems
+        clg_sys = self.E.CoolingSystem(
             self.E.SystemIdentifier(id = 'centralair'),
             self.E.YearInstalled('2005'),
-            self.E.DistributionSystem(idref = 'hvacd1'),
-            self.E.CoolingSystemType('central air conditioning'),
+            self.E.CoolingSystemType('mini-split'),
             self.E.FractionCoolLoadServed('1.0'),
             self.E.AnnualCoolingEfficiency(self.E.Units('SEER'), self.E.Value('13')),
         )
-        htg_sys.addnext(cooling_sys)
+        heatpump.addprevious(clg_sys)
         htg_sys.getparent().remove(htg_sys)
         heatpump_fraction_htg = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:FractionHeatLoadServed')
         heatpump_fraction_clg = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:FractionCoolLoadServed')
         heatpump_fraction_htg.text = '1.0'
         heatpump_fraction_clg.text = '0.0'
+        heatpump_type = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:HeatPumpType')
+        heatpump_type.text = 'air-to-air'
+        heatpump_type.addprevious(self.E.DistributionSystem(idref = 'hvacd1'))
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.',
+            tr.hpxml_to_hescore_dict)
+
+
+        # heatpump system type: mini-split + other cooling system
+        clg_sys_type = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair"]/h:CoolingSystemType')
+        clg_sys_type.text = 'central air conditioning'
+        clg_sys_type.addprevious(self.E.DistributionSystem(idref = 'hvacd1'))
+        heatpump_type.text = 'mini-split'
+        heatpump.remove(self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:DistributionSystem'))
         d = tr.hpxml_to_hescore_dict()
         self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], 'split_dx')
         self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'mini_split')
 
         # heatpump system type: mini-split
-        cooling_sys.getparent().remove(cooling_sys)
+        clg_sys.getparent().remove(clg_sys)
         heatpump.remove(heatpump_fraction_clg)
         heatpump.remove(heatpump_fraction_htg)
         d = tr.hpxml_to_hescore_dict()
