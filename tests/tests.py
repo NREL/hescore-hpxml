@@ -2041,12 +2041,61 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
     def test_mini_split_cooling_only(self):
         tr = self._load_xmlfile('hescore_min')
 
+        # cooling system type: mini-split + heating system
         clg_type = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]/h:CoolingSystemType')
         clg_type.text  = 'mini-split'
 
         d = tr.hpxml_to_hescore_dict()
         self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], 'mini_split')
         self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'central_furnace')
+
+        # heatpump system type: mini-split + heating system
+        heatpump = self.E.HeatPump(
+            self.E.SystemIdentifier(id = 'heatpump1'),
+            self.E.YearInstalled('2005'),
+            self.E.HeatPumpType('mini-split'),
+            self.E.HeatingCapacity('18000'),
+            self.E.CoolingCapacity('18000'),
+            self.E.FractionHeatLoadServed('0'),
+            self.E.FractionCoolLoadServed('1.0'),
+            self.E.AnnualCoolEfficiency(self.E.Units('SEER'), self.E.Value('15')),
+            self.E.AnnualHeatEfficiency(self.E.Units('HSPF'), self.E.Value('8.2'))
+        )
+        clg_sys = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]')
+        clg_sys.addnext(heatpump)
+        clg_sys.getparent().remove(clg_sys)
+        htg_sys = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace1"]')
+        htg_sys.append(self.E.FractionHeatLoadServed('1.0'))
+        d = tr.hpxml_to_hescore_dict()
+        self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], 'mini_split')
+        self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'central_furnace')
+
+        # heatpump system type: mini-split + cooling system
+        cooling_sys = self.E.CoolingSystem(
+            self.E.SystemIdentifier(id = 'centralair'),
+            self.E.YearInstalled('2005'),
+            self.E.DistributionSystem(idref = 'hvacd1'),
+            self.E.CoolingSystemType('central air conditioning'),
+            self.E.FractionCoolLoadServed('1.0'),
+            self.E.AnnualCoolingEfficiency(self.E.Units('SEER'), self.E.Value('13')),
+        )
+        htg_sys.addnext(cooling_sys)
+        htg_sys.getparent().remove(htg_sys)
+        heatpump_fraction_htg = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:FractionHeatLoadServed')
+        heatpump_fraction_clg = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:FractionCoolLoadServed')
+        heatpump_fraction_htg.text = '1.0'
+        heatpump_fraction_clg.text = '0.0'
+        d = tr.hpxml_to_hescore_dict()
+        self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], 'split_dx')
+        self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'mini_split')
+
+        # heatpump system type: mini-split
+        cooling_sys.getparent().remove(cooling_sys)
+        heatpump.remove(heatpump_fraction_clg)
+        heatpump.remove(heatpump_fraction_htg)
+        d = tr.hpxml_to_hescore_dict()
+        self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], 'mini_split')
+        self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'mini_split')
 
 
 if __name__ == "__main__":
