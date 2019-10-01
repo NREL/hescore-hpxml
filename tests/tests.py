@@ -64,7 +64,8 @@ class ComparatorBase(object):
     def element_maker(self):
         E = objectify.ElementMaker(
             annotate=False,
-            namespace=self.translator.ns['h']
+            namespace=self.translator.ns['h'],
+            nsmap=self.translator.ns
         )
         return E
 
@@ -2102,6 +2103,41 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'The following elements are required.*StartDate.*CompleteDateActual.*BusinessName.*ZipCode',
             tr.hpxml_to_hescore_dict
+        )
+
+    def test_window_code_mappings_aluminum(self):
+        tr = self._load_xmlfile('hescore_min')
+        E = self.element_maker()
+
+        window2_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window2"]/h:FrameType')
+        window2_frametype.clear()
+        window2_frametype.append(E.Aluminum())
+        window2_frametype.getparent().append(E.GlassType('low-e'))
+
+        window3_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window3"]/h:FrameType')
+        window3_frametype.clear()
+        window3_frametype.append(E.Aluminum(E.ThermalBreak(True)))
+
+        window4_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window4"]/h:FrameType')
+        window4_frametype.clear()
+        window4_frametype.append(E.Aluminum(E.ThermalBreak(True)))
+        window4_frametype.getparent().append(E.GlassType('low-e'))
+
+        d = tr.hpxml_to_hescore_dict()
+        walls = {}
+        for wall in d['building']['zone']['zone_wall']:
+            walls[wall['side']] = wall
+        self.assertEqual(
+            walls['left']['zone_window']['window_code'],
+            'dseaa'
+        )
+        self.assertEqual(
+            walls['back']['zone_window']['window_code'],
+            'dcab'
+        )
+        self.assertEqual(
+            walls['right']['zone_window']['window_code'],
+            'dseab'
         )
 
 

@@ -236,7 +236,7 @@ class HPXMLtoHEScoreTranslator(object):
                 if glass_layers in ('double-pane', 'single-paned with storms', 'single-paned with low-e storms'):
                     if glass_layers == 'double-pane' and glass_type == 'low-e' and gas_fill == 'argon':
                         window_code = 'dpeaab'
-                    elif glass_type is not None and glass_type == 'reflective':
+                    elif glass_type is not None and glass_type in ('reflective', 'low-e'):
                         # TODO: figure out if 'reflective' is close enough to 'solar-control' low-e
                         window_code = 'dseab'
                     elif glass_type is not None and glass_type.startswith('tinted'):
@@ -251,7 +251,7 @@ class HPXMLtoHEScoreTranslator(object):
                     else:
                         window_code = 'scna'
                 elif glass_layers in ('double-pane', 'single-paned with storms', 'single-paned with low-e storms'):
-                    if glass_type is not None and glass_type in ('reflective', 'tinted/reflective'):
+                    if glass_type is not None and glass_type in ('reflective', 'tinted/reflective', 'low-e'):
                         window_code = 'dseaa'
                     elif glass_type is not None and glass_type == 'tinted':
                         window_code = 'dtaa'
