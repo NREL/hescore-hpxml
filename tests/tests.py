@@ -61,8 +61,7 @@ class ComparatorBase(object):
     def xpath(self, xpathexpr, *args, **kwargs):
         return self.translator.xpath(self.translator.hpxmldoc, xpathexpr, *args, **kwargs)
 
-    @property
-    def E(self):
+    def element_maker(self):
         E = objectify.ElementMaker(
             annotate=False,
             namespace=self.translator.ns['h'],
@@ -544,7 +543,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
     def test_bldgid_not_found(self):
         tr = self._load_xmlfile('house1')
         self.assertRaisesRegexp(TranslationError,
-                                r'HPXML BuildingID not found',
+                                r'HPXML BuildingID: "bldgnothere" not found',
                                 tr.hpxml_to_hescore_dict,
                                 hpxml_bldg_id='bldgnothere')
 
@@ -2006,22 +2005,123 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         roof_type = d['building']['zone']['zone_roof'][0]['roof_type']
         self.assertEqual(roof_type, 'vented_attic')
 
+    def test_hpwes(self):
+        tr = self._load_xmlfile('hescore_min')
+        E = self.element_maker()
+        building_el = self.xpath('//h:Building')
+        hpxml_building_id = self.xpath('h:Building/h:BuildingID/@id')
+        project_el = E.Project(
+            E.BuildingID(id=str(hpxml_building_id)),
+            E.ProjectDetails(
+                E.ProjectSystemIdentifiers(),
+                E.StartDate('2017-08-20'),
+                E.CompleteDateActual('2018-12-14'),
+                E.extension(
+                    E.isIncomeEligible('true')
+                )
+            )
+        )
+        building_el.addnext(project_el)
+
+        # Add the contractor
+        contractor_el = E.Contractor(
+            E.ContractorDetails(
+                E.SystemIdentifier(id='c1'),
+                E.BusinessInfo(
+                    E.SystemIdentifier(id='business'),
+                    E.BusinessName('Contractor Business 1'),
+                    E.extension(
+                        E.ZipCode('12345')
+                    )
+                )
+            )
+        )
+        building_el.addprevious(contractor_el)
+        res = tr.hpxml_to_hescore_dict()
+
+        # Project not HPwES, nothing passed
+        self.assertNotIn('hpwes', res)
+
+        # Change to HPwES project
+        objectify.ObjectPath('Project.ProjectDetails.ProjectSystemIdentifiers').\
+            find(project_el).\
+            addnext(E.ProgramCertificate('Home Performance with Energy Star'))
+
+        # Remove the income eligible element
+        objectify.ObjectPath('Project.ProjectDetails.extension').\
+            find(project_el).clear()
+
+        res3 = tr.hpxml_to_hescore_dict()
+
+        self.assertEqual(res3['hpwes']['improvement_installation_start_date'], '2017-08-20')
+        self.assertEqual(res3['hpwes']['improvement_installation_completion_date'], '2018-12-14')
+        self.assertFalse(res3['hpwes']['is_income_eligible_program'])
+        self.assertEqual(res3['hpwes']['contractor_business_name'], 'Contractor Business 1')
+        self.assertEqual(res3['hpwes']['contractor_zip_code'], '12345')
+
+        contractor_el2 = E.Contractor(
+            E.ContractorDetails(
+                E.SystemIdentifier(id='c2'),
+                E.BusinessInfo(
+                    E.SystemIdentifier(id='business2'),
+                    E.BusinessName('Contractor Business 2'),
+                    E.extension(
+                        E.ZipCode('80401')
+                    )
+                )
+            )
+        )
+        contractor_el.addnext(contractor_el2)
+        site_el = self.xpath('//h:Building/h:Site')
+        site_el.addnext(
+            E.ContractorID(id='c2')
+        )
+
+        res4 = tr.hpxml_to_hescore_dict()
+
+        self.assertEqual(res4['hpwes']['improvement_installation_start_date'], '2017-08-20')
+        self.assertEqual(res4['hpwes']['improvement_installation_completion_date'], '2018-12-14')
+        self.assertFalse(res4['hpwes']['is_income_eligible_program'])
+        self.assertEqual(res4['hpwes']['contractor_business_name'], 'Contractor Business 2')
+        self.assertEqual(res4['hpwes']['contractor_zip_code'], '80401')
+
+    def test_hpwes_fail(self):
+        tr = self._load_xmlfile('hescore_min')
+        E = self.element_maker()
+        building_el = self.xpath('//h:Building')
+        hpxml_building_id = self.xpath('h:Building/h:BuildingID/@id')
+        project_el = E.Project(
+            E.BuildingID(id=str(hpxml_building_id)),
+            E.ProjectDetails(
+                E.ProjectSystemIdentifiers(),
+                E.ProgramCertificate('Home Performance with Energy Star')
+            )
+        )
+        building_el.addnext(project_el)
+
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'The following elements are required.*StartDate.*CompleteDateActual.*BusinessName.*ZipCode',
+            tr.hpxml_to_hescore_dict
+        )
+
     def test_window_code_mappings_aluminum(self):
         tr = self._load_xmlfile('hescore_min')
+        E = self.element_maker()
 
         window2_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window2"]/h:FrameType')
         window2_frametype.clear()
-        window2_frametype.append(self.E.Aluminum())
-        window2_frametype.getparent().append(self.E.GlassType('low-e'))
+        window2_frametype.append(E.Aluminum())
+        window2_frametype.getparent().append(E.GlassType('low-e'))
 
         window3_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window3"]/h:FrameType')
         window3_frametype.clear()
-        window3_frametype.append(self.E.Aluminum(self.E.ThermalBreak(True)))
+        window3_frametype.append(E.Aluminum(E.ThermalBreak(True)))
 
         window4_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window4"]/h:FrameType')
         window4_frametype.clear()
-        window4_frametype.append(self.E.Aluminum(self.E.ThermalBreak(True)))
-        window4_frametype.getparent().append(self.E.GlassType('low-e'))
+        window4_frametype.append(E.Aluminum(E.ThermalBreak(True)))
+        window4_frametype.getparent().append(E.GlassType('low-e'))
 
         d = tr.hpxml_to_hescore_dict()
         walls = {}
