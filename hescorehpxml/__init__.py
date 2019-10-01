@@ -797,6 +797,21 @@ class HPXMLtoHEScoreTranslator(object):
             hpwes['contractor_business_name'] = None
             hpwes['contractor_zip_code'] = None
 
+        expected_paths = OrderedDict([
+            ('improvement_installation_start_date', 'Project/ProjectDetails/StartDate'),
+            ('improvement_installation_completion_date', 'Project/ProjectDetails/CompleteDateActual'),
+            ('contractor_business_name', 'Contractor/ContractorDetails/BusinessInfo/BusinessName'),
+            ('contractor_zip_code', 'Contractor/ContractorDetails/BusinessInfo/extension/ZipCode')
+        ])
+        missing_paths = []
+        for k, v in expected_paths.items():
+            if hpwes[k] is None:
+                missing_paths.append(v)
+        if len(missing_paths) > 0:
+            raise TranslationError(
+                'The following elements are required for Home Performance with Energy Star, but were not provided: ' +
+                ', '.join(missing_paths)
+            )
         return hpwes
 
     def _get_building_about(self, b, p):

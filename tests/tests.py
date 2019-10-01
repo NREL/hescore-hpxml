@@ -2021,24 +2021,6 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
             )
         )
         building_el.addnext(project_el)
-        res = tr.hpxml_to_hescore_dict()
-
-        # Project not HPwES, nothing passed
-        self.assertNotIn('hpwes', res)
-
-        # Change to HPwES project
-        objectify.ObjectPath('Project.ProjectDetails.ProjectSystemIdentifiers').\
-            find(project_el).\
-            addnext(E.ProgramCertificate('Home Performance with Energy Star'))
-
-        res2 = tr.hpxml_to_hescore_dict()
-
-        # if hpwes program, pass existing information
-        self.assertEqual(res2['hpwes']['improvement_installation_start_date'], '2017-08-20')
-        self.assertEqual(res2['hpwes']['improvement_installation_completion_date'], '2018-12-14')
-        self.assertTrue(res2['hpwes']['is_income_eligible_program'])
-        self.assertIsNone(res2['hpwes']['contractor_business_name'])
-        self.assertIsNone(res2['hpwes']['contractor_zip_code'])
 
         # Add the contractor
         contractor_el = E.Contractor(
@@ -2054,6 +2036,15 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
             )
         )
         building_el.addprevious(contractor_el)
+        res = tr.hpxml_to_hescore_dict()
+
+        # Project not HPwES, nothing passed
+        self.assertNotIn('hpwes', res)
+
+        # Change to HPwES project
+        objectify.ObjectPath('Project.ProjectDetails.ProjectSystemIdentifiers').\
+            find(project_el).\
+            addnext(E.ProgramCertificate('Home Performance with Energy Star'))
 
         # Remove the income eligible element
         objectify.ObjectPath('Project.ProjectDetails.extension').\
@@ -2092,6 +2083,26 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         self.assertFalse(res4['hpwes']['is_income_eligible_program'])
         self.assertEqual(res4['hpwes']['contractor_business_name'], 'Contractor Business 2')
         self.assertEqual(res4['hpwes']['contractor_zip_code'], '80401')
+
+    def test_hpwes_fail(self):
+        tr = self._load_xmlfile('hescore_min')
+        E = self.element_maker()
+        building_el = self.xpath('//h:Building')
+        hpxml_building_id = self.xpath('h:Building/h:BuildingID/@id')
+        project_el = E.Project(
+            E.BuildingID(id=str(hpxml_building_id)),
+            E.ProjectDetails(
+                E.ProjectSystemIdentifiers(),
+                E.ProgramCertificate('Home Performance with Energy Star')
+            )
+        )
+        building_el.addnext(project_el)
+
+        self.assertRaisesRegex(
+            TranslationError,
+            r'The following elements are required.*StartDate.*CompleteDateActual.*BusinessName.*ZipCode',
+            tr.hpxml_to_hescore_dict
+        )
 
 
 if __name__ == "__main__":
