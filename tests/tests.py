@@ -2099,7 +2099,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         )
         building_el.addnext(project_el)
 
-        self.assertRaisesRegex(
+        self.assertRaisesRegexp(
             TranslationError,
             r'The following elements are required.*StartDate.*CompleteDateActual.*BusinessName.*ZipCode',
             tr.hpxml_to_hescore_dict
