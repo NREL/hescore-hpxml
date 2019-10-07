@@ -687,6 +687,50 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf30')
         self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
 
+    def test_attic_knee_wall_zero_rvalue(self):
+        tr = self._load_xmlfile('hescore_min')
+        # make a copy of the first wall
+        wall1 = self.xpath('//h:Wall[1]')
+        wall2 = deepcopy(wall1)
+        # change the system id
+        sysid = wall2.find(tr.addns('h:SystemIdentifier'))
+        sysid.attrib['id'] = 'wall2'
+        # and the insulation id
+        ins_sysid = wall2.xpath('h:Insulation/h:SystemIdentifier', namespaces=tr.ns)[0]
+        ins_sysid.attrib['id'] = 'wall2ins'
+        # remove the siding
+        siding = wall2.find(tr.addns('h:Siding'))
+        wall2.remove(siding)
+        # add an ExteriorAdjacentTo = attic
+        ext_adj_to = etree.Element(tr.addns('h:ExteriorAdjacentTo'))
+        ext_adj_to.text = 'attic'
+        wall2.insert(1, ext_adj_to)
+        # add an area
+        area_el = etree.Element(tr.addns('h:Area'))
+        area_el.text = '200'
+        wall2.find(tr.addns('h:WallType')).addnext(area_el)
+        # insert new wall
+        walls = self.xpath('//h:Walls')
+        walls.append(wall2)
+        # Reference wall in Attic
+        attic_type = self.xpath('//h:Attic/h:AtticType')
+        attic_type.addprevious(etree.Element(tr.addns('h:AtticKneeWall'), {'idref': 'wall2'}))
+        # Set R-value to zero
+        kneewall_rvalue_el = wall2.xpath('h:Insulation/h:Layer/h:NominalRValue', namespaces=tr.ns)[0]
+        kneewall_rvalue_el.text = '0'
+        # run translation
+        resp = tr.hpxml_to_hescore_dict()
+        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf00')
+        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
+        # Set kneewall R-value to 11 and attic floor R-value to zero
+        kneewall_rvalue_el.text = '11'
+        attic_floor_rvalue_el = self.xpath('//h:Attic/h:AtticFloorInsulation/h:Layer/h:NominalRValue')
+        attic_floor_rvalue_el.text = '0'
+        # run translation
+        resp = tr.hpxml_to_hescore_dict()
+        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf00')
+        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
+
     def test_wall_construction_ps_low_r(self):
         """
         Unit test for #47
