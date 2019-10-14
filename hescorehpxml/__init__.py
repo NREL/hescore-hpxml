@@ -626,11 +626,21 @@ class HPXMLtoHEScoreTranslator(object):
         hescore_bldg = self.hpxml_to_hescore_dict(*args, **kwargs)
         json.dump(hescore_bldg, outfile, indent=2)
 
-    def hpxml_to_hescore_dict(self, hpxml_bldg_id=None, nrel_assumptions=False):
+    def hpxml_to_hescore_dict(
+        self,
+        hpxml_bldg_id=None,
+        hpxml_project_id=None,
+        hpxml_contractor_id=None,
+        nrel_assumptions=False
+    ):
         '''
         Convert a HPXML building file to a python dict with the same structure as the HEScore API
 
         hpxml_bldg_id (optional) - If there is more than one <Building> element in an HPXML file,
+            use this one. Otherwise just use the first one.
+        hpxml_project_id (optional) - If there is more than one <Project> element in an HPXML file,
+            use this one. Otherwise just use the first one.
+        hpxml_contractor_id (optional) - If there is more than one <Contractor> element in an HPXML file,
             use this one. Otherwise just use the first one.
         nrel_assumptions - Apply the NREL assumptions for files that don't explicitly have certain fields.
         '''
@@ -640,11 +650,35 @@ class HPXMLtoHEScoreTranslator(object):
         if hpxml_bldg_id is not None:
             b = xpath(self.hpxmldoc, 'h:Building[h:BuildingID/@id=$bldgid]', bldgid=hpxml_bldg_id)
             if b is None:
-                raise TranslationError('HPXML BuildingID not found')
+                raise TranslationError('HPXML BuildingID: "{}" not found'.format(hpxml_bldg_id))
         else:
             b = xpath(self.hpxmldoc, 'h:Building[1]')
+            hpxml_bldg_id = xpath(b, 'h:BuildingID/@id')
 
-        p = xpath(self.hpxmldoc, 'h:Project[1]')
+        if hpxml_project_id is not None:
+            p = xpath(self.hpxmldoc, 'h:Project[h:ProjectID/@id=$projectid]', projectid=hpxml_project_id)
+            if p is None:
+                raise TranslationError('HPXML ProjectID: "{}" not found'.format(hpxml_project_id))
+        else:
+            p = xpath(self.hpxmldoc, 'h:Project[1]')
+
+        if hpxml_contractor_id is not None:
+            c = xpath(
+                self.hpxmldoc,
+                'h:ContractorDetails[h:SystemIdentifier/@id=$contractorid]',
+                contractorid=hpxml_contractor_id
+            )
+            if c is None:
+                raise TranslationError('HPXML ContractorID: "{}" not found'.format(hpxml_contractor_id))
+        else:
+            c = xpath(
+                self.hpxmldoc,
+                'h:Contractor[h:ContractorDetails/h:SystemIdentifier/@id=//h:Building[h:BuildingID/@id=$bldg_id]/h:ContractorID/@id]', # noqa E501
+                bldg_id=hpxml_bldg_id
+            )
+            if c is None:
+                c = xpath(self.hpxmldoc, 'h:Contractor[1]')
+
         # Apply NREL assumptions, if requested
         if nrel_assumptions:
             self.apply_nrel_assumptions(b)
@@ -653,6 +687,12 @@ class HPXMLtoHEScoreTranslator(object):
         # Create return dict
         hescore_inputs = OrderedDict()
         hescore_inputs['building_address'] = self._get_building_address(b)
+
+        if p is not None:
+            is_hpwes = xpath(p, 'h:ProjectDetails/h:ProgramCertificate="Home Performance with Energy Star"')
+            if is_hpwes:
+                hescore_inputs['hpwes'] = self._get_hpwes(b, p, c)
+
         bldg = OrderedDict()
         hescore_inputs['building'] = bldg
         bldg['about'] = self._get_building_about(b, p)
@@ -734,6 +774,45 @@ class HPXMLtoHEScoreTranslator(object):
                 assert transaction_type == 'update'
                 bldgaddr['assessment_type'] = 'corrected'
         return bldgaddr
+
+    def _get_hpwes(self, b, p, c):
+        xpath = self.xpath
+        hpwes = OrderedDict()
+
+        # project information
+        hpwes['improvement_installation_start_date'] = xpath(p, 'h:ProjectDetails/h:StartDate/text()')
+
+        hpwes['improvement_installation_completion_date'] = xpath(p, 'h:ProjectDetails/h:CompleteDateActual/text()')
+
+        if xpath(p, 'h:ProjectDetails/h:extension/h:isIncomeEligible/text()') == 'true':
+            hpwes['is_income_eligible_program'] = True
+        else:
+            hpwes['is_income_eligible_program'] = False
+
+        # Contractor information
+        if c is not None:
+            hpwes['contractor_business_name'] = xpath(c, 'h:ContractorDetails/h:BusinessInfo/h:BusinessName/text()')
+            hpwes['contractor_zip_code'] = xpath(c, 'h:ContractorDetails/h:BusinessInfo/h:extension/h:ZipCode/text()')
+        else:
+            hpwes['contractor_business_name'] = None
+            hpwes['contractor_zip_code'] = None
+
+        expected_paths = OrderedDict([
+            ('improvement_installation_start_date', 'Project/ProjectDetails/StartDate'),
+            ('improvement_installation_completion_date', 'Project/ProjectDetails/CompleteDateActual'),
+            ('contractor_business_name', 'Contractor/ContractorDetails/BusinessInfo/BusinessName'),
+            ('contractor_zip_code', 'Contractor/ContractorDetails/BusinessInfo/extension/ZipCode')
+        ])
+        missing_paths = []
+        for k, v in expected_paths.items():
+            if hpwes[k] is None:
+                missing_paths.append(v)
+        if len(missing_paths) > 0:
+            raise TranslationError(
+                'The following elements are required for Home Performance with Energy Star, but were not provided: ' +
+                ', '.join(missing_paths)
+            )
+        return hpwes
 
     def _get_building_about(self, b, p):
         xpath = self.xpath
@@ -2240,20 +2319,46 @@ class HPXMLtoHEScoreTranslator(object):
 
 def main():
     parser = argparse.ArgumentParser(description='Convert HPXML v1.1.1 or v2.x files to HEScore inputs')
-    parser.add_argument('hpxml_input', type=argparse.FileType('r'), help='Filename of hpxml file')
-    parser.add_argument('-o', '--output', type=argparse.FileType('w'), default=sys.stdout,
-                        help='Filename of output file in json format. If not provided, will go to stdout.')
+    parser.add_argument(
+        'hpxml_input',
+        type=argparse.FileType('r'),
+        help='Filename of hpxml file'
+    )
+    parser.add_argument(
+        '-o', '--output',
+        type=argparse.FileType('w'),
+        default=sys.stdout,
+        help='Filename of output file in json format. If not provided, will go to stdout.'
+    )
     parser.add_argument(
         '--bldgid',
-        help='HPXML building id to score if there are more than one <Building/> elements. Default: first one.')
-    parser.add_argument('--nrelassumptions', action='store_true',
-                        help='Use the NREL assumptions to guess at data elements that are missing.')
+        help='HPXML building id to score if there are more than one <Building/> elements. Default: first one.'
+    )
+    parser.add_argument(
+        '--projectid',
+        help='HPXML project id to use in translating HPwES data if there are more than one <Project/> elements. Default: first one.' # noqa 501
+    )
+    parser.add_argument(
+        '--contractorid',
+        help='HPXML contractor id to use in translating HPwES data if there are more than one <Contractor/> elements. Default: first one.' # noqa 501
+    )
+    parser.add_argument(
+        '--nrelassumptions',
+        action='store_true',
+        help='Use the NREL assumptions to guess at data elements that are missing.'
+    )
 
     args = parser.parse_args()
     logging.basicConfig(level=logging.ERROR, format='%(levelname)s:%(message)s')
     try:
         t = HPXMLtoHEScoreTranslator(args.hpxml_input)
-        t.hpxml_to_hescore_json(args.output, hpxml_bldg_id=args.bldgid, nrel_assumptions=args.nrelassumptions)
+        t.hpxml_to_hescore_json(
+            args.output,
+            hpxml_bldg_id=args.bldgid,
+            hpxml_project_id=args.projectid,
+            hpxml_contractor_id=args.contractorid,
+            nrel_assumptions=args.nrelassumptions
+        )
     except HPXMLtoHEScoreError as ex:
         exclass = type(ex).__name__
         exmsg = ex.message
