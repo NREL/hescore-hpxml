@@ -59,7 +59,7 @@ is done according to the following mapping.
    =========================  ====================
    central air conditioning   split_dx
    room air conditioner       packaged_dx
-   mini-split                 split_dx
+   mini-split                 mini_split
    evaporative cooler         dec
    other                      *not translated*
    =========================  ====================
@@ -67,10 +67,6 @@ is done according to the following mapping.
 .. warning::
    
    If an HPXML cooling system type maps to *not translated* the translation will fail.
-
-.. note::
-
-   A cooling-only mini-split is not available in HEScore, therefore the mini-split type is translated into a ``split_dx``.
 
 .. note::
 

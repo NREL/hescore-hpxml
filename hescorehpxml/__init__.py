@@ -13,7 +13,6 @@ import logging
 import re
 import json
 import math
-import uuid
 from lxml import etree
 from collections import defaultdict, namedtuple
 from decimal import Decimal
@@ -386,7 +385,7 @@ class HPXMLtoHEScoreTranslator(object):
             try:
                 sys_cooling['type'] = {'central air conditioning': 'split_dx',
                                        'room air conditioner': 'packaged_dx',
-                                       'mini-split': 'split_dx',
+                                       'mini-split': 'mini_split',
                                        'evaporative cooler': 'dec'}[hpxml_cooling_type]
             except KeyError:
                 raise TranslationError('HEScore does not support the HPXML CoolingSystemType %s' % hpxml_cooling_type)
@@ -1852,27 +1851,6 @@ class HPXMLtoHEScoreTranslator(object):
                     )
                 )
 
-        # Connect mini-split heat pumps to "ducts"
-        # Find heating and cooling ids that are in both singleton lists (heat pumps with no ducts)
-        singletons_to_combine = singleton_cooling_systems.intersection(singleton_heating_systems)
-        singleton_heating_systems -= singletons_to_combine
-        singleton_cooling_systems -= singletons_to_combine
-        for heatpump_id in singletons_to_combine:
-            if heating_systems[heatpump_id]['type'] != 'mini_split' or cooling_systems[heatpump_id]['type'] != 'mini_split':  # noqa: E501
-                continue
-            dummy_duct_id = str(uuid.uuid4())
-            dist_heating_cooling_map[dummy_duct_id] = (heatpump_id, heatpump_id)
-            dist_heating_map[dummy_duct_id] = heatpump_id
-            dist_cooling_map[dummy_duct_id] = heatpump_id
-
-            dummy_duct = OrderedDict()
-            dummy_duct['name'] = 'duct1'
-            dummy_duct['location'] = 'cond_space'
-            dummy_duct['fraction'] = 100
-            dummy_duct['insulated'] = True
-            dummy_duct['sealed'] = True
-            distribution_systems[dummy_duct_id] = [dummy_duct]
-
         # Check to make sure heating and cooling systems that need a distribution system have them.
         heating_sys_types_requiring_ducts = ('gchp', 'heat_pump', 'central_furnace')
         for htg_sys_id, htg_sys in list(heating_systems.items()):
@@ -1898,6 +1876,18 @@ class HPXMLtoHEScoreTranslator(object):
                 weights_to_average.append(old_div(cooling_systems[clg_sys_id][cooling_weighting_factor], weight_sum))
             avg_sys_weight = old_div(sum(weights_to_average), len(weights_to_average))
             hvac_systems_ids.add(IDsAndWeights(htg_sys_id, clg_sys_id, dist_sys_id, avg_sys_weight))
+
+        singletons_to_combine = singleton_cooling_systems.intersection(singleton_heating_systems)
+        singleton_heating_systems -= singletons_to_combine
+        singleton_cooling_systems -= singletons_to_combine
+        for heatpump_id in singletons_to_combine:
+            if heating_systems[heatpump_id]['type'] != 'mini_split' or cooling_systems[heatpump_id]['type'] != 'mini_split':  # noqa: E501
+                continue
+            hvac_systems_ids.add(IDsAndWeights(
+                heatpump_id,
+                heatpump_id,
+                None,
+                old_div(heating_systems[heatpump_id][heating_weighting_factor], weight_sum)))
 
         # Add the singletons to the list
         for htg_sys_id in singleton_heating_systems:
