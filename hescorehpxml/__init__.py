@@ -13,7 +13,6 @@ import logging
 import re
 import json
 import math
-import uuid
 from lxml import etree
 from collections import defaultdict, namedtuple
 from decimal import Decimal
