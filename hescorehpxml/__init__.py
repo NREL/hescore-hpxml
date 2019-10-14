@@ -1084,11 +1084,17 @@ class HPXMLtoHEScoreTranslator(object):
             # attic floor center of cavity R-value
             attic_floor_rvalue = xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
             if knee_walls:
-                knee_wall_ua = sum(old_div(x['area'], x['rvalue']) for x in knee_walls)
+                try:
+                    knee_wall_ua = sum(x['area'] / x['rvalue'] for x in knee_walls)
+                except ZeroDivisionError:
+                    knee_wall_ua = float('inf')
                 knee_wall_area = sum([x['area'] for x in knee_walls])
-                attic_floor_adj_ua = knee_wall_ua + old_div(atticd['roof_area'], attic_floor_rvalue)
+                try:
+                    attic_floor_adj_ua = knee_wall_ua + atticd['roof_area'] / attic_floor_rvalue
+                except ZeroDivisionError:
+                    attic_floor_adj_ua = float('inf')
                 attic_floor_adj_area = knee_wall_area + atticd['roof_area']
-                attic_floor_rvalue = old_div(attic_floor_adj_area, attic_floor_adj_ua)
+                attic_floor_rvalue = attic_floor_adj_area / attic_floor_adj_ua
                 atticd['roof_area'] = attic_floor_adj_area
             atticd['attic_floor_coc_rvalue'] = \
                 min(attic_floor_rvalues, key=lambda x: abs(x - attic_floor_rvalue)) + 0.5
