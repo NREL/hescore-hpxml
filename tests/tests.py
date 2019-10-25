@@ -1978,7 +1978,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
                                 tr.hpxml_to_hescore_dict)
 
     def test_tankless_energyfactorerror(self):
-        tr = self._load_xmlfile('house4')
+        tr = self._load_xmlfile('hescore_min')
         WHtype = self.xpath('//h:WaterHeatingSystem[h:SystemIdentifier/@id="dhw1"]/h:WaterHeaterType')
         WHtype.text = 'instantaneous water heater'
         self.assertRaisesRegexp(
@@ -1994,6 +1994,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         system = d['building']['systems']['domestic_hot_water']
         self.assertEqual(system['efficiency_method'], 'user')
         self.assertEqual(system['type'], 'tankless')
+        self.assertEqual(system['fuel_primary'], 'lpg')
 
     # two energy factors
     def test_uef_over_ef(self):
@@ -2008,16 +2009,17 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         self.assertAlmostEqual(system['energy_factor'], 0.7)
 
     def test_uef_with_tankless(self):
-        tr = self._load_xmlfile('house4')
+        tr = self._load_xmlfile('hescore_min')
         WHtype = self.xpath('//h:WaterHeatingSystem[h:SystemIdentifier/@id="dhw1"]/h:WaterHeaterType')
         WHtype.text = 'instantaneous water heater'
         UEF = etree.Element(tr.addns('h:UniformEnergyFactor'))
         UEF.text = '0.7'
-        WHtype.addnext(UEF)
+        WHtype.getparent().append(UEF)
         d = tr.hpxml_to_hescore_dict()
         system = d['building']['systems']['domestic_hot_water']
         self.assertEqual(system['efficiency_method'], 'uef')
         self.assertEqual(system['type'], 'tankless')
+        self.assertEqual(system['fuel_primary'], 'natural_gas')
         self.assertAlmostEqual(system['energy_factor'], 0.7)
 
     def test_conditioned_attic(self):

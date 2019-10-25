@@ -2057,6 +2057,7 @@ class HPXMLtoHEScoreTranslator(object):
         elif water_heater_type == 'instantaneous water heater':
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'tankless'
+            sys_dhw['fuel_primary'] = self.fuel_type_mapping[xpath(primarydhw, 'h:FuelType/text()')]
         else:
             raise TranslationError('HEScore cannot model the water heater type: %s' % water_heater_type)
 
