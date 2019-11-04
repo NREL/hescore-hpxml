@@ -2313,6 +2313,9 @@ def main():
         exmsg = ex.message
         logging.error('%s:%s', exclass, exmsg)
         sys.exit(1)
+    except Exception:
+        logging.error('Unknown HPXML Translation Error: Please contact HEScore support')
+        sys.exit(2)
 
 
 if __name__ == '__main__':
