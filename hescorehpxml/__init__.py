@@ -1,6 +1,5 @@
 from __future__ import division
 # Python standard library imports
-from builtins import str
 from builtins import map
 from builtins import zip
 from builtins import object
@@ -533,51 +532,6 @@ class HPXMLtoHEScoreTranslator(object):
             if idx < childidx:
                 parent.append(child)
 
-    def apply_nrel_assumptions(self, b):
-        xpath = self.xpath
-        addns = self.addns
-        ns = self.ns
-
-        # Get some element ordering from the schemas that we might need later.
-        hpxml_base_elements = etree.parse(os.path.join(os.path.dirname(self.schemapath), 'BaseElements.xsd'))
-        site_element_order = hpxml_base_elements.xpath(
-            '//xs:element[@name="Site"][ancestor::xs:complexType[@name="BuildingDetailsType"]]/xs:complexType/xs:sequence/xs:element/@name',  # noqa: E501
-            namespaces=ns
-        )
-        site_element_order = ['h:' + x for x in site_element_order]
-        wall_element_order = hpxml_base_elements.xpath('//xs:element[@name="Siding"]/parent::node()/xs:element/@name',
-                                                       namespaces=ns)
-        wall_element_order = ['h:' + x for x in wall_element_order]
-
-        # Assume the back of the house has the largest window area
-        site = self.get_or_create_child(xpath(b, 'h:BuildingDetails/h:BuildingSummary'), addns('h:Site'), 0)
-        xpath(site, 'h:OrientationOfFrontOfHome/text()')
-        if xpath(site, 'h:AzimuthOfFrontOfHome/text()') is None and \
-                xpath(site, 'h:OrientationOfFrontOfHome/text()') is None:
-            window_areas = {}
-            for window in xpath(b, 'h:BuildingDetails/h:Enclosure/h:Windows/h:Window'):
-                azimuth = self.get_nearest_azimuth(xpath(window, 'h:Azimuth/text()'),
-                                                   xpath(window, 'h:Orientation/text()'))
-                window_area = float(xpath(window, 'h:Area/text()'))
-                try:
-                    window_areas[azimuth] += window_area
-                except KeyError:
-                    window_areas[azimuth] = window_area
-            back_azimuth = max(list(window_areas.items()), key=lambda x: x[1])[0]
-            front_azimuth = (back_azimuth + 180) % 360
-            azimuth_el = etree.Element(addns('h:AzimuthOfFrontOfHome'))
-            azimuth_el.text = str(front_azimuth)
-            self.insert_element_in_order(site, azimuth_el, site_element_order)
-            logging.debug('Assuming the house faces %d', front_azimuth)
-
-        # Assume stucco if none specified
-        if xpath(b, 'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall/h:Siding') is None:
-            logging.debug('Assuming stucco siding')
-            for wall in b.xpath('h:BuildingDetails/h:Enclosure/h:Walls/h:Wall', namespaces=ns):
-                siding_el = etree.Element(addns('h:Siding'))
-                siding_el.text = 'stucco'
-                self.insert_element_in_order(wall, siding_el, wall_element_order)
-
     hpxml_orientation_to_azimuth = {
         'north': 0,
         'northeast': 45,
@@ -629,8 +583,7 @@ class HPXMLtoHEScoreTranslator(object):
         self,
         hpxml_bldg_id=None,
         hpxml_project_id=None,
-        hpxml_contractor_id=None,
-        nrel_assumptions=False
+        hpxml_contractor_id=None
     ):
         '''
         Convert a HPXML building file to a python dict with the same structure as the HEScore API
@@ -641,7 +594,6 @@ class HPXMLtoHEScoreTranslator(object):
             use this one. Otherwise just use the first one.
         hpxml_contractor_id (optional) - If there is more than one <Contractor> element in an HPXML file,
             use this one. Otherwise just use the first one.
-        nrel_assumptions - Apply the NREL assumptions for files that don't explicitly have certain fields.
         '''
         xpath = self.xpath
 
@@ -678,9 +630,6 @@ class HPXMLtoHEScoreTranslator(object):
             if c is None:
                 c = xpath(self.hpxmldoc, 'h:Contractor[1]')
 
-        # Apply NREL assumptions, if requested
-        if nrel_assumptions:
-            self.apply_nrel_assumptions(b)
         self.schema.assertValid(self.hpxmldoc)
 
         # Create return dict
@@ -2348,11 +2297,6 @@ def main():
         '--contractorid',
         help='HPXML contractor id to use in translating HPwES data if there are more than one <Contractor/> elements. Default: first one.' # noqa 501
     )
-    parser.add_argument(
-        '--nrelassumptions',
-        action='store_true',
-        help='Use the NREL assumptions to guess at data elements that are missing.'
-    )
 
     args = parser.parse_args()
     logging.basicConfig(level=logging.ERROR, format='%(levelname)s:%(message)s')
@@ -2362,8 +2306,7 @@ def main():
             args.output,
             hpxml_bldg_id=args.bldgid,
             hpxml_project_id=args.projectid,
-            hpxml_contractor_id=args.contractorid,
-            nrel_assumptions=args.nrelassumptions
+            hpxml_contractor_id=args.contractorid
         )
     except HPXMLtoHEScoreError as ex:
         exclass = type(ex).__name__
