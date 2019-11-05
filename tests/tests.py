@@ -7,7 +7,7 @@ import os
 import unittest
 import datetime as dt
 from lxml import etree, objectify
-from hescorehpxml import HPXMLtoHEScoreTranslator, TranslationError, InputOutOfBounds
+from hescorehpxml import HPXMLtoHEScoreTranslator, TranslationError, InputOutOfBounds, ElementNotFoundError
 import io
 import json
 from copy import deepcopy
@@ -280,9 +280,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Roof[1]/h:RoofColor')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError,
-                                'Attic .+ Invalid or missing RoofColor',
-                                tr.hpxml_to_hescore_dict)
+        self.assertRaises(ElementNotFoundError,
+                          tr.hpxml_to_hescore_dict)
 
     def test_invalid_roof_type(self):
         tr = self._load_xmlfile('hescore_min')
@@ -325,9 +324,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Window[1]/h:Area')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError,
-                                r'All windows need an area\.',
-                                tr.hpxml_to_hescore_dict)
+        self.assertRaises(ElementNotFoundError,
+                          tr.hpxml_to_hescore_dict)
 
     def test_missing_window_orientation(self):
         tr = self._load_xmlfile('hescore_min')
@@ -542,10 +540,11 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
 
     def test_bldgid_not_found(self):
         tr = self._load_xmlfile('house1')
-        self.assertRaisesRegexp(TranslationError,
-                                r'HPXML BuildingID: "bldgnothere" not found',
-                                tr.hpxml_to_hescore_dict,
-                                hpxml_bldg_id='bldgnothere')
+        self.assertRaises(
+            ElementNotFoundError,
+            tr.hpxml_to_hescore_dict,
+            hpxml_bldg_id='bldgnothere'
+        )
 
     def test_missing_cooling_system(self):
         tr = self._load_xmlfile('hescore_min')
@@ -756,7 +755,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.xpath('//h:Wall[1]/h:Insulation/h:Layer[h:InstallationType="cavity"]/h:NominalRValue').text = '0'
         self.assertRaisesRegexp(
             TranslationError,
-            r'Envelope construction not supported',
+            r'Wall R-value outside HEScore bounds',
             tr.hpxml_to_hescore_dict
             )
 
@@ -810,11 +809,10 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         zipcode_el = self.xpath('//h:Building/h:Site/h:Address[h:AddressType="street"]/h:ZipCode')
         zipcode_el.getparent().remove(zipcode_el)
-        self.assertRaisesRegexp(
-            TranslationError,
-            r'ZipCode missing',
+        self.assertRaises(
+            ElementNotFoundError,
             tr.hpxml_to_hescore_dict
-            )
+        )
 
     def test_air_source_heat_pump_has_no_ducts(self):
         tr = self._load_xmlfile('house4')
