@@ -68,12 +68,13 @@ class ElementNotFoundError(TranslationError):
     @property
     def message(self):
         tree = self.parent.getroottree()
-        el_path = re.sub(r'{.*?}', '',tree.getelementpath(self.parent))
+        el_path = re.sub(r'{.*?}', '', tree.getelementpath(self.parent))
+        xpath = self.xpath.replace('h:', '')
         if self.kwargs:
             post = ' with args ' + str(self.kwargs)
         else:
             post = ''
-        return "Can't find element {}/{}{}".format(el_path, self.xpath, post)
+        return "Can't find element {}/{}{}".format(el_path, xpath, post)
 
     def __str__(self):
         return self.message
