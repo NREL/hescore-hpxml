@@ -637,7 +637,12 @@ class HPXMLtoHEScoreTranslator(object):
             hpxml_bldg_id = xpath(b, 'h:BuildingID/@id', raise_err=True)
 
         if hpxml_project_id is not None:
-            p = xpath(self.hpxmldoc, 'h:Project[h:ProjectID/@id=$projectid]', raise_err=True, projectid=hpxml_project_id)
+            p = xpath(
+                self.hpxmldoc,
+                'h:Project[h:ProjectID/@id=$projectid]',
+                raise_err=True,
+                projectid=hpxml_project_id
+            )
         else:
             p = xpath(self.hpxmldoc, 'h:Project[1]')
 
@@ -862,14 +867,14 @@ class HPXMLtoHEScoreTranslator(object):
                     float(xpath(bldg_cons_el, 'h:ConditionedFloorArea/text()', raise_err=True))
             except ElementNotFoundError:
                 raise TranslationError(
-                    'Either AverageCeilingHeight or both ConditionedBuildingVolume and ConditionedFloorArea are required.'
+                    'Either AverageCeilingHeight or both ConditionedBuildingVolume and ConditionedFloorArea are required.'  # noqa E501
                 )
         else:
             avg_ceiling_ht = float(avg_ceiling_ht)
         bldg_about['floor_to_ceiling_height'] = int(python2round(avg_ceiling_ht))
         bldg_about['conditioned_floor_area'] = int(python2round(float(xpath(
-            b, 
-            'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ConditionedFloorArea/text()', 
+            b,
+            'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ConditionedFloorArea/text()',
             raise_err=True
         ))))
 
@@ -1061,7 +1066,12 @@ class HPXMLtoHEScoreTranslator(object):
             # knee walls
             knee_walls = []
             for kneewall_idref in xpath(attic, 'h:AtticKneeWall/@idref', aslist=True):
-                wall = xpath(b, 'descendant::h:Wall[h:SystemIdentifier/@id=$kneewallid]', raise_err=True, kneewallid=kneewall_idref)
+                wall = xpath(
+                    b,
+                    'descendant::h:Wall[h:SystemIdentifier/@id=$kneewallid]',
+                    raise_err=True,
+                    kneewallid=kneewall_idref
+                )
                 wall_rvalue = xpath(wall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
                 wall_area = xpath(wall, 'h:Area/text()')
                 if wall_area is None:
