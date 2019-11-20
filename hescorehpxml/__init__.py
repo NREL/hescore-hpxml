@@ -132,7 +132,7 @@ class HPXMLtoHEScoreTranslator(object):
                 self.schema = None
         if self.schema is None:
             raise TranslationError(
-                '{} failed to validate against all the following HPXML schemas: {}'.format(hpxmlfilename, ', '.join(
+                'Failed to validate against all the following HPXML schemas: {}'.format(', '.join(
                     self.schemaversions)))
         self.ns = {'xs': 'http://www.w3.org/2001/XMLSchema'}
         self.ns['h'] = schematree.xpath('//xs:schema/@targetNamespace', namespaces=self.ns)[0]
@@ -1839,7 +1839,7 @@ class HPXMLtoHEScoreTranslator(object):
                 raise TranslationError(
                     'Heating system "{}" and cooling system "{}" are attached to the same '
                     'distribution system "{}" need to serve the same '
-                    'fraction of the load within 5%% but do not.'.format(
+                    'fraction of the load within 5% but do not.'.format(
                         htg_id, clg_id, duct_id
                     )
                 )
@@ -2353,8 +2353,7 @@ def main():
         )
     except HPXMLtoHEScoreError as ex:
         exclass = type(ex).__name__
-        exmsg = ex.message
-        logging.error('%s:%s', exclass, exmsg)
+        logging.error('%s:%s', exclass, str(ex))
         sys.exit(1)
     except Exception:
         logging.error('Unknown HPXML Translation Error: Please contact HEScore support')
