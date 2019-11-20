@@ -743,7 +743,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         etree.SubElement(insmat, tr.addns('h:Rigid')).text = 'eps'
         etree.SubElement(newlayer, tr.addns('h:NominalRValue')).text = '5'
         b = tr.hpxml_to_hescore_dict()
-        self.assertEquals(b['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewps07br')
+        self.assertEqual(b['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewps07br')
 
     def test_ove_low_r(self):
         """
@@ -2025,7 +2025,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         attic = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]')
         attic_type = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]/h:AtticType')
         attic_type.text = 'other'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Attic attic1: Cannot translate HPXML AtticType other to HEScore rooftype.',
             tr.hpxml_to_hescore_dict
