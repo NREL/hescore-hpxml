@@ -1811,7 +1811,7 @@ class HPXMLtoHEScoreTranslator(object):
                 break
         if not found_weighting_factor:
             raise TranslationError(
-                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed.'
+                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed.'  # noqa: E501
             )
 
         # Calculate the sum of the weights (total fraction or floor area)

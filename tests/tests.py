@@ -410,7 +410,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:HeatPump[1]/h:FloorAreaServed')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError,
-                                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed',
+                                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed',  # noqa E501
                                 tr.hpxml_to_hescore_dict)
 
     def test_missing_cooling_weighting_factor(self):
@@ -420,7 +420,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:CoolingSystem[2]/h:FloorAreaServed')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError,
-                                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed',
+                                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed',  # noqa E501
                                 tr.hpxml_to_hescore_dict)
 
     def test_bad_duct_location(self):
