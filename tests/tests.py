@@ -743,7 +743,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         etree.SubElement(insmat, tr.addns('h:Rigid')).text = 'eps'
         etree.SubElement(newlayer, tr.addns('h:NominalRValue')).text = '5'
         b = tr.hpxml_to_hescore_dict()
-        self.assertEquals(b['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewps07br')
+        self.assertEqual(b['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewps07br')
 
     def test_ove_low_r(self):
         """
