@@ -64,7 +64,7 @@ enumerations is as follows:
    =======================  ===================================
    HPXML                    HEScore 
    =======================  ===================================
-   stand-alone              *not needed*
+   stand-alone              *not translated*
    attached on one side     back_right_front or back_front_left
    attached on two sides    back_front
    attached on three sides  *not translated*
@@ -76,13 +76,11 @@ house is missing windows.
 
 .. warning::
 
-   If windows are found on a shared town house wall, the translation will 
-   error out.
-
-.. note::   
-
-   HEScore cannot model houses that are "attached on three sides".
-   Using that input will result in a translation error.
+   * If windows are found on a shared town house wall, the translation will 
+     fail.
+   * HEScore cannot model townhouses that are "attached on three sides" or
+     "stand-alone". Using one of those inputs will result in a translation
+     error.
 
 Year Built, Stories, Bedrooms, Floor Height, and Floor Area
 ***********************************************************
