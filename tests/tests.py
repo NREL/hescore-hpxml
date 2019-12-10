@@ -1350,6 +1350,20 @@ class TestHVACFractions(unittest.TestCase, ComparatorBase):
         b = self.xpath('h:Building[1]')
         tr._get_hvac(b)
 
+    def test_different_weighting_factors(self):
+        tr = self._load_xmlfile('hescore_min')
+        htg_sys = self.xpath('//h:HeatingSystem')
+        frac_heat_load_served = etree.SubElement(htg_sys, tr.addns('h:FractionHeatLoadServed'))
+        frac_heat_load_served.text = '1.0'
+        heating_floor_area_served = etree.SubElement(htg_sys, tr.addns('h:FloorAreaServed'))
+        heating_floor_area_served.text = '2400'
+        clg_sys_eff = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency')
+        frac_cool_load_served = etree.Element(tr.addns('h:FractionCoolLoadServed'))
+        frac_cool_load_served.text = '1.0'
+        clg_sys_eff.addprevious(frac_cool_load_served)
+        b = self.xpath('h:Building[1]')
+        tr._get_hvac(b)
+
 
 class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
 
