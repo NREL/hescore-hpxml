@@ -2025,7 +2025,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         attic = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]')
         attic_type = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]/h:AtticType')
         attic_type.text = 'other'
-        self.assertRaisesRegex(
+        self.assertRaisesRegexp(
             TranslationError,
             r'Attic attic1: Cannot translate HPXML AtticType other to HEScore rooftype.',
             tr.hpxml_to_hescore_dict
