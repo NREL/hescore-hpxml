@@ -1792,7 +1792,7 @@ class HPXMLtoHEScoreTranslator(object):
             if len(heating_or_cooling_systems) == 1:
                 for key, hvac_sys in heating_or_cooling_systems.items():
                     if hvac_sys.get('_floorarea') is None and hvac_sys.get('_fracload') is None:
-                        hvac_sys['_fracloac'] = 1.0
+                        hvac_sys['_fracload'] = 1.0
                         hvac_sys['_floorarea'] = bldg_about['conditioned_floor_area']
 
         # Choose a weighting factor that all the heating and cooling systems use
