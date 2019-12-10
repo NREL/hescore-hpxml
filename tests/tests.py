@@ -336,6 +336,20 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             r'Window\[SystemIdentifier/@id="\w+"\] doesn\'t have Azimuth, Orientation, or AttachedToWall. At least one is required.',
             tr.hpxml_to_hescore_dict)
 
+    def test_window_only_attached_to_foundation_wall(self):
+        tr = self._load_xmlfile('house4')
+        window_orientation = self.xpath('//h:Window[1]/h:Orientation')
+        window = window_orientation.getparent()
+        etree.SubElement(window, tr.addns('h:AttachedToWall'), attrib={'idref': 'crawlwall'})
+        self._do_compare('house4')
+
+        window.remove(window_orientation)
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'The Window\[SystemIdentifier/@id="\w+"\] has no Azimuth or Orientation, and the .* didn\'t reference a Wall element.',
+            tr.hpxml_to_hescore_dict
+        )
+
     def test_window_attached_to_wall(self):
         filebase = 'house6'
         tr = self._load_xmlfile(filebase)
