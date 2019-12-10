@@ -333,7 +333,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.getparent().remove(el)
         self.assertRaisesRegexp(
             TranslationError,
-            r'Window\[SystemIdentifier/@id="\w+"\] doesn\'t have Azimuth, Orientation, or AttachedToWall. At least one is required.',
+            r'Window\[SystemIdentifier/@id="\w+"\] doesn\'t have Azimuth, Orientation, or AttachedToWall. At least one is required.',  # noqa E501
             tr.hpxml_to_hescore_dict)
 
     def test_window_only_attached_to_foundation_wall(self):
@@ -346,7 +346,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         window.remove(window_orientation)
         self.assertRaisesRegexp(
             TranslationError,
-            r'The Window\[SystemIdentifier/@id="\w+"\] has no Azimuth or Orientation, and the .* didn\'t reference a Wall element.',
+            r'The Window\[SystemIdentifier/@id="\w+"\] has no Azimuth or Orientation, and the .* didn\'t reference a Wall element.',  # noqa E501
             tr.hpxml_to_hescore_dict
         )
 
