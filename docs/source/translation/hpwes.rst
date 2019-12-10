@@ -21,9 +21,6 @@ following elements:
             <ProgramCertificate>Home Performance with Energy Star</ProgramCertificate>
             <StartDate>2018-08-20</StartDate>
             <CompleteDateActual>2018-12-14</CompleteDateActual>
-            <extension>
-                <isIncomeEligible>true</isIncomeEligible>
-            </extension>
         </projectDetails>
     </Project>
 
@@ -40,9 +37,6 @@ The project fields are mapped as follows:
 | ``StartDate``                         | ``improvement_installation_start_date``      |
 +---------------------------------------+----------------------------------------------+
 | ``CompleteDateActual``                | ``improvement_installation_completion_date`` |
-+---------------------------------------+----------------------------------------------+
-| ``extension/isIncomeEligible`` [#f1]_ | ``is_income_eligible_program``               |
-|                                       |                                              |
 +---------------------------------------+----------------------------------------------+
 
 Contractor
@@ -81,7 +75,3 @@ The contractor fields are mapped as follows:
 +------------------------------------------------------+------------------------------+
 | ``ContractorDetails/BusinessInfo/extension/ZipCode`` | ``contractor_zip_code``      |
 +------------------------------------------------------+------------------------------+
-
-.. rubric:: Footnotes
-
-.. [#f1] ``true`` if element value is "true", ``false`` if element value is anything else or missing.
