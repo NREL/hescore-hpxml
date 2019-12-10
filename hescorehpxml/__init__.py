@@ -688,7 +688,7 @@ class HPXMLtoHEScoreTranslator(object):
         bldg['zone']['window_construction_same'] = False
         bldg['zone']['zone_wall'] = self._get_building_zone_wall(b, bldg['about'])
         bldg['systems'] = OrderedDict()
-        bldg['systems']['hvac'] = self._get_hvac(b)
+        bldg['systems']['hvac'] = self._get_hvac(b, bldg['about'])
         bldg['systems']['domestic_hot_water'] = self._get_systems_dhw(b)
         generation = self._get_generation(b)
         if generation:
@@ -1683,7 +1683,7 @@ class HPXMLtoHEScoreTranslator(object):
             zone_window['solar_screen'] = max(list(window_sunscreen_areas.items()), key=lambda x: x[1])[0]
         return zone_wall
 
-    def _get_hvac(self, b):
+    def _get_hvac(self, b, bldg_about):
 
         def _get_dict_of_hpxml_elements_by_id(xpathexpr):
             return_dict = {}
@@ -1791,48 +1791,41 @@ class HPXMLtoHEScoreTranslator(object):
             distribution_systems[key] = self._get_hvac_distribution(el)
 
         # Determine the weighting factors
-        def _choose_weighting_factor(systems_dict):
-            weighting_factor_priority = ['_floorarea', '_fracload']
-            found_weighting_factor = False
-            for weighting_factor in weighting_factor_priority:
-                weighting_factor_list = [item[weighting_factor] for item in list(systems_dict.values())]
-                if None not in weighting_factor_list and len(weighting_factor_list) > 0:
-                    found_weighting_factor = True
-                    break
-            if not found_weighting_factor:
-                if len(systems_dict) == 1:
-                    list(systems_dict.values())[0]['_fracload'] = 1.0
-                    weighting_factor_list = [1.0]
-                    weighting_factor = '_fracload'
-                else:
-                    raise TranslationError(
-                        'Every heating/cooling system needs to have either FloorAreaServed or FracLoadServed.')
-            return weighting_factor, sum(weighting_factor_list)
-        if heating_systems:
-            heating_weighting_factor, heating_weight_sum = _choose_weighting_factor(heating_systems)
-        else:
-            heating_weight_sum = 0
-            heating_weighting_factor = None
-        if cooling_systems:
-            cooling_weighting_factor, cooling_weight_sum = _choose_weighting_factor(cooling_systems)
-        else:
-            cooling_weight_sum = 0
-            cooling_weighting_factor = None
 
-        if cooling_systems and heating_systems and heating_weighting_factor != cooling_weighting_factor:
+        # If there's only one heating or cooling system and no weighting elements, fill it in.
+        for heating_or_cooling_systems in (heating_systems, cooling_systems):
+            if len(heating_or_cooling_systems) == 1:
+                for key, hvac_sys in heating_or_cooling_systems.items():
+                    if hvac_sys.get('_floorarea') is None and hvac_sys.get('_fracload') is None:
+                        hvac_sys['_fracloac'] = 1.0
+                        hvac_sys['_floorarea'] = bldg_about['conditioned_floor_area']
+
+        # Choose a weighting factor that all the heating and cooling systems use
+        all_systems = []
+        all_systems.extend(heating_systems.values())
+        all_systems.extend(cooling_systems.values())
+        found_weighting_factor = False
+        for weighting_factor in ['_floorarea', '_fracload']:
+            if None not in [x.get(weighting_factor) for x in all_systems]:
+                found_weighting_factor = True
+                break
+        if not found_weighting_factor:
             raise TranslationError(
-                'Every heating/cooling system needs to have either FloorAreaServed or FracLoadServed.')
+                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed.'
+            )
 
-        weight_sum = max(heating_weight_sum, cooling_weight_sum)
-        del heating_weight_sum
-        del cooling_weight_sum
+        # Calculate the sum of the weights (total fraction or floor area)
+        weight_sum = max(
+            sum([x[weighting_factor] for x in heating_systems.values()]),
+            sum([x[weighting_factor] for x in cooling_systems.values()])
+        )
 
         # Ensure that heating and cooling systems attached to the same ducts are within 5% of each other
         # in terms of fraction of the load served.
         for duct_id, (htg_id, clg_id) in list(dist_heating_cooling_map.items()):
             try:
-                htg_weight = old_div(heating_systems[htg_id][heating_weighting_factor], weight_sum)
-                clg_weight = old_div(cooling_systems[clg_id][cooling_weighting_factor], weight_sum)
+                htg_weight = old_div(heating_systems[htg_id][weighting_factor], weight_sum)
+                clg_weight = old_div(cooling_systems[clg_id][weighting_factor], weight_sum)
             except KeyError:
                 continue
             if abs(htg_weight - clg_weight) > 0.051:
@@ -1864,9 +1857,9 @@ class HPXMLtoHEScoreTranslator(object):
         for dist_sys_id, (htg_sys_id, clg_sys_id) in list(dist_heating_cooling_map.items()):
             weights_to_average = []
             if htg_sys_id is not None:
-                weights_to_average.append(old_div(heating_systems[htg_sys_id][heating_weighting_factor], weight_sum))
+                weights_to_average.append(old_div(heating_systems[htg_sys_id][weighting_factor], weight_sum))
             if clg_sys_id is not None:
-                weights_to_average.append(old_div(cooling_systems[clg_sys_id][cooling_weighting_factor], weight_sum))
+                weights_to_average.append(old_div(cooling_systems[clg_sys_id][weighting_factor], weight_sum))
             avg_sys_weight = old_div(sum(weights_to_average), len(weights_to_average))
             hvac_systems_ids.add(IDsAndWeights(htg_sys_id, clg_sys_id, dist_sys_id, avg_sys_weight))
 
@@ -1880,7 +1873,7 @@ class HPXMLtoHEScoreTranslator(object):
                 heatpump_id,
                 heatpump_id,
                 None,
-                old_div(heating_systems[heatpump_id][heating_weighting_factor], weight_sum)))
+                old_div(heating_systems[heatpump_id][weighting_factor], weight_sum)))
 
         # Add the singletons to the list
         for htg_sys_id in singleton_heating_systems:
@@ -1888,13 +1881,13 @@ class HPXMLtoHEScoreTranslator(object):
                 htg_sys_id,
                 None,
                 None,
-                old_div(heating_systems[htg_sys_id][heating_weighting_factor], weight_sum)))
+                old_div(heating_systems[htg_sys_id][weighting_factor], weight_sum)))
         for clg_sys_id in singleton_cooling_systems:
             hvac_systems_ids.add(IDsAndWeights(
                 None,
                 clg_sys_id,
                 None,
-                old_div(cooling_systems[clg_sys_id][cooling_weighting_factor], weight_sum)))
+                old_div(cooling_systems[clg_sys_id][weighting_factor], weight_sum)))
 
         # Split and combine systems by fraction as needed #45
         singleton_heating_systems = []
