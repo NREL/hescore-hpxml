@@ -1350,7 +1350,7 @@ class HPXMLtoHEScoreTranslator(object):
             elif zone_floor['foundation_type'] == 'slab_on_grade':
                 del fw_eff_rvalues[11]  # remove unused values
                 del fw_eff_rvalues[19]
-                slabs = xpath(foundation, 'h:Slab', raise_err=True)
+                slabs = xpath(foundation, 'h:Slab', raise_err=True, aslist=True)
                 slabua = 0
                 slabtotalperimeter = 0
                 for slab in slabs:
