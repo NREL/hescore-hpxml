@@ -762,11 +762,6 @@ class HPXMLtoHEScoreTranslator(object):
 
         hpwes['improvement_installation_completion_date'] = xpath(p, 'h:ProjectDetails/h:CompleteDateActual/text()')
 
-        if xpath(p, 'h:ProjectDetails/h:extension/h:isIncomeEligible/text()') == 'true':
-            hpwes['is_income_eligible_program'] = True
-        else:
-            hpwes['is_income_eligible_program'] = False
-
         # Contractor information
         if c is not None:
             hpwes['contractor_business_name'] = xpath(c, 'h:ContractorDetails/h:BusinessInfo/h:BusinessName/text()')

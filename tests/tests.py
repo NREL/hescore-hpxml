@@ -2066,10 +2066,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
             E.ProjectDetails(
                 E.ProjectSystemIdentifiers(),
                 E.StartDate('2017-08-20'),
-                E.CompleteDateActual('2018-12-14'),
-                E.extension(
-                    E.isIncomeEligible('true')
-                )
+                E.CompleteDateActual('2018-12-14')
             )
         )
         building_el.addnext(project_el)
@@ -2098,15 +2095,10 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
             find(project_el).\
             addnext(E.ProgramCertificate('Home Performance with Energy Star'))
 
-        # Remove the income eligible element
-        objectify.ObjectPath('Project.ProjectDetails.extension').\
-            find(project_el).clear()
-
         res3 = tr.hpxml_to_hescore_dict()
 
         self.assertEqual(res3['hpwes']['improvement_installation_start_date'], '2017-08-20')
         self.assertEqual(res3['hpwes']['improvement_installation_completion_date'], '2018-12-14')
-        self.assertFalse(res3['hpwes']['is_income_eligible_program'])
         self.assertEqual(res3['hpwes']['contractor_business_name'], 'Contractor Business 1')
         self.assertEqual(res3['hpwes']['contractor_zip_code'], '12345')
 
@@ -2132,7 +2124,6 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
 
         self.assertEqual(res4['hpwes']['improvement_installation_start_date'], '2017-08-20')
         self.assertEqual(res4['hpwes']['improvement_installation_completion_date'], '2018-12-14')
-        self.assertFalse(res4['hpwes']['is_income_eligible_program'])
         self.assertEqual(res4['hpwes']['contractor_business_name'], 'Contractor Business 2')
         self.assertEqual(res4['hpwes']['contractor_zip_code'], '80401')
 
