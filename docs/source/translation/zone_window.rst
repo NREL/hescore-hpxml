@@ -13,17 +13,21 @@ assumed to mean the sum of the areas of the windows that the ``Window`` element
 represents. Each ``Window`` is then assigned to a side of the building in one of
 two ways:
 
-   #. By association with a particular wall.
    #. By inspecting the azimuth or orientation of the window.
+   #. By association with a particular wall.
    
-If an HPXML window has the ``AttachedToWall`` element, the id reference in that
-element is used to find the associated wall and the side of the building that
-the window faces is inferred from the :ref:`wall orientation <wallorientation>`.
+If there is an ``Orientation`` or ``Azimuth`` element, the side is determined
+via the one of those elements with preference given to the ``Azimuth`` if
+present. If the window falls between two sides of the house, the window area is
+divided between the sides of the house evenly. 
 
-If there is not an ``AttachedToWall`` element, the side is determined via the
-``Azimuth`` or ``Orientation`` elements with preference given to the
-``Azimuth`` if present. If the window falls between two sides of the house, the
-window area is divided between the sides of the house evenly. 
+If ``Orientation`` or ``Azimuth`` are missing and the HPXML window has the
+``AttachedToWall`` element, the id reference in that element is used to find the
+associated wall and the side of the building that the window faces is inferred
+from the :ref:`wall orientation <wallorientation>`. If the window is attached to
+a foundation wall, the orientation/azimuth must be provided on the ``Window``
+element because foundation walls do not have orientation or azimuth elements
+available.
 
 The areas on each side of the house are summed and the :ref:`window-prop` are
 determined independently for each side of the house. Since HPXML requires that
