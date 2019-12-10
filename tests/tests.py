@@ -333,7 +333,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.getparent().remove(el)
         self.assertRaisesRegexp(
             TranslationError,
-            r'All windows need to have either an AttachedToWall, Orientation, or Azimuth sub element\.',
+            r'Window\[SystemIdentifier/@id="\w+"\] doesn\'t have Azimuth, Orientation, or AttachedToWall. At least one is required.',
             tr.hpxml_to_hescore_dict)
 
     def test_window_attached_to_wall(self):
