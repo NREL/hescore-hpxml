@@ -62,6 +62,14 @@ jobs:
       - run: *install
       - run: *unittests
       - run: *stylechecks
+  build-py38:
+    docker:
+      - image: circleci/python:3.8
+    steps:
+      - checkout
+      - run: *install
+      - run: *unittests
+      - run: *stylechecks
 
 workflows:
   version: 2
@@ -70,3 +78,4 @@ workflows:
       - build-py27
       - build-py36
       - build-py37
+      - build-py38
