@@ -419,7 +419,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:HeatPump[1]/h:FloorAreaServed')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError,
-                                'Every heating/cooling system needs to have either FloorAreaServed or FracLoadServed',
+                                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed',  # noqa E501
                                 tr.hpxml_to_hescore_dict)
 
     def test_missing_cooling_weighting_factor(self):
@@ -429,7 +429,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:CoolingSystem[2]/h:FloorAreaServed')
         el.getparent().remove(el)
         self.assertRaisesRegexp(TranslationError,
-                                'Every heating/cooling system needs to have either FloorAreaServed or FracLoadServed',
+                                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed',  # noqa E501
                                 tr.hpxml_to_hescore_dict)
 
     def test_bad_duct_location(self):
@@ -1188,7 +1188,7 @@ class TestHVACFractions(unittest.TestCase, ComparatorBase):
         aircond.insert(-1, el)
 
         b = self.xpath('h:Building[1]')
-        hvac_systems = tr._get_hvac(b)
+        hvac_systems = tr._get_hvac(b, {"conditioned_floor_area": 3213})
         hvac_systems.sort(key=lambda x: x['hvac_fraction'])
 
         hvac1 = hvac_systems[0]
@@ -1238,7 +1238,7 @@ class TestHVACFractions(unittest.TestCase, ComparatorBase):
         tr.xpath(ducts2, 'h:SystemIdentifier').attrib['id'] = 'ducts2'
 
         b = self.xpath('h:Building[1]')
-        hvac_systems = tr._get_hvac(b)
+        hvac_systems = tr._get_hvac(b, {"conditioned_floor_area": 2600})
         hvac_systems.sort(key=lambda x: x['hvac_fraction'])
 
         hvac1 = hvac_systems[0]
@@ -1284,7 +1284,7 @@ class TestHVACFractions(unittest.TestCase, ComparatorBase):
         clgsys_floor_area_el.text = str(total_floor_area)
 
         b = self.xpath('h:Building[1]')
-        hvac_systems = tr._get_hvac(b)
+        hvac_systems = tr._get_hvac(b, {"conditioned_floor_area": 2600})
         hvac_systems.sort(key=lambda x: x['hvac_fraction'])
 
         hvac1 = hvac_systems[0]
@@ -1334,7 +1334,7 @@ class TestHVACFractions(unittest.TestCase, ComparatorBase):
 
         # Get HEScore inputs and sort by fraction
         b = self.xpath('h:Building[1]')
-        hvac_systems = tr._get_hvac(b)
+        hvac_systems = tr._get_hvac(b, {"conditioned_floor_area": 2600})
         hvac_systems.sort(key=lambda x: x['hvac_fraction'])
 
         hvac1 = hvac_systems[0]
@@ -1357,7 +1357,21 @@ class TestHVACFractions(unittest.TestCase, ComparatorBase):
         frac_cool_load_served.text = '1.0'
         clg_sys_eff.addprevious(frac_cool_load_served)
         b = self.xpath('h:Building[1]')
-        tr._get_hvac(b)
+        tr._get_hvac(b, {"conditioned_floor_area": 2400})
+
+    def test_different_weighting_factors(self):
+        tr = self._load_xmlfile('hescore_min')
+        htg_sys = self.xpath('//h:HeatingSystem')
+        frac_heat_load_served = etree.SubElement(htg_sys, tr.addns('h:FractionHeatLoadServed'))
+        frac_heat_load_served.text = '1.0'
+        heating_floor_area_served = etree.SubElement(htg_sys, tr.addns('h:FloorAreaServed'))
+        heating_floor_area_served.text = '2400'
+        clg_sys_eff = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency')
+        frac_cool_load_served = etree.Element(tr.addns('h:FractionCoolLoadServed'))
+        frac_cool_load_served.text = '1.0'
+        clg_sys_eff.addprevious(frac_cool_load_served)
+        b = self.xpath('h:Building[1]')
+        tr._get_hvac(b, {"conditioned_floor_area": 2400})
 
 
 class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
