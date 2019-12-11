@@ -320,6 +320,15 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
                                 r'The house is a slab on grade foundation, but has foundation walls\.',
                                 tr.hpxml_to_hescore_dict)
 
+    def test_slab_missing(self):
+        tr = self._load_xmlfile('house3')
+        el = self.xpath('//h:Slab')
+        el.getparent().remove(el)
+        self.assertRaises(
+            ElementNotFoundError,
+            tr.hpxml_to_hescore_dict
+        )
+
     def test_missing_window_area(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Window[1]/h:Area')
