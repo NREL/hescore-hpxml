@@ -1530,29 +1530,33 @@ class HPXMLtoHEScoreTranslator(object):
 
             # Window side
             window_sides = []
-            attached_to_wall_id = xpath(hpxmlwndw, 'h:AttachedToWall/@idref')
-            if attached_to_wall_id is not None:
-                # Give preference to the Attached to Wall element to determine the side of the house.
-                for side, walls in list(hpxmlwalls.items()):
-                    for wall in walls:
-                        if attached_to_wall_id == wall['id']:
-                            window_sides.append(side)
-                            break
-            else:
-                # If there's not Attached to Wall element, figure it out from the Azimuth/Orientation
-                try:
-                    wndw_azimuth = self.get_nearest_azimuth(xpath(hpxmlwndw, 'h:Azimuth/text()'),
-                                                            xpath(hpxmlwndw, 'h:Orientation/text()'))
-                except TranslationError:
-                    # there's no directional information in the window
-                    raise TranslationError(
-                        'All windows need to have either an AttachedToWall, Orientation, or Azimuth sub element.')
+            window_id = xpath(hpxmlwndw, 'h:SystemIdentifier/@id')
+            try:
+                # Get the aziumuth or orientation if they exist
+                wndw_azimuth = self.get_nearest_azimuth(xpath(hpxmlwndw, 'h:Azimuth/text()'),
+                                                        xpath(hpxmlwndw, 'h:Orientation/text()'))
+            except TranslationError:
+                # The window doesn't have orientation/azimuth information, get from wall
+                attached_to_wall_id = xpath(hpxmlwndw, 'h:AttachedToWall/@idref')
+                if attached_to_wall_id is not None:
+                    for side, walls in list(hpxmlwalls.items()):
+                        for wall in walls:
+                            if attached_to_wall_id == wall['id']:
+                                window_sides.append(side)
+                                break
+                    if not window_sides:
+                        raise TranslationError('The Window[SystemIdentifier/@id="{}"] has no Azimuth or Orientation, and the Window/AttachedToWall/@idref of "{}" didn\'t reference a Wall element.'.format(window_id, attached_to_wall_id))  # noqa: E501
                 else:
-                    try:
-                        window_sides = [sidemap[wndw_azimuth]]
-                    except KeyError:
-                        # the direction of the window is between sides, split area
-                        window_sides = [sidemap[unspin_azimuth(wndw_azimuth + x)] for x in (-45, 45)]
+                    raise TranslationError(
+                        'Window[SystemIdentifier/@id="{}"] doesn\'t have Azimuth, Orientation, or AttachedToWall. At least one is required.'.format(window_id)  # noqa: E501
+                    )
+            else:
+                # Azimuth found, associate with a side
+                try:
+                    window_sides = [sidemap[wndw_azimuth]]
+                except KeyError:
+                    # the direction of the window is between sides, split area
+                    window_sides = [sidemap[unspin_azimuth(wndw_azimuth + x)] for x in (-45, 45)]
 
             # Assign properties and areas to the correct side of the house
             windowd['area'] /= float(len(window_sides))
