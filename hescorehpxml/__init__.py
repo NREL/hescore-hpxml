@@ -493,7 +493,7 @@ class HPXMLtoHEScoreTranslator(object):
                 raise TranslationError('No comparable duct location in HEScore: %s' % hpxml_duct_location)
 
             # Fraction of Duct Area
-            frac_duct_area = float(self.xpath(duct_el, 'h:FractionDuctArea/text()'))
+            frac_duct_area = float(self.xpath(duct_el, 'h:FractionDuctArea/text()', raise_err=True))
             duct_fracs_by_hescore_duct_loc[hescore_duct_location] += frac_duct_area
 
             # Duct Insulation
