@@ -914,6 +914,12 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertEqual('heat_pump', res['building']['systems']['hvac'][0]['heating']['type'])
         self.assertEqual('none', res['building']['systems']['hvac'][0]['cooling']['type'])
 
+    def test_frac_duct_area_missing(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:Ducts/h:FractionDuctArea')
+        el.getparent().remove(el)
+        self.assertRaises(ElementNotFoundError, tr.hpxml_to_hescore_dict)
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 
