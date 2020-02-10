@@ -7,7 +7,8 @@ import os
 import unittest
 import datetime as dt
 from lxml import etree, objectify
-from hescorehpxml import HPXMLtoHEScoreTranslator, TranslationError, InputOutOfBounds, ElementNotFoundError
+from hescorehpxml import HPXMLtoHEScoreTranslator
+from hescorehpxml.exceptions import TranslationError, InputOutOfBounds, ElementNotFoundError
 import io
 import json
 from copy import deepcopy
@@ -73,9 +74,6 @@ class ComparatorBase(object):
 class TestAPIHouses(unittest.TestCase, ComparatorBase):
     def test_house1(self):
         self._do_full_compare('house1')
-
-    def test_house1_v1_1(self):
-        self._do_full_compare('house1-v1-1', 'house1')
 
     def test_house1_v2(self):
         self._do_full_compare('house1-v2', 'house1')
