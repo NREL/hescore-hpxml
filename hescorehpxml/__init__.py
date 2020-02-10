@@ -155,7 +155,7 @@ class HPXMLtoHEScoreTranslator(object):
         else:
             return res
 
-    def _get_wall_assembly_code(self, hpxmlwall):
+    def get_wall_assembly_code(self, hpxmlwall):
         xpath = self.xpath
         ns = self.ns
         wallid = xpath(hpxmlwall, 'h:SystemIdentifier/@id', raise_err=True)
@@ -173,7 +173,7 @@ class HPXMLtoHEScoreTranslator(object):
                      'masonite siding': 'wo',
                      'other': None}
 
-        def _round_to_nearest(*args):
+        def wall_round_to_nearest(*args):
             try:
                 return round_to_nearest(*args, tails_tolerance=3)
             except RoundOutOfBounds:
@@ -194,13 +194,13 @@ class HPXMLtoHEScoreTranslator(object):
                 wallconstype = 'ps'
                 # account for the rigid foam sheathing in the construction code
                 wall_rvalue -= 5
-                rvalue = _round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+                rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
             elif tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:OptimumValueEngineering/text()')):
                 wallconstype = 'ov'
-                rvalue = _round_to_nearest(wall_rvalue, (19, 21, 27, 33, 38))
+                rvalue = wall_round_to_nearest(wall_rvalue, (19, 21, 27, 33, 38))
             else:
                 wallconstype = 'wf'
-                rvalue = _round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+                rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
             hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
             try:
                 sidingtype = sidingmap[hpxmlsiding]
@@ -217,13 +217,13 @@ class HPXMLtoHEScoreTranslator(object):
             rvalue = 0
             for lyr in hpxmlwall.xpath('h:Insulation/h:Layer', namespaces=ns):
                 rvalue += float(xpath(lyr, 'h:NominalRValue/text()', raise_err=True))
-            rvalue = _round_to_nearest(rvalue, (0, 5, 10))
+            rvalue = wall_round_to_nearest(rvalue, (0, 5, 10))
         elif wall_type in ('ConcreteMasonryUnit', 'Stone'):
             wallconstype = 'cb'
             rvalue = 0
             for lyr in hpxmlwall.xpath('h:Insulation/h:Layer', namespaces=ns):
                 rvalue += float(xpath(lyr, 'h:NominalRValue/text()'))
-            rvalue = _round_to_nearest(rvalue, (0, 3, 6))
+            rvalue = wall_round_to_nearest(rvalue, (0, 3, 6))
             hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
             if hpxmlsiding is None:
                 sidingtype = 'nn'
@@ -243,7 +243,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         return 'ew%s%02d%s' % (wallconstype, rvalue, sidingtype)
 
-    def _get_window_code(self, window):
+    def get_window_code(self, window):
         xpath = self.xpath
 
         window_code = None
@@ -323,7 +323,7 @@ class HPXMLtoHEScoreTranslator(object):
                           'mini-split': 'mini_split',
                           'ground-to-air': 'gchp'}
 
-    def _get_heating_system_type(self, htgsys):
+    def get_heating_system_type(self, htgsys):
         xpath = self.xpath
         ns = self.ns
 
@@ -397,7 +397,7 @@ class HPXMLtoHEScoreTranslator(object):
         sys_heating['_floorarea'] = convert_to_type(float, xpath(htgsys, 'h:FloorAreaServed/text()'))
         return sys_heating
 
-    def _get_cooling_system_type(self, clgsys):
+    def get_cooling_system_type(self, clgsys):
         xpath = self.xpath
         ns = self.ns
 
@@ -454,7 +454,7 @@ class HPXMLtoHEScoreTranslator(object):
         sys_cooling['_floorarea'] = convert_to_type(float, xpath(clgsys, 'h:FloorAreaServed/text()'))
         return sys_cooling
 
-    def _get_hvac_distribution(self, hvacd_el):
+    def get_hvac_distribution(self, hvacd_el):
         hvac_distribution = []
         duct_location_map = {'conditioned space': 'cond_space',
                              'unconditioned space': None,
@@ -608,10 +608,10 @@ class HPXMLtoHEScoreTranslator(object):
             return self.hpxml_orientation_to_azimuth[orientation]
 
     def hpxml_to_hescore_json(self, outfile, *args, **kwargs):
-        hescore_bldg = self.hpxml_to_hescore_dict(*args, **kwargs)
+        hescore_bldg = self.hpxml_to_hescore(*args, **kwargs)
         json.dump(hescore_bldg, outfile, indent=2)
 
-    def hpxml_to_hescore_dict(
+    def hpxml_to_hescore(
         self,
         hpxml_bldg_id=None,
         hpxml_project_id=None,
@@ -666,42 +666,42 @@ class HPXMLtoHEScoreTranslator(object):
 
         # Create return dict
         hescore_inputs = OrderedDict()
-        hescore_inputs['building_address'] = self._get_building_address(b)
+        hescore_inputs['building_address'] = self.get_building_address(b)
 
         if p is not None:
             is_hpwes = xpath(p, 'h:ProjectDetails/h:ProgramCertificate="Home Performance with Energy Star"')
             if is_hpwes:
-                hescore_inputs['hpwes'] = self._get_hpwes(b, p, c)
+                hescore_inputs['hpwes'] = self.get_hpwes(b, p, c)
 
         bldg = OrderedDict()
         hescore_inputs['building'] = bldg
-        bldg['about'] = self._get_building_about(b, p)
+        bldg['about'] = self.get_building_about(b, p)
         bldg['zone'] = OrderedDict()
         bldg['zone']['zone_roof'] = None  # to save the spot in the order
-        bldg['zone']['zone_floor'] = self._get_building_zone_floor(b, bldg['about'])
-        footprint_area = self._get_footprint_area(bldg)
-        bldg['zone']['zone_roof'] = self._get_building_zone_roof(b, footprint_area)
-        bldg['zone']['zone_roof'][0]['zone_skylight'] = self._get_skylights(b)
+        bldg['zone']['zone_floor'] = self.get_building_zone_floor(b, bldg['about'])
+        footprint_area = self.get_footprint_area(bldg)
+        bldg['zone']['zone_roof'] = self.get_building_zone_roof(b, footprint_area)
+        bldg['zone']['zone_roof'][0]['zone_skylight'] = self.get_skylights(b)
         for zone_roof in bldg['zone']['zone_roof'][1:]:
             zone_roof['zone_skylight'] = {'skylight_area': 0}
         bldg['zone']['wall_construction_same'] = False
         bldg['zone']['window_construction_same'] = False
-        bldg['zone']['zone_wall'] = self._get_building_zone_wall(b, bldg['about'])
+        bldg['zone']['zone_wall'] = self.get_building_zone_wall(b, bldg['about'])
         bldg['systems'] = OrderedDict()
-        bldg['systems']['hvac'] = self._get_hvac(b, bldg['about'])
-        bldg['systems']['domestic_hot_water'] = self._get_systems_dhw(b)
-        generation = self._get_generation(b)
+        bldg['systems']['hvac'] = self.get_hvac(b, bldg['about'])
+        bldg['systems']['domestic_hot_water'] = self.get_systems_dhw(b)
+        generation = self.get_generation(b)
         if generation:
             bldg['systems']['generation'] = generation
-        self._remove_hidden_keys(hescore_inputs)
+        self.remove_hidden_keys(hescore_inputs)
 
         # Validate
-        self._validate_hescore_inputs(hescore_inputs)
+        self.validate_hescore_inputs(hescore_inputs)
 
         return hescore_inputs
 
     @staticmethod
-    def _get_footprint_area(bldg):
+    def get_footprint_area(bldg):
         floor_area = bldg['about']['conditioned_floor_area']
         stories = bldg['about']['num_floor_above_grade']
         cond_basement_floor_area = 0
@@ -711,18 +711,18 @@ class HPXMLtoHEScoreTranslator(object):
         return int(python2round(old_div((floor_area - cond_basement_floor_area), stories)))
 
     @staticmethod
-    def _remove_hidden_keys(d):
+    def remove_hidden_keys(d):
         if isinstance(d, dict):
             for key, value in list(d.items()):
                 if key.startswith('_'):
                     del d[key]
                     continue
-                HPXMLtoHEScoreTranslator._remove_hidden_keys(value)
+                HPXMLtoHEScoreTranslator.remove_hidden_keys(value)
         elif isinstance(d, (list, tuple)):
             for item in d:
-                HPXMLtoHEScoreTranslator._remove_hidden_keys(item)
+                HPXMLtoHEScoreTranslator.remove_hidden_keys(item)
 
-    def _get_building_address(self, b):
+    def get_building_address(self, b):
         xpath = self.xpath
         ns = self.ns
         bldgaddr = OrderedDict()
@@ -753,7 +753,7 @@ class HPXMLtoHEScoreTranslator(object):
                 bldgaddr['assessment_type'] = 'corrected'
         return bldgaddr
 
-    def _get_hpwes(self, b, p, c):
+    def get_hpwes(self, b, p, c):
         xpath = self.xpath
         hpwes = OrderedDict()
 
@@ -787,7 +787,7 @@ class HPXMLtoHEScoreTranslator(object):
             )
         return hpwes
 
-    def _get_building_about(self, b, p):
+    def get_building_about(self, b, p):
         xpath = self.xpath
         ns = self.ns
         bldg_about = OrderedDict()
@@ -925,7 +925,7 @@ class HPXMLtoHEScoreTranslator(object):
             bldg_about['comments'] = xpath(p, 'h:ProjectDetails/h:Notes/text()')
         return bldg_about
 
-    def _get_building_zone_roof(self, b, footprint_area):
+    def get_building_zone_roof(self, b, footprint_area):
         xpath = self.xpath
 
         # building.zone.zone_roof--------------------------------------------------
@@ -1176,7 +1176,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         return zone_roof
 
-    def _get_skylights(self, b):
+    def get_skylights(self, b):
         ns = self.ns
         xpath = self.xpath
         skylights = b.xpath('descendant::h:Skylight', namespaces=ns)
@@ -1223,7 +1223,7 @@ class HPXMLtoHEScoreTranslator(object):
             skylight_type_areas = {}
             for skylight in skylights:
                 area = convert_to_type(float, xpath(skylight, 'h:Area/text()', raise_err=True))
-                skylight_code = self._get_window_code(skylight)
+                skylight_code = self.get_window_code(skylight)
                 try:
                     skylight_type_areas[skylight_code] += area
                 except KeyError:
@@ -1242,7 +1242,7 @@ class HPXMLtoHEScoreTranslator(object):
         zone_skylight['solar_screen'] = max(list(skylight_sunscreen_areas.items()), key=lambda x: x[1])[0]
         return zone_skylight
 
-    def _get_building_zone_floor(self, b, bldg_about):
+    def get_building_zone_floor(self, b, bldg_about):
         ns = self.ns
         xpath = self.xpath
         smallnum = 0.01
@@ -1398,7 +1398,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         return zone_floors
 
-    def _get_building_zone_wall(self, b, bldg_about):
+    def get_building_zone_wall(self, b, bldg_about):
         xpath = self.xpath
         ns = self.ns
         sidemap = self.sidemap
@@ -1411,7 +1411,7 @@ class HPXMLtoHEScoreTranslator(object):
         for wall in b.xpath(
             'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]',
                 namespaces=ns):
-            walld = {'assembly_code': self._get_wall_assembly_code(wall),
+            walld = {'assembly_code': self.get_wall_assembly_code(wall),
                      'area': convert_to_type(float, xpath(wall, 'h:Area/text()')),
                      'id': xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)}
 
@@ -1526,7 +1526,7 @@ class HPXMLtoHEScoreTranslator(object):
             if windowd['uvalue'] is not None and windowd['shgc'] is not None:
                 windowd['window_code'] = None
             else:
-                windowd['window_code'] = self._get_window_code(hpxmlwndw)
+                windowd['window_code'] = self.get_window_code(hpxmlwndw)
 
             # Window side
             window_sides = []
@@ -1682,9 +1682,9 @@ class HPXMLtoHEScoreTranslator(object):
             zone_window['solar_screen'] = max(list(window_sunscreen_areas.items()), key=lambda x: x[1])[0]
         return zone_wall
 
-    def _get_hvac(self, b, bldg_about):
+    def get_hvac(self, b, bldg_about):
 
-        def _get_dict_of_hpxml_elements_by_id(xpathexpr):
+        def get_dict_of_hpxml_elements_by_id(xpathexpr):
             return_dict = {}
             for el in self.xpath(b, xpathexpr, aslist=True):
                 system_id = self.xpath(el, 'h:SystemIdentifier/@id')
@@ -1698,7 +1698,7 @@ class HPXMLtoHEScoreTranslator(object):
                     return True
 
         # Get all heating systems
-        hpxml_heating_systems = _get_dict_of_hpxml_elements_by_id(
+        hpxml_heating_systems = get_dict_of_hpxml_elements_by_id(
             'descendant::h:HVACPlant/h:HeatingSystem|descendant::h:HVACPlant/h:HeatPump')
 
         # Remove heating systems that serve 0% of the heating load
@@ -1711,7 +1711,7 @@ class HPXMLtoHEScoreTranslator(object):
                 del hpxml_heating_systems[key]
 
         # Get all cooling systems
-        hpxml_cooling_systems = _get_dict_of_hpxml_elements_by_id(
+        hpxml_cooling_systems = get_dict_of_hpxml_elements_by_id(
             'descendant::h:HVACPlant/h:CoolingSystem|descendant::h:HVACPlant/h:HeatPump')
 
         # Remove cooling systems that serve 0% of the cooling load
@@ -1722,10 +1722,10 @@ class HPXMLtoHEScoreTranslator(object):
                 del hpxml_cooling_systems[key]
 
         # Get all the duct systems
-        hpxml_distribution_systems = _get_dict_of_hpxml_elements_by_id('descendant::h:HVACDistribution')
+        hpxml_distribution_systems = get_dict_of_hpxml_elements_by_id('descendant::h:HVACDistribution')
 
         # Connect the heating and cooling systems to their associated distribution systems
-        def _get_duct_mapping(element_list):
+        def get_duct_mapping(element_list):
             return_dict = {}
             for system_id, el in list(element_list.items()):
                 distribution_system_id = self.xpath(el, 'h:DistributionSystem/@idref')
@@ -1747,8 +1747,8 @@ class HPXMLtoHEScoreTranslator(object):
                 return_dict[distribution_system_id] = system_id
             return return_dict
 
-        dist_heating_map = _get_duct_mapping(hpxml_heating_systems)
-        dist_cooling_map = _get_duct_mapping(hpxml_cooling_systems)
+        dist_heating_map = get_duct_mapping(hpxml_heating_systems)
+        dist_cooling_map = get_duct_mapping(hpxml_cooling_systems)
 
         # Remove distribution systems that aren't referenced by any equipment.
         for dist_sys_id, el in list(hpxml_distribution_systems.items()):
@@ -1777,17 +1777,17 @@ class HPXMLtoHEScoreTranslator(object):
         # Translate each heating system into HEScore inputs
         heating_systems = {}
         for key, el in list(hpxml_heating_systems.items()):
-            heating_systems[key] = self._get_heating_system_type(el)
+            heating_systems[key] = self.get_heating_system_type(el)
 
         # Translate each cooling system into HEScore inputs
         cooling_systems = {}
         for key, el in list(hpxml_cooling_systems.items()):
-            cooling_systems[key] = self._get_cooling_system_type(el)
+            cooling_systems[key] = self.get_cooling_system_type(el)
 
         # Translate each duct system into HEScore inputs
         distribution_systems = {}
         for key, el in list(hpxml_distribution_systems.items()):
-            distribution_systems[key] = self._get_hvac_distribution(el)
+            distribution_systems[key] = self.get_hvac_distribution(el)
 
         # Determine the weighting factors
 
@@ -2002,7 +2002,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         return hvac_systems
 
-    def _get_systems_dhw(self, b):
+    def get_systems_dhw(self, b):
         xpath = self.xpath
 
         sys_dhw = OrderedDict()
@@ -2068,7 +2068,7 @@ class HPXMLtoHEScoreTranslator(object):
                     sys_dhw['year'] = dhwyear
         return sys_dhw
 
-    def _get_generation(self, b):
+    def get_generation(self, b):
         generation = OrderedDict()
         pvsystems = self.xpath(b, 'descendant::h:PVSystem', aslist=True)
         if not pvsystems:
@@ -2145,7 +2145,7 @@ class HPXMLtoHEScoreTranslator(object):
 
         return generation
 
-    def _validate_hescore_inputs(self, hescore_inputs):
+    def validate_hescore_inputs(self, hescore_inputs):
 
         def do_bounds_check(fieldname, value, minincl, maxincl):
             if value < minincl or value > maxincl:
