@@ -14,6 +14,8 @@ def HPXMLtoHEScoreTranslator(hpxmlfilename):
         return HPXML3toHEScoreTranslator(hpxmlfilename)
     elif major_version == 2:
         return HPXML2toHEScoreTranslator(hpxmlfilename)
+    else:
+        raise HPXMLtoHEScoreError('Schema version {} not supported.'.format('.'.join(schema_version)))
 
 
 def main():
