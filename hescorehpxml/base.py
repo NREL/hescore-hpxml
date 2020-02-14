@@ -618,11 +618,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         # Create return dict
         hescore_inputs = OrderedDict()
         hescore_inputs['building_address'] = self.get_building_address(b)
-
-        if p is not None:
-            is_hpwes = xpath(p, 'h:ProjectDetails/h:ProgramCertificate="Home Performance with Energy Star"')
-            if is_hpwes:
-                hescore_inputs['hpwes'] = self.get_hpwes(b, p, c)
+        if self.check_hpwes(p, b):
+            hescore_inputs['hpwes'] = self.get_hpwes(p, c)
 
         bldg = OrderedDict()
         hescore_inputs['building'] = bldg
@@ -704,7 +701,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 bldgaddr['assessment_type'] = 'corrected'
         return bldgaddr
 
-    def get_hpwes(self, b, p, c):
+    def get_hpwes(self, p, c):
         xpath = self.xpath
         hpwes = OrderedDict()
 
@@ -917,6 +914,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 'descendant::h:Roof[h:SystemIdentifier/@id=$roofid]',
                 roofid=xpath(attic, 'h:AttachedToRoof/@idref')
             )
+            # multiple roofs?
             if roof is None:
                 if len(roofs) == 1:
                     roof = roofs[0]
@@ -987,10 +985,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                                                                                    hpxml_roof_type))
 
             # construction type
-            has_rigid_sheathing = xpath(
-                attic,
-                'boolean(h:AtticRoofInsulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])'  # noqa: E501
-            )
+            has_rigid_sheathing = self.attic_has_rigid_sheathing(attic, roof)
             has_radiant_barrier = xpath(roof, 'h:RadiantBarrier="true"')
             if has_radiant_barrier:
                 atticd['roofconstype'] = 'rb'
@@ -1000,8 +995,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 atticd['roofconstype'] = 'wf'
 
             # roof center of cavity R-value
-            roof_rvalue = xpath(attic,
-                                'sum(h:AtticRoofInsulation/h:Layer/h:NominalRValue)')
+            roof_rvalue = self.get_attic_roof_rvalue(attic, roof)
             # subtract the R-value of the rigid sheating in the HEScore construction.
             if atticd['roofconstype'] == 'ps':
                 roof_rvalue -= 5
@@ -1010,23 +1004,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     key=lambda x: abs(x[0] - roof_rvalue))
 
             # knee walls
-            knee_walls = []
-            for kneewall_idref in xpath(attic, 'h:AtticKneeWall/@idref', aslist=True):
-                wall = xpath(
-                    b,
-                    'descendant::h:Wall[h:SystemIdentifier/@id=$kneewallid]',
-                    raise_err=True,
-                    kneewallid=kneewall_idref
-                )
-                wall_rvalue = xpath(wall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-                wall_area = xpath(wall, 'h:Area/text()')
-                if wall_area is None:
-                    raise TranslationError('All attic knee walls need an Area specified')
-                wall_area = float(wall_area)
-                knee_walls.append({'area': wall_area, 'rvalue': wall_rvalue})
+            knee_walls = self.get_attic_knee_walls(attic, b)
 
             # attic floor center of cavity R-value
-            attic_floor_rvalue = xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
+            attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
             if knee_walls:
                 try:
                     knee_wall_ua = sum(x['area'] / x['rvalue'] for x in knee_walls)
@@ -1203,10 +1184,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         foundations = b.xpath('descendant::h:Foundations/h:Foundation', namespaces=ns)
 
-        # Sort the foundations from largest area to smallest
-        def get_fnd_area(fnd):
-            return max([xpath(fnd, 'sum(h:%s/h:Area)' % x) for x in ('Slab', 'FrameFloor')])
-        foundations.sort(key=get_fnd_area, reverse=True)
+        foundations, get_fnd_area = self.sort_foundations(foundations, b)
         areas = list(map(get_fnd_area, foundations))
         if len(areas) > 1:
             for area in areas:
@@ -1270,7 +1248,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # Foundation Wall insulation R-value
             fwua = 0
             fwtotalarea = 0
-            foundationwalls = foundation.xpath('h:FoundationWall', namespaces=ns)
+            foundationwalls = self.get_foundation_walls(foundation, ns, b)
             fw_eff_rvalues = dict(list(zip((0, 5, 11, 19), (4, 7.9, 11.6, 19.6))))
             if len(foundationwalls) > 0:
                 if zone_floor['foundation_type'] == 'slab_on_grade':
@@ -1296,7 +1274,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             elif zone_floor['foundation_type'] == 'slab_on_grade':
                 del fw_eff_rvalues[11]  # remove unused values
                 del fw_eff_rvalues[19]
-                slabs = xpath(foundation, 'h:Slab', raise_err=True, aslist=True)
+                slabs = self.get_slabs(foundation, b)
                 slabua = 0
                 slabtotalperimeter = 0
                 for slab in slabs:
@@ -1320,7 +1298,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # floor above foundation insulation
             ffua = 0
             fftotalarea = 0
-            framefloors = foundation.xpath('h:FrameFloor', namespaces=ns)
+            framefloors = self.get_frame_floors(foundation, ns, b)
             floor_eff_rvalues = dict(zip((0, 11, 13, 15, 19, 21, 25, 30, 38),
                                          (4.0, 15.8, 17.8, 19.8, 23.8, 25.8, 31.8, 37.8, 42.8)))
             if len(framefloors) > 0:

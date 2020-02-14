@@ -2288,6 +2288,78 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], 'mini_split')
         self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'mini_split')
 
+class TestHEScoreV3(unittest.TestCase, ComparatorBase):
+    def test_hpwes(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+        E = self.element_maker()
+        building_el = self.xpath('//h:Building')
+        hpxml_building_id = self.xpath('h:Building/h:BuildingID/@id')
+        project_el = E.Project(
+            E.BuildingID(id=str(hpxml_building_id)),
+            E.ProjectDetails(
+                E.ProjectSystemIdentifiers(),
+                E.StartDate('2017-08-20'),
+                E.CompleteDateActual('2018-12-14')
+            )
+        )
+        building_el.addnext(project_el)
+
+        # Add the contractor
+        contractor_el = E.Contractor(
+            E.ContractorDetails(
+                E.SystemIdentifier(id='c1'),
+                E.BusinessInfo(
+                    E.SystemIdentifier(id='business'),
+                    E.BusinessName('Contractor Business 1'),
+                    E.extension(
+                        E.ZipCode('12345')
+                    )
+                )
+            )
+        )
+        building_el.addprevious(contractor_el)
+        res = tr.hpxml_to_hescore()
+
+        # Project not HPwES, nothing passed
+        self.assertNotIn('hpwes', res)
+
+        # Change to HPwES project
+        objectify.ObjectPath('Building.BuildingDetails.GreenBuildingVerifications.GreenBuildingVerification').\
+            find(building_el).\
+            addnext(E.Type('Home Performance with ENERGY STAR'))
+
+        res3 = tr.hpxml_to_hescore()
+
+        self.assertEqual(res3['hpwes']['improvement_installation_start_date'], '2017-08-20')
+        self.assertEqual(res3['hpwes']['improvement_installation_completion_date'], '2018-12-14')
+        self.assertEqual(res3['hpwes']['contractor_business_name'], 'Contractor Business 1')
+        self.assertEqual(res3['hpwes']['contractor_zip_code'], '12345')
+
+        contractor_el2 = E.Contractor(
+            E.ContractorDetails(
+                E.SystemIdentifier(id='c2'),
+                E.BusinessInfo(
+                    E.SystemIdentifier(id='business2'),
+                    E.BusinessName('Contractor Business 2'),
+                    E.extension(
+                        E.ZipCode('80401')
+                    )
+                )
+            )
+        )
+        contractor_el.addnext(contractor_el2)
+        site_el = self.xpath('//h:Building/h:Site')
+        site_el.addnext(
+            E.ContractorID(id='c2')
+        )
+
+        res4 = tr.hpxml_to_hescore()
+
+        self.assertEqual(res4['hpwes']['improvement_installation_start_date'], '2017-08-20')
+        self.assertEqual(res4['hpwes']['improvement_installation_completion_date'], '2018-12-14')
+        self.assertEqual(res4['hpwes']['contractor_business_name'], 'Contractor Business 2')
+        self.assertEqual(res4['hpwes']['contractor_zip_code'], '80401')
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -19,7 +19,7 @@ def HPXMLtoHEScoreTranslator(hpxmlfilename):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Convert HPXML v1.1.1 or v2.x files to HEScore inputs')
+    parser = argparse.ArgumentParser(description='Convert HPXML v2.x or v3.x files to HEScore inputs')
     parser.add_argument(
         'hpxml_input',
         type=argparse.FileType('r'),
