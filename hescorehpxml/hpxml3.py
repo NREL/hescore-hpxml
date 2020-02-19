@@ -32,7 +32,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         fnd.sort(key=get_fnd_area, reverse=True)
         return fnd, get_fnd_area
 
-    def get_foundation_walls(self, fnd, ns, b):
+    def get_foundation_walls(self, fnd, b):
         attached_ids = self.xpath(fnd, 'h:AttachedToFoundationWall/@idref')
         foundationwalls = self.xpath(b, '//h:FoundationWall[contains(%s, h:SystemIdentifier/@id)]' % attached_ids, aslist=True)
         return foundationwalls
@@ -42,7 +42,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         slabs = self.xpath(b, '//h:Slab[contains(%s, h:SystemIdentifier/@id)]' % attached_ids, raise_err=True, aslist=True)
         return slabs
 
-    def get_foundation_frame_floors(self, fnd, ns, b):
+    def get_foundation_frame_floors(self, fnd, b):
         attached_ids = self.xpath(fnd, 'h:AttachedToFrameFloor/@idref')
         frame_floors = self.xpath(b, '//h:FrameFloor[contains(%s, h:SystemIdentifier/@id)]' % attached_ids, aslist=True)
         return frame_floors
@@ -102,7 +102,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_sunscreen(self, wndw_skylight):
         return bool(self.xpath(wndw_skylight, 'h:ExteriorShading/h:Type/text()') == 'solar screens')
 
-    def get_hescore_walls(self, b, ns):
+    def get_hescore_walls(self, b):
         return self.xpath(b,
             'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="outside" or not(h:ExteriorAdjacentTo)]', aslist=True)
 

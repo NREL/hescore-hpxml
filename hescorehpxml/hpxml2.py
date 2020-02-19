@@ -28,16 +28,16 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         fnd.sort(key=get_fnd_area, reverse=True)
         return fnd, get_fnd_area
 
-    def get_foundation_walls(self, fnd, ns, v3_b):
-        foundationwalls = fnd.xpath('h:FoundationWall', namespaces=ns)
+    def get_foundation_walls(self, fnd, v3_b):
+        foundationwalls = fnd.xpath('h:FoundationWall')
         return foundationwalls
 
     def get_foundation_slabs(self, fnd, v3_b):
         slabs = self.xpath(fnd, 'h:Slab', raise_err=True, aslist=True)
         return slabs
 
-    def get_foundation_frame_floors(self, fnd, ns, v3_b):
-        frame_floors = fnd.xpath('h:FrameFloor', namespaces=ns)
+    def get_foundation_frame_floors(self, fnd, v3_b):
+        frame_floors = fnd.xpath('h:FrameFloor')
         return frame_floors
 
     def attic_has_rigid_sheathing(self, attic, v3_roof):
@@ -89,10 +89,9 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         return bool(self.xpath(wndw_skylight, 'h:Treatments/text()') == 'solar screen'
                                 or self.xpath(wndw_skylight, 'h:ExteriorShading/text()') == 'solar screens')
 
-    def get_hescore_walls(self, b, ns):
+    def get_hescore_walls(self, b):
         return b.xpath(
-            'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]',
-            namespaces=ns)
+            'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]')
 
     duct_location_map = {'conditioned space': 'cond_space',
                          'unconditioned space': None,

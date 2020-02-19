@@ -2324,7 +2324,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         # Project not HPwES, nothing passed
         self.assertNotIn('hpwes', res)
 
-        # Change to HPwES project
+        # Change to HPwES under green building verification element
         hpwes_el = E.GreenBuildingVerifications(
             E.GreenBuildingVerification(
                 E.SystemIdentifier(id='verification1'),
@@ -2365,6 +2365,19 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         self.assertEqual(res4['hpwes']['improvement_installation_completion_date'], '2018-12-14')
         self.assertEqual(res4['hpwes']['contractor_business_name'], 'Contractor Business 2')
         self.assertEqual(res4['hpwes']['contractor_zip_code'], '80401')
+
+    def test_attic_with_multiple_roofs(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+        el = self.xpath('//h:Attic/h:AttachedToRoof')
+        roof = self.xpath('//h:Roof')
+        roof_2 = deepcopy(roof)
+        tr.xpath(roof_2, 'h:SystemIdentifier').attrib['id'] = "roof2"
+        tr.xpath(roof_2, 'h:Insulation/h:SystemIdentifier').attrib['id'] = "attic1roofins2"
+        roof.addnext(roof_2)
+        el_2 = deepcopy(el)
+        el_2.attrib['idref'] = "roof2"
+        el.addnext(el_2)
+        res = tr.hpxml_to_hescore()
 
 
 if __name__ == "__main__":

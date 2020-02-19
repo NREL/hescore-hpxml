@@ -900,22 +900,24 @@ class HPXMLtoHEScoreTranslatorBase(object):
             atticd = {}
             atticds.append(atticd)
             atticid = xpath(attic, 'h:SystemIdentifier/@id', raise_err=True)
-            roof = xpath(
-                b,
-                'descendant::h:Roof[h:SystemIdentifier/@id=$roofid]',
-                roofid=xpath(attic, 'h:AttachedToRoof/@idref')
-            )
+            roofids = xpath(attic, 'h:AttachedToRoof/@idref',aslist=True)
+            attic_roofs = xpath(
+                         b,
+                         'descendant::h:Roof[contains("%s", h:SystemIdentifier/@id)]' % roofids)
             # multiple roofs?
-            if roof is None:
+            if attic_roofs is None:
                 if len(roofs) == 1:
-                    roof = roofs[0]
+                    attic_roofs = roofs[0]
                 else:
                     raise TranslationError(
                         'Attic {} does not have a roof associated with it.'.format(atticid)
                     )
 
             # Roof id to use to match skylights later
-            atticd['_roofid'] = xpath(roof, 'h:SystemIdentifier/@id', raise_err=True)
+            for roof in attic_roofs:
+                atticd['_roofid']=xpath(
+                         b,
+                         'descendant::h:Roof/h:SystemIdentifier[contains("%s", @id)]' % roofids)
 
             # Roof area
             atticd['roof_area'] = self.get_roof_area(attic, b)
