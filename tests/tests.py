@@ -2295,9 +2295,10 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         building_el = self.xpath('//h:Building')
         hpxml_building_id = self.xpath('h:Building/h:BuildingID/@id')
         project_el = E.Project(
-            E.BuildingID(id=str(hpxml_building_id)),
+            E.ProjectID(id='p1'),
+            E.PreBuildingID(id=str(hpxml_building_id)),
+            E.PostBuildingID(id=str(hpxml_building_id)),
             E.ProjectDetails(
-                E.ProjectSystemIdentifiers(),
                 E.StartDate('2017-08-20'),
                 E.CompleteDateActual('2018-12-14')
             )
@@ -2324,9 +2325,14 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         self.assertNotIn('hpwes', res)
 
         # Change to HPwES project
-        objectify.ObjectPath('Building.BuildingDetails.GreenBuildingVerifications.GreenBuildingVerification').\
-            find(building_el).\
-            addnext(E.Type('Home Performance with ENERGY STAR'))
+        hpwes_el = E.GreenBuildingVerifications(
+            E.GreenBuildingVerification(
+                E.SystemIdentifier(id='verification1'),
+                E.Type('Home Performance with ENERGY STAR')
+            )
+        )
+        bldg_summary_el = self.xpath('//h:BuildingSummary')
+        bldg_summary_el.addnext(hpwes_el)
 
         res3 = tr.hpxml_to_hescore()
 

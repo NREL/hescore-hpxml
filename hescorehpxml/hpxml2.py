@@ -6,6 +6,12 @@ from .exceptions import (
     RoundOutOfBounds,
 )
 
+def convert_to_type(type_, value):
+    if value is None:
+        return value
+    else:
+        return type_(value)
+
 class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     SCHEMA_DIR = 'hpxml-2.3.0'
@@ -62,5 +68,39 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
         return knee_walls
 
+    def get_attic_type(self, attic):
+        hpxml_attic_type =  self.xpath(attic, 'h:AtticType/text()')
+        rooftypemap = {'cape cod': 'cath_ceiling',
+                       'cathedral ceiling': 'cath_ceiling',
+                       'flat roof': 'cath_ceiling',
+                       'unvented attic': 'vented_attic',
+                       'vented attic': 'vented_attic',
+                       'venting unknown attic': 'vented_attic',
+                       'other': None}
+        return rooftypemap[hpxml_attic_type]
+
     def get_attic_floor_rvalue(self, attic, v3_b):
         return self.xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
+
+    def get_roof_area(self, attic, v3_b):
+        return convert_to_type(float, self.xpath(attic, 'h:Area/text()'))
+
+    def get_sunscreen(self, wndw_skylight):
+        return bool(self.xpath(wndw_skylight, 'h:Treatments/text()') == 'solar screen'
+                                or self.xpath(wndw_skylight, 'h:ExteriorShading/text()') == 'solar screens')
+
+    def get_hescore_walls(self, b, ns):
+        return b.xpath(
+            'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]',
+            namespaces=ns)
+
+    duct_location_map = {'conditioned space': 'cond_space',
+                         'unconditioned space': None,
+                         'unconditioned basement': 'uncond_basement',
+                         'unvented crawlspace': 'unvented_crawl',
+                         'vented crawlspace': 'vented_crawl',
+                         'crawlspace': None,
+                         'unconditioned attic': 'uncond_attic',
+                         'interstitial space': None,
+                         'garage': 'vented_crawl',
+                         'outside': None}

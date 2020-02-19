@@ -52,36 +52,18 @@
                         </BuildingAirLeakage>
                     </AirInfiltrationMeasurement>
                 </AirInfiltration>
-                <AtticAndRoof>
-                    <Roofs>
-                        <Roof>
-                            <SystemIdentifier id="roof1"/>
-                            <RoofColor>medium</RoofColor>
-                            <RoofType>asphalt or fiberglass shingles</RoofType>
-                            <RadiantBarrier>false</RadiantBarrier>
-                        </Roof>
-                    </Roofs>
-                    <Attics>
-                        <Attic>
-                            <SystemIdentifier id="attic1"/>
-                            <AttachedToRoof idref="roof1"/>
-                            <AtticType>vented attic</AtticType>
-                            <AtticFloorInsulation>
-                                <SystemIdentifier id="attic1flrins"/>
-                                <Layer>
-                                    <NominalRValue>49</NominalRValue>
-                                </Layer>
-                            </AtticFloorInsulation>
-                            <AtticRoofInsulation>
-                                <SystemIdentifier id="attic1roofins"/>
-                                <Layer>
-                                    <NominalRValue>0</NominalRValue>
-                                </Layer>
-                            </AtticRoofInsulation>
-                            <Area>1200</Area>
-                        </Attic>
-                    </Attics>
-                </AtticAndRoof>
+                <Attics>
+                    <Attic>
+                        <SystemIdentifier id="attic1"/>
+                        <AtticType>
+                            <Attic>
+                                <Vented>true</Vented>
+                            </Attic>
+                        </AtticType>
+                        <AttachedToRoof idref="roof1"/>
+                        <AttachedToFrameFloor idref="framefloor1"/>
+                    </Attic>
+                </Attics>
                 <Foundations>
                     <Foundation>
                         <SystemIdentifier id="bsmt1"/>
@@ -92,6 +74,20 @@
                         </FoundationType>
                     </Foundation>
                 </Foundations>
+                <Roofs>
+                    <Roof>
+                        <SystemIdentifier id="roof1"/>
+                        <RoofType>asphalt or fiberglass shingles</RoofType>
+                        <RoofColor>medium</RoofColor>
+                        <RadiantBarrier>false</RadiantBarrier>
+                        <Insulation>
+                            <SystemIdentifier id="attic1roofins"/>
+                            <Layer>
+                                <NominalRValue>0</NominalRValue>
+                            </Layer>
+                        </Insulation>
+                    </Roof>
+                </Roofs>
                 <Walls>
                     <Wall>
                         <SystemIdentifier id="wall1"/>
@@ -108,6 +104,18 @@
                         </Insulation>
                     </Wall>
                 </Walls>
+                <FrameFloors>
+                    <FrameFloor>
+                        <SystemIdentifier id="framefloor1"/>
+                        <Area>1200</Area>
+                        <Insulation>
+                            <SystemIdentifier id="attic1flrins"/>
+                            <Layer>
+                                <NominalRValue>49</NominalRValue>
+                            </Layer>
+                        </Insulation>
+                    </FrameFloor>
+                </FrameFloors>
                 <Windows>
                     <Window>
                         <SystemIdentifier id="window1"/>
@@ -175,7 +183,7 @@
                         <CoolingSystem>
                             <SystemIdentifier id="centralair1"/>
                             <DistributionSystem idref="hvacd1"/>
-                            <CoolingSystemType>central air conditioning</CoolingSystemType>
+                            <CoolingSystemType>central air conditioner</CoolingSystemType>
                             <AnnualCoolingEfficiency>
                                 <Units>SEER</Units>
                                 <Value>13</Value>
@@ -187,7 +195,7 @@
                         <DistributionSystemType>
                             <AirDistribution>
                                 <Ducts>
-                                    <DuctLocation>conditioned space</DuctLocation>
+                                    <DuctLocation>living space</DuctLocation>
                                     <FractionDuctArea>1</FractionDuctArea>
                                 </Ducts>
                             </AirDistribution>

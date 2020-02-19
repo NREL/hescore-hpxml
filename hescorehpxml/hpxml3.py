@@ -7,6 +7,12 @@ from .exceptions import (
     RoundOutOfBounds,
 )
 
+def convert_to_type(type_, value):
+    if value is None:
+        return value
+    else:
+        return type_(value)
+
 class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     SCHEMA_DIR = 'hpxml-3.0.0'
@@ -21,24 +27,24 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
             attached_ids = OrderedDict()
             attached_ids['Slab'] = self.xpath(fnd, 'h:AttachedToSlab/@idref')
             attached_ids['FrameFloor'] = self.xpath(fnd, 'h:AttachedToFrameFloor/@idref')
-            return max([self.xpath(b, 'sum(descendant::h:%s[contains(%s, h:SystemIdentifier/@id)]/h:Area)' % (key, value)) for key, value in attached_ids.items()])
+            return max([self.xpath(b, 'sum(//h:%s[contains(%s, h:SystemIdentifier/@id)]/h:Area)' % (key, value)) for key, value in attached_ids.items()])
 
         fnd.sort(key=get_fnd_area, reverse=True)
         return fnd, get_fnd_area
 
     def get_foundation_walls(self, fnd, ns, b):
         attached_ids = self.xpath(fnd, 'h:AttachedToFoundationWall/@idref')
-        foundationwalls = b.xpath('descendant::h:FoundationWall[contains(%s, h:SystemIdentifier/@id)]' % attached_ids, namespaces=ns)
+        foundationwalls = self.xpath(b, '//h:FoundationWall[contains(%s, h:SystemIdentifier/@id)]' % attached_ids, aslist=True)
         return foundationwalls
 
     def get_foundation_slabs(self, fnd, b):
         attached_ids = self.xpath(fnd, 'h:AttachedToFoundationWall/@idref')
-        slabs = self.xpath(b, 'descendant::h:Slab[contains(%s, h:SystemIdentifier/@id)]' % attached_ids, raise_err=True, aslist=True)
+        slabs = self.xpath(b, '//h:Slab[contains(%s, h:SystemIdentifier/@id)]' % attached_ids, raise_err=True, aslist=True)
         return slabs
 
     def get_foundation_frame_floors(self, fnd, ns, b):
         attached_ids = self.xpath(fnd, 'h:AttachedToFrameFloor/@idref')
-        frame_floors = b.xpath('descendant::h:FrameFloor[contains(%s, h:SystemIdentifier/@id)]' % attached_ids, namespaces=ns)
+        frame_floors = self.xpath(b, '//h:FrameFloor[contains(%s, h:SystemIdentifier/@id)]' % attached_ids, aslist=True)
         return frame_floors
 
     def attic_has_rigid_sheathing(self, v2_attic, roof):
@@ -56,7 +62,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         for kneewall_idref in self.xpath(attic, 'h:AttachedToWall/@idref', aslist=True):
             wall = self.xpath(
                                 b,
-                                'descendant::h:Wall[h:SystemIdentifier/@id=$kneewallid]',
+                                '//h:Wall[h:SystemIdentifier/@id=$kneewallid][h:AtticWallType="knee wall"]',
                                 raise_err=True,
                                 kneewallid=kneewall_idref
             )
@@ -69,7 +75,56 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
         return knee_walls
 
+    def get_attic_type(self, attic):
+        if self.xpath(attic, 'h:AtticType/h:Attic/h:CapeCod or boolean(h:AtticType/h:FlatRoof) or boolean(h:AtticType/h:CathedralCeiling)'):
+            return 'cath_ceiling'
+        elif self.xpath(attic, 'boolean(h:AtticType/h:Attic)'):
+            return 'vented_attic'
+        else:
+            return None
+
     def get_attic_floor_rvalue(self, attic, b):
         floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')
-        frame_floor = b.xpath('descendant::h:FrameFloor[contains(%s, h:SystemIdentifier/@id)]' % floor_idref)
-        return self.xpath(frame_floor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+        frame_floors = self.xpath(b, '//h:FrameFloor[contains(%s, h:SystemIdentifier/@id)]' % floor_idref, aslist=True)
+        rvalue = 0.0
+        for frame_floor in frame_floors:
+            rvalue += self.xpath(frame_floor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+        return rvalue
+
+    def get_roof_area(self, attic, b):
+        floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')
+        frame_floors = self.xpath(b, '//h:FrameFloor[contains("%s", h:SystemIdentifier/@id)]' % floor_idref, aslist=True)
+        area = 0.0
+        for frame_floor in frame_floors:
+            area += convert_to_type(float, self.xpath(frame_floor, 'h:Area/text()'))
+        return area
+
+    def get_sunscreen(self, wndw_skylight):
+        return bool(self.xpath(wndw_skylight, 'h:ExteriorShading/h:Type/text()') == 'solar screens')
+
+    def get_hescore_walls(self, b, ns):
+        return self.xpath(b,
+            'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="outside" or not(h:ExteriorAdjacentTo)]', aslist=True)
+
+    duct_location_map = {'living space': 'cond_space',
+                         'unconditioned space': None,
+                         'basement': None, # Fix me
+                         'basement - unconditioned': 'uncond_basement',
+                         'basement - conditioned': 'cond_space', # Fix me
+                         'crawlspace - unvented': 'unvented_crawl',
+                         'crawlspace - vented': 'vented_crawl',
+                         'crawlspace - unconditioned': None, # Fix me
+                         'crawlspace - conditioned': None, # Fix me
+                         'crawlspace': None,
+                         'unconditioned attic': 'uncond_attic',
+                         'interstitial space': None,
+                         'garage - conditioned': None, # Fix me
+                         'garage - unconditioned': None, # Fix me
+                         'garage': 'vented_crawl',
+                         'roof deck': None, # Fix me
+                         'outside': None,
+                         'attic': None, # Fix me
+                         'attic - unconditioned': None, # Fix me
+                         'attic - conditioned': None, # Fix me
+                         'attic - unvented': None, # Fix me
+                         'attic - vented': None } # Fix me

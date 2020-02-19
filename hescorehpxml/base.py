@@ -271,8 +271,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
     heat_pump_type_map = {'water-to-air': 'gchp',
                           'water-to-water': 'gchp',
                           'air-to-air': 'heat_pump',
+                          'air-to-water': 'heat_pump',
                           'mini-split': 'mini_split',
-                          'ground-to-air': 'gchp'}
+                          'ground-to-air': 'gchp',
+                          'ground-to-water':'gchp'}
 
     def get_heating_system_type(self, htgsys):
         xpath = self.xpath
@@ -280,6 +282,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         sys_heating = OrderedDict()
         if htgsys.tag.endswith('HeatPump'):
+            # heat pump new fuel type added in v3: https://github.com/hpxmlwg/hpxml/pull/159.
+            # Should we also translate fuel type for heat pumps?
             sys_heating['fuel_primary'] = 'electric'
             heat_pump_type = xpath(htgsys, 'h:HeatPumpType/text()')
             if heat_pump_type is None:
@@ -288,9 +292,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 sys_heating['type'] = self.heat_pump_type_map[heat_pump_type]
         else:
             assert htgsys.tag.endswith('HeatingSystem')
-            sys_heating['fuel_primary'] = self.fuel_type_mapping[
-                xpath(htgsys, 'h:HeatingSystemFuel/text()', raise_err=True)
-            ]
+            fuel_type = xpath(htgsys, 'h:HeatingSystemFuel/text()', raise_err=True)
+            # Some fuel types are not included in fuel_type_mapping, throw an error if not mapped.
+            try:
+                sys_heating['fuel_primary'] = self.fuel_type_mapping[fuel_type]
+            except KeyError:
+                raise TranslationError('HEScore does not support the HPXML fuel type %s' % fuel_type)
             hpxml_heating_type = xpath(htgsys, 'name(h:HeatingSystemType/*)', raise_err=True)
             try:
                 sys_heating['type'] = {'Furnace': 'central_furnace',
@@ -363,7 +370,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             assert clgsys.tag.endswith('CoolingSystem')
             hpxml_cooling_type = xpath(clgsys, 'h:CoolingSystemType/text()', raise_err=True)
             try:
-                sys_cooling['type'] = {'central air conditioning': 'split_dx',
+                sys_cooling['type'] = {'central air conditioning': 'split_dx', # version 2.*
+                                       'central air conditioner': 'split_dx', # version 3.*
                                        'room air conditioner': 'packaged_dx',
                                        'mini-split': 'mini_split',
                                        'evaporative cooler': 'dec'}[hpxml_cooling_type]
@@ -407,16 +415,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
     def get_hvac_distribution(self, hvacd_el):
         hvac_distribution = []
-        duct_location_map = {'conditioned space': 'cond_space',
-                             'unconditioned space': None,
-                             'unconditioned basement': 'uncond_basement',
-                             'unvented crawlspace': 'unvented_crawl',
-                             'vented crawlspace': 'vented_crawl',
-                             'crawlspace': None,
-                             'unconditioned attic': 'uncond_attic',
-                             'interstitial space': None,
-                             'garage': 'vented_crawl',
-                             'outside': None}
 
         airdist_el = self.xpath(hvacd_el, 'h:DistributionSystemType/h:AirDistribution')
         if isinstance(airdist_el, list):
@@ -438,7 +436,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             # Duct Location
             hpxml_duct_location = self.xpath(duct_el, 'h:DuctLocation/text()')
-            hescore_duct_location = duct_location_map[hpxml_duct_location]
+            hescore_duct_location = self.duct_location_map[hpxml_duct_location]
 
             if hescore_duct_location is None:
                 raise TranslationError('No comparable duct location in HEScore: %s' % hpxml_duct_location)
@@ -877,15 +875,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         xpath = self.xpath
 
         # building.zone.zone_roof--------------------------------------------------
-        attics = xpath(b, 'descendant::h:Attic', aslist=True, raise_err=True)
+        attics = xpath(b, 'descendant::h:Attics/h:Attic', aslist=True, raise_err=True)
         roofs = xpath(b, 'descendant::h:Roof', aslist=True, raise_err=True)
-        rooftypemap = {'cape cod': 'cath_ceiling',
-                       'cathedral ceiling': 'cath_ceiling',
-                       'flat roof': 'cath_ceiling',
-                       'unvented attic': 'vented_attic',
-                       'vented attic': 'vented_attic',
-                       'venting unknown attic': 'vented_attic',
-                       'other': None}
         attic_floor_rvalues = (0, 3, 6, 9, 11, 19, 21, 25, 30, 38, 44, 49, 60)
         roof_center_of_cavity_rvalues = \
             {'wf': {'co': dict(zip((0, 11, 13, 15, 19, 21, 27, 30), (2.7, 13.6, 15.6, 17.6, 21.6, 23.6, 29.6, 32.6))),
@@ -927,24 +918,24 @@ class HPXMLtoHEScoreTranslatorBase(object):
             atticd['_roofid'] = xpath(roof, 'h:SystemIdentifier/@id', raise_err=True)
 
             # Roof area
-            atticd['roof_area'] = convert_to_type(float, xpath(attic, 'h:Area/text()'))
+            atticd['roof_area'] = self.get_roof_area(attic, b)
             if atticd['roof_area'] is None:
                 if len(attics) == 1 and len(roofs) == 1:
                     atticd['roof_area'] = footprint_area
                 else:
-                    raise TranslationError('If there are more than one Attic elements, each needs an area.')
+                    raise TranslationError('If there are more than one Attic elements, each needs an area. If HPXML '
+                                           'version 2.*, please specify under Attic/Area, if HPXML version 3.*, '
+                                           'Please specify under the attached roof element: Roof/Area.')
 
             # Roof type
-            hpxml_attic_type = xpath(attic, 'h:AtticType/text()')
-            atticd['rooftype'] = rooftypemap[hpxml_attic_type]
+            atticd['rooftype'] = self.get_attic_type(attic)
             if atticd['rooftype'] is None:
                 attc_is_cond = xpath(attic, 'h:extension/h:Conditioned/text()')
                 if attc_is_cond == 'true':
                     atticd['rooftype'] = 'cond_attic'
                 else:
                     raise TranslationError(
-                        'Attic {}: Cannot translate HPXML AtticType {} to HEScore rooftype.'.format(atticid,
-                                                                                                    hpxml_attic_type))
+                        'Attic {}: Cannot translate HPXML AtticType to HEScore rooftype.'.format(atticid))
 
             # Roof color
             solar_absorptance = convert_to_type(float, xpath(roof, 'h:SolarAbsorptance/text()'))
@@ -1164,14 +1155,15 @@ class HPXMLtoHEScoreTranslatorBase(object):
             zone_skylight['skylight_code'] = max(list(skylight_type_areas.items()), key=lambda x: x[1])[0]
         skylight_sunscreen_areas = {}
         for skylight in skylights:
-            solar_screen = bool(xpath(skylight, 'h:Treatments/text()') == 'solar screen'
-                                or xpath(skylight, 'h:ExteriorShading/text()') == 'solar screens')
+            solar_screen = self.get_sunscreen(skylight)
             area = convert_to_type(float, xpath(skylight, 'h:Area/text()', raise_err=True))
             try:
                 skylight_sunscreen_areas[solar_screen] += area
             except KeyError:
                 skylight_sunscreen_areas[solar_screen] = area
+
         zone_skylight['solar_screen'] = max(list(skylight_sunscreen_areas.items()), key=lambda x: x[1])[0]
+
         return zone_skylight
 
     def get_building_zone_floor(self, b, bldg_about):
@@ -1274,7 +1266,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             elif zone_floor['foundation_type'] == 'slab_on_grade':
                 del fw_eff_rvalues[11]  # remove unused values
                 del fw_eff_rvalues[19]
-                slabs = self.get_slabs(foundation, b)
+                slabs = self.get_foundation_slabs(foundation, b)
                 slabua = 0
                 slabtotalperimeter = 0
                 for slab in slabs:
@@ -1298,7 +1290,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # floor above foundation insulation
             ffua = 0
             fftotalarea = 0
-            framefloors = self.get_frame_floors(foundation, ns, b)
+            framefloors = self.get_foundation_frame_floors(foundation, ns, b)
             floor_eff_rvalues = dict(zip((0, 11, 13, 15, 19, 21, 25, 30, 38),
                                          (4.0, 15.8, 17.8, 19.8, 23.8, 25.8, 31.8, 37.8, 42.8)))
             if len(framefloors) > 0:
@@ -1337,9 +1329,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         hpxmlwalls = dict([(side, []) for side in list(sidemap.values())])
         hpxmlwalls['noside'] = []
-        for wall in b.xpath(
-            'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]',
-                namespaces=ns):
+        for wall in self.get_hescore_walls(b, ns):
             walld = {'assembly_code': self.get_wall_assembly_code(wall),
                      'area': convert_to_type(float, xpath(wall, 'h:Area/text()')),
                      'id': xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)}
@@ -1450,8 +1440,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             windowd = {'area': convert_to_type(float, xpath(hpxmlwndw, 'h:Area/text()', raise_err=True))}
             windowd['uvalue'] = convert_to_type(float, xpath(hpxmlwndw, 'h:UFactor/text()'))
             windowd['shgc'] = convert_to_type(float, xpath(hpxmlwndw, 'h:SHGC/text()'))
-            windowd['sun_screen'] = bool(xpath(hpxmlwndw, 'h:Treatments/text()') == 'solar screen'
-                                         or xpath(hpxmlwndw, 'h:ExteriorShading/text()') == 'solar screens')
+            windowd['sun_screen'] = self.get_sunscreen(hpxmlwndw)
             if windowd['uvalue'] is not None and windowd['shgc'] is not None:
                 windowd['window_code'] = None
             else:
@@ -1957,7 +1946,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
         if water_heater_type in ('storage water heater', 'dedicated boiler with storage tank'):
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'storage'
-            sys_dhw['fuel_primary'] = self.fuel_type_mapping[xpath(primarydhw, 'h:FuelType/text()', raise_err=True)]
+            fuel_type = xpath(primarydhw, 'h:FuelType/text()', raise_err=True)
+            # Some fuel types are not included in fuel_type_mapping, throw an error if not mapped.
+            try:
+                sys_dhw['fuel_primary'] = self.fuel_type_mapping[fuel_type]
+            except KeyError:
+                raise TranslationError('HEScore does not support the HPXML fuel type %s' % fuel_type)
         elif water_heater_type == 'space-heating boiler with storage tank':
             sys_dhw['category'] = 'combined'
             sys_dhw['type'] = 'indirect'
@@ -1971,7 +1965,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
         elif water_heater_type == 'instantaneous water heater':
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'tankless'
-            sys_dhw['fuel_primary'] = self.fuel_type_mapping[xpath(primarydhw, 'h:FuelType/text()', raise_err=True)]
+            fuel_type = xpath(primarydhw, 'h:FuelType/text()', raise_err=True)
+            # Some fuel types are not included in fuel_type_mapping, throw an error if not mapped.
+            try:
+                sys_dhw['fuel_primary'] = self.fuel_type_mapping[fuel_type]
+            except KeyError:
+                raise TranslationError('HEScore does not support the HPXML fuel type %s' % fuel_type)
         else:
             raise TranslationError('HEScore cannot model the water heater type: %s' % water_heater_type)
 
