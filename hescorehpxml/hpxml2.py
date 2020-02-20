@@ -29,7 +29,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         return fnd, get_fnd_area
 
     def get_foundation_walls(self, fnd, v3_b):
-        foundationwalls = fnd.xpath('h:FoundationWall')
+        foundationwalls = self.xpath(fnd, 'h:FoundationWall', aslist=True)
         return foundationwalls
 
     def get_foundation_slabs(self, fnd, v3_b):
@@ -37,7 +37,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         return slabs
 
     def get_foundation_frame_floors(self, fnd, v3_b):
-        frame_floors = fnd.xpath('h:FrameFloor')
+        frame_floors = self.xpath(fnd, 'h:FrameFloor', aslist=True)
         return frame_floors
 
     def attic_has_rigid_sheathing(self, attic, v3_roof):
@@ -68,7 +68,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
         return knee_walls
 
-    def get_attic_type(self, attic):
+    def get_attic_type(self, attic, atticd, atticid):
         hpxml_attic_type =  self.xpath(attic, 'h:AtticType/text()')
         rooftypemap = {'cape cod': 'cath_ceiling',
                        'cathedral ceiling': 'cath_ceiling',
@@ -77,7 +77,16 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                        'vented attic': 'vented_attic',
                        'venting unknown attic': 'vented_attic',
                        'other': None}
-        return rooftypemap[hpxml_attic_type]
+        atticd['rooftype'] =  rooftypemap[hpxml_attic_type]
+
+        if atticd['rooftype'] is None:
+            attc_is_cond = self.xpath(attic, 'h:extension/h:Conditioned/text()')
+            if attc_is_cond == 'true':
+                atticd['rooftype'] = 'cond_attic'
+            else:
+                raise TranslationError(
+                    'Attic {}: Cannot translate HPXML AtticType {} to HEScore rooftype.'.format(atticid, hpxml_attic_type))
+
 
     def get_attic_floor_rvalue(self, attic, v3_b):
         return self.xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
@@ -90,8 +99,8 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                                 or self.xpath(wndw_skylight, 'h:ExteriorShading/text()') == 'solar screens')
 
     def get_hescore_walls(self, b):
-        return b.xpath(
-            'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]')
+        return self.xpath(b,
+            'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]', aslist=True)
 
     duct_location_map = {'conditioned space': 'cond_space',
                          'unconditioned space': None,

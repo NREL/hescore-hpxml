@@ -75,13 +75,16 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
         return knee_walls
 
-    def get_attic_type(self, attic):
+    def get_attic_type(self, attic, atticd, atticid):
         if self.xpath(attic, 'h:AtticType/h:Attic/h:CapeCod or boolean(h:AtticType/h:FlatRoof) or boolean(h:AtticType/h:CathedralCeiling)'):
-            return 'cath_ceiling'
-        elif self.xpath(attic, 'boolean(h:AtticType/h:Attic)'):
-            return 'vented_attic'
+            atticd['rooftype'] = 'cath_ceiling'
+        elif self.xpath(attic, 'boolean(h:AtticType/h:Attic/h:Vented)'):
+            atticd['rooftype'] = 'vented_attic'
+        elif self.xpath(attic, 'boolean(h:AtticType/h:Attic/h:Conditioned)'):
+            atticd['rooftype'] = 'cond_attic'
         else:
-            return None
+            raise TranslationError(
+                'Attic {}: Cannot translate HPXML AtticType to HEScore rooftype.'.format(atticid))
 
     def get_attic_floor_rvalue(self, attic, b):
         floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')

@@ -903,21 +903,21 @@ class HPXMLtoHEScoreTranslatorBase(object):
             roofids = xpath(attic, 'h:AttachedToRoof/@idref',aslist=True)
             attic_roofs = xpath(
                          b,
-                         'descendant::h:Roof[contains("%s", h:SystemIdentifier/@id)]' % roofids)
-            # multiple roofs?
-            if attic_roofs is None:
+                         'descendant::h:Roof[contains("%s", h:SystemIdentifier/@id)]' % roofids,aslist=True)
+
+            if len(attic_roofs) == 0:
                 if len(roofs) == 1:
-                    attic_roofs = roofs[0]
+                    roof = roofs[0]
                 else:
                     raise TranslationError(
                         'Attic {} does not have a roof associated with it.'.format(atticid)
                     )
+            else:
+                # multiple roofs?
+                roof = attic_roofs[0]
 
             # Roof id to use to match skylights later
-            for roof in attic_roofs:
-                atticd['_roofid']=xpath(
-                         b,
-                         'descendant::h:Roof/h:SystemIdentifier[contains("%s", @id)]' % roofids)
+            atticd['_roofid'] = xpath(roof, 'h:SystemIdentifier/@id', raise_err=True)
 
             # Roof area
             atticd['roof_area'] = self.get_roof_area(attic, b)
@@ -927,17 +927,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 else:
                     raise TranslationError('If there are more than one Attic elements, each needs an area. If HPXML '
                                            'version 2.*, please specify under Attic/Area, if HPXML version 3.*, '
-                                           'Please specify under the attached roof element: Roof/Area.')
+                                           'Please specify under the attached frame floor element: FrameFloor/Area.')
 
             # Roof type
-            atticd['rooftype'] = self.get_attic_type(attic)
-            if atticd['rooftype'] is None:
-                attc_is_cond = xpath(attic, 'h:extension/h:Conditioned/text()')
-                if attc_is_cond == 'true':
-                    atticd['rooftype'] = 'cond_attic'
-                else:
-                    raise TranslationError(
-                        'Attic {}: Cannot translate HPXML AtticType to HEScore rooftype.'.format(atticid))
+            self.get_attic_type(attic, atticd, atticid)
 
             # Roof color
             solar_absorptance = convert_to_type(float, xpath(roof, 'h:SolarAbsorptance/text()'))
@@ -1242,7 +1235,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # Foundation Wall insulation R-value
             fwua = 0
             fwtotalarea = 0
-            foundationwalls = self.get_foundation_walls(foundation, ns, b)
+            foundationwalls = self.get_foundation_walls(foundation, b)
             fw_eff_rvalues = dict(list(zip((0, 5, 11, 19), (4, 7.9, 11.6, 19.6))))
             if len(foundationwalls) > 0:
                 if zone_floor['foundation_type'] == 'slab_on_grade':
@@ -1292,7 +1285,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # floor above foundation insulation
             ffua = 0
             fftotalarea = 0
-            framefloors = self.get_foundation_frame_floors(foundation, ns, b)
+            framefloors = self.get_foundation_frame_floors(foundation, b)
             floor_eff_rvalues = dict(zip((0, 11, 13, 15, 19, 21, 25, 30, 38),
                                          (4.0, 15.8, 17.8, 19.8, 23.8, 25.8, 31.8, 37.8, 42.8)))
             if len(framefloors) > 0:
@@ -1331,7 +1324,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         hpxmlwalls = dict([(side, []) for side in list(sidemap.values())])
         hpxmlwalls['noside'] = []
-        for wall in self.get_hescore_walls(b, ns):
+        for wall in self.get_hescore_walls(b):
             walld = {'assembly_code': self.get_wall_assembly_code(wall),
                      'area': convert_to_type(float, xpath(wall, 'h:Area/text()')),
                      'id': xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)}
