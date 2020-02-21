@@ -20,7 +20,6 @@ from .exceptions import (
     RoundOutOfBounds,
 )
 
-
 thisdir = os.path.dirname(os.path.abspath(__file__))
 nsre = re.compile(r'([a-zA-Z][a-zA-Z0-9]*):')
 
@@ -66,7 +65,6 @@ def round_to_nearest(x, vals, tails_tolerance=None):
 
 
 class HPXMLtoHEScoreTranslatorBase(object):
-
     SCHEMA_DIR = None
 
     @staticmethod
@@ -139,7 +137,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             wall_rvalue = xpath(hpxmlwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)', raise_err=True)
             has_rigid_ins = xpath(
                 hpxmlwall,
-                'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])'  # noqa: E501
+                'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])'
+                # noqa: E501
             )
             if tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')) or has_rigid_ins:
                 wallconstype = 'ps'
@@ -274,7 +273,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                           'air-to-water': 'heat_pump',
                           'mini-split': 'mini_split',
                           'ground-to-air': 'gchp',
-                          'ground-to-water':'gchp'}
+                          'ground-to-water': 'gchp'}
 
     def get_heating_system_type(self, htgsys):
         xpath = self.xpath
@@ -345,7 +344,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         'Heating efficiency could not be determined. ' +
                         '{} must have a heating efficiency with units of {} '.format(sys_heating['type'], eff_units) +
                         'or YearInstalled or ModelYear.'
-                        )
+                    )
             else:
                 # Use the efficiency of the first element found.
                 sys_heating['efficiency_method'] = 'user'
@@ -370,8 +369,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             assert clgsys.tag.endswith('CoolingSystem')
             hpxml_cooling_type = xpath(clgsys, 'h:CoolingSystemType/text()', raise_err=True)
             try:
-                sys_cooling['type'] = {'central air conditioning': 'split_dx', # version 2.*
-                                       'central air conditioner': 'split_dx', # version 3.*
+                sys_cooling['type'] = {'central air conditioning': 'split_dx',  # version 2.*
+                                       'central air conditioner': 'split_dx',  # version 3.*
                                        'room air conditioner': 'packaged_dx',
                                        'mini-split': 'mini_split',
                                        'evaporative cooler': 'dec'}[hpxml_cooling_type]
@@ -402,7 +401,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         'Cooling efficiency could not be determined. ' +
                         '{} must have a cooling efficiency with units of {} '.format(sys_cooling['type'], eff_units) +
                         'or YearInstalled or ModelYear.'
-                        )
+                    )
             else:
                 # Use the efficiency of the first element found.
                 sys_cooling['efficiency_method'] = 'user'
@@ -494,6 +493,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
     def addns(self, x):
         def repl(m): return ('{%(' + m.group(1) + ')s}') % self.ns
+
         return nsre.sub(repl, x)
 
     def insert_element_in_order(self, parent, child, elorder):
@@ -522,7 +522,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         'southwest': 225,
         'west': 270,
         'northwest': 315
-        }
+    }
 
     azimuth_to_hescore_orientation = {
         0: 'north',
@@ -533,7 +533,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         225: 'south_west',
         270: 'west',
         315: 'north_west'
-        }
+    }
 
     fuel_type_mapping = {'electricity': 'electric',
                          'renewable electricity': 'electric',
@@ -561,10 +561,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
         json.dump(hescore_bldg, outfile, indent=2)
 
     def hpxml_to_hescore(
-        self,
-        hpxml_bldg_id=None,
-        hpxml_project_id=None,
-        hpxml_contractor_id=None
+            self,
+            hpxml_bldg_id=None,
+            hpxml_project_id=None,
+            hpxml_contractor_id=None
     ):
         '''
         Convert a HPXML building file to a python dict with the same structure as the HEScore API
@@ -605,7 +605,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         else:
             c = xpath(
                 self.hpxmldoc,
-                'h:Contractor[h:ContractorDetails/h:SystemIdentifier/@id=//h:Building[h:BuildingID/@id=$bldg_id]/h:ContractorID/@id]', # noqa E501
+                'h:Contractor[h:ContractorDetails/h:SystemIdentifier/@id=//h:Building[h:BuildingID/@id=$bldg_id]/h:ContractorID/@id]',
+                # noqa E501
                 bldg_id=hpxml_bldg_id
             )
             if c is None:
@@ -693,7 +694,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     'job completion testing/final inspection': 'final',
                     'quality assurance/monitoring': 'qa',
                     'preconstruction': 'preconstruction'
-                    }[xpath(b, 'h:ProjectStatus/h:EventType/text()', raise_err=True)]
+                }[xpath(b, 'h:ProjectStatus/h:EventType/text()', raise_err=True)]
             else:
                 assert transaction_type == 'update'
                 bldgaddr['assessment_type'] = 'corrected'
@@ -741,7 +742,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         ext_id_xpath_exprs = (
             'h:extension/h:HESExternalID/text()',
             'h:BuildingID/h:SendingSystemIdentifierValue/text()'
-            )
+        )
         for ext_id_xpath_expr in ext_id_xpath_exprs:
             external_id_value = xpath(b, ext_id_xpath_expr)
             if external_id_value is not None:
@@ -805,10 +806,11 @@ class HPXMLtoHEScoreTranslatorBase(object):
         if avg_ceiling_ht is None:
             try:
                 avg_ceiling_ht = float(xpath(bldg_cons_el, 'h:ConditionedBuildingVolume/text()', raise_err=True)) / \
-                    float(xpath(bldg_cons_el, 'h:ConditionedFloorArea/text()', raise_err=True))
+                                 float(xpath(bldg_cons_el, 'h:ConditionedFloorArea/text()', raise_err=True))
             except ElementNotFoundError:
                 raise TranslationError(
-                    'Either AverageCeilingHeight or both ConditionedBuildingVolume and ConditionedFloorArea are required.'  # noqa E501
+                    'Either AverageCeilingHeight or both ConditionedBuildingVolume and ConditionedFloorArea are required.'
+                    # noqa E501
                 )
         else:
             avg_ceiling_ht = float(avg_ceiling_ht)
@@ -850,8 +852,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
             elif xpath(blower_door_test, 'h:BuildingAirLeakage/h:UnitofMeasure/text()') == 'ACH':
                 bldg_about['envelope_leakage'] = bldg_about['floor_to_ceiling_height'] * bldg_about[
                     'conditioned_floor_area'] * \
-                    float(xpath(blower_door_test,
-                                'h:BuildingAirLeakage/h:AirLeakage/text()', raise_err=True)) / 60.
+                                                 float(xpath(blower_door_test,
+                                                             'h:BuildingAirLeakage/h:AirLeakage/text()',
+                                                             raise_err=True)) / 60.
             else:
                 raise TranslationError('BuildingAirLeakage/UnitofMeasure must be either "CFM" or "ACH"')
             bldg_about['envelope_leakage'] = int(python2round(bldg_about['envelope_leakage']))
@@ -900,10 +903,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
             atticd = {}
             atticds.append(atticd)
             atticid = xpath(attic, 'h:SystemIdentifier/@id', raise_err=True)
-            roofids = xpath(attic, 'h:AttachedToRoof/@idref',aslist=True)
+            roofids = xpath(attic, 'h:AttachedToRoof/@idref', aslist=True)
             attic_roofs = xpath(
-                         b,
-                         'descendant::h:Roof[contains("%s", h:SystemIdentifier/@id)]' % roofids,aslist=True)
+                b,
+                'descendant::h:Roof[contains("%s", h:SystemIdentifier/@id)]' % roofids, aslist=True)
 
             if len(attic_roofs) == 0:
                 if len(roofs) == 1:
@@ -945,7 +948,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         'medium dark': 'medium_dark',
                         'dark': 'dark',
                         'reflective': 'white'
-                        }[xpath(roof, 'h:RoofColor/text()', raise_err=True)]
+                    }[xpath(roof, 'h:RoofColor/text()', raise_err=True)]
                 except KeyError:
                     raise TranslationError('Attic {}: Invalid or missing RoofColor'.format(atticid))
 
@@ -1177,7 +1180,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             for area in areas:
                 if abs(area) < smallnum:  # area == 0
                     raise TranslationError(
-                        'If there is more than one foundation, each needs an area specified on either the Slab or FrameFloor.'  # noqa: E501
+                        'If there is more than one foundation, each needs an area specified on either the Slab or FrameFloor.'
+                        # noqa: E501
                     )
         sum_area_largest_two = sum(areas[0:2])
         sum_area = sum(areas)
@@ -1364,25 +1368,29 @@ class HPXMLtoHEScoreTranslatorBase(object):
         # Wall effective R-value map
         wall_ext_finish_types = ('wo', 'st', 'vi', 'al', 'br', 'nn')
         wall_eff_rvalues = {}
-        wall_eff_rvalues['wf'] = dict(list(zip(wall_ext_finish_types[:-1], [dict(list(zip((0, 3, 7, 11, 13, 15, 19, 21), x)))  # noqa: E501
-                                                                       for x in
-                                                                       [(3.6, 5.7, 9.7, 13.7, 15.7, 17.7, 21.7, 23.7),
-                                                                        (2.3, 4.4, 8.4, 12.4, 14.4, 16.4, 20.4, 22.4),
-                                                                        (2.2, 4.3, 8.3, 12.3, 14.3, 16.3, 20.3, 22.3),
-                                                                        (2.1, 4.2, 8.2, 12.2, 14.2, 16.2, 20.2, 22.2),
-                                                                        (2.9, 5.0, 9.0, 13.0, 15.0, 17.0, 21.0, 23.0)]])))  # noqa: E501
-        wall_eff_rvalues['ps'] = dict(list(zip(wall_ext_finish_types[:-1], [dict(list(zip((0, 3, 7, 11, 13, 15, 19, 21), x)))  # noqa: E501
-                                                                       for x in [(6.1, 9.1, 13.1, 17.1, 19.1, 21.1, 25.1, 27.1),  # noqa: E501
-                                                                                 (5.4, 8.4, 12.4, 16.4, 18.4, 20.4, 24.4, 26.4),  # noqa: E501
-                                                                                 (5.3, 8.3, 12.3, 16.3, 18.3, 20.3, 24.3, 26.3),  # noqa: E501
-                                                                                 (5.2, 8.2, 12.2, 16.2, 18.2, 20.2, 24.2, 26.2),  # noqa: E501
-                                                                                 (6.0, 9.0, 13.0, 17.0, 19.0, 21.0, 25.0, 27.0)]])))  # noqa: E501
+        wall_eff_rvalues['wf'] = dict(
+            list(zip(wall_ext_finish_types[:-1], [dict(list(zip((0, 3, 7, 11, 13, 15, 19, 21), x)))  # noqa: E501
+                                                  for x in
+                                                  [(3.6, 5.7, 9.7, 13.7, 15.7, 17.7, 21.7, 23.7),
+                                                   (2.3, 4.4, 8.4, 12.4, 14.4, 16.4, 20.4, 22.4),
+                                                   (2.2, 4.3, 8.3, 12.3, 14.3, 16.3, 20.3, 22.3),
+                                                   (2.1, 4.2, 8.2, 12.2, 14.2, 16.2, 20.2, 22.2),
+                                                   (2.9, 5.0, 9.0, 13.0, 15.0, 17.0, 21.0, 23.0)]])))  # noqa: E501
+        wall_eff_rvalues['ps'] = dict(
+            list(zip(wall_ext_finish_types[:-1], [dict(list(zip((0, 3, 7, 11, 13, 15, 19, 21), x)))  # noqa: E501
+                                                  for x in
+                                                  [(6.1, 9.1, 13.1, 17.1, 19.1, 21.1, 25.1, 27.1),  # noqa: E501
+                                                   (5.4, 8.4, 12.4, 16.4, 18.4, 20.4, 24.4, 26.4),  # noqa: E501
+                                                   (5.3, 8.3, 12.3, 16.3, 18.3, 20.3, 24.3, 26.3),  # noqa: E501
+                                                   (5.2, 8.2, 12.2, 16.2, 18.2, 20.2, 24.2, 26.2),  # noqa: E501
+                                                   (6.0, 9.0, 13.0, 17.0, 19.0, 21.0, 25.0, 27.0)]])))  # noqa: E501
         wall_eff_rvalues['ov'] = dict(list(zip(wall_ext_finish_types[:-1], [dict(list(zip((19, 21, 27, 33, 38), x)))
                                                                             for x in [(21.0, 23.0, 29.0, 35.0, 40.0),
                                                                                       (20.3, 22.3, 28.3, 34.3, 39.3),
                                                                                       (20.1, 22.1, 28.1, 34.1, 39.1),
                                                                                       (20.1, 22.1, 28.1, 34.1, 39.1),
-                                                                                      (20.9, 22.9, 28.9, 34.9, 39.9)]])))  # noqa: E501
+                                                                                      (20.9, 22.9, 28.9, 34.9,
+                                                                                       39.9)]])))  # noqa: E501
         wall_eff_rvalues['br'] = {'nn': dict(list(zip((0, 5, 10), (2.9, 7.9, 12.8))))}
         wall_eff_rvalues['cb'] = dict(list(zip(('st', 'br', 'nn'), [dict(list(zip((0, 3, 6), x)))
                                                                     for x in [(4.1, 5.7, 8.5),
@@ -1458,10 +1466,13 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                 window_sides.append(side)
                                 break
                     if not window_sides:
-                        raise TranslationError('The Window[SystemIdentifier/@id="{}"] has no Azimuth or Orientation, and the Window/AttachedToWall/@idref of "{}" didn\'t reference a Wall element.'.format(window_id, attached_to_wall_id))  # noqa: E501
+                        raise TranslationError(
+                            'The Window[SystemIdentifier/@id="{}"] has no Azimuth or Orientation, and the Window/AttachedToWall/@idref of "{}" didn\'t reference a Wall element.'.format(
+                                window_id, attached_to_wall_id))  # noqa: E501
                 else:
                     raise TranslationError(
-                        'Window[SystemIdentifier/@id="{}"] doesn\'t have Azimuth, Orientation, or AttachedToWall. At least one is required.'.format(window_id)  # noqa: E501
+                        'Window[SystemIdentifier/@id="{}"] doesn\'t have Azimuth, Orientation, or AttachedToWall. At least one is required.'.format(
+                            window_id)  # noqa: E501
                     )
             else:
                 # Azimuth found, associate with a side
@@ -1520,8 +1531,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         'The house has walls defined for sides {} and shared walls on sides {}.'.format(
                             ', '.join(set(self.sidemap.values()) - sides_without_heswall),
                             ', '.join(get_shared_wall_sides())
-                            )
                         )
+                    )
                 if windows_are_on_shared_walls():
                     raise TranslationError('The house has windows on shared walls.')
 
@@ -1723,7 +1734,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 break
         if not found_weighting_factor:
             raise TranslationError(
-                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed.'  # noqa: E501
+                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed.'
+                # noqa: E501
             )
 
         # Calculate the sum of the weights (total fraction or floor area)
@@ -1779,7 +1791,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         singleton_heating_systems -= singletons_to_combine
         singleton_cooling_systems -= singletons_to_combine
         for heatpump_id in singletons_to_combine:
-            if heating_systems[heatpump_id]['type'] != 'mini_split' or cooling_systems[heatpump_id]['type'] != 'mini_split':  # noqa: E501
+            if heating_systems[heatpump_id]['type'] != 'mini_split' or cooling_systems[heatpump_id][
+                'type'] != 'mini_split':  # noqa: E501
                 continue
             hvac_systems_ids.add(IDsAndWeights(
                 heatpump_id,
@@ -1840,7 +1853,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         clg_id=hvac_clg.clg_id,
                         dist_id=choose_dist_system(hvac_clg.dist_id, hvac_htg.dist_id),
                         weight=hvac_clg.weight
-                        )
+                    )
                     hvac_systems_ids.add(hvac_comb)
                     hvac_htg = hvac_htg._replace(weight=hvac_htg.weight - hvac_clg.weight)
                     hvac_clg = iter_next(singleton_cooling_systems_iter)
@@ -1850,7 +1863,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         clg_id=hvac_clg.clg_id,
                         dist_id=choose_dist_system(hvac_htg.dist_id, hvac_clg.dist_id),
                         weight=hvac_htg.weight
-                        )
+                    )
                     hvac_systems_ids.add(hvac_comb)
                     hvac_clg = hvac_clg._replace(weight=hvac_clg.weight - hvac_htg.weight)
                     hvac_htg = iter_next(singleton_heating_systems_iter)
@@ -1861,7 +1874,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         clg_id=hvac_clg.clg_id,
                         dist_id=choose_dist_system(hvac_htg.dist_id, hvac_clg.dist_id),
                         weight=hvac_htg.weight
-                        )
+                    )
                     hvac_systems_ids.add(hvac_comb)
                     hvac_htg = iter_next(singleton_heating_systems_iter)
                     hvac_clg = iter_next(singleton_cooling_systems_iter)
@@ -1899,7 +1912,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 hvac_sys['hvac_distribution'] = []
 
             # Added a error check for separate cooling and heating heat pump system
-            if hvac_sys['heating']['type'] in hp_list and hvac_sys['cooling']['type'] in hp_list and hvac_sys['heating']['type'] != hvac_sys['cooling']['type']:  # noqa: E501
+            if hvac_sys['heating']['type'] in hp_list and hvac_sys['cooling']['type'] in hp_list and \
+                    hvac_sys['heating']['type'] != hvac_sys['cooling']['type']:  # noqa: E501
                 raise TranslationError('Two different heat pump systems: %s for heating, and %s for cooling '
                                        'are not supported in one hvac system.'
                                        % (hvac_sys['heating']['type'], hvac_sys['cooling']['type']))
@@ -2024,7 +2038,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     pvsystem,
                     'h:YearInverterManufactured/text()|h:YearModulesManufactured/text()',
                     aslist=True)
-                )
+            )
             )
             if manufacture_years:
                 years.append(max(manufacture_years))  # Use the latest year of manufacture
@@ -2154,7 +2168,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         assert sys_heating['efficiency_method'] == 'shipment_weighted'
                         do_bounds_check('heating_year', sys_heating['year'], 1970, this_year)
                 else:
-                    if not ((sys_heating['type'] in ('central_furnace', 'baseboard') and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):  # noqa: E501
+                    if not ((sys_heating['type'] in ('central_furnace', 'baseboard') and sys_heating[
+                        'fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):  # noqa: E501
                         raise TranslationError(
                             'Heating system %(fuel_primary)s %(type)s needs an efficiency value.' %
                             sys_heating)
