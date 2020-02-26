@@ -1,6 +1,7 @@
 from .base import HPXMLtoHEScoreTranslatorBase
 from .exceptions import TranslationError
 
+
 def convert_to_type(type_, value):
     if value is None:
         return value
@@ -37,7 +38,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def attic_has_rigid_sheathing(self, attic, v3_roof):
         return self.xpath(attic,
-                          'boolean(h:AtticRoofInsulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])' # noqa: E501
+                          'boolean(h:AtticRoofInsulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])'  # noqa: E501
                           )
 
     def get_attic_roof_rvalue(self, attic, v3_roof):
@@ -94,7 +95,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def get_hescore_walls(self, b):
         return self.xpath(b,
-                          'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]', # noqa: E501
+                          'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]',  # noqa: E501
                           aslist=True)
 
     duct_location_map = {'conditioned space': 'cond_space',

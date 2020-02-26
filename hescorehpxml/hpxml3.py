@@ -50,7 +50,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def attic_has_rigid_sheathing(self, v2_attic, roof):
         return self.xpath(roof,
-                          'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])' # noqa: E501
+                          'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])'  # noqa: E501
                           )
 
     def get_attic_roof_rvalue(self, v2_attic, roof):
@@ -77,7 +77,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def get_attic_type(self, attic, atticd, atticid):
         if self.xpath(attic,
-                      'h:AtticType/h:Attic/h:CapeCod or boolean(h:AtticType/h:FlatRoof) or boolean(h:AtticType/h:CathedralCeiling)'): # noqa: E501
+                      'h:AtticType/h:Attic/h:CapeCod or boolean(h:AtticType/h:FlatRoof) or boolean(h:AtticType/h:CathedralCeiling)'):  # noqa: E501
             atticd['rooftype'] = 'cath_ceiling'
         elif self.xpath(attic, 'boolean(h:AtticType/h:Attic/h:Vented)'):
             atticd['rooftype'] = 'vented_attic'
@@ -109,7 +109,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def get_hescore_walls(self, b):
         return self.xpath(b,
-                          'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="outside" or not(h:ExteriorAdjacentTo)]', # noqa: E501
+                          'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="outside" or not(h:ExteriorAdjacentTo)]',  # noqa: E501
                           aslist=True)
 
     duct_location_map = {'living space': 'cond_space',

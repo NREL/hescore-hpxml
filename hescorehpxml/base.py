@@ -137,8 +137,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             wall_rvalue = xpath(hpxmlwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)', raise_err=True)
             has_rigid_ins = xpath(
                 hpxmlwall,
-                'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])'
-                # noqa: E501
+                'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])'  # noqa: E501
             )
             if tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')) or has_rigid_ins:
                 wallconstype = 'ps'
@@ -608,8 +607,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         else:
             c = xpath(
                 self.hpxmldoc,
-                'h:Contractor[h:ContractorDetails/h:SystemIdentifier/@id=//h:Building[h:BuildingID/@id=$bldg_id]/h:ContractorID/@id]',
-                # noqa E501
+                'h:Contractor[h:ContractorDetails/h:SystemIdentifier/@id=//h:Building[h:BuildingID/@id=$bldg_id]/h:ContractorID/@id]',  # noqa: E501
                 bldg_id=hpxml_bldg_id
             )
             if c is None:
@@ -812,8 +810,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                  float(xpath(bldg_cons_el, 'h:ConditionedFloorArea/text()', raise_err=True))
             except ElementNotFoundError:
                 raise TranslationError(
-                    'Either AverageCeilingHeight or both ConditionedBuildingVolume and ConditionedFloorArea are required.'
-                    # noqa E501
+                    'Either AverageCeilingHeight or both ConditionedBuildingVolume and ConditionedFloorArea are required.'  # noqa: E501
                 )
         else:
             avg_ceiling_ht = float(avg_ceiling_ht)
@@ -1183,8 +1180,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             for area in areas:
                 if abs(area) < smallnum:  # area == 0
                     raise TranslationError(
-                        'If there is more than one foundation, each needs an area specified on either the Slab or FrameFloor.'
-                        # noqa: E501
+                        'If there is more than one foundation, each needs an area specified on either the Slab or FrameFloor.'  # noqa: E501
                     )
         sum_area_largest_two = sum(areas[0:2])
         sum_area = sum(areas)
@@ -1470,12 +1466,13 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                 break
                     if not window_sides:
                         raise TranslationError(
-                            'The Window[SystemIdentifier/@id="{}"] has no Azimuth or Orientation, and the Window/AttachedToWall/@idref of "{}" didn\'t reference a Wall element.'.format(
-                                window_id, attached_to_wall_id))  # noqa: E501
+                            'The Window[SystemIdentifier/@id="{}"] has no Azimuth or Orientation, '
+                            'and the Window/AttachedToWall/@idref of "{}" didn\'t reference a Wall element.'.format(
+                                window_id, attached_to_wall_id))
                 else:
                     raise TranslationError(
-                        'Window[SystemIdentifier/@id="{}"] doesn\'t have Azimuth, Orientation, or AttachedToWall. At least one is required.'.format(
-                            window_id)  # noqa: E501
+                        'Window[SystemIdentifier/@id="{}"] doesn\'t have Azimuth, Orientation, or AttachedToWall. '
+                        'At least one is required.'.format(window_id)  # noqa: E501
                     )
             else:
                 # Azimuth found, associate with a side
@@ -1737,8 +1734,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 break
         if not found_weighting_factor:
             raise TranslationError(
-                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed.'
-                # noqa: E501
+                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed.'  # noqa: E501
             )
 
         # Calculate the sum of the weights (total fraction or floor area)

@@ -2288,6 +2288,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], 'mini_split')
         self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'mini_split')
 
+
 class TestHEScoreV3(unittest.TestCase, ComparatorBase):
 
     def test_hpwes(self):
