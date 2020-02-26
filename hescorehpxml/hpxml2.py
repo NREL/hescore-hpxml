@@ -6,14 +6,15 @@ from .exceptions import (
     RoundOutOfBounds,
 )
 
+
 def convert_to_type(type_, value):
     if value is None:
         return value
     else:
         return type_(value)
 
-class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
+class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     SCHEMA_DIR = 'hpxml-2.3.0'
 
     def check_hpwes(self, p, v3_b):
@@ -21,7 +22,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
             return self.xpath(p, 'h:ProjectDetails/h:ProgramCertificate="Home Performance with Energy Star"')
 
     def sort_foundations(self, fnd, v3_b):
-    # Sort the foundations from largest area to smallest
+        # Sort the foundations from largest area to smallest
         def get_fnd_area(fnd):
             return max([self.xpath(fnd, 'sum(h:%s/h:Area)' % x) for x in ('Slab', 'FrameFloor')])
 
@@ -54,10 +55,10 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         knee_walls = []
         for kneewall_idref in self.xpath(attic, 'h:AtticKneeWall/@idref', aslist=True):
             wall = self.xpath(
-                                b,
-                                'descendant::h:Wall[h:SystemIdentifier/@id=$kneewallid]',
-                                raise_err=True,
-                                kneewallid=kneewall_idref
+                b,
+                'descendant::h:Wall[h:SystemIdentifier/@id=$kneewallid]',
+                raise_err=True,
+                kneewallid=kneewall_idref
             )
             wall_rvalue = self.xpath(wall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
             wall_area = self.xpath(wall, 'h:Area/text()')
@@ -69,7 +70,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         return knee_walls
 
     def get_attic_type(self, attic, atticd, atticid):
-        hpxml_attic_type =  self.xpath(attic, 'h:AtticType/text()')
+        hpxml_attic_type = self.xpath(attic, 'h:AtticType/text()')
         rooftypemap = {'cape cod': 'cath_ceiling',
                        'cathedral ceiling': 'cath_ceiling',
                        'flat roof': 'cath_ceiling',
@@ -77,7 +78,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                        'vented attic': 'vented_attic',
                        'venting unknown attic': 'vented_attic',
                        'other': None}
-        atticd['rooftype'] =  rooftypemap[hpxml_attic_type]
+        atticd['rooftype'] = rooftypemap[hpxml_attic_type]
 
         if atticd['rooftype'] is None:
             attc_is_cond = self.xpath(attic, 'h:extension/h:Conditioned/text()')
@@ -85,8 +86,8 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                 atticd['rooftype'] = 'cond_attic'
             else:
                 raise TranslationError(
-                    'Attic {}: Cannot translate HPXML AtticType {} to HEScore rooftype.'.format(atticid, hpxml_attic_type))
-
+                    'Attic {}: Cannot translate HPXML AtticType {} to HEScore rooftype.'.format(atticid,
+                                                                                                hpxml_attic_type))
 
     def get_attic_floor_rvalue(self, attic, v3_b):
         return self.xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
@@ -96,11 +97,12 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def get_sunscreen(self, wndw_skylight):
         return bool(self.xpath(wndw_skylight, 'h:Treatments/text()') == 'solar screen'
-                                or self.xpath(wndw_skylight, 'h:ExteriorShading/text()') == 'solar screens')
+                    or self.xpath(wndw_skylight, 'h:ExteriorShading/text()') == 'solar screens')
 
     def get_hescore_walls(self, b):
         return self.xpath(b,
-            'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]', aslist=True)
+                          'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]',
+                          aslist=True)
 
     duct_location_map = {'conditioned space': 'cond_space',
                          'unconditioned space': None,

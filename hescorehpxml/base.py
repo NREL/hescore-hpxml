@@ -275,6 +275,13 @@ class HPXMLtoHEScoreTranslatorBase(object):
                           'ground-to-air': 'gchp',
                           'ground-to-water': 'gchp'}
 
+    def add_fuel_type(self, fuel_type):
+        # Some fuel types are not included in fuel_type_mapping, throw an error if not mapped.
+        try:
+            return self.fuel_type_mapping[fuel_type]
+        except KeyError:
+            raise TranslationError('HEScore does not support the HPXML fuel type %s' % fuel_type)
+
     def get_heating_system_type(self, htgsys):
         xpath = self.xpath
         ns = self.ns
@@ -292,11 +299,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         else:
             assert htgsys.tag.endswith('HeatingSystem')
             fuel_type = xpath(htgsys, 'h:HeatingSystemFuel/text()', raise_err=True)
-            # Some fuel types are not included in fuel_type_mapping, throw an error if not mapped.
-            try:
-                sys_heating['fuel_primary'] = self.fuel_type_mapping[fuel_type]
-            except KeyError:
-                raise TranslationError('HEScore does not support the HPXML fuel type %s' % fuel_type)
+            sys_heating['fuel_primary'] = self.add_fuel_type(fuel_type)
             hpxml_heating_type = xpath(htgsys, 'name(h:HeatingSystemType/*)', raise_err=True)
             try:
                 sys_heating['type'] = {'Furnace': 'central_furnace',
@@ -1956,11 +1959,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'storage'
             fuel_type = xpath(primarydhw, 'h:FuelType/text()', raise_err=True)
-            # Some fuel types are not included in fuel_type_mapping, throw an error if not mapped.
-            try:
-                sys_dhw['fuel_primary'] = self.fuel_type_mapping[fuel_type]
-            except KeyError:
-                raise TranslationError('HEScore does not support the HPXML fuel type %s' % fuel_type)
+            sys_dhw['fuel_primary'] = self.add_fuel_type(fuel_type)
         elif water_heater_type == 'space-heating boiler with storage tank':
             sys_dhw['category'] = 'combined'
             sys_dhw['type'] = 'indirect'
@@ -1975,11 +1974,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             sys_dhw['category'] = 'unit'
             sys_dhw['type'] = 'tankless'
             fuel_type = xpath(primarydhw, 'h:FuelType/text()', raise_err=True)
-            # Some fuel types are not included in fuel_type_mapping, throw an error if not mapped.
-            try:
-                sys_dhw['fuel_primary'] = self.fuel_type_mapping[fuel_type]
-            except KeyError:
-                raise TranslationError('HEScore does not support the HPXML fuel type %s' % fuel_type)
+            sys_dhw['fuel_primary'] = self.add_fuel_type(fuel_type)
         else:
             raise TranslationError('HEScore cannot model the water heater type: %s' % water_heater_type)
 
