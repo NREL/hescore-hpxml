@@ -63,7 +63,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
         return knee_walls
 
-    def get_attic_type(self, attic, atticd, atticid):
+    def get_attic_type(self, attic, atticid):
         hpxml_attic_type = self.xpath(attic, 'h:AtticType/text()')
         rooftypemap = {'cape cod': 'cath_ceiling',
                        'cathedral ceiling': 'cath_ceiling',
@@ -72,16 +72,16 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                        'vented attic': 'vented_attic',
                        'venting unknown attic': 'vented_attic',
                        'other': None}
-        atticd['rooftype'] = rooftypemap[hpxml_attic_type]
 
-        if atticd['rooftype'] is None:
+        if rooftypemap[hpxml_attic_type] is None:
             attc_is_cond = self.xpath(attic, 'h:extension/h:Conditioned/text()')
             if attc_is_cond == 'true':
-                atticd['rooftype'] = 'cond_attic'
+                return 'cond_attic'
             else:
                 raise TranslationError(
                     'Attic {}: Cannot translate HPXML AtticType {} to HEScore rooftype.'.format(atticid,
                                                                                                 hpxml_attic_type))
+        return rooftypemap[hpxml_attic_type]
 
     def get_attic_floor_rvalue(self, attic, v3_b):
         return self.xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')

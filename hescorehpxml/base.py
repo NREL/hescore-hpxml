@@ -933,7 +933,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                            'Please specify under the attached frame floor element: FrameFloor/Area.')
 
             # Roof type
-            self.get_attic_type(attic, atticd, atticid)
+            atticd['rooftype'] = self.get_attic_type(attic, atticid)
 
             # Roof color
             solar_absorptance = convert_to_type(float, xpath(roof, 'h:SolarAbsorptance/text()'))
