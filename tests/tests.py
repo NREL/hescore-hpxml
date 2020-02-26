@@ -2289,6 +2289,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'mini_split')
 
 class TestHEScoreV3(unittest.TestCase, ComparatorBase):
+
     def test_hpwes(self):
         tr = self._load_xmlfile('hescore_min_v3')
         E = self.element_maker()
@@ -2370,7 +2371,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min_v3')
         window1 = self.xpath('//h:Window[h:SystemIdentifier/@id="window1"]')
         el = etree.SubElement(window1, tr.addns('h:ExteriorShading'))
-        etree.SubElement(el, tr.addns('h:SystemIdentifier'), attrib ={'id': 'ext_shading'})
+        etree.SubElement(el, tr.addns('h:SystemIdentifier'), attrib={'id': 'ext_shading'})
         etree.SubElement(el, tr.addns('h:Type')).text = 'solar screens'
         d = tr.hpxml_to_hescore()
 
@@ -2607,6 +2608,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore()
         self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], 'mini_split')
         self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'mini_split')
+
 
 if __name__ == "__main__":
     unittest.main()
