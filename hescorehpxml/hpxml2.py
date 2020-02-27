@@ -86,8 +86,18 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_attic_floor_rvalue(self, attic, v3_b):
         return self.xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
 
-    def get_roof_area(self, attic, v3_b):
-        return convert_to_type(float, self.xpath(attic, 'h:Area/text()'))
+    def get_attic_area(self, attic, v3_b, is_one_roof, footprint_area):
+        attic_area = convert_to_type(float, self.xpath(attic, 'h:Area/text()'))
+        if attic_area is None:
+            if is_one_roof:
+                attic_area = footprint_area
+            else:
+                raise TranslationError(
+                    'If there are more than one Attic elements, each needs an area. Please specify under Attic/Area.')
+        return attic_area
+
+    def get_attic_roof_area(self, roof):
+        return convert_to_type(float, self.xpath(roof, 'h:RoofArea/text()'))
 
     def get_sunscreen(self, wndw_skylight):
         return bool(self.xpath(wndw_skylight, 'h:Treatments/text()') == 'solar screen'

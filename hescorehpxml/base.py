@@ -900,8 +900,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         atticds = []
         for attic in attics:
-            atticd = {}
-            atticds.append(atticd)
             atticid = xpath(attic, 'h:SystemIdentifier/@id', raise_err=True)
             roofids = xpath(attic, 'h:AttachedToRoof/@idref', aslist=True)
             attic_roofs = xpath(
@@ -910,87 +908,121 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             if len(attic_roofs) == 0:
                 if len(roofs) == 1:
-                    roof = roofs[0]
+                    attic_roofs = roofs
                 else:
                     raise TranslationError(
                         'Attic {} does not have a roof associated with it.'.format(atticid)
                     )
-            else:
-                # multiple roofs?
-                roof = attic_roofs[0]
 
-            # Roof id to use to match skylights later
-            atticd['_roofid'] = xpath(roof, 'h:SystemIdentifier/@id', raise_err=True)
+            atticd = {}
+            atticds.append(atticd)
 
-            # Roof area
-            atticd['roof_area'] = self.get_roof_area(attic, b)
-            if atticd['roof_area'] is None:
-                if len(attics) == 1 and len(roofs) == 1:
-                    atticd['roof_area'] = footprint_area
-                else:
-                    raise TranslationError('If there are more than one Attic elements, each needs an area. If HPXML '
-                                           'version 2.*, please specify under Attic/Area, if HPXML version 3.*, '
-                                           'Please specify under the attached frame floor element: FrameFloor/Area.')
+            # Attic area
+            is_one_roof = (len(attics) == 1 and len(roofs) == 1)
+            atticd['roof_area'] = self.get_attic_area(attic, b, is_one_roof, footprint_area)
 
             # Roof type
             atticd['rooftype'] = self.get_attic_type(attic, atticid)
 
-            # Roof color
-            solar_absorptance = convert_to_type(float, xpath(roof, 'h:SolarAbsorptance/text()'))
-            if solar_absorptance is not None:
-                atticd['roofcolor'] = 'cool_color'
-                atticd['roof_absorptance'] = solar_absorptance
-            else:
+            # Get other roof information in attached Roof nodes.
+            attic_roof_ls = []
+            for roof in attic_roofs:
+                attic_roofs_d = {}
+                attic_roof_ls.append(attic_roofs_d)
+                attic_roofs_d['roof_id'] = xpath(roof, 'h:SystemIdentifier/@id', raise_err=True)
+                # Roof area
+                attic_roofs_d['roof_area'] = self.get_attic_roof_area(roof)
+                if attic_roofs_d['roof_area'] is None:
+                    if len(attic_roofs) == 1:
+                        attic_roofs_d['roof_area'] = self.get_attic_area(attic, b, is_one_roof, footprint_area)
+                    else:
+                        raise TranslationError(
+                            'If there are more than one Roof elements attached to a single attic, each needs an area.')
+
+                # Roof color
+                solar_absorptance = convert_to_type(float, xpath(roof, 'h:SolarAbsorptance/text()'))
+                attic_roofs_d['roof_absorptance'] = solar_absorptance
+                if solar_absorptance is not None:
+                    attic_roofs_d['roofcolor'] = 'cool_color'
+                else:
+                    try:
+                        attic_roofs_d['roofcolor'] = {
+                            'light': 'light',
+                            'medium': 'medium',
+                            'medium dark': 'medium_dark',
+                            'dark': 'dark',
+                            'reflective': 'white'
+                        }[xpath(roof, 'h:RoofColor/text()', raise_err=True)]
+                    except KeyError:
+                        raise TranslationError('Attic {}: Invalid or missing RoofColor in Roof: {}'.format(atticid, attic_roofs_d['roof_id']))  # noga: E501
+
+                # Exterior finish
+                hpxml_roof_type = xpath(roof, 'h:RoofType/text()')
                 try:
-                    atticd['roofcolor'] = {
-                        'light': 'light',
-                        'medium': 'medium',
-                        'medium dark': 'medium_dark',
-                        'dark': 'dark',
-                        'reflective': 'white'
-                    }[xpath(roof, 'h:RoofColor/text()', raise_err=True)]
-                except KeyError:
-                    raise TranslationError('Attic {}: Invalid or missing RoofColor'.format(atticid))
+                    attic_roofs_d['extfinish'] = {'shingles': 'co',
+                                           'slate or tile shingles': 'rc',
+                                           'wood shingles or shakes': 'wo',
+                                           'asphalt or fiberglass shingles': 'co',
+                                           'metal surfacing': 'co',
+                                           'expanded polystyrene sheathing': None,
+                                           'plastic/rubber/synthetic sheeting': 'tg',
+                                           'concrete': 'lc',
+                                           'cool roof': None,
+                                           'green roof': None,
+                                           'no one major type': None,
+                                           'other': None}[hpxml_roof_type]
+                    assert attic_roofs_d['extfinish'] is not None
+                except (KeyError, AssertionError):
+                    raise TranslationError(
+                        'Attic {}: HEScore does not have an analogy to the HPXML roof type: {} for Roof : {}'.format(
+                            atticid, hpxml_roof_type, attic_roofs_d['roof_id']))
 
-            # Exterior finish
-            hpxml_roof_type = xpath(roof, 'h:RoofType/text()')
-            try:
-                atticd['extfinish'] = {'shingles': 'co',
-                                       'slate or tile shingles': 'rc',
-                                       'wood shingles or shakes': 'wo',
-                                       'asphalt or fiberglass shingles': 'co',
-                                       'metal surfacing': 'co',
-                                       'expanded polystyrene sheathing': None,
-                                       'plastic/rubber/synthetic sheeting': 'tg',
-                                       'concrete': 'lc',
-                                       'cool roof': None,
-                                       'green roof': None,
-                                       'no one major type': None,
-                                       'other': None}[hpxml_roof_type]
-                assert atticd['extfinish'] is not None
-            except (KeyError, AssertionError):
-                raise TranslationError(
-                    'Attic {}: HEScore does not have an analogy to the HPXML roof type: {}'.format(atticid,
-                                                                                                   hpxml_roof_type))
+                # construction type
+                has_rigid_sheathing = self.attic_has_rigid_sheathing(attic, roof)
+                has_radiant_barrier = xpath(roof, 'h:RadiantBarrier="true"')
+                if has_radiant_barrier:
+                    attic_roofs_d['roofconstype'] = 'rb'
+                elif has_rigid_sheathing:
+                    attic_roofs_d['roofconstype'] = 'ps'
+                else:
+                    attic_roofs_d['roofconstype'] = 'wf'
 
-            # construction type
-            has_rigid_sheathing = self.attic_has_rigid_sheathing(attic, roof)
-            has_radiant_barrier = xpath(roof, 'h:RadiantBarrier="true"')
-            if has_radiant_barrier:
-                atticd['roofconstype'] = 'rb'
-            elif has_rigid_sheathing:
-                atticd['roofconstype'] = 'ps'
-            else:
-                atticd['roofconstype'] = 'wf'
+                # roof center of cavity R-value
+                roof_rvalue = self.get_attic_roof_rvalue(attic, roof)
+                # subtract the R-value of the rigid sheating in the HEScore construction.
+                if attic_roofs_d['roofconstype'] == 'ps':
+                    roof_rvalue -= 5
+                roof_rvalue, attic_roofs_d['roof_coc_rvalue'] = \
+                    min(list(roof_center_of_cavity_rvalues[attic_roofs_d['roofconstype']][attic_roofs_d['extfinish']].items()),  # noga: E501
+                        key=lambda x: abs(x[0] - roof_rvalue))
 
-            # roof center of cavity R-value
-            roof_rvalue = self.get_attic_roof_rvalue(attic, roof)
-            # subtract the R-value of the rigid sheating in the HEScore construction.
-            if atticd['roofconstype'] == 'ps':
-                roof_rvalue -= 5
-            roof_rvalue, atticd['roof_coc_rvalue'] = \
-                min(list(roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']].items()),
-                    key=lambda x: abs(x[0] - roof_rvalue))
+            # Determine predominant roof characteristics for attic.
+            # Roof Area
+            atticd['roof_area'] = sum([attic_roofs_d['roof_area'] for attic_roofs_d in attic_roof_ls])
+
+            # Roof type, roof color, exterior finish, construction type
+            for roof_key in ('roofconstype', 'extfinish', 'roofcolor', 'roof_absorptance'):
+                roof_area_by_cat = {}
+                for attic_roofs_d in attic_roof_ls:
+                    try:
+                        roof_area_by_cat[attic_roofs_d[roof_key]] += attic_roofs_d['roof_area']
+                    except KeyError:
+                        roof_area_by_cat[attic_roofs_d[roof_key]] = attic_roofs_d['roof_area']
+                atticd[roof_key] = max(roof_area_by_cat, key=lambda x: roof_area_by_cat[x])
+
+            if (atticd['roof_absorptance'] == None):
+                del atticd['roof_absorptance']
+
+            # ids of hpxml roofs along for the ride
+            atticd['_roofid'] = ''
+            for attic_roofs_d in attic_roof_ls:
+                atticd['_roofid'] += attic_roofs_d['roof_id']
+
+            # Calculate roof area weighted center of cavity R-value
+            atticd['roof_coc_rvalue'] = \
+                    atticd['roof_area'] / \
+                    sum([old_div(attic_roofs_d['roof_area'], attic_roofs_d['roof_coc_rvalue']) for attic_roofs_d in attic_roof_ls])  # noga: E501
+
 
             # knee walls
             knee_walls = self.get_attic_knee_walls(attic, b)

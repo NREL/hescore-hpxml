@@ -90,19 +90,44 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_attic_floor_rvalue(self, attic, b):
         floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')
         frame_floors = self.xpath(b, '//h:FrameFloor[contains(%s, h:SystemIdentifier/@id)]' % floor_idref, aslist=True)
-        rvalue = 0.0
+        if frame_floors is None:
+            raise TranslationError(
+                'No FrameFloor attached to Attic: {}'.format(self.xpath(attic, 'h:SystemIdentifier/@id')))
+        frame_floors = []
         for frame_floor in frame_floors:
-            rvalue += self.xpath(frame_floor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-        return rvalue
+            area = self.xpath(frame_floor, 'h:Area/text()')
+            if area is None:
+                raise TranslationError('All attic frame floors need an Area specified')
+            rvalue = self.xpath(frame_floor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+            frame_floors.append({'area': area, 'rvalue': rvalue})
 
-    def get_roof_area(self, attic, b):
+        try:
+            floor_r = sum(x['area'] for x in frame_floors) / sum(x['area'] / x['rvalue'] for x in frame_floors)
+        except ZeroDivisionError:
+            floor_r = 0
+
+        return floor_r
+
+    def get_attic_area(self, attic, b, is_one_roof, footprint_area):
         floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')
         frame_floors = self.xpath(b, '//h:FrameFloor[contains("%s", h:SystemIdentifier/@id)]' % floor_idref,
                                   aslist=True)
         area = 0.0
-        for frame_floor in frame_floors:
-            area += convert_to_type(float, self.xpath(frame_floor, 'h:Area/text()'))
+        if frame_floors is None:
+            if is_one_roof:
+                area = footprint_area
+            else:
+                raise TranslationError(
+                    'If there are more than one Attic elements, each needs an area. Please specify under the attached '
+                    'frame floor element: FrameFloor/Area.')
+        else:
+            for frame_floor in frame_floors:
+                area += convert_to_type(float, self.xpath(frame_floor, 'h:Area/text()'))
+
         return area
+
+    def get_attic_roof_area(self, roof):
+        return convert_to_type(float, self.xpath(roof, 'h:Area/text()'))
 
     def get_sunscreen(self, wndw_skylight):
         return bool(self.xpath(wndw_skylight, 'h:ExteriorShading/h:Type/text()') == 'solar screens')
