@@ -137,7 +137,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             wall_rvalue = xpath(hpxmlwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)', raise_err=True)
             has_rigid_ins = xpath(
                 hpxmlwall,
-                'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])'  # noqa: E501
+                'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean('
+                'h:InsulationMaterial/h:Rigid)])'
             )
             if tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')) or has_rigid_ins:
                 wallconstype = 'ps'
@@ -607,7 +608,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         else:
             c = xpath(
                 self.hpxmldoc,
-                'h:Contractor[h:ContractorDetails/h:SystemIdentifier/@id=//h:Building[h:BuildingID/@id=$bldg_id]/h:ContractorID/@id]',  # noqa: E501
+                'h:Contractor[h:ContractorDetails/h:SystemIdentifier/@id=//h:Building['
+                'h:BuildingID/@id=$bldg_id]/h:ContractorID/@id]',
                 bldg_id=hpxml_bldg_id
             )
             if c is None:
@@ -810,7 +812,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                  float(xpath(bldg_cons_el, 'h:ConditionedFloorArea/text()', raise_err=True))
             except ElementNotFoundError:
                 raise TranslationError(
-                    'Either AverageCeilingHeight or both ConditionedBuildingVolume and ConditionedFloorArea are required.'  # noqa: E501
+                    'Either AverageCeilingHeight or both ConditionedBuildingVolume and ConditionedFloorArea are '
+                    'required.'
                 )
         else:
             avg_ceiling_ht = float(avg_ceiling_ht)
@@ -954,23 +957,24 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             'reflective': 'white'
                         }[xpath(roof, 'h:RoofColor/text()', raise_err=True)]
                     except KeyError:
-                        raise TranslationError('Attic {}: Invalid or missing RoofColor in Roof: {}'.format(atticid, attic_roofs_d['roof_id']))  # noga: E501
+                        raise TranslationError('Attic {}: Invalid or missing RoofColor in Roof: {}'.format(atticid,
+                                                                                                           attic_roofs_d['roof_id']))  # noqa: E501
 
                 # Exterior finish
                 hpxml_roof_type = xpath(roof, 'h:RoofType/text()')
                 try:
                     attic_roofs_d['extfinish'] = {'shingles': 'co',
-                                           'slate or tile shingles': 'rc',
-                                           'wood shingles or shakes': 'wo',
-                                           'asphalt or fiberglass shingles': 'co',
-                                           'metal surfacing': 'co',
-                                           'expanded polystyrene sheathing': None,
-                                           'plastic/rubber/synthetic sheeting': 'tg',
-                                           'concrete': 'lc',
-                                           'cool roof': None,
-                                           'green roof': None,
-                                           'no one major type': None,
-                                           'other': None}[hpxml_roof_type]
+                                                  'slate or tile shingles': 'rc',
+                                                  'wood shingles or shakes': 'wo',
+                                                  'asphalt or fiberglass shingles': 'co',
+                                                  'metal surfacing': 'co',
+                                                  'expanded polystyrene sheathing': None,
+                                                  'plastic/rubber/synthetic sheeting': 'tg',
+                                                  'concrete': 'lc',
+                                                  'cool roof': None,
+                                                  'green roof': None,
+                                                  'no one major type': None,
+                                                  'other': None}[hpxml_roof_type]
                     assert attic_roofs_d['extfinish'] is not None
                 except (KeyError, AssertionError):
                     raise TranslationError(
@@ -993,7 +997,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 if attic_roofs_d['roofconstype'] == 'ps':
                     roof_rvalue -= 5
                 roof_rvalue, attic_roofs_d['roof_coc_rvalue'] = \
-                    min(list(roof_center_of_cavity_rvalues[attic_roofs_d['roofconstype']][attic_roofs_d['extfinish']].items()),  # noga: E501
+                    min(list(roof_center_of_cavity_rvalues[attic_roofs_d['roofconstype']][
+                                 attic_roofs_d['extfinish']].items()),
                         key=lambda x: abs(x[0] - roof_rvalue))
 
             # Determine predominant roof characteristics for attic.
@@ -1010,7 +1015,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         roof_area_by_cat[attic_roofs_d[roof_key]] = attic_roofs_d['roof_area']
                 atticd[roof_key] = max(roof_area_by_cat, key=lambda x: roof_area_by_cat[x])
 
-            if (atticd['roof_absorptance'] == None):
+            if atticd['roof_absorptance'] is None:
                 del atticd['roof_absorptance']
 
             # ids of hpxml roofs along for the ride
@@ -1020,9 +1025,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             # Calculate roof area weighted center of cavity R-value
             atticd['roof_coc_rvalue'] = \
-                    atticd['roof_area'] / \
-                    sum([old_div(attic_roofs_d['roof_area'], attic_roofs_d['roof_coc_rvalue']) for attic_roofs_d in attic_roof_ls])  # noga: E501
-
+                atticd['roof_area'] / \
+                sum([old_div(attic_roofs_d['roof_area'], attic_roofs_d['roof_coc_rvalue']) for attic_roofs_d in
+                     attic_roof_ls])
 
             # knee walls
             knee_walls = self.get_attic_knee_walls(attic, b)
@@ -1212,7 +1217,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             for area in areas:
                 if abs(area) < smallnum:  # area == 0
                     raise TranslationError(
-                        'If there is more than one foundation, each needs an area specified on either the Slab or FrameFloor.'  # noqa: E501
+                        'If there is more than one foundation, each needs an area specified on either the Slab or '
+                        'FrameFloor.'
                     )
         sum_area_largest_two = sum(areas[0:2])
         sum_area = sum(areas)
@@ -1766,7 +1772,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 break
         if not found_weighting_factor:
             raise TranslationError(
-                'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed.'  # noqa: E501
+                'Every heating/cooling system needs to have either FloorAreaServed or '
+                'FracHeatLoadServed/FracCoolLoadServed.'
             )
 
         # Calculate the sum of the weights (total fraction or floor area)

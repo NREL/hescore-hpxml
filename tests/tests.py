@@ -2390,21 +2390,29 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
                                 r'Exterior finish information is missing',
                                 tr.hpxml_to_hescore)
 
-    # def test_attic_with_multiple_roofs(self):
-    #     # tr = self._load_xmlfile('hescore_min_v3')
-    #     # res1 = tr.hpxml_to_hescore()
-    #     # el = self.xpath('//h:Attic/h:AttachedToRoof')
-    #     # roof = self.xpath('//h:Roof')
-    #     # roof_2 = deepcopy(roof)
-    #     # tr.xpath(roof_2, 'h:SystemIdentifier').attrib['id'] = "roof2"
-    #     # tr.xpath(roof_2, 'h:Insulation/h:SystemIdentifier').attrib['id'] = "attic1roofins2"
-    #     # roof.addnext(roof_2)
-    #     # el_2 = deepcopy(el)
-    #     # el_2.attrib['idref'] = "roof2"
-    #     # el.addnext(el_2)
-    #     # res2 = tr.hpxml_to_hescore()
-    #     # # Currently, only first roof passed.
-    #     # self.assertEqual(res1, res2)
+    def test_attic_with_multiple_roofs(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+        el = self.xpath('//h:Attic/h:AttachedToRoof')
+        roof = self.xpath('//h:Roof')
+        roof_area = etree.Element(tr.addns('h:Area'))
+        roof_area.text = '600'
+        self.xpath('//h:Roof/h:SystemIdentifier').addnext(roof_area)
+        self.xpath('//h:Roof/h:Insulation/h:Layer/h:NominalRValue').text = '2'
+        roof_2 = deepcopy(roof)
+        tr.xpath(roof_2, 'h:SystemIdentifier').attrib['id'] = "roof2"
+        tr.xpath(roof_2, 'h:Insulation/h:SystemIdentifier').attrib['id'] = "attic1roofins2"
+        tr.xpath(roof_2, 'h:Insulation/h:Layer/h:NominalRValue').text = '6'
+        roof.addnext(roof_2)
+        el_2 = deepcopy(el)
+        el_2.attrib['idref'] = "roof2"
+        el.addnext(el_2)
+        res = tr.hpxml_to_hescore()
+        # Currently, only first roof passed.
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00co')
+        self.xpath('//h:Roof[1]/h:Insulation/h:Layer/h:NominalRValue').text = '19'
+        self.xpath('//h:Roof[2]/h:Insulation/h:Layer/h:NominalRValue').text = '27'
+        res2 = tr.hpxml_to_hescore()
+        self.assertEqual(res2['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf21co')
 
     def test_siding_fail2(self):
         tr = self._load_xmlfile('hescore_min_v3')
