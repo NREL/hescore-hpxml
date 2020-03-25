@@ -1003,16 +1003,16 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             # Determine predominant roof characteristics for attic.
             # Roof Area
-            atticd['roof_area'] = sum([attic_roofs['roof_area'] for attic_roofs in attic_roof_ls])
+            atticd['roof_area'] = sum([attic_roofs_dict['roof_area'] for attic_roofs_dict in attic_roof_ls])
 
             # Roof type, roof color, exterior finish, construction type
             for roof_key in ('roofconstype', 'extfinish', 'roofcolor', 'roof_absorptance'):
                 roof_area_by_cat = {}
-                for attic_roofs in attic_roof_ls:
+                for attic_roofs_dict in attic_roof_ls:
                     try:
-                        roof_area_by_cat[attic_roofs[roof_key]] += attic_roofs['roof_area']
+                        roof_area_by_cat[attic_roofs_dict[roof_key]] += attic_roofs_dict['roof_area']
                     except KeyError:
-                        roof_area_by_cat[attic_roofs[roof_key]] = attic_roofs['roof_area']
+                        roof_area_by_cat[attic_roofs_dict[roof_key]] = attic_roofs_dict['roof_area']
                 atticd[roof_key] = max(roof_area_by_cat, key=lambda x: roof_area_by_cat[x])
 
             if atticd['roof_absorptance'] is None:
@@ -1020,13 +1020,13 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             # ids of hpxml roofs along for the ride
             atticd['_roofid'] = ''
-            for attic_roofs in attic_roof_ls:
-                atticd['_roofid'] += attic_roofs['roof_id']
+            for attic_roofs_dict in attic_roof_ls:
+                atticd['_roofid'] += attic_roofs_dict['roof_id']
 
             # Calculate roof area weighted center of cavity R-value
             atticd['roof_coc_rvalue'] = \
                 atticd['roof_area'] / \
-                sum([old_div(attic_roofs['roof_area'], attic_roofs['roof_coc_rvalue']) for attic_roofs in
+                sum([old_div(attic_roofs_dict['roof_area'], attic_roofs_dict['roof_coc_rvalue']) for attic_roofs_dict in
                      attic_roof_ls])
 
             # knee walls
