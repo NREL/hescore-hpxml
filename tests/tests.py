@@ -2506,7 +2506,6 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         d_2_v3 = tr_v3.hpxml_to_hescore()
         self.assertEqual(d_2['building']['systems']['hvac'], d_2_v3['building']['systems']['hvac'])
 
-
         # clg system mini-split + heatpump for heating: should give error for two different heat pump systems
         clg_sys = E.CoolingSystem(
             E.SystemIdentifier(id='centralair'),
