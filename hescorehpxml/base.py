@@ -1002,8 +1002,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         key=lambda x: abs(x[0] - roof_rvalue))
 
             # Determine predominant roof characteristics for attic.
-            # Roof Area
-            atticd['roof_area'] = sum([attic_roofs_dict['roof_area'] for attic_roofs_dict in attic_roof_ls])
+            # Sum of Roof Areas in the same Attic
+            attic_roof_area_sum = sum([attic_roofs_dict['roof_area'] for attic_roofs_dict in attic_roof_ls])
 
             # Roof type, roof color, exterior finish, construction type
             for roof_key in ('roofconstype', 'extfinish', 'roofcolor', 'roof_absorptance'):
@@ -1025,7 +1025,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             # Calculate roof area weighted center of cavity R-value
             atticd['roof_coc_rvalue'] = \
-                atticd['roof_area'] / \
+                attic_roof_area_sum / \
                 sum([old_div(attic_roofs_dict['roof_area'], attic_roofs_dict['roof_coc_rvalue']) for attic_roofs_dict in
                      attic_roof_ls])
 
