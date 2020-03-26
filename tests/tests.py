@@ -2703,5 +2703,6 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
             r'No such FrameFloor: frame_floor_not_exist found, check AttachedToFrameFloor element of Attic: attic1.',
             tr.hpxml_to_hescore)
 
+
 if __name__ == "__main__":
     unittest.main()
