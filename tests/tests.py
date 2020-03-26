@@ -780,29 +780,23 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         Unit test for #48
         """
         tr = self._load_xmlfile('hescore_min')
-        # make a copy of the first wall
         wall1 = self.xpath('//h:Wall[1]')
-        wall2 = deepcopy(wall1)
-        # change the system id
-        sysid = wall2.find(tr.addns('h:SystemIdentifier'))
-        sysid.attrib['id'] = 'wall2'
-        # and the insulation id
-        ins_sysid = wall2.xpath('h:Insulation/h:SystemIdentifier', namespaces=tr.ns)[0]
-        ins_sysid.attrib['id'] = 'wall2ins'
-        # remove the siding
-        siding = wall2.find(tr.addns('h:Siding'))
-        wall2.remove(siding)
-        # add an ExteriorAdjacentTo = attic
-        ext_adj_to = etree.Element(tr.addns('h:ExteriorAdjacentTo'))
-        ext_adj_to.text = 'attic'
-        wall2.insert(1, ext_adj_to)
-        # add an area
-        area_el = etree.Element(tr.addns('h:Area'))
-        area_el.text = '200'
-        wall2.find(tr.addns('h:WallType')).addnext(area_el)
-        # insert new wall
-        walls = self.xpath('//h:Walls')
-        walls.append(wall2)
+        E = self.element_maker()
+        # new knee wall
+        wall2 = E.Wall(
+            E.SystemIdentifier(id='wall2'),
+            E.ExteriorAdjacentTo('attic'),
+            E.WallType(E.WoodStud()),
+            E.Area('200'),
+            E.Insulation(
+                E.SystemIdentifier(id='wall2ins'),
+                E.Layer(
+                    E.InstallationType('cavity'),
+                    E.NominalRValue('11')
+                )
+            )
+        )
+        wall1.addnext(wall2)
         # Reference wall in Attic
         attic_type = self.xpath('//h:Attic/h:AtticType')
         attic_type.addprevious(etree.Element(tr.addns('h:AtticKneeWall'), {'idref': 'wall2'}))
@@ -810,6 +804,33 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         resp = tr.hpxml_to_hescore()
         self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf30')
         self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
+
+        # HPXML v3
+        tr_v3 = self._load_xmlfile('hescore_min_v3')
+        wall1 = self.xpath('//h:Wall[1]')
+        E = self.element_maker()
+        # new knee wall
+        wall2 = E.Wall(
+            E.SystemIdentifier(id='wall2'),
+            E.ExteriorAdjacentTo('attic'),
+            E.AtticWallType('knee wall'),
+            E.WallType(E.WoodStud()),
+            E.Area('200'),
+            E.Insulation(
+                E.SystemIdentifier(id='wall2ins'),
+                E.Layer(
+                    E.InstallationType('cavity'),
+                    E.NominalRValue('11')
+                )
+            )
+        )
+        wall1.addnext(wall2)
+        # Reference wall in Attic
+        attached_to_roof = self.xpath('//h:Attic/h:AttachedToRoof')
+        attached_to_roof.addnext(etree.Element(tr_v3.addns('h:AttachedToWall'), {'idref': 'wall2'}))
+        # run translation
+        resp_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(resp['building']['zone']['zone_roof'], resp_v3['building']['zone']['zone_roof'])
 
     def test_attic_knee_wall_zero_rvalue(self):
         tr = self._load_xmlfile('hescore_min')
@@ -2663,6 +2684,24 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], 'mini_split')
         self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'mini_split')
 
+    def test_attic_floor_unattached(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+
+        # No attic frame floor attachment
+        attic_floor_ref = self.xpath('//h:Attics/h:Attic/h:AttachedToFrameFloor')
+        attic_floor_ref.getparent().remove(attic_floor_ref)
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'No FrameFloor attached to Attic: attic1.',
+            tr.hpxml_to_hescore)
+
+        # Invalid attic frame floor attachment
+        attic = self.xpath('//h:Attics/h:Attic')
+        etree.SubElement(attic, tr.addns('h:AttachedToFrameFloor'), attrib={'idref': 'frame_floor_not_exist'})
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'No such FrameFloor: frame_floor_not_exist found, check AttachedToFrameFloor element of Attic: attic1.',
+            tr.hpxml_to_hescore)
 
 if __name__ == "__main__":
     unittest.main()

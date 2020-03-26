@@ -89,20 +89,26 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def get_attic_floor_rvalue(self, attic, b):
         floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')
-        frame_floors = self.xpath(b, '//h:FrameFloor[contains(%s, h:SystemIdentifier/@id)]' % floor_idref, aslist=True)
-        if frame_floors is None:
+        if floor_idref is None:
             raise TranslationError(
-                'No FrameFloor attached to Attic: {}'.format(self.xpath(attic, 'h:SystemIdentifier/@id')))
-        frame_floors = []
+                'No FrameFloor attached to Attic: {}.'.format(self.xpath(attic, 'h:SystemIdentifier/@id')))
+        frame_floors = self.xpath(b, '//h:FrameFloor[contains("%s", h:SystemIdentifier/@id)]' % floor_idref,
+                                  aslist=True)
+        if len(frame_floors) == 0:
+            raise TranslationError(
+                'No such FrameFloor: {} found, check AttachedToFrameFloor element of Attic: {}.'.format(
+                    floor_idref, self.xpath(attic, 'h:SystemIdentifier/@id')))
+        frame_floor_dict_ls = []
         for frame_floor in frame_floors:
-            area = self.xpath(frame_floor, 'h:Area/text()')
+            area = convert_to_type(float, self.xpath(frame_floor, 'h:Area/text()'))
             if area is None:
                 raise TranslationError('All attic frame floors need an Area specified')
-            rvalue = self.xpath(frame_floor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-            frame_floors.append({'area': area, 'rvalue': rvalue})
+            rvalue = convert_to_type(float, self.xpath(frame_floor, 'sum(h:Insulation/h:Layer/h:NominalRValue)'))
+            frame_floor_dict_ls.append({'area': area, 'rvalue': rvalue})
 
         try:
-            floor_r = sum(x['area'] for x in frame_floors) / sum(x['area'] / x['rvalue'] for x in frame_floors)
+            floor_r = sum(x['area'] for x in frame_floor_dict_ls) / \
+                      sum(x['area'] / x['rvalue'] for x in frame_floor_dict_ls)
         except ZeroDivisionError:
             floor_r = 0
 
@@ -113,7 +119,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         frame_floors = self.xpath(b, '//h:FrameFloor[contains("%s", h:SystemIdentifier/@id)]' % floor_idref,
                                   aslist=True)
         area = 0.0
-        if frame_floors is None:
+        if len(frame_floors) == 0:
             if is_one_roof:
                 area = footprint_area
             else:
