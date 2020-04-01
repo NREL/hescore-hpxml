@@ -1,43 +1,46 @@
 {
   "building_address": {
-    "address": "1 API House", 
-    "city": "Minden", 
-    "state": "NE", 
-    "zip_code": "68959", 
+    "address": "123 Main Street", 
+    "city": "Golden", 
+    "state": "CO", 
+    "zip_code": "80401", 
     "assessment_type": "initial"
   }, 
   "building": {
     "about": {
-      "assessment_date": "2014-10-23", 
+      "assessment_date": "2014-12-02", 
       "shape": "rectangle", 
-      "year_built": 1953, 
-      "number_bedrooms": 3, 
-      "num_floor_above_grade": 2, 
-      "floor_to_ceiling_height": 11, 
-      "conditioned_floor_area": 1620, 
-      "orientation": "east", 
-      "blower_door_test": false, 
-      "air_sealing_present": false
+      "year_built": 1961, 
+      "number_bedrooms": 4, 
+      "num_floor_above_grade": 1, 
+      "floor_to_ceiling_height": 7, 
+      "conditioned_floor_area": 2400, 
+      "orientation": "north", 
+      "blower_door_test": true, 
+      "envelope_leakage": 1204
     }, 
     "zone": {
       "zone_roof": [
         {
           "roof_name": "roof1", 
-          "roof_area": 810, 
-          "roof_assembly_code": "rfrb00co", 
-          "roof_color": "dark", 
+          "roof_area": 1200, 
+          "roof_assembly_code": "rfwf00co", 
+          "roof_color": "medium", 
           "roof_type": "vented_attic", 
-          "ceiling_assembly_code": "ecwf11", 
+          "ceiling_assembly_code": "ecwf49", 
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 11.0, 
+            "skylight_method": "code", 
+            "skylight_code": "dcab", 
+            "solar_screen": false
           }
         }
       ], 
       "zone_floor": [
         {
           "floor_name": "floor1", 
-          "floor_area": 810.0, 
-          "foundation_type": "vented_crawl", 
+          "floor_area": 1200, 
+          "foundation_type": "cond_basement", 
           "foundation_insulation_level": 0, 
           "floor_assembly_code": "efwf00ca"
         }
@@ -46,30 +49,21 @@
       "window_construction_same": false, 
       "zone_wall": [
         {
-          "side": "right", 
-          "wall_assembly_code": "ewwf00br", 
-          "zone_window": {
-            "window_area": 45.0, 
-            "window_method": "code", 
-            "window_code": "dcaa", 
-            "solar_screen": false
-          }
-        }, 
-        {
           "side": "front", 
-          "wall_assembly_code": "ewwf00br", 
+          "wall_assembly_code": "ewwf11br", 
           "zone_window": {
-            "window_area": 108.0, 
-            "window_method": "code", 
-            "window_code": "dcaa", 
+            "window_area": 1.0, 
+            "window_method": "custom", 
+            "window_u_value": 1.0, 
+            "window_shgc": 0.75, 
             "solar_screen": false
           }
         }, 
         {
           "side": "left", 
-          "wall_assembly_code": "ewwf00br", 
+          "wall_assembly_code": "ewwf11br", 
           "zone_window": {
-            "window_area": 60.0, 
+            "window_area": 2.0, 
             "window_method": "code", 
             "window_code": "dcaw", 
             "solar_screen": false
@@ -77,11 +71,21 @@
         }, 
         {
           "side": "back", 
-          "wall_assembly_code": "ewwf00br", 
+          "wall_assembly_code": "ewwf11br", 
           "zone_window": {
-            "window_area": 135.3333333, 
+            "window_area": 3.0, 
             "window_method": "code", 
-            "window_code": "stnw", 
+            "window_code": "dcaw", 
+            "solar_screen": false
+          }
+        }, 
+        {
+          "side": "right", 
+          "wall_assembly_code": "ewwf11br", 
+          "zone_window": {
+            "window_area": 4.0, 
+            "window_method": "code", 
+            "window_code": "dcaw", 
             "solar_screen": false
           }
         }
@@ -96,7 +100,7 @@
             "fuel_primary": "natural_gas", 
             "type": "central_furnace", 
             "efficiency_method": "user", 
-            "efficiency": 0.92
+            "efficiency": 0.95
           }, 
           "cooling": {
             "type": "split_dx", 
@@ -106,22 +110,8 @@
           "hvac_distribution": [
             {
               "name": "duct1", 
-              "location": "vented_crawl", 
-              "fraction": 50, 
-              "insulated": true, 
-              "sealed": false
-            }, 
-            {
-              "name": "duct2", 
-              "location": "uncond_attic", 
-              "fraction": 35, 
-              "insulated": true, 
-              "sealed": false
-            }, 
-            {
-              "name": "duct3", 
               "location": "cond_space", 
-              "fraction": 15, 
+              "fraction": 100, 
               "insulated": false, 
               "sealed": false
             }
@@ -131,9 +121,9 @@
       "domestic_hot_water": {
         "category": "unit", 
         "type": "storage", 
-        "fuel_primary": "electric", 
-        "efficiency_method": "user", 
-        "energy_factor": 0.8
+        "fuel_primary": "natural_gas", 
+        "efficiency_method": "shipment_weighted", 
+        "year": 2010
       }
     }
   }

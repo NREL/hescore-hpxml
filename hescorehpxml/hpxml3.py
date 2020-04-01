@@ -25,27 +25,28 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
             attached_ids['Slab'] = self.xpath(fnd, 'h:AttachedToSlab/@idref')
             attached_ids['FrameFloor'] = self.xpath(fnd, 'h:AttachedToFrameFloor/@idref')
             return max(
-                [self.xpath(b, 'sum(//h:%s[contains(%s, h:SystemIdentifier/@id)]/h:Area)' % (key, value)) for key, value
-                 in attached_ids.items()])
+                [self.xpath(b, 'sum(//h:{}[contains("{}", h:SystemIdentifier/@id)]/h:Area)'.format(key, value)) for
+                 key, value in attached_ids.items()])
 
         fnd.sort(key=get_fnd_area, reverse=True)
         return fnd, get_fnd_area
 
     def get_foundation_walls(self, fnd, b):
         attached_ids = self.xpath(fnd, 'h:AttachedToFoundationWall/@idref')
-        foundationwalls = self.xpath(b, '//h:FoundationWall[contains(%s, h:SystemIdentifier/@id)]' % attached_ids,
-                                     aslist=True)
+        foundationwalls = self.xpath(b, '//h:FoundationWall[contains("{}", h:SystemIdentifier/@id)]'.
+                                     format(attached_ids), aslist=True)
         return foundationwalls
 
     def get_foundation_slabs(self, fnd, b):
         attached_ids = self.xpath(fnd, 'h:AttachedToFoundationWall/@idref')
-        slabs = self.xpath(b, '//h:Slab[contains(%s, h:SystemIdentifier/@id)]' % attached_ids, raise_err=True,
+        slabs = self.xpath(b, '//h:Slab[contains("{}", h:SystemIdentifier/@id)]'.format(attached_ids), raise_err=True,
                            aslist=True)
         return slabs
 
     def get_foundation_frame_floors(self, fnd, b):
         attached_ids = self.xpath(fnd, 'h:AttachedToFrameFloor/@idref')
-        frame_floors = self.xpath(b, '//h:FrameFloor[contains(%s, h:SystemIdentifier/@id)]' % attached_ids, aslist=True)
+        frame_floors = self.xpath(b, '//h:FrameFloor[contains("{}",h:SystemIdentifier/@id)]'.format(attached_ids),
+                                  aslist=True)
         return frame_floors
 
     def attic_has_rigid_sheathing(self, v2_attic, roof):
@@ -89,22 +90,23 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def get_attic_floor_rvalue(self, attic, b):
         floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')
+        # No frame floor attached
         if floor_idref is None:
-            raise TranslationError(
-                'No FrameFloor attached to Attic: {}.'.format(self.xpath(attic, 'h:SystemIdentifier/@id')))
-        frame_floors = self.xpath(b, '//h:FrameFloor[contains("%s", h:SystemIdentifier/@id)]' % floor_idref,
-                                  aslist=True)
-        if len(frame_floors) == 0:
-            raise TranslationError(
-                'No such FrameFloor: {} found, check AttachedToFrameFloor element of Attic: {}.'.format(
-                    floor_idref, self.xpath(attic, 'h:SystemIdentifier/@id')))
+            return 0.0
+        frame_floors = self.xpath(b, '//h:FrameFloor[contains("{}",h:SystemIdentifier/@id)]'.format(floor_idref),
+                                  aslist=True, raise_err=True)
+
         frame_floor_dict_ls = []
         for frame_floor in frame_floors:
-            area = convert_to_type(float, self.xpath(frame_floor, 'h:Area/text()'))
-            if area is None:
-                raise TranslationError('All attic frame floors need an Area specified')
+            floor_area = self.xpath(frame_floor, 'h:Area/text()')
             rvalue = convert_to_type(float, self.xpath(frame_floor, 'sum(h:Insulation/h:Layer/h:NominalRValue)'))
-            frame_floor_dict_ls.append({'area': area, 'rvalue': rvalue})
+            if floor_area is None:
+                if len(frame_floors) == 1:
+                    return rvalue
+                else:
+                    raise TranslationError('If there are more than one attic frame floor specified, '
+                                           'each attic frame floor needs an Area specified')
+            frame_floor_dict_ls.append({'area': convert_to_type(float, floor_area), 'rvalue': rvalue})
 
         try:
             floor_r = sum(x['area'] for x in frame_floor_dict_ls) / \
@@ -114,26 +116,21 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
         return floor_r
 
-    def get_attic_area(self, attic, b, is_one_roof, footprint_area):
-        floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')
-        frame_floors = self.xpath(b, '//h:FrameFloor[contains("%s", h:SystemIdentifier/@id)]' % floor_idref,
-                                  aslist=True)
+    def get_attic_area(self, attic, is_one_roof, footprint_area, roofs):
+        if is_one_roof:
+            return footprint_area
+        # Otherwise, get area from roof element
         area = 0.0
-        if len(frame_floors) == 0:
-            if is_one_roof:
-                area = footprint_area
-            else:
-                raise TranslationError(
-                    'If there are more than one Attic elements, each needs an area. Please specify under the attached '
-                    'frame floor element: FrameFloor/Area.')
-        else:
-            for frame_floor in frame_floors:
-                area += convert_to_type(float, self.xpath(frame_floor, 'h:Area/text()'))
-
+        for roof in roofs:
+            roof_area = self.xpath(roof, 'h:Area/text()')
+            if roof_area is None:
+                raise TranslationError('If there are more than one Attic elements, each needs an area. '
+                                       'Please specify under its attached roof element: Roof/Area.')
+            area += convert_to_type(float, roof_area)
         return area
 
     def get_attic_roof_area(self, roof):
-        return convert_to_type(float, self.xpath(roof, 'h:Area/text()'))
+        return self.xpath(roof, 'h:Area/text()')
 
     def get_sunscreen(self, wndw_skylight):
         return bool(self.xpath(wndw_skylight, 'h:ExteriorShading/h:Type/text()') == 'solar screens')
@@ -143,8 +140,19 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                           'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="outside" or not(h:ExteriorAdjacentTo)]',  # noqa: E501
                           aslist=True)
 
+    def check_is_doublepane(self, window, glass_layers):
+        return (self.xpath(window, 'h:StormWindow') is not None and glass_layers == 'single-pane') or \
+               glass_layers == 'double-pane'
+
+    def check_is_storm_lowe(self, window, glass_layers):
+        storm_type = self.xpath(window, 'h:StormWindow/h:GlassType/text()')
+        if storm_type is not None:
+            return storm_type == 'low-e' and glass_layers == 'single-pane'
+        return False
+
     duct_location_map = {'living space': 'cond_space',
                          'unconditioned space': None,
+                         'under slab': None,
                          'basement': None,  # Fix me
                          'basement - unconditioned': 'uncond_basement',
                          'basement - conditioned': 'cond_space',  # Fix me
@@ -153,7 +161,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                          'crawlspace - unconditioned': None,  # Fix me
                          'crawlspace - conditioned': None,  # Fix me
                          'crawlspace': None,
-                         'unconditioned attic': 'uncond_attic',
+                         'exterior wall': None,
                          'interstitial space': None,
                          'garage - conditioned': None,  # Fix me
                          'garage - unconditioned': None,  # Fix me
@@ -161,7 +169,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                          'roof deck': None,  # Fix me
                          'outside': None,
                          'attic': None,  # Fix me
-                         'attic - unconditioned': None,  # Fix me
+                         'attic - unconditioned': 'uncond_attic',  # Fix me
                          'attic - conditioned': None,  # Fix me
                          'attic - unvented': None,  # Fix me
                          'attic - vented': None}  # Fix me

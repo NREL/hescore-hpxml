@@ -194,71 +194,126 @@ class HPXMLtoHEScoreTranslatorBase(object):
         return 'ew%s%02d%s' % (wallconstype, rvalue, sidingtype)
 
     def get_window_code(self, window):
+        # HEScore window code mapping
+        window_map = {
+            'Aluminum': {
+                'single-pane': {
+                    'clear': 'scna',
+                    'tinted': 'stna'
+                },
+                'double-pane': {
+                    'clear': 'dcaa',
+                    'tinted': 'dtaa',
+                    'solar-control low-e': 'dseaa'
+                }
+            },
+            'Aluminum with Thermal Break': {
+                'double-pane': {
+                    'clear': 'dcab',
+                    'tinted': 'dtab',
+                    'insulating low-e argon': 'dpeaab',
+                    'solar-control low-e': 'dseab'
+                }
+            },
+            'Wood or Vinyl': {
+                'single-pane': {
+                    'clear': 'scnw',
+                    'tinted': 'stnw'
+                },
+                'double-pane': {
+                    'clear': 'dcaw',
+                    'tinted': 'dtaw',
+                    'insulating low-e': 'dpeaw',
+                    'insulating low-e argon': 'dpeaaw',
+                    'solar-control low-e': 'dseaw',
+                    'solar-control low-e argon': 'dseaaw'
+                },
+                'triple-pane': {
+                    'insulating low-e argon': 'thmabw'
+                }
+            }
+        }
+
         xpath = self.xpath
 
-        window_code = None
         frame_type = xpath(window, 'name(h:FrameType/*)')
         if frame_type == '':
             frame_type = None
         glass_layers = xpath(window, 'h:GlassLayers/text()')
         glass_type = xpath(window, 'h:GlassType/text()')
+        is_hescore_dp = self.check_is_doublepane(window, glass_layers)
+        is_storm_lowe = False
+        window_frame = None
+        window_layer = None
+        window_glass_type = None
+
+        if is_hescore_dp:
+            # double pane needs more information being analyzed to determine glass type
+            window_layer = 'double-pane'
+            is_storm_lowe = self.check_is_storm_lowe(window, glass_layers)
+        elif glass_layers == 'single-pane':
+            window_layer = 'single-pane'
+            if glass_type is not None and glass_type in ('tinted', 'low-e', 'tinted/reflective'):
+                window_glass_type = 'tinted'
+            else:
+                window_glass_type = 'clear'
+        elif glass_layers == 'triple-pane':
+            window_layer = 'triple-pane'
+            window_glass_type = 'insulating low-e argon'
+
         gas_fill = xpath(window, 'h:GasFill/text()')
+        argon_filled = False
+        if glass_layers == 'double-pane' and gas_fill == 'argon':
+            argon_filled = True
         if frame_type in ('Aluminum', 'Metal'):
             thermal_break = tobool(xpath(window, 'h:FrameType/*/h:ThermalBreak/text()'))
             if thermal_break:
                 # Aluminum with Thermal Break
-                if glass_layers in ('double-pane', 'single-paned with storms', 'single-paned with low-e storms'):
-                    if glass_layers == 'double-pane' and glass_type == 'low-e' and gas_fill == 'argon':
-                        window_code = 'dpeaab'
-                    elif glass_type is not None and glass_type in ('reflective', 'low-e'):
-                        # TODO: figure out if 'reflective' is close enough to 'solar-control' low-e
-                        window_code = 'dseab'
-                    elif glass_type is not None and glass_type.startswith('tinted'):
-                        window_code = 'dtab'
-                    else:
-                        window_code = 'dcab'
+                window_frame = 'Aluminum with Thermal Break'
+                if argon_filled and glass_type == 'low-e':
+                    window_glass_type = 'insulating low-e argon'
+                elif glass_type is not None and glass_type in ('reflective', 'low-e'):
+                    # TODO: figure out if 'reflective' is close enough to 'solar-control' low-e
+                    window_glass_type = 'solar-control low-e'
+                elif glass_type is not None and glass_type.startswith('tinted'):
+                    window_glass_type = 'tinted'
+                else:
+                    window_glass_type = 'clear'
             else:
                 # Aluminum
-                if glass_layers == 'single-pane':
-                    if glass_type is not None and glass_type in ('tinted', 'low-e', 'tinted/reflective'):
-                        window_code = 'stna'
-                    else:
-                        window_code = 'scna'
-                elif glass_layers in ('double-pane', 'single-paned with storms', 'single-paned with low-e storms'):
+                window_frame = 'Aluminum'
+                # For other layer types, the window glass type has been determined
+                if is_hescore_dp:
                     if glass_type is not None and glass_type in ('reflective', 'tinted/reflective', 'low-e'):
-                        window_code = 'dseaa'
+                        window_glass_type = 'solar-control low-e'
                     elif glass_type is not None and glass_type == 'tinted':
-                        window_code = 'dtaa'
+                        window_glass_type = 'tinted'
                     else:
-                        window_code = 'dcaa'
+                        window_glass_type = 'clear'
         elif frame_type in ('Vinyl', 'Wood', 'Fiberglass', 'Composite'):
             # Wood or Vinyl
-            if glass_layers == 'single-pane':
-                if glass_type is not None and glass_type in ('tinted', 'low-e', 'tinted/reflective'):
-                    window_code = 'stnw'
-                else:
-                    window_code = 'scnw'
-            elif glass_layers in ('double-pane', 'single-paned with storms', 'single-paned with low-e storms'):
-                if (glass_layers == 'double-pane' and glass_type == 'low-e') or \
-                        glass_layers == 'single-paned with low-e storms':
-                    if gas_fill == 'argon' and glass_layers == 'double-pane':
-                        window_code = 'dpeaaw'
+            window_frame = 'Wood or Vinyl'
+            # For other layer types, the window glass type has been determined
+            if is_hescore_dp:
+                if (glass_layers == 'double-pane' and glass_type == 'low-e') or is_storm_lowe:
+                    if argon_filled:
+                        window_glass_type = 'insulating low-e argon'
                     else:
-                        window_code = 'dpeaw'
+                        window_glass_type = 'insulating low-e'
                 elif glass_type == 'reflective':
                     # TODO: figure out if 'reflective' is close enough to 'solar-control' low-e
-                    if gas_fill == 'argon' and glass_layers == 'double-pane':
-                        window_code = 'dseaaw'
+                    if argon_filled:
+                        window_glass_type = 'solar-control low-e argon'
                     else:
-                        window_code = 'dseaw'
+                        window_glass_type = 'solar-control low-e'
                 elif glass_type is not None and glass_type.startswith('tinted'):
-                    window_code = 'dtaw'
+                    window_glass_type = 'tinted'
                 else:
-                    window_code = 'dcaw'
-            elif glass_layers == 'triple-pane':
-                window_code = 'thmabw'
+                    window_glass_type = 'clear'
 
-        if window_code is None:
+        try:
+            window_code = window_map[window_frame][window_layer][window_glass_type]
+        except KeyError:
             raise TranslationError(
                 'There is no compatible HEScore window type for FrameType="{}", GlassLayers="{}", '
                 'GlassType="{}", GasFill="{}"'.format(
@@ -905,9 +960,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         for attic in attics:
             atticid = xpath(attic, 'h:SystemIdentifier/@id', raise_err=True)
             roofids = xpath(attic, 'h:AttachedToRoof/@idref', aslist=True)
-            attic_roofs = xpath(
-                b,
-                'descendant::h:Roof[contains("%s", h:SystemIdentifier/@id)]' % roofids, aslist=True)
+            attic_roofs = xpath(b, 'descendant::h:Roof[contains("{}", h:SystemIdentifier/@id)]'.format(roofids),
+                                aslist=True)
 
             if len(attic_roofs) == 0:
                 if len(roofs) == 1:
@@ -921,8 +975,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             atticds.append(atticd)
 
             # Attic area
-            is_one_roof = (len(attics) == 1 and len(roofs) == 1)
-            atticd['roof_area'] = self.get_attic_area(attic, b, is_one_roof, footprint_area)
+            is_one_roof = (len(attics) == 1)
+            atticd['roof_area'] = self.get_attic_area(attic, is_one_roof, footprint_area, attic_roofs)
 
             # Roof type
             atticd['rooftype'] = self.get_attic_type(attic, atticid)
@@ -937,10 +991,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 attic_roofs_d['roof_area'] = self.get_attic_roof_area(roof)
                 if attic_roofs_d['roof_area'] is None:
                     if len(attic_roofs) == 1:
-                        attic_roofs_d['roof_area'] = self.get_attic_area(attic, b, is_one_roof, footprint_area)
+                        attic_roofs_d['roof_area'] = atticd['roof_area']
                     else:
                         raise TranslationError(
                             'If there are more than one Roof elements attached to a single attic, each needs an area.')
+                else:
+                    attic_roofs_d['roof_area'] = convert_to_type(float, attic_roofs_d['roof_area'])
 
                 # Roof color
                 solar_absorptance = convert_to_type(float, xpath(roof, 'h:SolarAbsorptance/text()'))

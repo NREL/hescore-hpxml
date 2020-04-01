@@ -86,7 +86,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_attic_floor_rvalue(self, attic, v3_b):
         return self.xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
 
-    def get_attic_area(self, attic, v3_b, is_one_roof, footprint_area):
+    def get_attic_area(self, attic, is_one_roof, footprint_area, v3_roofs):
         attic_area = convert_to_type(float, self.xpath(attic, 'h:Area/text()'))
         if attic_area is None:
             if is_one_roof:
@@ -97,7 +97,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         return attic_area
 
     def get_attic_roof_area(self, roof):
-        return convert_to_type(float, self.xpath(roof, 'h:RoofArea/text()'))
+        return self.xpath(roof, 'h:RoofArea/text()')
 
     def get_sunscreen(self, wndw_skylight):
         return bool(self.xpath(wndw_skylight, 'h:Treatments/text()') == 'solar screen'
@@ -107,6 +107,12 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         return self.xpath(b,
                           'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]',  # noqa: E501
                           aslist=True)
+
+    def check_is_doublepane(self, v3_window, glass_layers):
+        return glass_layers in ('double-pane', 'single-paned with storms', 'single-paned with low-e storms')
+
+    def check_is_storm_lowe(self, window, glass_layers):
+        return glass_layers == 'single-paned with low-e storms'
 
     duct_location_map = {'conditioned space': 'cond_space',
                          'unconditioned space': None,
