@@ -2806,6 +2806,13 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore()
         self.assertEqual(len(d['building']['zone']['zone_roof']), 1)
 
+    def test_housemin_translation(self):
+        tr = self._load_xmlfile('hescore_min')
+        tr_v3 = self._load_xmlfile('hescore_min_v3')
+        d = tr.hpxml_to_hescore()
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d, d_v3)
+
     def test_house1_translation(self):
         tr = self._load_xmlfile('house1')
         tr_v3 = self._load_xmlfile('house1_v3')
@@ -2813,9 +2820,23 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         d_v3 = tr_v3.hpxml_to_hescore()
         self.assertEqual(d, d_v3)
 
-    def test_housemin_translation(self):
-        tr = self._load_xmlfile('hescore_min')
-        tr_v3 = self._load_xmlfile('hescore_min_v3')
+    def test_house2_translation(self):
+        tr = self._load_xmlfile('house2')
+        tr_v3 = self._load_xmlfile('house2_v3')
+        d = tr.hpxml_to_hescore()
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d, d_v3)
+
+    def test_house3_translation(self):
+        tr = self._load_xmlfile('house3')
+        tr_v3 = self._load_xmlfile('house3_v3')
+        d = tr.hpxml_to_hescore()
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d, d_v3)
+
+    def test_house4_translation(self):
+        tr = self._load_xmlfile('house4')
+        tr_v3 = self._load_xmlfile('house4_v3')
         d = tr.hpxml_to_hescore()
         d_v3 = tr_v3.hpxml_to_hescore()
         self.assertEqual(d, d_v3)

@@ -38,7 +38,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         return foundationwalls
 
     def get_foundation_slabs(self, fnd, b):
-        attached_ids = self.xpath(fnd, 'h:AttachedToFoundationWall/@idref')
+        attached_ids = self.xpath(fnd, 'h:AttachedToSlab/@idref')
         slabs = self.xpath(b, '//h:Slab[contains("{}", h:SystemIdentifier/@id)]'.format(attached_ids), raise_err=True,
                            aslist=True)
         return slabs
@@ -80,10 +80,10 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         if self.xpath(attic,
                       'h:AtticType/h:Attic/h:CapeCod or boolean(h:AtticType/h:FlatRoof) or boolean(h:AtticType/h:CathedralCeiling)'):  # noqa: E501
             return 'cath_ceiling'
-        elif self.xpath(attic, 'boolean(h:AtticType/h:Attic/h:Vented)'):
-            return 'vented_attic'
         elif self.xpath(attic, 'boolean(h:AtticType/h:Attic/h:Conditioned)'):
             return 'cond_attic'
+        elif self.xpath(attic, 'boolean(h:AtticType/h:Attic)'):
+            return 'vented_attic'
         else:
             raise TranslationError(
                 'Attic {}: Cannot translate HPXML AtticType to HEScore rooftype.'.format(atticid))
