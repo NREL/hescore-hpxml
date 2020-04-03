@@ -1273,8 +1273,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             for area in areas:
                 if abs(area) < smallnum:  # area == 0
                     raise TranslationError(
-                        'If there is more than one foundation, each needs an area specified on either the Slab or '
-                        'FrameFloor.'
+                        'If there is more than one foundation, each needs an area specified on either "Slab" or '
+                        '"FrameFloor" attached.'
                     )
         sum_area_largest_two = sum(areas[0:2])
         sum_area = sum(areas)

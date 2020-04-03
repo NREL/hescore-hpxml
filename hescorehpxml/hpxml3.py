@@ -51,7 +51,9 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def attic_has_rigid_sheathing(self, v2_attic, roof):
         return self.xpath(roof,
-                          'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean(h:InsulationMaterial/h:Rigid)])'  # noqa: E501
+                          'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"]['
+                          'boolean(h:InsulationMaterial/h:Rigid)])'
+                          # noqa: E501
                           )
 
     def get_attic_roof_rvalue(self, v2_attic, roof):
@@ -78,7 +80,8 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def get_attic_type(self, attic, atticid):
         if self.xpath(attic,
-                      'h:AtticType/h:Attic/h:CapeCod or boolean(h:AtticType/h:FlatRoof) or boolean(h:AtticType/h:CathedralCeiling)'):  # noqa: E501
+                      'h:AtticType/h:Attic/h:CapeCod or boolean(h:AtticType/h:FlatRoof) or boolean('
+                      'h:AtticType/h:CathedralCeiling)'):  # noqa: E501
             return 'cath_ceiling'
         elif self.xpath(attic, 'boolean(h:AtticType/h:Attic/h:Conditioned)'):
             return 'cond_attic'
@@ -117,15 +120,16 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         return floor_r
 
     def get_attic_area(self, attic, is_one_roof, footprint_area, roofs):
-        if is_one_roof:
-            return footprint_area
         # Otherwise, get area from roof element
         area = 0.0
         for roof in roofs:
             roof_area = self.xpath(roof, 'h:Area/text()')
             if roof_area is None:
-                raise TranslationError('If there are more than one Attic elements, each needs an area. '
-                                       'Please specify under its attached roof element: Roof/Area.')
+                if is_one_roof:
+                    return footprint_area
+                else:
+                    raise TranslationError('If there are more than one Attic elements, each needs an area. '
+                                           'Please specify under its attached roof element: Roof/Area.')
             area += convert_to_type(float, roof_area)
         return area
 
@@ -137,7 +141,9 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def get_hescore_walls(self, b):
         return self.xpath(b,
-                          'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="outside" or not(h:ExteriorAdjacentTo)]',  # noqa: E501
+                          'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="outside" or not('
+                          'h:ExteriorAdjacentTo)]',
+                          # noqa: E501
                           aslist=True)
 
     def check_is_doublepane(self, window, glass_layers):

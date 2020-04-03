@@ -696,7 +696,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.getparent().remove(el)
         self.assertRaisesRegexp(
             TranslationError,
-            r'If there is more than one foundation, each needs an area specified on either the Slab or FrameFloor',
+            r'If there is more than one foundation, each needs an area specified on either "Slab" or "FrameFloor" '
+            r'attached',
             tr.hpxml_to_hescore)
 
     def test_bldgid_not_found(self):
@@ -2806,7 +2807,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore()
         self.assertEqual(len(d['building']['zone']['zone_roof']), 1)
 
-    def test_housemin_translation(self):
+    def test_hescore_min_translation(self):
         tr = self._load_xmlfile('hescore_min')
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         d = tr.hpxml_to_hescore()
@@ -2839,6 +2840,42 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         tr_v3 = self._load_xmlfile('house4_v3')
         d = tr.hpxml_to_hescore()
         d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d, d_v3)
+
+    def test_house5_translation(self):
+        tr = self._load_xmlfile('house5')
+        tr_v3 = self._load_xmlfile('house5_v3')
+        d = tr.hpxml_to_hescore()
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d, d_v3)
+
+    def test_house6_translation(self):
+        tr = self._load_xmlfile('house6')
+        tr_v3 = self._load_xmlfile('house6_v3')
+        d = tr.hpxml_to_hescore()
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d, d_v3)
+
+    def test_house7_translation(self):
+        tr = self._load_xmlfile('house7')
+        tr_v3 = self._load_xmlfile('house7_v3')
+        d = tr.hpxml_to_hescore()
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d, d_v3)
+
+    def test_house8_translation(self):
+        tr = self._load_xmlfile('house8')
+        tr_v3 = self._load_xmlfile('house8_v3')
+        d = tr.hpxml_to_hescore()
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d, d_v3)
+
+    def test_townhouse_walls_translation(self):
+        tr = self._load_xmlfile('townhouse_walls')
+        tr_v3 = self._load_xmlfile('townhouse_walls_v3')
+        d = tr.hpxml_to_hescore()
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d_v3['building']['zone']['zone_roof'][0]['roof_area'], 1200)
         self.assertEqual(d, d_v3)
 
 

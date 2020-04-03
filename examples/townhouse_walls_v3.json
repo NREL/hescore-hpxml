@@ -9,10 +9,11 @@
   "building": {
     "about": {
       "assessment_date": "2014-12-02",
-      "shape": "rectangle",
+      "shape": "town_house",
+      "town_house_walls": "back_front_left",
       "year_built": 1961,
       "number_bedrooms": 4,
-      "num_floor_above_grade": 1,
+      "num_floor_above_grade": 2,
       "floor_to_ceiling_height": 7,
       "conditioned_floor_area": 2400,
       "orientation": "north",
@@ -23,7 +24,7 @@
       "zone_roof": [
         {
           "roof_name": "roof1",
-          "roof_area": 1200,
+          "roof_area": 1200.0,
           "roof_assembly_code": "rfwf00co",
           "roof_color": "medium",
           "roof_type": "vented_attic",
@@ -39,7 +40,7 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 1200,
+          "floor_area": 800,
           "foundation_type": "cond_basement",
           "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
@@ -61,9 +62,9 @@
         },
         {
           "side": "left",
-          "wall_assembly_code": "ewwf11br",
+          "wall_assembly_code": "ewwf19wo",
           "zone_window": {
-            "window_area": 2.0,
+            "window_area": 4.0,
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false
@@ -71,19 +72,9 @@
         },
         {
           "side": "back",
-          "wall_assembly_code": "ewwf11br",
+          "wall_assembly_code": "ewwf15vi",
           "zone_window": {
             "window_area": 3.0,
-            "window_method": "code",
-            "window_code": "dcaw",
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "right",
-          "wall_assembly_code": "ewwf11br",
-          "zone_window": {
-            "window_area": 4.0,
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false
