@@ -2763,25 +2763,43 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
 
     def test_attic_roof_unattached(self):
         tr = self._load_xmlfile('hescore_min_v3')
-        # two attics, two roofs, lacking roof area for attic area
+        # two attics, two frame floors, lacking frame floor area for attic area
         roof = self.xpath('//h:Roofs/h:Roof')
+        frame_floor = self.xpath('//h:FrameFloors/h:FrameFloor')
+        frame_floor.remove(self.xpath('//h:FrameFloors/h:FrameFloor/h:Area'))
         attic = self.xpath('//h:Attics/h:Attic')
         attic2 = deepcopy(attic)
         tr.xpath(attic2, 'h:SystemIdentifier').attrib['id'] = 'attic2'
         tr.xpath(attic2, 'h:AttachedToRoof').attrib['idref'] = "roof2"
+        tr.xpath(attic2, 'h:AttachedToFrameFloor').attrib['idref'] = "framefloor2"
         attic.addnext(attic2)
         roof2 = deepcopy(roof)
         roof.addnext(roof2)
+        frame_floor2 = deepcopy(frame_floor)
+        frame_floor.addnext(frame_floor2)
         tr.xpath(roof2, 'h:SystemIdentifier').attrib['id'] = "roof2"
         tr.xpath(roof2, 'h:Insulation/h:SystemIdentifier').attrib['id'] = "attic1roofins2"
+        tr.xpath(frame_floor2, 'h:SystemIdentifier').attrib['id'] = "framefloor2"
+        tr.xpath(frame_floor2, 'h:Insulation/h:SystemIdentifier').attrib['id'] = "attic1flrins2"
         self.assertRaisesRegexp(
             TranslationError,
             r'If there are more than one Attic elements, each needs an area. '
-            r'Please specify under its attached roof element: Roof/Area.',
+            r'Please specify under its attached FrameFloor/Roof element.',
+            tr.hpxml_to_hescore)
+
+        # two frame floors, one attic, lacking frame floor areas for attic area
+        attic2.getparent().remove(attic2)
+        attached_to_ff = self.xpath('//h:Attics/h:Attic/h:AttachedToFrameFloor')
+        attached_to_ff2 = deepcopy(attached_to_ff)
+        attached_to_ff2.attrib['idref'] = "framefloor2"
+        attached_to_ff.addnext(attached_to_ff2)
+        self.assertRaisesRegexp(
+            TranslationError,
+            r'If there are more than one FrameFloor elements attached to attic, each needs an area.',
             tr.hpxml_to_hescore)
 
         # two roofs, one attic, lacking roof areas for roof area (attic use footprint area)
-        attic2.getparent().remove(attic2)
+        attached_to_ff2.getparent().remove(attached_to_ff2)
         attached_to_roof = self.xpath('//h:Attics/h:Attic/h:AttachedToRoof')
         attached_to_roof2 = deepcopy(attached_to_roof)
         attached_to_roof2.attrib['idref'] = "roof2"
@@ -2792,7 +2810,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
             tr.hpxml_to_hescore)
 
         # Two roofs, but both unattached.
-        # One roof unattached: attache the only existing one
+        # One roof unattached: attach the only existing one
         # 0 roof, will error out during xpath execution
         attached_to_roof2.getparent().remove(attached_to_roof2)
         attached_to_roof.attrib['idref'] = 'no_roof'

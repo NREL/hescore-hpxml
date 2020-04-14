@@ -77,7 +77,6 @@
                 <Roofs>
                     <Roof>
                         <SystemIdentifier id="roof1"/>
-                        <Area>1200</Area>
                         <RoofType>asphalt or fiberglass shingles</RoofType>
                         <RoofColor>medium</RoofColor>
                         <RadiantBarrier>false</RadiantBarrier>
@@ -139,6 +138,7 @@
                 <FrameFloors>
                     <FrameFloor>
                         <SystemIdentifier id="framefloor1"/>
+                        <Area>1200</Area>
                         <Insulation>
                             <SystemIdentifier id="attic1flrins"/>
                             <Layer>

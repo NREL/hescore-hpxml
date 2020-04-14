@@ -92,24 +92,18 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                 'Attic {}: Cannot translate HPXML AtticType to HEScore rooftype.'.format(atticid))
 
     def get_attic_floor_rvalue(self, attic, b):
-        floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')
-        # No frame floor attached
-        if floor_idref is None:
-            return 0.0
-        frame_floors = self.xpath(b, '//h:FrameFloor[contains("{}",h:SystemIdentifier/@id)]'.format(floor_idref),
-                                  aslist=True, raise_err=True)
+        frame_floors = self.get_attic_floors(attic, b)
+        if len(frame_floors) == 0:
+            return 0
+        if len(frame_floors) == 1:
+            return convert_to_type(float, self.xpath(frame_floors[0], 'sum(h:Insulation/h:Layer/h:NominalRValue)'))
 
         frame_floor_dict_ls = []
         for frame_floor in frame_floors:
-            floor_area = self.xpath(frame_floor, 'h:Area/text()')
-            rvalue = convert_to_type(float, self.xpath(frame_floor, 'sum(h:Insulation/h:Layer/h:NominalRValue)'))
-            if floor_area is None:
-                if len(frame_floors) == 1:
-                    return rvalue
-                else:
-                    raise TranslationError('If there are more than one attic frame floor specified, '
-                                           'each attic frame floor needs an Area specified')
-            frame_floor_dict_ls.append({'area': convert_to_type(float, floor_area), 'rvalue': rvalue})
+            # already confirmed in get_attic_floors that floors are all good with area information
+            floor_area = convert_to_type(float, self.xpath(frame_floor, 'h:Area/text()'))
+            rvalue = self.xpath(frame_floor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+            frame_floor_dict_ls.append({'area': floor_area, 'rvalue': rvalue})
 
         try:
             floor_r = sum(x['area'] for x in frame_floor_dict_ls) / \
@@ -119,19 +113,53 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
         return floor_r
 
-    def get_attic_area(self, attic, is_one_roof, footprint_area, roofs):
-        # Otherwise, get area from roof element
-        area = 0.0
-        for roof in roofs:
-            roof_area = self.xpath(roof, 'h:Area/text()')
-            if roof_area is None:
-                if is_one_roof:
-                    return footprint_area
-                else:
-                    raise TranslationError('If there are more than one Attic elements, each needs an area. '
-                                           'Please specify under its attached roof element: Roof/Area.')
-            area += convert_to_type(float, roof_area)
-        return area
+    def get_attic_floors(self, attic, b):
+        floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')
+        # No frame floor attached
+        if floor_idref is None:
+            return []
+        frame_floors = self.xpath(b, '//h:FrameFloor[contains("{}",h:SystemIdentifier/@id)]'.format(floor_idref),
+                                  aslist=True, raise_err=True)
+
+        return frame_floors
+
+    def get_attic_area(self, attic, is_one_roof, footprint_area, roofs, b):
+        # If frame floor specified, look at frame floor for areas, otherwise, roofs. If frame floor is referred
+        # without area, will error out no matter if roof is there if there's more than one attics(area for each
+        # required).
+        # (Should we do in this way?)
+        frame_floors = self.get_attic_floors(attic, b)
+        if len(frame_floors) > 1:
+            # sum frame floor areas if there're more than one frame floors attached
+            try:
+                return sum(map(lambda x: convert_to_type(float, self.xpath(x, 'h:Area/text()')), frame_floors))
+            except TypeError:
+                raise TranslationError('If there are more than one FrameFloor elements attached to attic, '
+                                       'each needs an area.')
+        elif len(frame_floors) == 1:
+            # return frame floor area if there's only one frame floor area
+            area = convert_to_type(float, self.xpath(frame_floors[0], 'h:Area/text()'))
+
+        # no frame floor attached
+        else:
+            # Otherwise, get area from roof element
+            if len(roofs) > 1:
+                try:
+                    return sum(map(lambda x: convert_to_type(float, self.xpath(x, 'h:Area/text()')), roofs))
+                except TypeError:
+                    raise TranslationError('If there are more than one Roof elements attached to attic, '
+                                           'each needs an area.')
+            else:
+                area = convert_to_type(float, self.xpath(roofs[0], 'h:Area/text()'))
+
+        if area is None:
+            if is_one_roof:
+                return footprint_area
+            else:
+                raise TranslationError('If there are more than one Attic elements, each needs an area. Please '
+                                       'specify under its attached FrameFloor/Roof element.')
+        else:
+            return area
 
     def get_attic_roof_area(self, roof):
         return self.xpath(roof, 'h:Area/text()')

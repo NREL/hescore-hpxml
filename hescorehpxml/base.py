@@ -975,13 +975,19 @@ class HPXMLtoHEScoreTranslatorBase(object):
             atticds.append(atticd)
 
             # Attic area
+            # Discussion need here: We are using is_one_roof to say, when there's no area specified in HPXML,
+            # we can use footprint area.Should we judge is_one_roof here by looking at element amounts of both
+            # Attic and Roof elements (to be 1)?
+            # I changed it to only look at attic element here because the current logic is more like Attic is
+            # on top of Roof, is it allowed to have roofs undefined in attic? I think those roofs not referred by
+            # attics should be ignored in our translation, right?
             is_one_roof = (len(attics) == 1)
-            atticd['roof_area'] = self.get_attic_area(attic, is_one_roof, footprint_area, attic_roofs)
+            atticd['roof_area'] = self.get_attic_area(attic, is_one_roof, footprint_area, attic_roofs, b)
 
             # Roof type
             atticd['rooftype'] = self.get_attic_type(attic, atticid)
 
-            # Get other roof information in attached Roof nodes.
+            # Get other roof information from attached Roof nodes.
             attic_roof_ls = []
             for roof in attic_roofs:
                 attic_roofs_d = {}

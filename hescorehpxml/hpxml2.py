@@ -86,7 +86,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_attic_floor_rvalue(self, attic, v3_b):
         return self.xpath(attic, 'sum(h:AtticFloorInsulation/h:Layer/h:NominalRValue)')
 
-    def get_attic_area(self, attic, is_one_roof, footprint_area, v3_roofs):
+    def get_attic_area(self, attic, is_one_roof, footprint_area, v3_roofs, v3_b):
         attic_area = convert_to_type(float, self.xpath(attic, 'h:Area/text()'))
         if attic_area is None:
             if is_one_roof:

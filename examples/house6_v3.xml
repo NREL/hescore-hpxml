@@ -100,7 +100,6 @@
                     </Roof>
                     <Roof>
                         <SystemIdentifier id="roof2"/>
-                        <Area>1000</Area>
                         <RoofType>plastic/rubber/synthetic sheeting</RoofType><!-- tar and gravel -->
                         <RoofColor>medium</RoofColor>
                     </Roof>
@@ -211,6 +210,7 @@
                 <FrameFloors>
                     <FrameFloor>
                         <SystemIdentifier id="framefloor1"/>
+                        <Area>1000</Area>
                         <Insulation>
                             <SystemIdentifier id="attic2ins"/>
                             <Layer>

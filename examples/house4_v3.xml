@@ -83,7 +83,6 @@
                 <Roofs>
                     <Roof>
                         <SystemIdentifier id="roof1"/>
-                        <Area>1306.5</Area>
                         <RoofType>metal surfacing</RoofType>
                         <RoofColor>reflective</RoofColor>
                     </Roof>
@@ -275,6 +274,7 @@
                 <FrameFloors>
                     <FrameFloor>
                         <SystemIdentifier id="framefloor1"/>
+                        <Area>1306.5</Area>
                         <Insulation>
                             <SystemIdentifier id="attic1ins"/>
                             <Layer>
