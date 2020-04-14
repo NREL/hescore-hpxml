@@ -2669,6 +2669,24 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         res2 = tr.hpxml_to_hescore()
         self.assertEqual(res2['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf21co')
 
+    def test_attic_with_multiple_frame_floors(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+        el = self.xpath('//h:Attic/h:AttachedToFrameFloor')
+        ff = self.xpath('//h:FrameFloor')
+        ff_area = tr.xpath(ff, 'h:Area')
+        ff_area.text = '600'
+        ff_2 = deepcopy(ff)
+        tr.xpath(ff_2, 'h:SystemIdentifier').attrib['id'] = "framefloor2"
+        tr.xpath(ff_2, 'h:Insulation/h:SystemIdentifier').attrib['id'] = "attic1flins2"
+        tr.xpath(ff_2, 'h:Insulation/h:Layer/h:NominalRValue').text = '15'
+        ff.addnext(ff_2)
+        el_2 = deepcopy(el)
+        el_2.attrib['idref'] = "framefloor2"
+        el.addnext(el_2)
+        res = tr.hpxml_to_hescore()
+        # Currently, framefloor attached to the same attic are combined.
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf21')
+
     def test_attic_type(self):
         tr = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:Attics/h:Attic/h:AtticType/h:Attic/h:Vented')
