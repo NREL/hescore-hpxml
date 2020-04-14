@@ -50,7 +50,6 @@
                 </AirInfiltration>
                 <Attics>
                     <Attic>
-                        
                         <SystemIdentifier id="attic1"/>
                         <AtticType>
                             <CathedralCeiling/>
