@@ -184,6 +184,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
             return storm_type == 'low-e' and glass_layers == 'single-pane'
         return False
 
+    # Please review the new location mapping.
     duct_location_map = {'living space': 'cond_space',
                          'unconditioned space': None,
                          'under slab': None,

@@ -54,15 +54,15 @@ is done according to the following mapping.
 
 .. table:: Cooling System Type mapping
 
-   =========================  ====================
-   HPXML Cooling System Type  HEScore Cooling Type
-   =========================  ====================
-   central air conditioning   split_dx
-   room air conditioner       packaged_dx
-   mini-split                 mini_split
-   evaporative cooler         dec
-   other                      *not translated*
-   =========================  ====================
+   ==================================  ====================
+   HPXML Cooling System Type           HEScore Cooling Type
+   ==================================  ====================
+   central air conditioning(HPXML V2)   split_dx
+   room air conditioner                 packaged_dx
+   mini-split                           mini_split
+   evaporative cooler                   dec
+   other                                *not translated*
+   ==================================  ====================
 
 .. warning::
    
@@ -72,6 +72,11 @@ is done according to the following mapping.
 
    Prior to v2016, HEScore did not have an evaporative cooler type and these were translated as high efficiency ``split_dx`` systems.
    Now that evaporative cooling has been added in HEScore v2016, they are categorized accordingly.
+
+.. note::
+
+   Above HPXML version 3.0, the enumeration ``central air conditioning`` is renamed as ``central air conditioner``,
+   it will be translated to split_dx as well.
 
 Cooling Efficiency
 ******************
@@ -102,8 +107,8 @@ cooling system type.
    ===============  ================
 
 The translator searches the ``CoolingSystem/AnnualCoolingEfficiency`` or
-``HeatPump/AnnualCoolEfficiency`` elements of the primary cooling system and
-uses the first one that has the correct units.
+``HeatPump/AnnualCoolEfficiency`` (HPXML v2) or ``HeatPump/AnnualCoolingEfficiency`` (HPXML v3)
+elements of the primary cooling system and uses the first one that has the correct units.
 
 .. _clg-shipment-weighted-efficiency:
 

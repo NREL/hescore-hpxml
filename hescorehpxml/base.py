@@ -194,6 +194,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         return 'ew%s%02d%s' % (wallconstype, rvalue, sidingtype)
 
     def get_window_code(self, window):
+        # Please review the refactoring for this function
         # HEScore window code mapping
         window_map = {
             'Aluminum': {
@@ -263,8 +264,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         gas_fill = xpath(window, 'h:GasFill/text()')
         argon_filled = False
+        # Only double-pane window can be argon filled
         if glass_layers == 'double-pane' and gas_fill == 'argon':
             argon_filled = True
+
         if frame_type in ('Aluminum', 'Metal'):
             thermal_break = tobool(xpath(window, 'h:FrameType/*/h:ThermalBreak/text()'))
             if thermal_break:

@@ -18,7 +18,7 @@ For each ``Ducts`` element in each air distribution system, the location of the
 duct mapped from HPXML enumerations to HEScore enumerations according to the
 following mapping.
 
-.. table:: Duct Location mapping
+.. table:: Duct Location mapping(HPXML v2)
 
    ======================  ================
    HPXML                   HEScore
@@ -34,6 +34,36 @@ following mapping.
    garage                  vented_crawl
    outside                 *not translated*
    ======================  ================
+
+.. table:: Duct Location mapping(HPXML v3)
+
+   ===========================  ================
+   HPXML                        HEScore
+   ===========================  ================
+   living space                 cond_space
+   unconditioned space          *not translated*
+   under slab                   *not translated*
+   basement                     *not translated*
+   basement - unconditioned     uncond_basement
+   basement - conditioned       cond_space
+   crawlspace - unvented        unvented_crawl
+   crawlspace - vented          vented_crawl
+   crawlspace - unconditioned   *not translated*
+   crawlspace - conditioned     *not translated*
+   crawlspace                   *not translated*
+   exterior wall                *not translated*
+   attic                        *not translated*
+   attic - unconditioned        uncond_attic
+   attic - conditioned          *not translated*
+   attic - unvented             *not translated*
+   attic - vented               *not translated*
+   interstitial space           *not translated*
+   garage                       vented_crawl
+   garage - conditioned         *not translated*
+   garage - unconditioned       *not translated*
+   roof deck                    *not translated*
+   outside                      *not translated*
+   ===========================  ================
 
 .. warning:: 
 
