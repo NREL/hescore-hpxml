@@ -992,6 +992,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             # Get other roof information from attached Roof nodes.
             attic_roof_ls = []
+            # Loop added for hpxml v3 where multiple roofs can be attached to the same attic
             for roof in attic_roofs:
                 attic_roofs_d = {}
                 attic_roof_ls.append(attic_roofs_d)
@@ -1066,6 +1067,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                  attic_roofs_d['extfinish']].items()),
                         key=lambda x: abs(x[0] - roof_rvalue))
 
+            # Please review this, it is combining properties of multiple roofs attached into one for each attic
             # Determine predominant roof characteristics for attic.
             # Sum of Roof Areas in the same Attic
             attic_roof_area_sum = sum([attic_roofs_dict['roof_area'] for attic_roofs_dict in attic_roof_ls])
@@ -1088,7 +1090,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
             for attic_roofs_dict in attic_roof_ls:
                 atticd['_roofid'] += attic_roofs_dict['roof_id']
 
-            # Calculate roof area weighted center of cavity R-value
+            # Calculate roof area weighted center of cavity R-value for attic,
+            # might be combined later by averaging again
+            # Please review this, it is taking average of coc r values (already looked up with construction type of
+            # each roof) of roofs attached to the same attic.
+            # An alternative can be: averaging the roof nominal R value first then look up the table with dominated
+            # construction type for coc effective R value at attic level.
             atticd['roof_coc_rvalue'] = \
                 attic_roof_area_sum / \
                 sum([old_div(attic_roofs_dict['roof_area'], attic_roofs_dict['roof_coc_rvalue']) for attic_roofs_dict in
@@ -1097,6 +1104,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # knee walls
             knee_walls = self.get_attic_knee_walls(attic, b)
 
+            # Questions: here we didn't have any input validation of floor attachment based on attic type, should we
+            # enhance it? Currently, a building with attic can skip specifying attic floors (0 rvalue passed) while
+            # one with cathedral ceiling can have floor specified (though it will be silently ignored in output).
             # attic floor center of cavity R-value
             attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
             if knee_walls:

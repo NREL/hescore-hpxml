@@ -104,7 +104,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
             floor_area = convert_to_type(float, self.xpath(frame_floor, 'h:Area/text()'))
             rvalue = self.xpath(frame_floor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
             frame_floor_dict_ls.append({'area': floor_area, 'rvalue': rvalue})
-
+        # Average
         try:
             floor_r = sum(x['area'] for x in frame_floor_dict_ls) / \
                       sum(x['area'] / x['rvalue'] for x in frame_floor_dict_ls)

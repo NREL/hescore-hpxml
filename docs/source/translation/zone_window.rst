@@ -146,7 +146,7 @@ with storm windows should be considered double-pane.
 
 .. note::
 
-   Above HPXML v3, "single-paned with storms" and "single-paned with low-e storms" enumerations
+   Starting from HPXML v3, "single-paned with storms" and "single-paned with low-e storms" enumerations
    are removed. Instead, translator searches ``Window/StormWindow`` element for storm existence.
    If the storm window is a low-e window, specify ``Window/StormWindow/GlassType`` to be equal to "low-e".
    ``StormWindow`` is only used when ``single-pane`` window is specified.
@@ -241,7 +241,7 @@ with storm windows should be considered double-pane.
 
 .. note::
 
-   Above HPXML v3, "single-paned with storms" and "single-paned with low-e storms" enumerations
+   Starting from HPXML v3, "single-paned with storms" and "single-paned with low-e storms" enumerations
    are removed. Instead, translator searches ``Window/StormWindow`` element for storm existence.
    If the storm window is a low-e window, specify ``Window/StormWindow/GlassType`` to be equal to "low-e".
    ``StormWindow`` is only used when ``single-pane`` window is specified.
@@ -369,7 +369,7 @@ panes as follows:
 
 .. note::
 
-   Above HPXML v3, "single-paned with storms" and "single-paned with low-e storms" enumerations
+   Starting from HPXML v3, "single-paned with storms" and "single-paned with low-e storms" enumerations
    are removed. Instead, translator searches ``Window/StormWindow`` element for storm existence.
    If the storm window is a low-e window, specify ``Window/StormWindow/GlassType`` to be equal to "low-e".
    ``StormWindow`` is only used when ``single-pane`` window is specified.

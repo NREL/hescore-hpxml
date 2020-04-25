@@ -75,7 +75,7 @@ is done according to the following mapping.
 
 .. note::
 
-   Above HPXML version 3.0, the enumeration "central air conditioning" is renamed as "central air conditioner".
+   Starting from HPXML version 3.0, the enumeration "central air conditioning" is renamed as "central air conditioner".
    They're equivalent in translation.
 
 Cooling Efficiency
