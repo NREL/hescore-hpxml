@@ -306,6 +306,8 @@ the enumeration list.
 If the primary roof type is determined to be a cathedral ceiling, then an attic
 R-value is not calculated.
 
+.. _knee-walls:
+
 Knee Walls
 **********
 
