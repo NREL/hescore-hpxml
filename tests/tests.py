@@ -1,5 +1,4 @@
 from future import standard_library
-standard_library.install_aliases()  # noqa: 402
 from builtins import map
 from builtins import str
 from builtins import object
@@ -14,6 +13,8 @@ import json
 from copy import deepcopy
 import uuid
 import sys
+standard_library.install_aliases()  # noqa: 402
+
 
 thisdir = os.path.dirname(os.path.abspath(__file__))
 exampledir = os.path.abspath(os.path.join(thisdir, '..', 'examples'))

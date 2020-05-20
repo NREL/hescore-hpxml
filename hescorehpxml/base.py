@@ -1904,8 +1904,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         singleton_heating_systems -= singletons_to_combine
         singleton_cooling_systems -= singletons_to_combine
         for heatpump_id in singletons_to_combine:
-            if heating_systems[heatpump_id]['type'] != 'mini_split' or cooling_systems[heatpump_id][
-                'type'] != 'mini_split':  # noqa: E501
+            if heating_systems[heatpump_id]['type'] != 'mini_split' or \
+                    cooling_systems[heatpump_id]['type'] != 'mini_split':  # noqa: E501
                 continue
             hvac_systems_ids.add(IDsAndWeights(
                 heatpump_id,
@@ -2273,8 +2273,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         assert sys_heating['efficiency_method'] == 'shipment_weighted'
                         do_bounds_check('heating_year', sys_heating['year'], 1970, this_year)
                 else:
-                    if not ((sys_heating['type'] in ('central_furnace', 'baseboard') and sys_heating[
-                        'fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):  # noqa: E501
+                    if not ((sys_heating['type'] in ('central_furnace', 'baseboard') and
+                            sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
                         raise TranslationError(
                             'Heating system %(fuel_primary)s %(type)s needs an efficiency value.' %
                             sys_heating)
