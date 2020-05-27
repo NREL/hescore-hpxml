@@ -4,21 +4,24 @@ Roof and Attic
 .. contents:: Table of Contents
 
 HPXML allows the specification of multiple ``Attic`` elements, each of which
-relates to one (HPXML v2) or more (HPXML v3) ``Roof`` elements. That relation is optional in HPXML, but is
-required for HEScore when there is more than one ``Attic`` or ``Roof``
-because it is important to know which roof relates to each attic space.
-An area is required for each Attic if there is more than one
+relates to one (HPXML v2) or more (HPXML v3) ``Roof`` elements. That relation is
+optional in HPXML, but is required for HEScore when there is more than one
+``Attic`` or ``Roof`` because it is important to know which roof relates to each
+attic space. An area is required for each Attic if there is more than one
 ``Attic`` element.
 
 .. _`attic area`:
 
   - In HPXML v2, areas can be specified directly by ``Attic/AtticArea``.
-  - In HPXML v3, translator first searches all the ``Area`` of ``FrameFloor`` whose id is the same as what referred
-    in ``Attic/AttachedToFrameFloor``, and sums all areas up. Otherwise, the ``Area`` of ``Roof`` whose id is the same as what referred
-    in ``Attic/AttachedToRoof`` will be searched and summed for each attic.
+  - In HPXML v3, translator first searches all the ``Area`` of ``FrameFloor`` 
+    whose id is the same as what referred in ``Attic/AttachedToFrameFloor``, and
+    sums all areas up. Otherwise, the ``Area`` of ``Roof`` whose id is the same
+    as what referred in ``Attic/AttachedToRoof`` will be searched and summed for
+    each attic.
 
-If there is only one ``Attic`` element, the footprint area of the building is assumed.
-If there's only one roof in HPXML, it will be automatically attached to attic.
+If there is only one ``Attic`` element, the footprint area of the building is
+assumed. If there's only one roof in HPXML, it will be automatically attached to
+attic.
 
 .. _rooftype:
 
@@ -75,8 +78,9 @@ attic. This is discussed in more detail in :ref:`roof-rvalues`.
 
 .. note::
 
-   Starting from HPXML v3, HPXML allows multiple floors/roofs attached to a single attic.
-   The properties of the floors/roofs attached to the same attic are combined into a single one.
+   Starting from HPXML v3, HPXML allows multiple floors/roofs attached to a
+   single attic. The properties of the floors/roofs attached to the same attic
+   are combined into a single one.
 
 Roof Color
 **********
@@ -102,8 +106,8 @@ the "roof_absorptance" element.
 
 .. note::
 
-   Starting from HPXML v3, if there're more than one roof attached to the same attic, the roof color of that
-   covers greatest area will be selected.
+   Starting from HPXML v3, if there're more than one roof attached to the same
+   attic, the roof color of that covers greatest area will be selected.
 
 Exterior Finish
 ***************
@@ -147,7 +151,8 @@ greater than zero, the roof is determined to have rigid foam sheathing and one
 of the construction codes is selected accordingly. Otherwise one of the
 standard wood frame construction codes is selected.
 
-- HPXML v2:
+HPXML v2
+--------
 
 .. code-block:: xml
    :emphasize-lines: 8-12
@@ -169,7 +174,8 @@ standard wood frame construction codes is selected.
        <Area>2500</Area>
    </Attic>
 
-- HPXML v3:
+HPXML v3
+--------
 
 .. code-block:: xml
    :emphasize-lines: 17-21
@@ -217,8 +223,8 @@ R-values for the roof deck are added up by summing the values of the
 :ref:`rigid-sheathing`, an R-value of 5 is subtracted from the roof R-value sum
 to account for the R-value of the sheathing in the HEScore construction.
 
-Starting from HPXML v3, multiple roofs are allowed to be attached to the same attic, if the attic
-has more than one ``Roof`` element with roof insulation, the
+Starting from HPXML v3, multiple roofs are allowed to be attached to the same
+attic, if the attic has more than one ``Roof`` element with roof insulation, the
 insulation values are combined by first selecting the nearest roof
 center-of-cavity R-value for each roof area from the table below.
 
@@ -268,7 +274,7 @@ center-of-cavity R-value for each roof area from the table below.
 
 Then a weighted average is calculated by weighting the U-values by area. This averaged Center-of-Cavity Effective
 R value is combined from all roofs attached to the same attic. The highest weighted roof construction type is selected
-to represent properties at attic level.
+to represent properties of the attic.
 
 .. math::
    :nowrap:
@@ -279,21 +285,22 @@ to represent properties at attic level.
    R_{eff,avg} &= \frac{1}{U_{eff,avg}} \\
    \end{align*}
 
-And if the house has more than two attics specified, the attics of the same roof types are combined.
-Therefore, the same weighted average calculation is performed (taking roof-level averaged R as :math:`R_{i}`
-and attic area determined in `attic area`_ as :math:`A_{i}`) to combine multiple attics.
+If the house has more than two attics specified, the attics of the same roof
+types are combined. Therefore, the same weighted average calculation is
+performed (taking roof-level averaged R as :math:`R_{i}` and attic area
+determined in `attic area`_ as :math:`A_{i}`) to combine multiple attics.
 
-Then the R-0 effective center-of-cavity R-value (:math:`R_{offset}`) is selected for highest weighted roof
-construction type (at attic level) represented in the calculation and
-is subtracted from :math:`R_{eff,avg}`. 
+Then the R-0 effective center-of-cavity R-value (:math:`R_{offset}`) is selected
+for highest weighted roof construction type for the attic represented in the
+calculation and is subtracted from :math:`R_{eff,avg}`. 
 
 .. math::
 
    R = R_{eff,avg} - R_{offset}
 
 Finally the R-value is rounded to the nearest insulation level in the
-enumeration choices for the highest weighted roof construction type (at attic level)
-included in the calculation.
+enumeration choices for the highest weighted roof construction type for the
+attic is included in the calculation.
 
 Attic R-value
 *************
@@ -311,9 +318,11 @@ R-value is not calculated.
 Knee Walls
 **********
 
-- In HPXML v2, knee walls are specified via the ``Attic/AtticKneeWall`` element
-- Starting from HPXML v3, knee walls are specified via wall attachment in ``Attic/AttachedToWall``. The
-  attached wall must have ``AtticWallType`` to be equal to "knee wall". See below an example:
+In HPXML v2, knee walls are specified via the ``Attic/AtticKneeWall`` element.
+
+Starting from HPXML v3, knee walls are specified via wall attachment in
+``Attic/AttachedToWall``. The attached wall must have ``AtticWallType`` of "knee
+wall". See below an example:
 
 .. code-block:: xml
    :emphasize-lines: 10, 15-30
@@ -350,7 +359,6 @@ Knee Walls
       </Wall>
    <Walls>
 
-If an attic has knee walls specified,
-the area of the knee walls will be added to the attic floor area. 
-If the insulation for the knee walls is different than the attic floor, a UA 
-calculation is performed to determine the average R-value.
+If an attic has knee walls specified, the area of the knee walls will be added
+to the attic floor area. If the insulation for the knee walls is different than
+the attic floor, a UA calculation is performed to determine the average R-value.

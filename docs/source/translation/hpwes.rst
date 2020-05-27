@@ -1,29 +1,45 @@
 Home Performance with Energy Star
 #################################
 
-Inputs for the Home Energy Score `submit_hpwes`_ API call can now be retrieved
-from an HPXML file.
+Inputs for the Home Energy Score `submit_hpwes`_ API call can be retrieved from
+an HPXML file as described below.
+
+.. _submit_hpwes: https://hes-documentation.labworks.org/home/api-definitions/api-methods/submit_hpwes
+
+Identifying HPwES Projects
+**************************
+
+To trigger data collection for HPwES project, the following elements need to be
+included depending on HPXML version used.
+
+HPXML v2
+--------
+
+To translate the HPwES fields, the ``Project/ProgramCertificate`` must be
+present and equal to ``Home Performance with Energy Star``. 
+
+HPXML v3
+--------
+
+In HPXML v3.0+, ``ProgramCertificate`` no longer exists and a new element of
+path
+``Building/BuildingDetails/GreenBuildingVerifications/GreenBuildingVerification``
+is used. Similarly, ``GreenBuildingVerification`` must be present as 
+``Home Performance with ENERGY STAR``.
 
 Project
 *******
 
 To get the Home Performance with Energy Star (HPwES) data
-from an HPXML file a ``Project`` node needs to be included. To translate
-the HPwES fields, if using HPXML V2, the ``ProgramCertificate`` must be
-present and equal to ``Home Performance with Energy Star``. In HPXML v3.0+,
-``ProgramCertificate`` no longer exists and a new element of path
-``Building/BuildingDetails/GreenBuildingVerifications/GreenBuildingVerification``
-is used. Similarly, ``GreenBuildingVerification`` must be present as ``Home Performance with ENERGY STAR``.
-See following the required elements under ``Project`` node elements:
-
-.. _submit_hpwes: https://hes-documentation.labworks.org/home/api-definitions/api-methods/submit_hpwes
+from an HPXML file a ``Project`` node needs to be included. 
+The following elements are required under the ``Project`` node:
 
 .. code-block:: xml
 
     <Project>
         <ProjectDetails>
             <ProjectSystemIdentifiers id="projectid"/>
-            <!-- HPXML v2 --><ProgramCertificate>Home Performance with Energy Star</ProgramCertificate>
+            <!-- HPXML v2 only --><ProgramCertificate>Home Performance with Energy Star</ProgramCertificate>
             <StartDate>2018-08-20</StartDate>
             <CompleteDateActual>2018-12-14</CompleteDateActual>
         </projectDetails>

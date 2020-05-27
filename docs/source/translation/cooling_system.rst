@@ -54,15 +54,16 @@ is done according to the following mapping.
 
 .. table:: Cooling System Type mapping
 
-   ==================================  ====================
-   HPXML Cooling System Type           HEScore Cooling Type
-   ==================================  ====================
-   central air conditioning(HPXML V2)   split_dx
+   ===================================  ====================
+   HPXML Cooling System Type            HEScore Cooling Type
+   ===================================  ====================
+   central air conditioner (HPXML V3)   split_dx
+   central air conditioning (HPXML V2)  split_dx
    room air conditioner                 packaged_dx
    mini-split                           mini_split
    evaporative cooler                   dec
    other                                *not translated*
-   ==================================  ====================
+   ===================================  ====================
 
 .. warning::
    

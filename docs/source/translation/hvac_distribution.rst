@@ -18,7 +18,7 @@ For each ``Ducts`` element in each air distribution system, the location of the
 duct mapped from HPXML enumerations to HEScore enumerations according to the
 following mapping.
 
-.. table:: Duct Location mapping(HPXML v2)
+.. table:: Duct Location mapping (HPXML v2)
 
    ======================  ================
    HPXML                   HEScore
@@ -35,7 +35,7 @@ following mapping.
    outside                 *not translated*
    ======================  ================
 
-.. table:: Duct Location mapping(HPXML v3)
+.. table:: Duct Location mapping (HPXML v3)
 
    ===========================  ================
    HPXML                        HEScore
