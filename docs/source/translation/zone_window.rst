@@ -35,7 +35,7 @@ window properties be assigned to each direction, the
 ``window_construction_same`` option in HEScore will always be false and all
 windows will be specified separately. 
 
-Skylights in HEScore do not have an orientation associated with them, therefore
+Skylights in HEScore do not have an orientation that can be set, therefore
 orientation/azimuth information about skylights is ignored.
 
 .. _window-prop:
@@ -112,7 +112,7 @@ the logic for each frame type.
 Aluminum
 --------
 
-The aluminum frame type has allows for single- and double-paned windows, but not
+The aluminum frame type allows for single- and double-paned windows, but not
 more than that. According to the HEScore documentation, single-pane windows
 with storm windows should be considered double-pane.
 
@@ -197,7 +197,7 @@ and clear options.
    ========================  ================================
    HPXML Glass Type          HEScore Glazing Type
    ========================  ================================
-   low-e                     Double-pane, clear
+   low-e                     Double-pane, solar-control low-E
    tinted                    Double-pane, tinted
    reflective                Double-pane, solar-control low-E
    tinted/reflective         Double-pane, solar-control low-E
@@ -525,8 +525,8 @@ only triple-pane glazing option in HEScore.
 Solar Screens
 *************
 
-For each side of the house in HEScore, a solar screen may be present. 
-To determine if a solar screen should be specified, the translator looks for either 
+For each side of the house in HEScore, solar screens may be present.
+To determine if solar screens should be specified, the translator looks for either
 of the following subelements of ``Window`` or ``Skylight``:
 
 HPXML v2:
