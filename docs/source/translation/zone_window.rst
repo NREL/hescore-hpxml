@@ -155,7 +155,7 @@ with storm windows should be considered double-pane.
       - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow``.
 
    HPXML v2 "single-paned with low-e storms" equivalence(mapped to double-pane) in HPXML v3:
-      - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow/StormWindow/GlassType`` to be "low-e".
+      - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow/GlassType`` to be "low-e".
 
 
 .. warning::
@@ -250,7 +250,7 @@ with storm windows should be considered double-pane.
       - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow``.
 
    HPXML v2 "single-paned with low-e storms" equivalence(mapped to double-pane) in HPXML v3:
-      - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow/StormWindow/GlassType`` to be "low-e".
+      - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow/GlassType`` to be "low-e".
 
 
 .. warning::
@@ -378,7 +378,7 @@ panes as follows:
       - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow``.
 
    HPXML v2 "single-paned with low-e storms" equivalence(mapped to double-pane) in HPXML v3:
-      - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow/StormWindow/GlassType`` to be "low-e".
+      - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow/GlassType`` to be "low-e".
 
 
 Single-pane
