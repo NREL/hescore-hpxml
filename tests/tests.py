@@ -2949,6 +2949,13 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         d_v3 = tr_v3.hpxml_to_hescore()
         self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'cond_space')
 
+        el.text = 'garage'
+        fnd_type_el = self.xpath('//h:FoundationType[1]/h:Basement')
+        etree.SubElement(fnd_type_el.getparent(), tr_v3.addns('h:Garage'))
+        fnd_type_el.getparent().remove(fnd_type_el)
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'unvented_crawl')
+
 
 if __name__ == "__main__":
     unittest.main()
