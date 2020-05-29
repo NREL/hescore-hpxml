@@ -114,6 +114,9 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def check_is_storm_lowe(self, window, glass_layers):
         return glass_layers == 'single-paned with low-e storms'
 
+    def get_duct_location(self, hpxml_duct_location, v3_bldg):
+        return self.duct_location_map[hpxml_duct_location]
+
     duct_location_map = {'conditioned space': 'cond_space',
                          'unconditioned space': None,
                          'unconditioned basement': 'uncond_basement',

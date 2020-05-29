@@ -38,31 +38,31 @@ following mapping.
 .. table:: Duct Location mapping (HPXML v3)
 
    ===========================  ================
-   HPXML                        HEScore
+   HPXML                        HEScore Hierarchy
    ===========================  ================
    living space                 cond_space
-   unconditioned space          *not translated*
-   under slab                   *not translated*
-   basement                     *not translated*
+   unconditioned space          uncond_basement, vented_crawl, unvented_crawl, uncond_attic
+   under slab                   vented_crawl
+   basement                     uncond_basement, cond_space
    basement - unconditioned     uncond_basement
    basement - conditioned       cond_space
    crawlspace - unvented        unvented_crawl
    crawlspace - vented          vented_crawl
-   crawlspace - unconditioned   *not translated*
-   crawlspace - conditioned     *not translated*
-   crawlspace                   *not translated*
+   crawlspace - unconditioned   vented_crawl, unvented_crawl
+   crawlspace - conditioned     cond_space
+   crawlspace                   vented_crawl, unvented_crawl, cond_space
    exterior wall                *not translated*
-   attic                        *not translated*
+   attic                        uncond_attic, cond_space
    attic - unconditioned        uncond_attic
-   attic - conditioned          *not translated*
-   attic - unvented             *not translated*
-   attic - vented               *not translated*
+   attic - conditioned          cond_space
+   attic - unvented             uncond_attic
+   attic - vented               uncond_attic
    interstitial space           *not translated*
    garage                       vented_crawl
-   garage - conditioned         *not translated*
-   garage - unconditioned       *not translated*
-   roof deck                    *not translated*
-   outside                      *not translated*
+   garage - conditioned         cond_space
+   garage - unconditioned       vented_crawl
+   roof deck                    vented_crawl
+   outside                      vented_crawl
    ===========================  ================
 
 .. warning:: 

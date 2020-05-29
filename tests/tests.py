@@ -581,16 +581,26 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
     def test_bad_duct_location(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:DuctLocation[1]')
-        el.text = 'outside'
+        el.text = 'unconditioned basement'
         self.assertRaisesRegexp(TranslationError,
-                                'No comparable duct location in HEScore',
+                                'HVAC distribution: duct1 location: uncond_basement not exists in zone_roof/floor',
+                                tr.hpxml_to_hescore)
+
+        el.text = 'interstitial space'
+        self.assertRaisesRegexp(TranslationError,
+                                'No comparable duct location in HEScore: interstitial space',
                                 tr.hpxml_to_hescore)
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:DuctLocation[1]')
-        el.text = 'outside'
+        el.text = 'basement - unconditioned'
         self.assertRaisesRegexp(TranslationError,
-                                'No comparable duct location in HEScore',
+                                'HVAC distribution: duct1 location: uncond_basement not exists in zone_roof/floor',
+                                tr_v3.hpxml_to_hescore)
+
+        el.text = 'interstitial space'
+        self.assertRaisesRegexp(TranslationError,
+                                'No comparable duct location in HEScore: interstitial space',
                                 tr_v3.hpxml_to_hescore)
 
     def test_missing_water_heater(self):
@@ -2914,6 +2924,30 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         d_v3 = tr_v3.hpxml_to_hescore()
         self.assertEqual(d_v3['building']['zone']['zone_roof'][0]['roof_area'], 1200)
         self.assertEqual(d, d_v3)
+
+    def test_v3_duct_location(self):
+        tr_v3 = self._load_xmlfile('hescore_min_v3')
+        el = self.xpath('//h:DuctLocation[1]')
+        el.text = 'unconditioned space'
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'uncond_attic')
+
+        el.text = 'basement'
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'cond_space')
+
+        el.text = 'basement - conditioned'
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'cond_space')
+
+        el.text = 'attic'
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'uncond_attic')
+
+        # Is this reasonable?
+        el.text = 'crawlspace'
+        d_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'cond_space')
 
 
 if __name__ == "__main__":

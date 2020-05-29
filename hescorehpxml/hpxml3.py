@@ -184,27 +184,48 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
             return storm_type == 'low-e' and glass_layers == 'single-pane'
         return False
 
+    def get_duct_location(self, hpxml_duct_location, bldg):
+        loc_hierarchy = self.duct_location_map[hpxml_duct_location]
+        if loc_hierarchy is None:
+            return
+        for loc in loc_hierarchy:
+            if loc == 'uncond_attic':
+                check_loc = 'vented_attic'
+            else:
+                check_loc = loc
+            if check_loc not in [zone_floor['foundation_type'] for zone_floor in bldg['zone']['zone_floor']] and \
+                    check_loc not in [zone_roof['roof_type'] for zone_roof in bldg['zone']['zone_roof']]:
+                if check_loc != 'cond_space':
+                    continue
+            return loc
+
+        # Even though going here means duct location is not existing in neither roof type nor floor type,
+        # this duct is still likely to be discarded(due to not become the major 3 ducts, not connected to hvac, etc),
+        # it's also likely that its corresponding roof/floor type is already discarded, so keep it going until
+        # 'validate_hescore_inputs' error checking
+        return loc_hierarchy[0]
+
     # Please review the new location mapping.
-    duct_location_map = {'living space': 'cond_space',
-                         'unconditioned space': None,
-                         'under slab': None,
-                         'basement': None,  # Fix me
-                         'basement - unconditioned': 'uncond_basement',
-                         'basement - conditioned': 'cond_space',  # Fix me
-                         'crawlspace - unvented': 'unvented_crawl',
-                         'crawlspace - vented': 'vented_crawl',
-                         'crawlspace - unconditioned': None,  # Fix me
-                         'crawlspace - conditioned': None,  # Fix me
-                         'crawlspace': None,
+    duct_location_map = {'living space': ['cond_space'],
+                         'unconditioned space': ['uncond_basement', 'vented_crawl', 'unvented_crawl', 'uncond_attic'],
+                         'under slab': ['vented_crawl'],
+                         'basement': ['uncond_basement', 'cond_space'],
+                         'basement - unconditioned': ['uncond_basement'],
+                         'basement - conditioned': ['cond_space'],
+                         'crawlspace - unvented': ['unvented_crawl'],
+                         'crawlspace - vented': ['vented_crawl'],
+                         'crawlspace - unconditioned': ['vented_crawl', 'unvented_crawl'],
+                         'crawlspace - conditioned': ['cond_space'],
+                         'crawlspace': ['vented_crawl', 'unvented_crawl', 'cond_space'],
                          'exterior wall': None,
                          'interstitial space': None,
-                         'garage - conditioned': None,  # Fix me
-                         'garage - unconditioned': None,  # Fix me
-                         'garage': 'vented_crawl',
-                         'roof deck': None,  # Fix me
-                         'outside': None,
-                         'attic': None,  # Fix me
-                         'attic - unconditioned': 'uncond_attic',  # Fix me
-                         'attic - conditioned': None,  # Fix me
-                         'attic - unvented': None,  # Fix me
-                         'attic - vented': None}  # Fix me
+                         'garage - conditioned': ['cond_space'],
+                         'garage - unconditioned': ['vented_crawl'],
+                         'garage': ['vented_crawl'],
+                         'roof deck': ['vented_crawl'],
+                         'outside': ['vented_crawl'],
+                         'attic': ['uncond_attic', 'cond_space'],
+                         'attic - unconditioned': ['uncond_attic'],
+                         'attic - conditioned': ['cond_space'],
+                         'attic - unvented': ['uncond_attic'],
+                         'attic - vented': ['uncond_attic']}

@@ -473,7 +473,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         sys_cooling['_floorarea'] = convert_to_type(float, xpath(clgsys, 'h:FloorAreaServed/text()'))
         return sys_cooling
 
-    def get_hvac_distribution(self, hvacd_el):
+    def get_hvac_distribution(self, hvacd_el, bldg):
         hvac_distribution = []
 
         airdist_el = self.xpath(hvacd_el, 'h:DistributionSystemType/h:AirDistribution')
@@ -496,7 +496,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             # Duct Location
             hpxml_duct_location = self.xpath(duct_el, 'h:DuctLocation/text()')
-            hescore_duct_location = self.duct_location_map[hpxml_duct_location]
+            hescore_duct_location = self.get_duct_location(hpxml_duct_location, bldg)
 
             if hescore_duct_location is None:
                 raise TranslationError('No comparable duct location in HEScore: %s' % hpxml_duct_location)
@@ -696,7 +696,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         bldg['zone']['window_construction_same'] = False
         bldg['zone']['zone_wall'] = self.get_building_zone_wall(b, bldg['about'])
         bldg['systems'] = OrderedDict()
-        bldg['systems']['hvac'] = self.get_hvac(b, bldg['about'])
+        bldg['systems']['hvac'] = self.get_hvac(b, bldg)
         bldg['systems']['domestic_hot_water'] = self.get_systems_dhw(b)
         generation = self.get_generation(b)
         if generation:
@@ -1719,7 +1719,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             zone_window['solar_screen'] = max(list(window_sunscreen_areas.items()), key=lambda x: x[1])[0]
         return zone_wall
 
-    def get_hvac(self, b, bldg_about):
+    def get_hvac(self, b, bldg):
 
         def get_dict_of_hpxml_elements_by_id(xpathexpr):
             return_dict = {}
@@ -1824,7 +1824,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         # Translate each duct system into HEScore inputs
         distribution_systems = {}
         for key, el in list(hpxml_distribution_systems.items()):
-            distribution_systems[key] = self.get_hvac_distribution(el)
+            distribution_systems[key] = self.get_hvac_distribution(el, bldg)
 
         # Determine the weighting factors
 
@@ -1834,7 +1834,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 for key, hvac_sys in heating_or_cooling_systems.items():
                     if hvac_sys.get('_floorarea') is None and hvac_sys.get('_fracload') is None:
                         hvac_sys['_fracload'] = 1.0
-                        hvac_sys['_floorarea'] = bldg_about['conditioned_floor_area']
+                        hvac_sys['_floorarea'] = bldg['about']['conditioned_floor_area']
 
         # Choose a weighting factor that all the heating and cooling systems use
         all_systems = []
