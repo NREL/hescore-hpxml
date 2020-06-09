@@ -1,4 +1,4 @@
-<HPXML xmlns="http://hpxml.org/hpxml/2011/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.1">
+<HPXML xmlns="http://hpxmlonline.com/2019/10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="3.0">
     <XMLTransactionHeaderInformation>
         <XMLType/>
         <XMLGeneratedBy/>
@@ -37,29 +37,18 @@
                 </BuildingConstruction>
             </BuildingSummary>
             <Enclosure>
-                <AtticAndRoof>
-                    <Roofs>
-                        <Roof>
-                            <SystemIdentifier id="roof1"/>
-                            <RoofColor>dark</RoofColor>
-                            <RoofType>asphalt or fiberglass shingles</RoofType>
-                            <RadiantBarrier>true</RadiantBarrier>
-                        </Roof>
-                    </Roofs>
-                    <Attics>
-                        <Attic>
-                            <SystemIdentifier id="attic1"/>
-                            <AttachedToRoof idref="roof1"/>
-                            <AtticType>vented attic</AtticType>
-                            <AtticFloorInsulation>
-                                <SystemIdentifier id="attic1ins"/>
-                                <Layer>
-                                    <NominalRValue>13</NominalRValue>
-                                </Layer>
-                            </AtticFloorInsulation>
-                        </Attic>
-                    </Attics>
-                </AtticAndRoof>
+                <Attics>
+                    <Attic>
+                        <SystemIdentifier id="attic1"/>
+                        <AtticType>
+                            <Attic>
+                                <Vented>true</Vented>
+                            </Attic>
+                        </AtticType>
+                        <AttachedToRoof idref="roof1"/>
+                        <AttachedToFrameFloor idref="framefloor1"/>
+                    </Attic>
+                </Attics>
                 <Foundations>
                     <Foundation>
                         <SystemIdentifier id="crawl1"/>
@@ -68,28 +57,18 @@
                                 <Vented>true</Vented>
                             </Crawlspace>
                         </FoundationType>
-                        <FrameFloor>
-                            <SystemIdentifier id="crawl1flr1"/>
-                            <Area>405</Area>
-                            <Insulation>
-                                <SystemIdentifier id="crawl1flr1ins1"/>
-                                <Layer>
-                                    <NominalRValue>30</NominalRValue>
-                                </Layer>
-                            </Insulation>
-                        </FrameFloor>
-                        <FrameFloor>
-                            <SystemIdentifier id="crawl1flr2"/>
-                            <Area>405</Area>
-                            <Insulation>
-                                <SystemIdentifier id="crawl1flr2ins1"/>
-                                <Layer>
-                                    <NominalRValue>0</NominalRValue>
-                                </Layer>
-                            </Insulation>
-                        </FrameFloor>
+                    <AttachedToFrameFloor idref="crawl1flr1"/>
+                    <AttachedToFrameFloor idref="crawl1flr2"/>
                     </Foundation>
                 </Foundations>
+                <Roofs>
+                    <Roof>
+                        <SystemIdentifier id="roof1"/>
+                        <RoofType>asphalt or fiberglass shingles</RoofType>
+                        <RoofColor>dark</RoofColor>
+                        <RadiantBarrier>true</RadiantBarrier>
+                    </Roof>
+                </Roofs>
                 <Walls>
                     <Wall>
                         <SystemIdentifier id="wall1"/>
@@ -105,6 +84,37 @@
                         </Insulation>
                     </Wall>
                 </Walls>
+                <FrameFloors>
+                    <FrameFloor>
+                        <SystemIdentifier id="framefloor1"/>
+                        <Insulation>
+                            <SystemIdentifier id="attic1ins"/>
+                            <Layer>
+                                <NominalRValue>13</NominalRValue>
+                            </Layer>
+                        </Insulation>
+                    </FrameFloor>
+                    <FrameFloor>
+                        <SystemIdentifier id="crawl1flr1"/>
+                        <Area>405</Area>
+                        <Insulation>
+                            <SystemIdentifier id="crawl1flr1ins1"/>
+                            <Layer>
+                                <NominalRValue>30</NominalRValue>
+                            </Layer>
+                        </Insulation>
+                    </FrameFloor>
+                    <FrameFloor>
+                        <SystemIdentifier id="crawl1flr2"/>
+                        <Area>405</Area>
+                        <Insulation>
+                            <SystemIdentifier id="crawl1flr2ins1"/>
+                            <Layer>
+                                <NominalRValue>0</NominalRValue>
+                            </Layer>
+                        </Insulation>
+                    </FrameFloor>
+                </FrameFloors>
                 <Windows>
                     <Window>
                         <SystemIdentifier id="frontwindows"/>
@@ -114,7 +124,10 @@
                         <FrameType>
                             <Aluminum/>
                         </FrameType>
-                        <GlassLayers>single-paned with storms</GlassLayers>
+                        <GlassLayers>single-pane</GlassLayers>
+                        <StormWindow>
+                            <SystemIdentifier id="windowstorm"/>
+                        </StormWindow>
                     </Window>
                     <Window>
                         <SystemIdentifier id="rightwindows"/>
@@ -124,7 +137,10 @@
                         <FrameType>
                             <Wood/>
                         </FrameType>
-                        <GlassLayers>single-paned with storms</GlassLayers>
+                        <GlassLayers>single-pane</GlassLayers>
+                        <StormWindow>
+                            <SystemIdentifier id="windowstorm2"/>
+                        </StormWindow>
                     </Window>
                     <Window>
                         <SystemIdentifier id="backwindows1"/>
@@ -167,7 +183,10 @@
                         <FrameType>
                             <Aluminum/>
                         </FrameType>
-                        <GlassLayers>single-paned with storms</GlassLayers>
+                        <GlassLayers>single-pane</GlassLayers>
+                        <StormWindow>
+                            <SystemIdentifier id="windowstorm3"/>
+                        </StormWindow>
                     </Window>
                 </Windows>
             </Enclosure>
@@ -191,7 +210,7 @@
                             <SystemIdentifier id="centralair1"/>
                             <YearInstalled>2000</YearInstalled>
                             <DistributionSystem idref="ductsys1"/>
-                            <CoolingSystemType>central air conditioning</CoolingSystemType>
+                            <CoolingSystemType>central air conditioner</CoolingSystemType>
                             <AnnualCoolingEfficiency>
                                 <Units>SEER</Units>
                                 <Value>13</Value>
@@ -208,19 +227,19 @@
                                 </DuctLeakageMeasurement>
                                 <Ducts>
                                     <DuctInsulationRValue>4</DuctInsulationRValue>
-                                    <DuctLocation>vented crawlspace</DuctLocation>
+                                    <DuctLocation>crawlspace - vented</DuctLocation>
                                     <FractionDuctArea>0.5</FractionDuctArea>
                                     <!-- unsealed -->
                                 </Ducts>
                                 <Ducts>
                                     <DuctInsulationRValue>0</DuctInsulationRValue>
-                                    <DuctLocation>conditioned space</DuctLocation>
+                                    <DuctLocation>living space</DuctLocation>
                                     <FractionDuctArea>0.15</FractionDuctArea>
                                     <!-- unsealed -->
                                 </Ducts>
                                 <Ducts>
                                     <DuctInsulationThickness>1</DuctInsulationThickness>
-                                    <DuctLocation>unconditioned attic</DuctLocation>
+                                    <DuctLocation>attic - unconditioned</DuctLocation>
                                     <FractionDuctArea>0.35</FractionDuctArea>
                                     <!-- sealed -->
                                 </Ducts>

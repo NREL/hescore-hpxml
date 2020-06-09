@@ -1,24 +1,45 @@
 Home Performance with Energy Star
 #################################
 
-Inputs for the Home Energy Score `submit_hpwes`_ API call can now be retrieved
-from an HPXML file.
+Inputs for the Home Energy Score `submit_hpwes`_ API call can be retrieved from
+an HPXML file as described below.
+
+.. _submit_hpwes: https://hes-documentation.labworks.org/home/api-definitions/api-methods/submit_hpwes
+
+Identifying HPwES Projects
+**************************
+
+To trigger data collection for HPwES project, the following elements need to be
+included depending on HPXML version used.
+
+HPXML v2
+--------
+
+To translate the HPwES fields, the ``Project/ProgramCertificate`` must be
+present and equal to ``Home Performance with Energy Star``. 
+
+HPXML v3
+--------
+
+In HPXML v3.0+, ``ProgramCertificate`` no longer exists and a new element of
+path
+``Building/BuildingDetails/GreenBuildingVerifications/GreenBuildingVerification``
+is used. Similarly, ``GreenBuildingVerification`` must be present as 
+``Home Performance with ENERGY STAR``.
 
 Project
 *******
 
 To get the Home Performance with Energy Star (HPwES) data
-from an HPXML file a ``Project`` node needs to be included with at least the
-following elements:
+from an HPXML file a ``Project`` node needs to be included. 
+The following elements are required under the ``Project`` node:
 
-.. _submit_hpwes: https://hes-documentation.labworks.org/home/api-definitions/api-methods/submit_hpwes
-
-.. code:: xml
+.. code-block:: xml
 
     <Project>
         <ProjectDetails>
             <ProjectSystemIdentifiers id="projectid"/>
-            <ProgramCertificate>Home Performance with Energy Star</ProgramCertificate>
+            <!-- HPXML v2 only --><ProgramCertificate>Home Performance with Energy Star</ProgramCertificate>
             <StartDate>2018-08-20</StartDate>
             <CompleteDateActual>2018-12-14</CompleteDateActual>
         </projectDetails>
@@ -26,8 +47,7 @@ following elements:
 
 If more than one ``Project`` element exists, the first one will be used. The
 user can override this by passing the ``--projectid`` argument to the translator
-command line. To translate the HPwES fields, the ``ProgramCertificate`` must be
-present and equal to ``Home Performance with Energy Star``.
+command line.
 
 The project fields are mapped as follows:
 

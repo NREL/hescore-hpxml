@@ -66,6 +66,16 @@
       "window_construction_same": false,
       "zone_wall": [
         {
+          "side": "right",
+          "wall_assembly_code": "ewwf07st",
+          "zone_window": {
+            "window_area": 153.0,
+            "window_method": "code",
+            "window_code": "dpeaaw",
+            "solar_screen": false
+          }
+        },
+        {
           "side": "front",
           "wall_assembly_code": "ewwf07st",
           "zone_window": {
@@ -90,16 +100,6 @@
           "wall_assembly_code": "ewwf11st",
           "zone_window": {
             "window_area": 165.333,
-            "window_method": "code",
-            "window_code": "dpeaaw",
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "right",
-          "wall_assembly_code": "ewwf07st",
-          "zone_window": {
-            "window_area": 153.0,
             "window_method": "code",
             "window_code": "dpeaaw",
             "solar_screen": false

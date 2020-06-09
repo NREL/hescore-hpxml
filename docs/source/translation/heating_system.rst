@@ -134,8 +134,8 @@ heating system type.
    ===============  ================
 
 The translator searches the ``HeatingSystem/AnnualHeatingEfficiency`` or
-``HeatPump/AnnualHeatEfficiency`` elements of the primary heating system and
-uses the first one that has the correct units.
+``HeatPump/AnnualHeatEfficiency`` (HPXML v2) or ``HeatPump/AnnualHeatingEfficiency`` (HPXML v3)
+elements of the primary heating system and uses the first one that has the correct units.
 
 Shipment Weighted Efficiency
 ============================

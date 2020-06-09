@@ -35,7 +35,7 @@ window properties be assigned to each direction, the
 ``window_construction_same`` option in HEScore will always be false and all
 windows will be specified separately. 
 
-Skylights in HEScore do not have an orientation associated with them, therefore
+Skylights in HEScore do not have an orientation that can be set, therefore
 orientation/azimuth information about skylights is ignored.
 
 .. _window-prop:
@@ -112,13 +112,13 @@ the logic for each frame type.
 Aluminum
 --------
 
-The aluminum frame type has allows for single- and double-paned windows, but not
+The aluminum frame type allows for single- and double-paned windows, but not
 more than that. According to the HEScore documentation, single-pane windows
 with storm windows should be considered double-pane.
 
 .. _al_mapping:
 
-.. table:: Window pane mapping for Aluminum frame types
+.. table:: Window pane mapping for Aluminum frame types (HPXML v2)
    
    ==============================  ================
    HPXML Glass Layers              HEScore 
@@ -132,11 +132,38 @@ with storm windows should be considered double-pane.
    other                           *not translated*
    ==============================  ================
 
+.. table:: Window pane mapping for Aluminum frame types (HPXML v3)
+
+   ==============================  ================
+   HPXML Glass Layers              HEScore
+   ==============================  ================
+   single-pane                     single-pane
+   double-pane                     double-pane
+   triple-pane                     *not translated*
+   multi-layered                   *not translated*
+   other                           *not translated*
+   ==============================  ================
+
+.. note::
+
+   Starting from HPXML v3, "single-paned with storms" and "single-paned with low-e storms" enumerations
+   are removed. Instead, translator searches ``Window/StormWindow`` element for storm existence.
+   If the storm window is a low-e window, specify ``Window/StormWindow/GlassType`` to be equal to "low-e".
+   ``StormWindow`` is only used when ``single-pane`` window is specified.
+
+   HPXML v2 "single-paned with storms" equivalence(mapped to double-pane) in HPXML v3:
+      - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow``.
+
+   HPXML v2 "single-paned with low-e storms" equivalence(mapped to double-pane) in HPXML v3:
+      - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow/GlassType`` to be "low-e".
+
+
 .. warning::
 
-   If a window has the "Aluminum" frame type, the ``GlassLayers`` must be 
-   single-pane, double-pane, or a single-pane with storm windows or the 
-   translation will fail.
+   If a window has the "Aluminum" frame type, the ``GlassLayers`` must be
+   single-pane, double-pane, or a single-pane with storm windows (or specify
+   ``Window/StormWindow`` with "single-pane" in HPXML v3+) or the translation
+   will fail.
 
 
 Single-pane
@@ -170,7 +197,7 @@ and clear options.
    ========================  ================================
    HPXML Glass Type          HEScore Glazing Type
    ========================  ================================
-   low-e                     Double-pane, clear
+   low-e                     Double-pane, solar-control low-E
    tinted                    Double-pane, tinted
    reflective                Double-pane, solar-control low-E
    tinted/reflective         Double-pane, solar-control low-E
@@ -187,7 +214,7 @@ with storm windows should be considered double-pane.
 
 .. _althb_mapping:
 
-.. table:: Window pane mapping for Aluminum with Thermal Break frame types
+.. table:: Window pane mapping for Aluminum with Thermal Break frame types (HPXML v2)
    
    ==============================  ================
    HPXML Glass Layers              HEScore 
@@ -200,12 +227,39 @@ with storm windows should be considered double-pane.
    single-paned with low-e storms  double-pane
    other                           *not translated*
    ==============================  ================
-   
+
+.. table:: Window pane mapping for Aluminum with Thermal Break frame types (HPXML v3)
+
+   ==============================  ================
+   HPXML Glass Layers              HEScore
+   ==============================  ================
+   single-pane                     *not translated*
+   double-pane                     double-pane
+   triple-pane                     *not translated*
+   multi-layered                   *not translated*
+   other                           *not translated*
+   ==============================  ================
+
+.. note::
+
+   Starting from HPXML v3, "single-paned with storms" and "single-paned with low-e storms" enumerations
+   are removed. Instead, translator searches ``Window/StormWindow`` element for storm existence.
+   If the storm window is a low-e window, specify ``Window/StormWindow/GlassType`` to be equal to "low-e".
+   ``StormWindow`` is only used when ``single-pane`` window is specified.
+
+   HPXML v2 "single-paned with storms" equivalence(mapped to double-pane) in HPXML v3:
+      - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow``.
+
+   HPXML v2 "single-paned with low-e storms" equivalence(mapped to double-pane) in HPXML v3:
+      - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow/GlassType`` to be "low-e".
+
+
 .. warning::
 
    If a window has the "Aluminum with Thermal Break" frame type, the
-   ``GlassLayers`` must be double-paned or a single-pane with storm windows or
-   the translation will fail.
+   ``GlassLayers`` must be double-pane or single-pane with storms (or specify
+   ``Window/StormWindow`` with "single-pane" in HPXML v3+) or the translation
+   will fail.
 
 Double-pane
 ^^^^^^^^^^^
@@ -248,7 +302,7 @@ same as solar control low-e.
               <ThermalBreak>true</ThermalBreak>
           </Aluminum>
       </FrameType>
-      <GlassLayers>double-pane</GlassLayers><!-- or 'single-paned with storms', 'single-paned with low-e storms' -->
+      <GlassLayers>double-pane</GlassLayers><!-- or other double-pane mapped options mentioned above -->
       <GlassType>reflective</GlassType>
    </Window>
 
@@ -288,7 +342,7 @@ considered double-pane. The HPXML ``GlassLayers`` maps into HEScore number of
 panes as follows:
 
 
-.. table:: Window pane mapping for Wood or Vinyl frame types
+.. table:: Window pane mapping for Wood or Vinyl frame types (HPXML v2)
    
    ==============================  ================
    HPXML Glass Layers              HEScore 
@@ -301,6 +355,32 @@ panes as follows:
    single-paned with low-e storms  double-pane
    other                           *not translated*
    ==============================  ================
+
+.. table:: Window pane mapping for Wood or Vinyl frame types (HPXML v3)
+
+   ==============================  ================
+   HPXML Glass Layers              HEScore
+   ==============================  ================
+   single-pane                     single-pane
+   double-pane                     double-pane
+   triple-pane                     triple-pane
+   multi-layered                   *not translated*
+   other                           *not translated*
+   ==============================  ================
+
+.. note::
+
+   Starting from HPXML v3, "single-paned with storms" and "single-paned with low-e storms" enumerations
+   are removed. Instead, translator searches ``Window/StormWindow`` element for storm existence.
+   If the storm window is a low-e window, specify ``Window/StormWindow/GlassType`` to be equal to "low-e".
+   ``StormWindow`` is only used when ``single-pane`` window is specified.
+
+   HPXML v2 "single-paned with storms" equivalence(mapped to double-pane) in HPXML v3:
+      - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow``.
+
+   HPXML v2 "single-paned with low-e storms" equivalence(mapped to double-pane) in HPXML v3:
+      - ``Window/GlassLayers`` "single-pane" + ``Window/StormWindow/GlassType`` to be "low-e".
+
 
 Single-pane
 ^^^^^^^^^^^
@@ -335,9 +415,11 @@ expected to be represented in HPXML.
 
 To get a insulating low-E double-pane wood or vinyl framed window,
 ``GlassLayers`` needs to be "double-pane" and the ``GlassType`` needs to be
-"low-e" or ``GlassLayers`` needs to be "single-paned with low-e storms." If
-``GasFill`` is argon, it will be argon filled. For instance, to get a
-double-pane low-E with argon fill, the HPXML window element would look like:
+"low-e" or ``GlassLayers`` needs to be "single-paned with low-e storms" (or
+GlassLayers "single-pane" + ``Window/StormWindow/GlassType`` equal to "low-e" in
+HPXML v3+). If ``GasFill`` is argon, it will be argon filled. For instance, to
+get a double-pane low-E with argon fill, the HPXML window element would look
+like:
 
 .. code-block:: xml
    :emphasize-lines: 8-10
@@ -357,9 +439,11 @@ double-pane low-E with argon fill, the HPXML window element would look like:
 Translating a Single-pane window with a low-E storm window into the HEScore type
 of double-pane with insulating low-E the HPXML window element would look like:
 
+- HPXML v2:
+
 .. code-block:: xml
    :emphasize-lines: 8
-   
+
    <Window>
       <SystemIdentifier id="window53"/>
       <Area>30</Area>
@@ -370,10 +454,29 @@ of double-pane with insulating low-E the HPXML window element would look like:
       <GlassLayers>single-paned with low-e storms</GlassLayers>
    </Window>
 
-Note the missing ``GlassType`` element. It is ignored when the "single-paned
-with low-e storms" enumeration is present. The translation will also ignore
-``GasFill`` when one of the storm windows ``GlassLayers`` is present because
-it's impossible to have argon between a single pane window and storm window.
+- HPXML v3:
+
+.. code-block:: xml
+   :emphasize-lines: 8-12
+
+   <Window>
+      <SystemIdentifier id="window53"/>
+      <Area>30</Area>
+      <Orientation>east</Orientation>
+      <FrameType>
+          <Vinyl/>
+      </FrameType>
+      <GlassLayers>single-pane</GlassLayers>
+      <StormWindow>
+         <SystemIdentifier id="windowstorm"/>
+         <GlassType>low-e</GlassType>
+      </StormWindow>
+   </Window>
+
+Note the missing ``GlassType`` element. It is ignored when it's a single-paned
+window with low-e storms. The translation will also ignore ``GasFill`` for
+single-paned window because it's impossible to have argon between a single pane
+window and storm window.
 
 To specify a solar-control low-E double-pane wood or vinyl framed window a
 ``GlassType`` of "reflective" must be specified. Setting ``GasFill`` as "argon"
@@ -422,12 +525,18 @@ only triple-pane glazing option in HEScore.
 Solar Screens
 *************
 
-For each side of the house in HEScore, a solar screen may be present. 
-To determine if a solar screen should be specified, the translator looks for either 
+For each side of the house in HEScore, solar screens may be present.
+To determine if solar screens should be specified, the translator looks for either
 of the following subelements of ``Window`` or ``Skylight``:
+
+HPXML v2:
 
 - ``<ExteriorShading>solar screens</ExteriorShading>``
 - ``<Treatments>solar screen</Treatments>`` 
+
+HPXML v3:
+
+- ``<ExteriorShading><Type>solar screens</Type></ExteriorShading>``
 
 If the majority of the window area on a side of the house (or skylights facing upwards)
 meet that criteria, that side of the house will have solar screens in the HEScore model. 
