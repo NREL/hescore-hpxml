@@ -22,30 +22,6 @@ jobs:
           command: |
             source env/bin/activate
             python -m flake8
-      - run:
-          name: Run coverage tests
-          when: always
-          command: |
-            set +e
-            source env/bin/activate
-            python -m coverage run --source=hescorehpxml -m unittest discover -s tests > /dev/null 2>&1
-            python -m coverage report -m
-            python -m coverage html -d /tmp/coverage_report
-      - store_artifacts:
-          path: /tmp/coverage_report
-          destination: coverage-report
-      - run:
-          name: Build documentation
-          when: always
-          command: |
-            source env/bin/activate
-            cd docs
-            make html
-            mkdir /tmp/docs
-            cp -r build/html/* /tmp/docs
-      - store_artifacts:
-          path: /tmp/docs
-          destination: docs
   build-py36:
     docker:
       - image: circleci/python:3.6
@@ -70,6 +46,30 @@ jobs:
       - run: *install
       - run: *unittests
       - run: *stylechecks
+      - run:
+          name: Run coverage tests
+          when: always
+          command: |
+            set +e
+            source env/bin/activate
+            python -m coverage run --source=hescorehpxml -m unittest discover -s tests > /dev/null 2>&1
+            python -m coverage report -m
+            python -m coverage html -d /tmp/coverage_report
+      - store_artifacts:
+          path: /tmp/coverage_report
+          destination: coverage-report
+      - run:
+          name: Build documentation
+          when: always
+          command: |
+            source env/bin/activate
+            cd docs
+            make html
+            mkdir /tmp/docs
+            cp -r build/html/* /tmp/docs
+      - store_artifacts:
+          path: /tmp/docs
+          destination: docs
 
 workflows:
   version: 2
