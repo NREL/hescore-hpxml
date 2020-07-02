@@ -6,13 +6,14 @@ import os
 import unittest
 import datetime as dt
 from lxml import etree, objectify
-from hescorehpxml import HPXMLtoHEScoreTranslator
+from hescorehpxml import HPXMLtoHEScoreTranslator, main
 from hescorehpxml.exceptions import TranslationError, InputOutOfBounds, ElementNotFoundError
 import io
 import json
 from copy import deepcopy
 import uuid
 import sys
+import tempfile
 standard_library.install_aliases()  # noqa: 402
 
 
@@ -102,6 +103,20 @@ class TestAPIHouses(unittest.TestCase, ComparatorBase):
 
     def test_house8(self):
         self._do_full_compare('house8')
+
+
+class TestCLI(unittest.TestCase, ComparatorBase):
+
+    def test_cli_pass(self):
+        xml_file_path = os.path.abspath(os.path.join(thisdir, '..', 'examples', 'hescore_min.xml'))
+        tmpdir = tempfile.mkdtemp()
+        outfile = os.path.join(tmpdir, 'hescore_min.json')
+        main([xml_file_path, '-o', outfile])
+        with open(outfile, 'r') as f:
+            d1 = json.load(f)
+        with open(xml_file_path.replace('.xml', '.json'), 'r') as f:
+            d2 = json.load(f)
+        self._compare_item(d1, d2)
 
 
 class TestOtherHouses(unittest.TestCase, ComparatorBase):

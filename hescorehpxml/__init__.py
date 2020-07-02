@@ -18,11 +18,10 @@ def HPXMLtoHEScoreTranslator(hpxmlfilename):
         raise HPXMLtoHEScoreError('Schema version {} not supported.'.format('.'.join(schema_version)))
 
 
-def main():
+def main(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser(description='Convert HPXML v2.x or v3.x files to HEScore inputs')
     parser.add_argument(
         'hpxml_input',
-        type=argparse.FileType('r'),
         help='Filename of hpxml file'
     )
     parser.add_argument(
@@ -44,7 +43,7 @@ def main():
         help='HPXML contractor id to use in translating HPwES data if there are more than one <Contractor/> elements. Default: first one.' # noqa 501
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     logging.basicConfig(level=logging.ERROR, format='%(levelname)s:%(message)s')
     try:
         t = HPXMLtoHEScoreTranslator(args.hpxml_input)
