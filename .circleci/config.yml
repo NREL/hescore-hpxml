@@ -16,7 +16,7 @@ jobs:
           name: Run Unittests
           command: |
             source env/bin/activate
-            python -m unittest discover -s tests
+            pytest
       - run:  &stylechecks
           name: Run Style Checks
           command: |
@@ -52,7 +52,7 @@ jobs:
           command: |
             set +e
             source env/bin/activate
-            python -m coverage run --source=hescorehpxml -m unittest discover -s tests > /dev/null 2>&1
+            python -m coverage run --source=hescorehpxml -m pytest > /dev/null 2>&1
             python -m coverage report -m
             python -m coverage html -d /tmp/coverage_report
       - store_artifacts:
