@@ -6,7 +6,7 @@ from past.utils import old_div
 import datetime as dt
 import json
 import math
-from lxml import etree
+from lxml import etree, objectify
 from collections import defaultdict, namedtuple
 from decimal import Decimal
 from collections import OrderedDict
@@ -103,6 +103,37 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 return res
         else:
             return res
+
+    def export_scrubbed_hpxml(self, outfile_obj):
+        """Export an hpxml file scrubbed of potential PII
+
+        :param outfile_obj: writable filename or file-like object to write the scrubbed xml
+        :type outfile_obj: file-like object
+        """
+
+        # Make a copy of the original hpxml doc as an objectify tree
+        root = objectify.fromstring(etree.tostring(self.hpxmldoc))
+        E = objectify.ElementMaker(
+            annotate=False,
+            namespace=self.ns['h']
+        )
+
+        # Clean out the Customer elements
+        for customer in root.Customer:
+            customer_id = customer.CustomerDetails.Person.SystemIdentifier.attrib['id']
+            root.replace(
+                customer,
+                E.Customer(
+                    E.CustomerDetails(
+                        E.Person(
+                            E.SystemIdentifier(id=customer_id)
+                        )
+                    )
+                )
+            )
+
+        # Write out the scrubbed doc
+        etree.ElementTree(root).write(outfile_obj, pretty_print=True)
 
     def get_wall_assembly_code(self, hpxmlwall):
         xpath = self.xpath
