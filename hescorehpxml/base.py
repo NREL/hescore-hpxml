@@ -119,18 +119,22 @@ class HPXMLtoHEScoreTranslatorBase(object):
         )
 
         # Clean out the Customer elements
-        for customer in root.Customer:
-            customer_id = customer.CustomerDetails.Person.SystemIdentifier.attrib['id']
-            root.replace(
-                customer,
-                E.Customer(
-                    E.CustomerDetails(
-                        E.Person(
-                            E.SystemIdentifier(id=customer_id)
+        if hasattr(root, 'Customer'):
+            for customer in root.Customer:
+                customer_id = customer.CustomerDetails.Person.SystemIdentifier.attrib['id']
+                root.replace(
+                    customer,
+                    E.Customer(
+                        E.CustomerDetails(
+                            E.Person(
+                                E.SystemIdentifier(id=customer_id)
+                            )
                         )
                     )
                 )
-            )
+
+        for el in root.xpath('//h:HealthAndSafety', namespaces=self.ns):
+            el.getparent().remove(el)
 
         # Write out the scrubbed doc
         etree.ElementTree(root).write(outfile_obj, pretty_print=True)

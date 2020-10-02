@@ -1,9 +1,15 @@
 import io
-from lxml import etree, objectify
+from lxml import objectify
 import pathlib
+import pytest
 import re
 
 from hescorehpxml import HPXMLtoHEScoreTranslator
+
+both_hescore_min = [
+    'hescore_min_v3',
+    'hescore_min'
+]
 
 
 def get_example_xml_tree_elementmaker(filebase):
@@ -31,8 +37,9 @@ def scrub_hpxml_doc(doc):
     return scrubbed_doc
 
 
-def test_remove_customer():
-    doc, E = get_example_xml_tree_elementmaker('hescore_min_v3')
+@pytest.mark.parametrize('hpxml_filebase', both_hescore_min)
+def test_remove_customer(hpxml_filebase):
+    doc, E = get_example_xml_tree_elementmaker(hpxml_filebase)
     hpxml = doc.getroot()
     hpxml.Building.addprevious(
         E.Customer(
@@ -56,9 +63,6 @@ def test_remove_customer():
                     E.CityMunicipality('Anywhere'),
                     E.StateCode('CO')
                 )
-            ),
-            E.Comments(
-                E.Comment('personal things to say go here')
             )
         )
     )
@@ -69,3 +73,14 @@ def test_remove_customer():
     assert len(hpxml2.Customer.CustomerDetails.getchildren()) == 1
     assert len(hpxml2.Customer.CustomerDetails.Person.getchildren()) == 1
     assert hpxml2.Customer.CustomerDetails.Person.SystemIdentifier.attrib['id'] == 'customer1'
+
+
+@pytest.mark.parametrize('hpxml_filebase', both_hescore_min)
+def test_remove_health_and_safety(hpxml_filebase):
+    doc, E = get_example_xml_tree_elementmaker(hpxml_filebase)
+    hpxml = doc.getroot()
+    hpxml.Building.BuildingDetails.Systems.addnext(
+        E.HealthAndSafety()
+    )
+    doc2 = scrub_hpxml_doc(doc)
+    assert len(doc2.xpath('//h:HealthAndSafety', namespaces={'h': hpxml.nsmap[None]})) == 0
