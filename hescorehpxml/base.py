@@ -119,7 +119,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         )
 
         # Clean out the Customer elements
-        for customer in root.xpath('//h:Customer', namespaces=self.ns):
+        for customer in root.xpath('h:Customer', namespaces=self.ns):
             customer_id = customer.CustomerDetails.Person.SystemIdentifier.attrib['id']
             root.replace(
                 customer,
@@ -132,8 +132,17 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 )
             )
 
-        for el in root.xpath('//h:HealthAndSafety', namespaces=self.ns):
-            el.getparent().remove(el)
+        elements_to_remove = [
+            '//h:HealthAndSafety',
+            '//h:BuildingOccupancy',
+            '//h:AnnualEnergyUse',
+            'h:Utility',
+            'h:Consumption',
+            'h:Building/h:CustomerID'
+        ]
+        for el_name in elements_to_remove:
+            for el in root.xpath(el_name, namespaces=self.ns):
+                el.getparent().remove(el)
 
         # Write out the scrubbed doc
         etree.ElementTree(root).write(outfile_obj, pretty_print=True)

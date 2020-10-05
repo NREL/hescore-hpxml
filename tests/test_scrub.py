@@ -84,3 +84,103 @@ def test_remove_health_and_safety(hpxml_filebase):
     )
     doc2 = scrub_hpxml_doc(doc)
     assert len(doc2.xpath('//h:HealthAndSafety', namespaces={'h': hpxml.nsmap[None]})) == 0
+
+
+@pytest.mark.parametrize('hpxml_filebase', both_hescore_min)
+def test_remove_occupancy(hpxml_filebase):
+    doc, E = get_example_xml_tree_elementmaker(hpxml_filebase)
+    hpxml = doc.getroot()
+    hpxml.Building.BuildingDetails.BuildingSummary.Site.addnext(
+        E.BuildingOccupancy(
+            E.LowIncome('true')
+        )
+    )
+    doc2 = scrub_hpxml_doc(doc)
+    assert len(doc2.xpath('//h:BuildingOccupancy', namespaces={'h': hpxml.nsmap[None]})) == 0
+
+
+@pytest.mark.parametrize('hpxml_filebase', both_hescore_min)
+def test_remove_annual_energy_use(hpxml_filebase):
+    doc, E = get_example_xml_tree_elementmaker(hpxml_filebase)
+    hpxml = doc.getroot()
+    energy_use_el = E.AnnualEnergyUse(
+        E.ConsumptionInfo(
+            E.UtilityID(
+                id='utility01'
+            ),
+            E.ConsumptionType(
+                E.Energy(
+                    E.FuelType('electricity'),
+                    E.UnitofMeasure('kWh')
+                )
+            ),
+            E.ConsumptionDetail(
+                E.Consumption('1.0')
+            )
+        )
+    )
+    hpxml.Building.BuildingDetails.BuildingSummary.BuildingConstruction.addnext(energy_use_el)
+    hpxml.Building.BuildingDetails.Systems.HVAC.HVACPlant.CoolingSystem.CoolingSystemType.addprevious(energy_use_el)
+    doc2 = scrub_hpxml_doc(doc)
+    assert len(doc2.xpath('//h:AnnualEnergyUse', namespaces={'h': hpxml.nsmap[None]})) == 0
+
+
+@pytest.mark.parametrize('hpxml_filebase', both_hescore_min)
+def test_remove_utility(hpxml_filebase):
+    doc, E = get_example_xml_tree_elementmaker(hpxml_filebase)
+    hpxml = doc.getroot()
+    hpxml.append(
+        E.Utility(
+            E.UtilitiesorFuelProviders(
+                E.UtilityFuelProvider(
+                    E.SystemIdentifier(id='utility01')
+                )
+            )
+        )
+    )
+    doc2 = scrub_hpxml_doc(doc)
+    assert len(doc2.xpath('h:Utility', namespaces={'h': hpxml.nsmap[None]})) == 0
+
+
+@pytest.mark.parametrize('hpxml_filebase', both_hescore_min)
+def test_remove_consumption(hpxml_filebase):
+    doc, E = get_example_xml_tree_elementmaker(hpxml_filebase)
+    hpxml = doc.getroot()
+    hpxml.append(
+        E.Consumption(
+            E.BuildingID(id='bldg1'),
+            E.CustomerID(id='customer1'),
+            E.ConsumptionDetails(
+                E.ConsumptionInfo(
+                    E.UtilityID(
+                        id='utility01'
+                    ),
+                    E.ConsumptionType(
+                        E.Energy(
+                            E.FuelType('electricity'),
+                            E.UnitofMeasure('kWh')
+                        )
+                    ),
+                    E.ConsumptionDetail(
+                        E.Consumption('1.0')
+                    )
+                )
+            )
+        )
+    )
+    doc2 = scrub_hpxml_doc(doc)
+    assert len(doc2.xpath('h:Consumption', namespaces={'h': hpxml.nsmap[None]})) == 0
+
+
+@pytest.mark.parametrize('hpxml_filebase', both_hescore_min)
+def test_remove_building_customerid(hpxml_filebase):
+    doc, E = get_example_xml_tree_elementmaker(hpxml_filebase)
+    hpxml = doc.getroot()
+    hpxml.Building.BuildingID.addnext(
+        E.CustomerID(
+            E.SendingSystemIdentifierType('asdf'),
+            E.SendingSystemIdentifierValue('jkl')
+        )
+    )
+    doc2 = scrub_hpxml_doc(doc)
+    assert len(doc2.xpath('h:Building/h:CustomerID', namespaces={'h': hpxml.nsmap[None]})) == 0
