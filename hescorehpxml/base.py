@@ -119,19 +119,18 @@ class HPXMLtoHEScoreTranslatorBase(object):
         )
 
         # Clean out the Customer elements
-        if hasattr(root, 'Customer'):
-            for customer in root.Customer:
-                customer_id = customer.CustomerDetails.Person.SystemIdentifier.attrib['id']
-                root.replace(
-                    customer,
-                    E.Customer(
-                        E.CustomerDetails(
-                            E.Person(
-                                E.SystemIdentifier(id=customer_id)
-                            )
+        for customer in root.xpath('//h:Customer', namespaces=self.ns):
+            customer_id = customer.CustomerDetails.Person.SystemIdentifier.attrib['id']
+            root.replace(
+                customer,
+                E.Customer(
+                    E.CustomerDetails(
+                        E.Person(
+                            E.SystemIdentifier(id=customer_id)
                         )
                     )
                 )
+            )
 
         for el in root.xpath('//h:HealthAndSafety', namespaces=self.ns):
             el.getparent().remove(el)
