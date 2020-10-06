@@ -84,7 +84,6 @@ def test_remove_health_and_safety(hpxml_filebase):
     )
     doc2 = scrub_hpxml_doc(doc)
     assert len(doc2.xpath('//h:HealthAndSafety', namespaces={'h': hpxml.nsmap[None]})) == 0
-    assert False
 
 
 @pytest.mark.parametrize('hpxml_filebase', both_hescore_min)
