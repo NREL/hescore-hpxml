@@ -42,6 +42,11 @@ def main(argv=sys.argv[1:]):
         '--contractorid',
         help='HPXML contractor id to use in translating HPwES data if there are more than one <Contractor/> elements. Default: first one.' # noqa 501
     )
+    parser.add_argument(
+        '--scrubbed-hpxml',
+        type=argparse.FileType('wb'),
+        help='Path to save HPXML file scrubbed of PII.'
+    )
 
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.ERROR, format='%(levelname)s:%(message)s')
@@ -60,6 +65,9 @@ def main(argv=sys.argv[1:]):
     except Exception:
         logging.error('Unknown HPXML Translation Error: Please contact HEScore support')
         sys.exit(2)
+    else:
+        if args.scrubbed_hpxml:
+            t.export_scrubbed_hpxml(args.scrubbed_hpxml)
 
 
 if __name__ == '__main__':

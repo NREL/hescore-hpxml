@@ -109,14 +109,25 @@ class TestCLI(unittest.TestCase, ComparatorBase):
 
     def test_cli_pass(self):
         xml_file_path = os.path.abspath(os.path.join(thisdir, '..', 'examples', 'hescore_min.xml'))
-        tmpdir = tempfile.mkdtemp()
-        outfile = os.path.join(tmpdir, 'hescore_min.json')
-        main([xml_file_path, '-o', outfile])
-        with open(outfile, 'r') as f:
-            d1 = json.load(f)
-        with open(xml_file_path.replace('.xml', '.json'), 'r') as f:
-            d2 = json.load(f)
-        self._compare_item(d1, d2)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            outfile = os.path.join(tmpdir, 'hescore_min.json')
+            main([xml_file_path, '-o', outfile])
+            with open(outfile, 'r') as f:
+                d1 = json.load(f)
+            with open(xml_file_path.replace('.xml', '.json'), 'r') as f:
+                d2 = json.load(f)
+            self._compare_item(d1, d2)
+
+    def test_cli_scrubbed(self):
+        root_dir = os.path.abspath(os.path.join(thisdir, '..'))
+        xml_file_path = os.path.join(root_dir, 'examples', 'hescore_min_v3.xml')
+        with tempfile.TemporaryDirectory() as tmpdir:
+            outfile = os.path.join(tmpdir, 'out.xml')
+            main([xml_file_path, '--scrubbed-hpxml', outfile])
+            schema_doc = etree.parse(os.path.join(root_dir, 'hescorehpxml', 'schemas', 'hpxml-3.0.0', 'HPXML.xsd'))
+            schema = etree.XMLSchema(schema_doc.getroot())
+            parser = etree.XMLParser(schema=schema)
+            etree.parse(outfile, parser)
 
 
 class TestOtherHouses(unittest.TestCase, ComparatorBase):
