@@ -16,7 +16,7 @@ jobs:
           name: Run Unittests
           command: |
             source env/bin/activate
-            pytest --junitxml=/tmp/test_results
+            pytest --junitxml=/tmp/test_results/hescore-hpxml/results.xml
       - store_test_results:
           path: /tmp/test_results
       - run:  &stylechecks
