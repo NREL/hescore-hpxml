@@ -16,7 +16,9 @@ jobs:
           name: Run Unittests
           command: |
             source env/bin/activate
-            pytest
+            pytest --junitxml=/tmp/test_results
+      - store_test_results:
+          path: /tmp/test_results
       - run:  &stylechecks
           name: Run Style Checks
           command: |
