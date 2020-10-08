@@ -109,14 +109,25 @@ class TestCLI(unittest.TestCase, ComparatorBase):
 
     def test_cli_pass(self):
         xml_file_path = os.path.abspath(os.path.join(thisdir, '..', 'examples', 'hescore_min.xml'))
-        tmpdir = tempfile.mkdtemp()
-        outfile = os.path.join(tmpdir, 'hescore_min.json')
-        main([xml_file_path, '-o', outfile])
-        with open(outfile, 'r') as f:
-            d1 = json.load(f)
-        with open(xml_file_path.replace('.xml', '.json'), 'r') as f:
-            d2 = json.load(f)
-        self._compare_item(d1, d2)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            outfile = os.path.join(tmpdir, 'hescore_min.json')
+            main([xml_file_path, '-o', outfile])
+            with open(outfile, 'r') as f:
+                d1 = json.load(f)
+            with open(xml_file_path.replace('.xml', '.json'), 'r') as f:
+                d2 = json.load(f)
+            self._compare_item(d1, d2)
+
+    def test_cli_scrubbed(self):
+        root_dir = os.path.abspath(os.path.join(thisdir, '..'))
+        xml_file_path = os.path.join(root_dir, 'examples', 'hescore_min_v3.xml')
+        with tempfile.TemporaryDirectory() as tmpdir:
+            outfile = os.path.join(tmpdir, 'out.xml')
+            main([xml_file_path, '--scrubbed-hpxml', outfile])
+            schema_doc = etree.parse(os.path.join(root_dir, 'hescorehpxml', 'schemas', 'hpxml-3.0.0', 'HPXML.xsd'))
+            schema = etree.XMLSchema(schema_doc.getroot())
+            parser = etree.XMLParser(schema=schema)
+            etree.parse(outfile, parser)
 
 
 class TestOtherHouses(unittest.TestCase, ComparatorBase):
@@ -130,9 +141,9 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('townhouse_walls')
         el = self.xpath('//h:Window/h:Orientation[text()="south"]')
         el.text = 'west'
-        self.assertRaisesRegexp(TranslationError,
-                                r'The house has windows on shared walls\.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'The house has windows on shared walls\.',
+                               tr.hpxml_to_hescore)
 
     def test_townhouse_walls_all_same(self):
         tr = self._load_xmlfile('townhouse_walls')
@@ -159,16 +170,16 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         # This means that the interpreter should assume all walls are like the first wall.
         el = self.xpath('//h:Window/h:Orientation[text()="south"]')
         el.text = 'west'
-        self.assertRaisesRegexp(TranslationError,
-                                r'The house has windows on shared walls\.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'The house has windows on shared walls\.',
+                               tr.hpxml_to_hescore)
 
     def test_townhouse_walls_conflict(self):
         tr = self._load_xmlfile('townhouse_walls')
         # move a wall to the west (attached) side
         el = self.xpath('//h:Wall[1]/h:Orientation')
         el.text = 'west'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'The house has walls defined for sides ((front|right|left|back)(, )?)+ and shared walls on sides ((front|right|left|back)(, )?)+',  # noqa: E501
             tr.hpxml_to_hescore
@@ -206,29 +217,29 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         siding = self.xpath('//h:Wall[1]/h:Siding')
         siding.getparent().remove(siding)
-        self.assertRaisesRegexp(TranslationError,
-                                r'Exterior finish information is missing',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Exterior finish information is missing',
+                               tr.hpxml_to_hescore)
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         siding = self.xpath('//h:Wall[1]/h:Siding')
         siding.getparent().remove(siding)
-        self.assertRaisesRegexp(TranslationError,
-                                r'Exterior finish information is missing',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Exterior finish information is missing',
+                               tr_v3.hpxml_to_hescore)
 
     def test_siding_fail2(self):
         tr = self._load_xmlfile('hescore_min')
         siding = self.xpath('//h:Wall[1]/h:Siding')
         siding.text = 'other'
-        self.assertRaisesRegexp(TranslationError,
-                                r'There is no HEScore wall siding equivalent for the HPXML option: other',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'There is no HEScore wall siding equivalent for the HPXML option: other',
+                               tr.hpxml_to_hescore)
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         siding = self.xpath('//h:Wall[1]/h:Siding')
         siding.text = 'other'
-        self.assertRaisesRegexp(TranslationError,
-                                r'There is no HEScore wall siding equivalent for the HPXML option: other',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'There is no HEScore wall siding equivalent for the HPXML option: other',
+                               tr_v3.hpxml_to_hescore)
 
     def test_siding_cmu_fail(self):
         tr = self._load_xmlfile('hescore_min')
@@ -239,7 +250,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         siding.text = 'vinyl siding'
         rvalue = self.xpath('//h:Wall[1]/h:Insulation/h:Layer[1]/h:NominalRValue')
         rvalue.text = '3'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. It has a siding type of vinyl siding',  # noqa: E501
             tr.hpxml_to_hescore)
@@ -252,7 +263,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         siding.text = 'vinyl siding'
         rvalue = self.xpath('//h:Wall[1]/h:Insulation/h:Layer[1]/h:NominalRValue')
         rvalue.text = '3'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. It has a siding type of vinyl siding',  # noqa: E501
             tr_v3.hpxml_to_hescore)
@@ -262,61 +273,61 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:Wall[1]/h:WallType')
         el.clear()
         etree.SubElement(el, tr.addns('h:LogWall'))
-        self.assertRaisesRegexp(TranslationError,
-                                r'Wall type LogWall not supported',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Wall type LogWall not supported',
+                               tr.hpxml_to_hescore)
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:Wall[1]/h:WallType')
         el.clear()
         etree.SubElement(el, tr_v3.addns('h:LogWall'))
-        self.assertRaisesRegexp(TranslationError,
-                                r'Wall type LogWall not supported',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Wall type LogWall not supported',
+                               tr_v3.hpxml_to_hescore)
 
     def test_missing_residential_facility_type(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:ResidentialFacilityType')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError,
-                                r'ResidentialFacilityType is required in the HPXML document',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'ResidentialFacilityType is required in the HPXML document',
+                               tr.hpxml_to_hescore)
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:ResidentialFacilityType')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError,
-                                r'ResidentialFacilityType is required in the HPXML document',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'ResidentialFacilityType is required in the HPXML document',
+                               tr_v3.hpxml_to_hescore)
 
     def test_invalid_residential_faciliy_type(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:ResidentialFacilityType')
         el.text = 'manufactured home'
-        self.assertRaisesRegexp(TranslationError,
-                                r'Cannot translate HPXML ResidentialFacilityType of .+ into HEScore building shape',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Cannot translate HPXML ResidentialFacilityType of .+ into HEScore building shape',
+                               tr.hpxml_to_hescore)
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:ResidentialFacilityType')
         el.text = 'manufactured home'
-        self.assertRaisesRegexp(TranslationError,
-                                r'Cannot translate HPXML ResidentialFacilityType of .+ into HEScore building shape',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Cannot translate HPXML ResidentialFacilityType of .+ into HEScore building shape',
+                               tr_v3.hpxml_to_hescore)
 
     def test_missing_surroundings(self):
         tr = self._load_xmlfile('townhouse_walls')
         el = self.xpath('//h:Surroundings')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError,
-                                r'Site/Surroundings element is required in the HPXML document for town houses',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Site/Surroundings element is required in the HPXML document for town houses',
+                               tr.hpxml_to_hescore)
 
     def test_invalid_surroundings(self):
         tr = self._load_xmlfile('townhouse_walls')
         el = self.xpath('//h:Surroundings')
         el.text = 'attached on three sides'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Cannot translate HPXML Site/Surroundings element value of .+ into HEScore town_house_walls',
             tr.hpxml_to_hescore)
@@ -325,26 +336,26 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('house6')
         el = self.xpath('//h:Attic[1]/h:AttachedToRoof')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError,
-                                r'Attic .+ does not have a roof associated with it\.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Attic .+ does not have a roof associated with it\.',
+                               tr.hpxml_to_hescore)
 
     def test_invalid_attic_type(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Attic[1]/h:AtticType')
         el.text = 'other'
-        self.assertRaisesRegexp(TranslationError,
-                                'Attic .+ Cannot translate HPXML AtticType .+ to HEScore rooftype.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'Attic .+ Cannot translate HPXML AtticType .+ to HEScore rooftype.',
+                               tr.hpxml_to_hescore)
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:Attics/h:Attic[1]/h:AtticType/h:Attic/h:Vented')
         attic_type_el = el.getparent().getparent()
         etree.SubElement(attic_type_el, tr_v3.addns('h:Other'))
         attic_type_el.remove(el.getparent())
-        self.assertRaisesRegexp(TranslationError,
-                                'Attic .+ Cannot translate HPXML AtticType to HEScore rooftype.',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'Attic .+ Cannot translate HPXML AtticType to HEScore rooftype.',
+                               tr_v3.hpxml_to_hescore)
 
     def test_missing_roof_color(self):
         tr = self._load_xmlfile('hescore_min')
@@ -363,46 +374,46 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Roof[1]/h:RoofType')
         el.text = 'no one major type'
-        self.assertRaisesRegexp(TranslationError,
-                                'Attic .+ HEScore does not have an analogy to the HPXML roof type: .+',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'Attic .+ HEScore does not have an analogy to the HPXML roof type: .+',
+                               tr.hpxml_to_hescore)
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:Roof[1]/h:RoofType')
         el.text = 'no one major type'
-        self.assertRaisesRegexp(TranslationError,
-                                'Attic .+ HEScore does not have an analogy to the HPXML roof type: .+',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'Attic .+ HEScore does not have an analogy to the HPXML roof type: .+',
+                               tr_v3.hpxml_to_hescore)
 
     def test_missing_roof_type(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Roof[1]/h:RoofType')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError,
-                                'Attic .+ HEScore does not have an analogy to the HPXML roof type: .+',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'Attic .+ HEScore does not have an analogy to the HPXML roof type: .+',
+                               tr.hpxml_to_hescore)
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:Roof[1]/h:RoofType')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError,
-                                'Attic .+ HEScore does not have an analogy to the HPXML roof type: .+',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'Attic .+ HEScore does not have an analogy to the HPXML roof type: .+',
+                               tr_v3.hpxml_to_hescore)
 
     def test_missing_skylight_area(self):
         tr = self._load_xmlfile('hescore_min')
         area = self.xpath('//h:Skylight[1]/h:Area')
         area.getparent().remove(area)
-        self.assertRaisesRegexp(TranslationError,
-                                r'Every skylight needs an area\.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Every skylight needs an area\.',
+                               tr.hpxml_to_hescore)
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         area = self.xpath('//h:Skylight[1]/h:Area')
         area.getparent().remove(area)
-        self.assertRaisesRegexp(TranslationError,
-                                r'Every skylight needs an area\.',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Every skylight needs an area\.',
+                               tr_v3.hpxml_to_hescore)
 
     def test_foundation_walls_on_slab(self):
         tr = self._load_xmlfile('house7')
@@ -413,9 +424,9 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         fndwall = etree.Element(tr.addns('h:FoundationWall'))
         etree.SubElement(fndwall, tr.addns('h:SystemIdentifier'), attrib={'id': 'asdfjkl12345'})
         fnd.insert(i, fndwall)
-        self.assertRaisesRegexp(TranslationError,
-                                r'The house is a slab on grade foundation, but has foundation walls\.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'The house is a slab on grade foundation, but has foundation walls\.',
+                               tr.hpxml_to_hescore)
 
     def test_slab_missing(self):
         tr = self._load_xmlfile('house3')
@@ -443,7 +454,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Window[1]/h:Orientation')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Window\[SystemIdentifier/@id="\w+"\] doesn\'t have Azimuth, Orientation, or AttachedToWall. At least one is required.',  # noqa E501
             tr.hpxml_to_hescore)
@@ -451,7 +462,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:Window[1]/h:Orientation')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Window\[SystemIdentifier/@id="\w+"\] doesn\'t have Azimuth, Orientation, or AttachedToWall. At least one is required.',  # noqa E501
             tr_v3.hpxml_to_hescore)
@@ -464,7 +475,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self._do_compare('house4')
 
         window.remove(window_orientation)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'The Window\[SystemIdentifier/@id="\w+"\] has no Azimuth or Orientation, and the .* didn\'t reference a Wall element.',  # noqa E501
             tr.hpxml_to_hescore
@@ -491,9 +502,9 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('house1')
         el = self.xpath('//h:Window[h:GlassLayers="single-pane"]/h:FrameType/h:Aluminum')
         etree.SubElement(el, tr.addns('h:ThermalBreak')).text = "true"
-        self.assertRaisesRegexp(TranslationError,
-                                'There is no compatible HEScore window type for',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'There is no compatible HEScore window type for',
+                               tr.hpxml_to_hescore)
 
     def test_impossible_triple_pane_window(self):
         tr = self._load_xmlfile('hescore_min')
@@ -505,9 +516,9 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         glass_layers.text = 'triple-pane'
         etree.SubElement(window, tr.addns('h:GlassType')).text = 'low-e'
         etree.SubElement(window, tr.addns('h:GasFill')).text = 'argon'
-        self.assertRaisesRegexp(TranslationError,
-                                'There is no compatible HEScore window type for',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'There is no compatible HEScore window type for',
+                               tr.hpxml_to_hescore)
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         frame_type = self.xpath('//h:Window[h:SystemIdentifier/@id="window4"]/h:FrameType')
         frame_type.clear()
@@ -517,41 +528,41 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         glass_layers.text = 'triple-pane'
         etree.SubElement(window, tr_v3.addns('h:GlassType')).text = 'low-e'
         etree.SubElement(window, tr_v3.addns('h:GasFill')).text = 'argon'
-        self.assertRaisesRegexp(TranslationError,
-                                'There is no compatible HEScore window type for',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'There is no compatible HEScore window type for',
+                               tr_v3.hpxml_to_hescore)
 
     def test_impossible_heating_system_type(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:HeatingSystem[1]/h:HeatingSystemType')
         el.clear()
         etree.SubElement(el, tr.addns('h:PortableHeater'))
-        self.assertRaisesRegexp(TranslationError,
-                                'HEScore does not support the HPXML HeatingSystemType',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'HEScore does not support the HPXML HeatingSystemType',
+                               tr.hpxml_to_hescore)
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:HeatingSystem[1]/h:HeatingSystemType')
         el.clear()
         etree.SubElement(el, tr_v3.addns('h:PortableHeater'))
-        self.assertRaisesRegexp(TranslationError,
-                                'HEScore does not support the HPXML HeatingSystemType',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'HEScore does not support the HPXML HeatingSystemType',
+                               tr_v3.hpxml_to_hescore)
 
     def test_impossible_cooling_system_type(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:CoolingSystem[1]/h:CoolingSystemType')
         el.text = 'other'
-        self.assertRaisesRegexp(TranslationError,
-                                'HEScore does not support the HPXML CoolingSystemType',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'HEScore does not support the HPXML CoolingSystemType',
+                               tr.hpxml_to_hescore)
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:CoolingSystem[1]/h:CoolingSystemType')
         el.text = 'other'
-        self.assertRaisesRegexp(TranslationError,
-                                'HEScore does not support the HPXML CoolingSystemType',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'HEScore does not support the HPXML CoolingSystemType',
+                               tr_v3.hpxml_to_hescore)
 
     def test_evap_cooling_system_type(self):
         tr = self._load_xmlfile('hescore_min')
@@ -579,7 +590,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.getparent().remove(el)
         el = self.xpath('//h:HeatPump[1]/h:FloorAreaServed')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError,
+        self.assertRaisesRegex(TranslationError,
                                 'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed',  # noqa E501
                                 tr.hpxml_to_hescore)
 
@@ -589,7 +600,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.getparent().remove(el)
         el = self.xpath('//h:CoolingSystem[2]/h:FloorAreaServed')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError,
+        self.assertRaisesRegex(TranslationError,
                                 'Every heating/cooling system needs to have either FloorAreaServed or FracHeatLoadServed/FracCoolLoadServed',  # noqa E501
                                 tr.hpxml_to_hescore)
 
@@ -597,50 +608,50 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:DuctLocation[1]')
         el.text = 'unconditioned basement'
-        self.assertRaisesRegexp(TranslationError,
-                                'HVAC distribution: duct1 location: uncond_basement not exists in zone_roof/floor',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'HVAC distribution: duct1 location: uncond_basement not exists in zone_roof/floor',
+                               tr.hpxml_to_hescore)
 
         el.text = 'interstitial space'
-        self.assertRaisesRegexp(TranslationError,
-                                'No comparable duct location in HEScore: interstitial space',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'No comparable duct location in HEScore: interstitial space',
+                               tr.hpxml_to_hescore)
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:DuctLocation[1]')
         el.text = 'basement - unconditioned'
-        self.assertRaisesRegexp(TranslationError,
-                                'HVAC distribution: duct1 location: uncond_basement not exists in zone_roof/floor',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'HVAC distribution: duct1 location: uncond_basement not exists in zone_roof/floor',
+                               tr_v3.hpxml_to_hescore)
 
         el.text = 'interstitial space'
-        self.assertRaisesRegexp(TranslationError,
-                                'No comparable duct location in HEScore: interstitial space',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'No comparable duct location in HEScore: interstitial space',
+                               tr_v3.hpxml_to_hescore)
 
     def test_missing_water_heater(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:WaterHeating')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(TranslationError,
-                                r'No water heating systems found\.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'No water heating systems found\.',
+                               tr.hpxml_to_hescore)
 
     def test_indirect_dhw_error(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:WaterHeatingSystem[1]/h:WaterHeaterType')
         el.text = 'space-heating boiler with storage tank'
-        self.assertRaisesRegexp(TranslationError,
-                                'Cannot have water heater type indirect if there is no boiler heating system',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'Cannot have water heater type indirect if there is no boiler heating system',
+                               tr.hpxml_to_hescore)
 
     def test_tankless_coil_dhw_error(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:WaterHeatingSystem[1]/h:WaterHeaterType')
         el.text = 'space-heating boiler with tankless coil'
-        self.assertRaisesRegexp(TranslationError,
-                                'Cannot have water heater type tankless_coil if there is no boiler heating system',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'Cannot have water heater type tankless_coil if there is no boiler heating system',
+                               tr.hpxml_to_hescore)
 
     def test_missing_attached_to_roof(self):
         self._load_xmlfile('hescore_min')
@@ -669,9 +680,9 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
     def test_wood_stove_invalid_fuel_type(self):
         htgsys = self._wood_stove_setup()
         htgsys.find(self.translator.addns('h:HeatingSystemFuel')).text = 'natural gas'
-        self.assertRaisesRegexp(TranslationError,
-                                r'Heating system wood_stove cannot be used with fuel natural_gas',
-                                self.translator.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Heating system wood_stove cannot be used with fuel natural_gas',
+                               self.translator.hpxml_to_hescore)
 
     def test_too_many_duct_systems(self):
         tr = self._load_xmlfile('house5')
@@ -679,7 +690,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         htg_sys = dist_sys_el.getparent()
         idx = htg_sys.index(dist_sys_el)
         htg_sys.insert(idx, etree.Element(tr.addns('h:DistributionSystem'), idref='frontducts'))
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Each HVAC plant is only allowed to specify one duct system\. .+ references more than one',
             tr.hpxml_to_hescore)
@@ -688,39 +699,39 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('house5')
         dist_sys_el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="backfurnace"]/h:DistributionSystem')
         dist_sys_el.set('idref', 'frontducts')
-        self.assertRaisesRegexp(TranslationError,
-                                r'Each duct system is only allowed to serve one heating and one cooling system',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Each duct system is only allowed to serve one heating and one cooling system',
+                               tr.hpxml_to_hescore)
 
     def test_dist_sys_idref(self):
         tr = self._load_xmlfile('house5')
         dist_sys_el = self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="backfurnace"]/h:DistributionSystem')
         dist_sys_el.set('idref', 'backwindows1')
-        self.assertRaisesRegexp(TranslationError,
-                                r'HVAC plant .+ specifies an HPXML distribution system of .+, which does not exist.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'HVAC plant .+ specifies an HPXML distribution system of .+, which does not exist.',
+                               tr.hpxml_to_hescore)
 
     def test_htg_sys_has_air_dist(self):
         tr = self._load_xmlfile('hescore_min')
         dist_sys_el = self.xpath('//h:HeatingSystem[1]/h:DistributionSystem')
         dist_sys_el.getparent().remove(dist_sys_el)
-        self.assertRaisesRegexp(TranslationError,
-                                r'Heating system .+ is not associated with an air distribution system\.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Heating system .+ is not associated with an air distribution system\.',
+                               tr.hpxml_to_hescore)
 
     def test_clg_sys_has_air_dist(self):
         tr = self._load_xmlfile('hescore_min')
         dist_sys_el = self.xpath('//h:CoolingSystem[1]/h:DistributionSystem')
         dist_sys_el.getparent().remove(dist_sys_el)
-        self.assertRaisesRegexp(TranslationError,
-                                r'Cooling system .+ is not associated with an air distribution system\.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               r'Cooling system .+ is not associated with an air distribution system\.',
+                               tr.hpxml_to_hescore)
 
     def test_floor_no_area(self):
         tr = self._load_xmlfile('house8')
         el = self.xpath('//h:Foundation[1]/*/h:Area')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'If there is more than one foundation, each needs an area specified on either "Slab" or "FrameFloor" '
             r'attached',
@@ -764,7 +775,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('house7')
         el = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="roomac"]/h:AnnualCoolingEfficiency/h:Units')
         el.text = 'SEER'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Cooling efficiency could not be determined',
             tr.hpxml_to_hescore
@@ -777,7 +788,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:HeatingSystem/h:AnnualHeatingEfficiency/h:Units')
         el.text = 'Percent'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Heating efficiency could not be determined',
             tr.hpxml_to_hescore
@@ -832,7 +843,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('house3')
         el = self.xpath('//h:Wall[1]/h:Insulation/h:Layer[1]/h:NominalRValue')
         el.getparent().remove(el)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Every wall insulation layer needs a NominalRValue',
             tr.hpxml_to_hescore
@@ -962,7 +973,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         wood_stud_wall_type = self.xpath('//h:Wall[1]/h:WallType/h:WoodStud')
         etree.SubElement(wood_stud_wall_type, tr.addns('h:OptimumValueEngineering')).text = 'true'
         self.xpath('//h:Wall[1]/h:Insulation/h:Layer[h:InstallationType="cavity"]/h:NominalRValue').text = '0'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Wall R-value outside HEScore bounds',
             tr.hpxml_to_hescore
@@ -1027,7 +1038,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('house4')
         el = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:HeatPumpType')
         el.text = 'air-to-air'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'(Cooling|Heating) system heatpump1 is not associated with an air distribution system',
             tr.hpxml_to_hescore
@@ -1113,73 +1124,73 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Building/h:ProjectStatus/h:Date')
         el.text = '2009-12-31'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'assessment_date is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'assessment_date is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_assessment_date2(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Building/h:ProjectStatus/h:Date')
         el.text = (dt.datetime.today().date() + dt.timedelta(1)).isoformat()
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'assessment_date is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'assessment_date is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_year_built1(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:YearBuilt')
         el.text = '1599'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'year_built is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'year_built is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_year_built2(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:YearBuilt')
         el.text = str(dt.datetime.today().year + 1)
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'year_built is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'year_built is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_num_floor_above_grade(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:NumberofConditionedFloorsAboveGrade')
         el.text = '5'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'num_floor_above_grade is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'num_floor_above_grade is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_floor_to_ceiling_height1(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:AverageCeilingHeight')
         el.text = '5'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'floor_to_ceiling_height is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'floor_to_ceiling_height is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_floor_to_ceiling_height2(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:AverageCeilingHeight')
         el.text = '13'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'floor_to_ceiling_height is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'floor_to_ceiling_height is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_conditioned_floor_area1(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:ConditionedFloorArea')
         el.text = '249'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'conditioned_floor_area is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'conditioned_floor_area is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_conditioned_floor_area2(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:ConditionedFloorArea')
         el.text = '25001'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'conditioned_floor_area is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'conditioned_floor_area is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_envelope_leakage(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1187,83 +1198,83 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         leak_el = self.xpath('//h:BuildingAirLeakage/h:AirLeakage')
         units_el.text = 'CFM'
         leak_el.text = '25001'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'envelope_leakage is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'envelope_leakage is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_skylight_area(self):
         tr = self._load_xmlfile('house4')
         el = self.xpath('//h:Skylight/h:Area')
         el.text = '301'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'skylight_area is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'skylight_area is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_skylight_u_value(self):
         tr = self._load_xmlfile('house4')
         skylight = self.xpath('//h:Skylight')
         etree.SubElement(skylight, tr.addns('h:UFactor')).text = '0.001'
         etree.SubElement(skylight, tr.addns('h:SHGC')).text = '0.7'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'skylight_u_value is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'skylight_u_value is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_window_area(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Window[1]/h:Area')
         el.text = '1000'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'window_area is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'window_area is out of bounds',
+                               tr.hpxml_to_hescore)
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:Window[1]/h:Area')
         el.text = '1000'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'window_area is out of bounds',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'window_area is out of bounds',
+                               tr_v3.hpxml_to_hescore)
 
     def test_window_u_value(self):
         tr = self._load_xmlfile('house2')
         el = self.xpath('//h:Window[1]/h:UFactor')
         el.text = '5.00001'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'window_u_value is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'window_u_value is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_heating_efficiency_furnace(self):
         tr = self._load_xmlfile('hescore_min')
         htg_eff_el = self.xpath('//h:HeatingSystem/h:AnnualHeatingEfficiency/h:Value')
         htg_eff_el.text = '1.01'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'heating_efficiency is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'heating_efficiency is out of bounds',
+                               tr.hpxml_to_hescore)
         htg_eff_el.text = '0.59'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'heating_efficiency is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'heating_efficiency is out of bounds',
+                               tr.hpxml_to_hescore)
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         htg_eff_el = self.xpath('//h:HeatingSystem/h:AnnualHeatingEfficiency/h:Value')
         htg_eff_el.text = '1.01'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'heating_efficiency is out of bounds',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'heating_efficiency is out of bounds',
+                               tr_v3.hpxml_to_hescore)
         htg_eff_el.text = '0.59'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'heating_efficiency is out of bounds',
-                                tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'heating_efficiency is out of bounds',
+                               tr_v3.hpxml_to_hescore)
 
     def test_heating_efficiency_heat_pump(self):
         tr = self._load_xmlfile('house4')
         htg_eff_el = self.xpath('//h:HeatPump/h:AnnualHeatEfficiency/h:Value')
         htg_eff_el.text = '5.9'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'heating_efficiency is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'heating_efficiency is out of bounds',
+                               tr.hpxml_to_hescore)
         htg_eff_el.text = '20.1'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'heating_efficiency is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'heating_efficiency is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_heating_efficiency_gchp(self):
         tr = self._load_xmlfile('house3')
@@ -1273,33 +1284,33 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         etree.SubElement(eff_el, tr.addns('h:Units')).text = 'COP'
         eff_value_el = etree.SubElement(eff_el, tr.addns('h:Value'))
         eff_value_el.text = '1.9'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'heating_efficiency is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'heating_efficiency is out of bounds',
+                               tr.hpxml_to_hescore)
         eff_value_el.text = '5.1'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'heating_efficiency is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'heating_efficiency is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_heating_year(self):
         tr = self._load_xmlfile('house3')
         el = self.xpath('//h:HeatPump/h:YearInstalled')
         el.text = str(dt.datetime.today().year + 1)
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'heating_year is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'heating_year is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_cooling_efficiency(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency/h:Value')
         el.text = '40.1'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'cooling_efficiency is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'cooling_efficiency is out of bounds',
+                               tr.hpxml_to_hescore)
         el.text = '7.9'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'cooling_efficiency is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'cooling_efficiency is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_evap_cooler_missing_efficiency(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1318,21 +1329,21 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         eff_el.getparent().remove(eff_el)
         year_el = self.xpath('//h:CoolingSystem/h:YearInstalled')
         year_el.text = str(dt.datetime.today().year + 1)
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'cooling_year is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'cooling_year is out of bounds',
+                               tr.hpxml_to_hescore)
 
     def test_dhw_storage_efficiency(self):
         tr = self._load_xmlfile('house1')
         el = self.xpath('//h:WaterHeatingSystem/h:EnergyFactor')
         el.text = '0.44'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'domestic_hot_water_energy_factor is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'domestic_hot_water_energy_factor is out of bounds',
+                               tr.hpxml_to_hescore)
         el.text = '1.1'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'domestic_hot_water_energy_factor is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'domestic_hot_water_energy_factor is out of bounds',
+                               tr.hpxml_to_hescore)
         el.text = '1.0'
         res = tr.hpxml_to_hescore()
         dhw = res['building']['systems']['domestic_hot_water']
@@ -1348,13 +1359,13 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         dhw_sys_el = self.xpath('//h:WaterHeatingSystem')
         ef_el = etree.SubElement(dhw_sys_el, tr.addns('h:EnergyFactor'))
         ef_el.text = '0.9'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'domestic_hot_water_energy_factor is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'domestic_hot_water_energy_factor is out of bounds',
+                               tr.hpxml_to_hescore)
         ef_el.text = '4.1'
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'domestic_hot_water_energy_factor is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'domestic_hot_water_energy_factor is out of bounds',
+                               tr.hpxml_to_hescore)
         ef_el.text = '4.0'
         res = tr.hpxml_to_hescore()
         dhw = res['building']['systems']['domestic_hot_water']
@@ -1365,9 +1376,9 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:WaterHeatingSystem/h:YearInstalled')
         el.text = str(dt.datetime.today().year + 1)
-        self.assertRaisesRegexp(InputOutOfBounds,
-                                'domestic_hot_water_year is out of bounds',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'domestic_hot_water_year is out of bounds',
+                               tr.hpxml_to_hescore)
 
 
 class TestHVACFractions(unittest.TestCase, ComparatorBase):
@@ -1650,7 +1661,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
     def test_capacity_missing(self):
         tr = self._load_xmlfile('hescore_min')
         self._add_pv(capacity=None)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'MaxPowerOutput or CollectorArea is required',
             tr.hpxml_to_hescore
@@ -1675,7 +1686,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
     def test_azimuth_orientation_missing(self):
         tr = self._load_xmlfile('hescore_min')
         self._add_pv(azimuth=None, orientation=None)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'ArrayAzimuth or ArrayOrientation is required for every PVSystem',
             tr.hpxml_to_hescore
@@ -1684,7 +1695,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
     def test_years_missing(self):
         tr = self._load_xmlfile('hescore_min')
         self._add_pv(module_year=None, inverter_year=None)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Either YearInverterManufactured or YearModulesManufactured is required for every PVSystem',
             tr.hpxml_to_hescore
@@ -1711,7 +1722,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             orientation='west',
             inverter_year=None,
             module_year=2013)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Either a MaxPowerOutput must be specified for every PVSystem or CollectorArea',
             tr.hpxml_to_hescore
@@ -2010,7 +2021,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
                 if j != i and heat_pump_type_map[htg_hp_type] != heat_pump_type_map[clg_hp_type]:
                     hp2_type = tr.xpath(hp2, 'h:HeatPumpType')
                     hp2_type.text = clg_hp_type
-                    self.assertRaisesRegexp(
+                    self.assertRaisesRegex(
                         TranslationError,
                         r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.',  # noqa: E501
                         tr.hpxml_to_hescore)
@@ -2176,9 +2187,9 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         # Red area: No system.
         # If no hvac system existing, should give a error message describing the problem.
         clg_sys.getparent().remove(clg_sys)
-        self.assertRaisesRegexp(TranslationError,
-                                'No hvac system found.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'No hvac system found.',
+                               tr.hpxml_to_hescore)
 
     def test_bldg_about_comment(self):
         tr = self._load_xmlfile('house4')
@@ -2209,34 +2220,34 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         duct3oc1.text = 'unvented crawlspace'
         rooftype = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]/h:AtticType')
         Crawtype = self.xpath('//h:Foundation[h:SystemIdentifier/@id="crawl1"]/h:FoundationType/h:Crawlspace/h:Vented')
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             'HVAC distribution: duct3 location: unvented_crawl not exists in zone_roof/floor types.',
             tr.hpxml_to_hescore)
 
         duct3oc1.text = 'unconditioned basement'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             'HVAC distribution: duct3 location: uncond_basement not exists in zone_roof/floor types.',
             tr.hpxml_to_hescore)
 
         duct3oc1.text = 'conditioned space'  # set back to cond_space to avoid previous error message
         rooftype.text = 'flat roof'  # change attic type
-        self.assertRaisesRegexp(TranslationError,
-                                'HVAC distribution: duct2 location: uncond_attic not exists in zone_roof/floor types.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'HVAC distribution: duct2 location: uncond_attic not exists in zone_roof/floor types.',
+                               tr.hpxml_to_hescore)
 
         rooftype.text = 'vented attic'  # set back to vented_attic to avoid previous error message
         Crawtype.text = 'false'
-        self.assertRaisesRegexp(TranslationError,
-                                'HVAC distribution: duct1 location: vented_crawl not exists in zone_roof/floor types.',
-                                tr.hpxml_to_hescore)
+        self.assertRaisesRegex(TranslationError,
+                               'HVAC distribution: duct1 location: vented_crawl not exists in zone_roof/floor types.',
+                               tr.hpxml_to_hescore)
 
     def test_tankless_energyfactorerror(self):
         tr = self._load_xmlfile('hescore_min')
         WHtype = self.xpath('//h:WaterHeatingSystem[h:SystemIdentifier/@id="dhw1"]/h:WaterHeaterType')
         WHtype.text = 'instantaneous water heater'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Tankless water heater efficiency cannot be estimated by shipment weighted method\.',
             tr.hpxml_to_hescore)
@@ -2282,7 +2293,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         attic = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]')
         attic_type = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]/h:AtticType')
         attic_type.text = 'other'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Attic attic1: Cannot translate HPXML AtticType other to HEScore rooftype.',
             tr.hpxml_to_hescore
@@ -2293,7 +2304,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         roof_type = d['building']['zone']['zone_roof'][0]['roof_type']
         self.assertEqual(roof_type, 'cond_attic')
         is_attic_cond.text = 'false'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Attic \w+: Cannot translate HPXML AtticType other to HEScore rooftype.',
             tr.hpxml_to_hescore
@@ -2460,7 +2471,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         )
         building_el.addnext(project_el)
 
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'The following elements are required.*StartDate.*CompleteDateActual.*BusinessName.*ZipCode',
             tr.hpxml_to_hescore
@@ -2575,7 +2586,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         heatpump_type = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:HeatPumpType')
         heatpump_type.text = 'air-to-air'
         heatpump_type.addprevious(E.DistributionSystem(idref='hvacd1'))
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.', # noqa E501
             tr.hpxml_to_hescore)
@@ -2647,7 +2658,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         heatpump_type = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:HeatPumpType')
         heatpump_type.text = 'air-to-air'
         heatpump_type.addprevious(E.DistributionSystem(idref='hvacd1'))
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.', # noqa E501
             tr_v3.hpxml_to_hescore)
@@ -2782,7 +2793,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         heatpump_type = self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:HeatPumpType')
         heatpump_type.text = 'air-to-air'
         heatpump_type.addprevious(E.DistributionSystem(idref='hvacd1'))
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.', # noqa E501
             tr.hpxml_to_hescore)
@@ -2825,7 +2836,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         tr.xpath(roof2, 'h:Insulation/h:SystemIdentifier').attrib['id'] = "attic1roofins2"
         tr.xpath(frame_floor2, 'h:SystemIdentifier').attrib['id'] = "framefloor2"
         tr.xpath(frame_floor2, 'h:Insulation/h:SystemIdentifier').attrib['id'] = "attic1flrins2"
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'If there are more than one Attic elements, each needs an area. '
             r'Please specify under its attached FrameFloor/Roof element.',
@@ -2837,7 +2848,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         attached_to_ff2 = deepcopy(attached_to_ff)
         attached_to_ff2.attrib['idref'] = "framefloor2"
         attached_to_ff.addnext(attached_to_ff2)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'If there are more than one FrameFloor elements attached to attic, each needs an area.',
             tr.hpxml_to_hescore)
@@ -2848,7 +2859,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         attached_to_roof2 = deepcopy(attached_to_roof)
         attached_to_roof2.attrib['idref'] = "roof2"
         attached_to_roof.addnext(attached_to_roof2)
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'If there are more than one Roof elements attached to a single attic, each needs an area.',
             tr.hpxml_to_hescore)
@@ -2858,7 +2869,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         # 0 roof, will error out during xpath execution
         attached_to_roof2.getparent().remove(attached_to_roof2)
         attached_to_roof.attrib['idref'] = 'no_roof'
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             TranslationError,
             r'Attic attic1 does not have a roof associated with it.',
             tr.hpxml_to_hescore)

@@ -1,8 +1,8 @@
 version: 2
 jobs:
-  build-py27:
+  build-py36:
     docker:
-      - image: circleci/python:2
+      - image: circleci/python:3.6
     steps:
       - checkout
       - run:  &install
@@ -16,20 +16,14 @@ jobs:
           name: Run Unittests
           command: |
             source env/bin/activate
-            python -m unittest discover -s tests
+            pytest --junitxml=/tmp/test_results/hescore-hpxml/results.xml
+      - store_test_results:
+          path: /tmp/test_results
       - run:  &stylechecks
           name: Run Style Checks
           command: |
             source env/bin/activate
             python -m flake8
-  build-py36:
-    docker:
-      - image: circleci/python:3.6
-    steps:
-      - checkout
-      - run: *install
-      - run: *unittests
-      - run: *stylechecks
   build-py37:
     docker:
       - image: circleci/python:3.7
@@ -52,7 +46,7 @@ jobs:
           command: |
             set +e
             source env/bin/activate
-            python -m coverage run --source=hescorehpxml -m unittest discover -s tests > /dev/null 2>&1
+            python -m coverage run --source=hescorehpxml -m pytest > /dev/null 2>&1
             python -m coverage report -m
             python -m coverage html -d /tmp/coverage_report
       - store_artifacts:
@@ -75,7 +69,6 @@ workflows:
   version: 2
   test_all_py_versions:
     jobs:
-      - build-py27
       - build-py36
       - build-py37
       - build-py38

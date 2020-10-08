@@ -46,6 +46,7 @@ setup(
             'sphinx',
             'sphinx_rtd_theme',
             'sphinx-autobuild',
+            'pytest'
         ],
         'test': [
             'flake8',
@@ -53,6 +54,7 @@ setup(
             'sphinx',
             'sphinx_rtd_theme',
             'sphinx-autobuild',
+            'pytest'
         ]
     },
     include_package_data=True,
