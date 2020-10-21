@@ -52,6 +52,15 @@ def main(argv=sys.argv[1:]):
     logging.basicConfig(level=logging.ERROR, format='%(levelname)s:%(message)s')
     try:
         t = HPXMLtoHEScoreTranslator(args.hpxml_input)
+    except HPXMLtoHEScoreError as ex:
+        exclass = type(ex).__name__
+        logging.error('%s:%s', exclass, str(ex))
+        sys.exit(1)
+    except Exception:
+        logging.error('Unknown HPXML Translation Error: Please contact HEScore support')
+        sys.exit(2)
+
+    try:
         t.hpxml_to_hescore_json(
             args.output,
             hpxml_bldg_id=args.bldgid,
@@ -65,7 +74,7 @@ def main(argv=sys.argv[1:]):
     except Exception:
         logging.error('Unknown HPXML Translation Error: Please contact HEScore support')
         sys.exit(2)
-    else:
+    finally:
         if args.scrubbed_hpxml:
             t.export_scrubbed_hpxml(args.scrubbed_hpxml)
 
