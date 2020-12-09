@@ -118,17 +118,6 @@ class TestCLI(unittest.TestCase, ComparatorBase):
                 d2 = json.load(f)
             self._compare_item(d1, d2)
 
-    def test_cli_scrubbed(self):
-        root_dir = os.path.abspath(os.path.join(thisdir, '..'))
-        xml_file_path = os.path.join(root_dir, 'examples', 'hescore_min_v3.xml')
-        with tempfile.TemporaryDirectory() as tmpdir:
-            outfile = os.path.join(tmpdir, 'out.xml')
-            main([xml_file_path, '--scrubbed-hpxml', outfile])
-            schema_doc = etree.parse(os.path.join(root_dir, 'hescorehpxml', 'schemas', 'hpxml-3.0.0', 'HPXML.xsd'))
-            schema = etree.XMLSchema(schema_doc.getroot())
-            parser = etree.XMLParser(schema=schema)
-            etree.parse(outfile, parser)
-
 
 class TestOtherHouses(unittest.TestCase, ComparatorBase):
     def test_hescore_min(self):
