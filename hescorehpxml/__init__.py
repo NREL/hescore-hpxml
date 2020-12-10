@@ -1,6 +1,7 @@
-import sys
 import argparse
 import logging
+import os
+import sys
 from .base import HPXMLtoHEScoreTranslatorBase
 from .hpxml2 import HPXML2toHEScoreTranslator
 from .hpxml3 import HPXML3toHEScoreTranslator
@@ -50,8 +51,25 @@ def main(argv=sys.argv[1:]):
 
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.ERROR, format='%(levelname)s:%(message)s')
+
+    def remove_scrubbed_hpxml_file():
+        if args.scrubbed_hpxml:
+            args.scrubbed_hpxml.close()
+            os.remove(args.scrubbed_hpxml.name)
+
     try:
         t = HPXMLtoHEScoreTranslator(args.hpxml_input)
+    except HPXMLtoHEScoreError as ex:
+        exclass = type(ex).__name__
+        logging.error('%s:%s', exclass, str(ex))
+        remove_scrubbed_hpxml_file()
+        sys.exit(1)
+    except Exception:
+        logging.error('Unknown HPXML Translation Error: Please contact HEScore support')
+        remove_scrubbed_hpxml_file()
+        sys.exit(2)
+
+    try:
         t.hpxml_to_hescore_json(
             args.output,
             hpxml_bldg_id=args.bldgid,
@@ -65,7 +83,7 @@ def main(argv=sys.argv[1:]):
     except Exception:
         logging.error('Unknown HPXML Translation Error: Please contact HEScore support')
         sys.exit(2)
-    else:
+    finally:
         if args.scrubbed_hpxml:
             t.export_scrubbed_hpxml(args.scrubbed_hpxml)
 
