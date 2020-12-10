@@ -1153,20 +1153,16 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # attic floor center of cavity R-value
             attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
             if knee_walls:
-                try:
-                    knee_wall_ua = sum(x['area'] / x['rvalue'] for x in knee_walls)
-                except ZeroDivisionError:
-                    knee_wall_ua = float('inf')
+                knee_wall_coc_rvalue = knee_walls['rvalue'] + 0.5
                 knee_wall_area = sum([x['area'] for x in knee_walls])
-                try:
-                    attic_floor_adj_ua = knee_wall_ua + atticd['roof_area'] / attic_floor_rvalue
-                except ZeroDivisionError:
-                    attic_floor_adj_ua = float('inf')
+                knee_wall_ua = knee_wall_area / knee_wall_coc_rvalue
+                
+                attic_floor_coc_rvalue = attic_floor_rvalue + 0.5
+                attic_floor_adj_ua = knee_wall_ua + atticd['roof_area'] / attic_floor_coc_rvalue
                 attic_floor_adj_area = knee_wall_area + atticd['roof_area']
-                attic_floor_rvalue = attic_floor_adj_area / attic_floor_adj_ua
+                attic_floor_rvalue = (attic_floor_adj_area / attic_floor_adj_ua) - 0.5
                 atticd['roof_area'] = attic_floor_adj_area
-            atticd['attic_floor_coc_rvalue'] = \
-                min(attic_floor_rvalues, key=lambda x: abs(x - attic_floor_rvalue)) + 0.5
+            atticd['attic_floor_coc_rvalue'] = attic_floor_rvalue + 0.5
 
         if len(atticds) == 0:
             raise TranslationError('There are no Attic elements in this building.')
