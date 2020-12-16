@@ -50,8 +50,8 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         if len(knee_walls) == 0:
             return 0, 0
         if len(knee_walls) == 1:
-            return convert_to_type(float, self.xpath(knee_walls[0], 'sum(h:Insulation/h:Layer/h:NominalRValue)')), 
-                                   convert_to_type(float, self.xpath(knee_walls[0], 'h:Area/text()'))
+            return convert_to_type(float, self.xpath(knee_walls[0], 'sum(h:Insulation/h:Layer/h:NominalRValue)')),
+            convert_to_type(float, self.xpath(knee_walls[0], 'h:Area/text()'))
 
         knee_wall_dict_ls = []
         for knee_wall in knee_walls:
