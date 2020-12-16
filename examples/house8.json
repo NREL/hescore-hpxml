@@ -27,7 +27,7 @@
           "roof_assembly_code": "rfwf00tg",
           "roof_color": "medium",
           "roof_type": "vented_attic",
-          "ceiling_assembly_code": "ecwf30",
+          "ceiling_assembly_code": "ecwf38",
           "zone_skylight": {
             "skylight_area": 0
           }
@@ -63,26 +63,6 @@
       "window_construction_same": false,
       "zone_wall": [
         {
-          "side": "back",
-          "wall_assembly_code": "ewwf00wo",
-          "zone_window": {
-            "window_area": 220.0,
-            "window_method": "code",
-            "window_code": "dpeaw",
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "right",
-          "wall_assembly_code": "ewwf00wo",
-          "zone_window": {
-            "window_area": 40.0,
-            "window_method": "code",
-            "window_code": "dpeaw",
-            "solar_screen": false
-          }
-        },
-        {
           "side": "front",
           "wall_assembly_code": "ewwf00wo",
           "zone_window": {
@@ -97,6 +77,26 @@
           "wall_assembly_code": "ewwf00wo",
           "zone_window": {
             "window_area": 70.0,
+            "window_method": "code",
+            "window_code": "dpeaw",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "back",
+          "wall_assembly_code": "ewwf00wo",
+          "zone_window": {
+            "window_area": 220.0,
+            "window_method": "code",
+            "window_code": "dpeaw",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "right",
+          "wall_assembly_code": "ewwf00wo",
+          "zone_window": {
+            "window_area": 40.0,
             "window_method": "code",
             "window_code": "dpeaw",
             "solar_screen": false

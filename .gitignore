@@ -11,3 +11,4 @@ hescore_hpxml.egg-info
 dist
 build
 .env
+.devcontainer
