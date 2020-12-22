@@ -54,12 +54,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                 raise_err=True,
                 kneewallid=kneewall_idref
             )
-            wall_rvalue = self.xpath(wall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-            wall_area = self.xpath(wall, 'h:Area/text()')
-            if wall_area is None:
-                raise TranslationError('All attic knee walls need an Area specified')
-            wall_area = float(wall_area)
-            knee_walls.append({'area': wall_area, 'rvalue': wall_rvalue})
+            knee_walls.append(wall)
 
         return knee_walls
 

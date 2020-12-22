@@ -376,6 +376,32 @@ class HPXMLtoHEScoreTranslatorBase(object):
                           'ground-to-air': 'gchp',
                           'ground-to-water': 'gchp'}
 
+    def get_attic_knee_wall_rvalue_and_area(self, attic, b):
+        knee_walls = self.get_attic_knee_walls(attic, b)
+        if len(knee_walls) == 0:
+            return 0, 0
+        if len(knee_walls) == 1:
+            knee_wall_r = convert_to_type(float, self.xpath(knee_walls[0], 'sum(h:Insulation/h:Layer/h:NominalRValue)'))
+            knee_wall_area = convert_to_type(float, self.xpath(knee_walls[0], 'h:Area/text()'))
+            return knee_wall_r, knee_wall_area
+
+        knee_wall_dict_ls = []
+        for knee_wall in knee_walls:
+            wall_area = convert_to_type(float, self.xpath(knee_wall, 'h:Area/text()'))
+            if wall_area is None:
+                raise TranslationError('All attic knee walls need an Area specified')
+            rvalue = self.xpath(knee_wall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+            knee_wall_dict_ls.append({'area': wall_area, 'rvalue': rvalue})
+        # Average
+        knee_wall_area = sum(x['area'] for x in knee_wall_dict_ls)
+        try:
+            knee_wall_r = knee_wall_area / \
+                          sum(x['area'] / x['rvalue'] for x in knee_wall_dict_ls)
+        except ZeroDivisionError:
+            knee_wall_r = 0
+
+        return knee_wall_r, knee_wall_area
+
     def add_fuel_type(self, fuel_type):
         # Some fuel types are not included in fuel_type_mapping, throw an error if not mapped.
         try:
@@ -1153,20 +1179,16 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # attic floor center of cavity R-value
             attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
             if knee_walls:
-                try:
-                    knee_wall_ua = sum(x['area'] / x['rvalue'] for x in knee_walls)
-                except ZeroDivisionError:
-                    knee_wall_ua = float('inf')
-                knee_wall_area = sum([x['area'] for x in knee_walls])
-                try:
-                    attic_floor_adj_ua = knee_wall_ua + atticd['roof_area'] / attic_floor_rvalue
-                except ZeroDivisionError:
-                    attic_floor_adj_ua = float('inf')
+                knee_wall_rvalue, knee_wall_area = self.get_attic_knee_wall_rvalue_and_area(attic, b)
+                knee_wall_coc_rvalue = knee_wall_rvalue + 0.5
+                knee_wall_ua = knee_wall_area / knee_wall_coc_rvalue
+
+                attic_floor_coc_rvalue = attic_floor_rvalue + 0.5
+                attic_floor_adj_ua = knee_wall_ua + atticd['roof_area'] / attic_floor_coc_rvalue
                 attic_floor_adj_area = knee_wall_area + atticd['roof_area']
-                attic_floor_rvalue = attic_floor_adj_area / attic_floor_adj_ua
+                attic_floor_rvalue = (attic_floor_adj_area / attic_floor_adj_ua) - 0.5
                 atticd['roof_area'] = attic_floor_adj_area
-            atticd['attic_floor_coc_rvalue'] = \
-                min(attic_floor_rvalues, key=lambda x: abs(x - attic_floor_rvalue)) + 0.5
+            atticd['attic_floor_coc_rvalue'] = attic_floor_rvalue + 0.5
 
         if len(atticds) == 0:
             raise TranslationError('There are no Attic elements in this building.')
