@@ -360,5 +360,9 @@ wall". See below an example:
    <Walls>
 
 If an attic has knee walls specified, the area of the knee walls will be added
-to the attic floor area. If the insulation for the knee walls is different than
-the attic floor, a UA calculation is performed to determine the average R-value.
+to the attic floor area. The knee walls center-of-cavity R-value is R-0.5 greater 
+than the nominal R-value. The knee walls center-of-cavity R-value will be reflected 
+in the area weighted center-of-cavity effective R-value of the attic floor. 
+This averaged center-of-cavity effective R value is combined from all knee walls 
+and attic floors attached to the same attic. The highest weighted attic floor 
+construction type is selected.
