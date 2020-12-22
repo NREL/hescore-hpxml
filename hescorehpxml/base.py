@@ -375,7 +375,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                           'mini-split': 'mini_split',
                           'ground-to-air': 'gchp',
                           'ground-to-water': 'gchp'}
-    
+
     def get_attic_knee_wall_rvalue_and_area(self, attic, b):
         knee_walls = self.get_attic_knee_walls(attic, b)
         if len(knee_walls) == 0:
