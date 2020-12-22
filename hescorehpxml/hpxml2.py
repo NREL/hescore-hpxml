@@ -45,32 +45,6 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         return self.xpath(attic,
                           'sum(h:AtticRoofInsulation/h:Layer/h:NominalRValue)')
 
-    def get_attic_knee_wall_rvalue_and_area(self, attic, b):
-        knee_walls = self.get_attic_knee_walls(attic, b)
-        if len(knee_walls) == 0:
-            return 0, 0
-        if len(knee_walls) == 1:
-            knee_wall_r = convert_to_type(float, self.xpath(knee_walls[0], 'sum(h:Insulation/h:Layer/h:NominalRValue)'))
-            knee_wall_area = convert_to_type(float, self.xpath(knee_walls[0], 'h:Area/text()'))
-            return knee_wall_r, knee_wall_area
-
-        knee_wall_dict_ls = []
-        for knee_wall in knee_walls:
-            wall_area = convert_to_type(float, self.xpath(knee_wall, 'h:Area/text()'))
-            if wall_area is None:
-                raise TranslationError('All attic knee walls need an Area specified')
-            rvalue = self.xpath(knee_wall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-            knee_wall_dict_ls.append({'area': wall_area, 'rvalue': rvalue})
-        # Average
-        knee_wall_area = sum(x['area'] for x in knee_wall_dict_ls)
-        try:
-            knee_wall_r = knee_wall_area / \
-                          sum(x['area'] / x['rvalue'] for x in knee_wall_dict_ls)
-        except ZeroDivisionError:
-            knee_wall_r = 0
-
-        return knee_wall_r, knee_wall_area
-
     def get_attic_knee_walls(self, attic, b):
         knee_walls = []
         for kneewall_idref in self.xpath(attic, 'h:AtticKneeWall/@idref', aslist=True):
