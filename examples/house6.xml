@@ -32,7 +32,7 @@
                     <ResidentialFacilityType>single-family detached</ResidentialFacilityType>
                     <NumberofConditionedFloorsAboveGrade>2</NumberofConditionedFloorsAboveGrade>
                     <AverageCeilingHeight>8</AverageCeilingHeight>
-                    <NumberofBedrooms>11</NumberofBedrooms>
+                    <NumberofBedrooms>10</NumberofBedrooms>
                     <ConditionedFloorArea>2600</ConditionedFloorArea>
                 </BuildingConstruction>
             </BuildingSummary>

@@ -927,8 +927,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         bldg_cons_el = xpath(b, 'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction', raise_err=True)
         bldg_about['year_built'] = int(xpath(bldg_cons_el, 'h:YearBuilt/text()', raise_err=True))
         nbedrooms = int(xpath(bldg_cons_el, 'h:NumberofBedrooms/text()', raise_err=True))
-        if nbedrooms > 10:
-            nbedrooms = 10
         bldg_about['number_bedrooms'] = nbedrooms
         bldg_about['num_floor_above_grade'] = int(
             math.ceil(float(xpath(bldg_cons_el, 'h:NumberofConditionedFloorsAboveGrade/text()', raise_err=True))))
