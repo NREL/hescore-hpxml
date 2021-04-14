@@ -758,9 +758,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
         bldg['zone']['zone_floor'] = self.get_building_zone_floor(b, bldg['about'])
         footprint_area = self.get_footprint_area(bldg)
         bldg['zone']['zone_roof'] = self.get_building_zone_roof(b, footprint_area)
-        bldg['zone']['zone_roof'][0]['zone_skylight'] = self.get_skylights(b)
-        for zone_roof in bldg['zone']['zone_roof'][1:]:
-            zone_roof['zone_skylight'] = {'skylight_area': 0}
+        skylights = self.get_skylights(b, bldg['zone']['zone_roof'])
+        for roof_num in range(len(bldg['zone']['zone_roof'])):
+            bldg['zone']['zone_roof'][roof_num]['zone_skylight'] = skylights[roof_num]
         bldg['zone']['wall_construction_same'] = False
         bldg['zone']['window_construction_same'] = False
         bldg['zone']['zone_wall'] = self.get_building_zone_wall(b, bldg['about'])
@@ -1155,9 +1155,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 del atticd['roof_absorptance']
 
             # ids of hpxml roofs along for the ride
-            atticd['_roofid'] = ''
-            for attic_roofs_dict in attic_roof_ls:
-                atticd['_roofid'] += attic_roofs_dict['roof_id']
+            atticd['_roofid'] = set([attic_roofs_dict['roof_id'] for attic_roofs_dict in attic_roof_ls])
 
             # Calculate roof area weighted center of cavity R-value for attic,
             # might be combined later by averaging again
@@ -1194,7 +1192,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             raise TranslationError('There are no Attic elements in this building.')
         elif len(atticds) <= 2:
             for atticd in atticds:
-                atticd['_roofids'] = {atticd['_roofid']}
+                atticd['_roofids'] = atticd['_roofid']
                 del atticd['_roofid']
         elif len(atticds) > 2:
             # If there are more than two attics, combine and average by rooftype.
@@ -1224,7 +1222,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     combined_atticd[attic_key] = max(roof_area_by_cat, key=lambda x: roof_area_by_cat[x])
 
                 # ids of hpxml roofs along for the ride
-                combined_atticd['_roofids'] = set([atticd['_roofid'] for atticd in atticds])
+                combined_atticd['_roofids'] = set().union(*[atticd['_roofid'] for atticd in atticds])
 
                 # Calculate roof area weighted center of cavity R-value
                 combined_atticd['roof_coc_rvalue'] = \
@@ -1274,70 +1272,98 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         return zone_roof
 
-    def get_skylights(self, b):
+    def get_skylights(self, b, zone_roof):
         ns = self.ns
         xpath = self.xpath
         skylights = b.xpath('descendant::h:Skylight', namespaces=ns)
 
-        zone_skylight = OrderedDict()
+        skylight_by_roof_id = {}
+        skylight_by_roof_num = {}
+        for i in range(len(zone_roof)):
+            skylight_by_roof_num[i] = []
 
-        if len(skylights) == 0:
-            zone_skylight['skylight_area'] = 0
-            return zone_skylight
-
-        # Get areas, u-factors, and shgcs if they exist
-        uvalues, shgcs, areas = map(list, zip(*[[xpath(skylight, 'h:%s/text()' % x)
-                                                 for x in ('UFactor', 'SHGC', 'Area')]
-                                                for skylight in skylights]))
-        if None in areas:
-            raise TranslationError('Every skylight needs an area.')
-        areas = list(map(float, areas))
-        zone_skylight['skylight_area'] = sum(areas)
-
-        # Remove skylights from the calculation where a uvalue or shgc isn't set.
-        idxstoremove = set()
-        for i, uvalue in enumerate(uvalues):
-            if uvalue is None:
-                idxstoremove.add(i)
-        for i, shgc in enumerate(shgcs):
-            if shgc is None:
-                idxstoremove.add(i)
-        for i in sorted(idxstoremove, reverse=True):
-            uvalues.pop(i)
-            shgcs.pop(i)
-            areas.pop(i)
-        assert len(uvalues) == len(shgcs)
-        uvalues = list(map(float, uvalues))
-        shgcs = list(map(float, shgcs))
-
-        if len(uvalues) > 0:
-            # Use an area weighted average of the uvalues, shgcs
-            zone_skylight['skylight_method'] = 'custom'
-            zone_skylight['skylight_u_value'] = old_div(sum(
-                [uvalue * area for (uvalue, area) in zip(uvalues, areas)]), sum(areas))
-            zone_skylight['skylight_shgc'] = sum([shgc * area for (shgc, area) in zip(shgcs, areas)]) / sum(areas)
-        else:
-            # use a construction code
-            skylight_type_areas = {}
-            for skylight in skylights:
-                area = convert_to_type(float, xpath(skylight, 'h:Area/text()', raise_err=True))
-                skylight_code = self.get_window_code(skylight)
-                try:
-                    skylight_type_areas[skylight_code] += area
-                except KeyError:
-                    skylight_type_areas[skylight_code] = area
-            zone_skylight['skylight_method'] = 'code'
-            zone_skylight['skylight_code'] = max(list(skylight_type_areas.items()), key=lambda x: x[1])[0]
-        skylight_sunscreen_areas = {}
         for skylight in skylights:
-            solar_screen = self.get_sunscreen(skylight)
-            area = convert_to_type(float, xpath(skylight, 'h:Area/text()', raise_err=True))
-            try:
-                skylight_sunscreen_areas[solar_screen] += area
-            except KeyError:
-                skylight_sunscreen_areas[solar_screen] = area
+            if xpath(skylight, 'h:AttachedToRoof/@idref')is None:
+                # No roof attached, attach to the first roof
+                skylight_by_roof_num[0].append(skylight)
+            else:
+                skylight_by_roof_id[xpath(skylight, 'h:AttachedToRoof/@idref')].append(skylight)
 
-        zone_skylight['solar_screen'] = max(list(skylight_sunscreen_areas.items()), key=lambda x: x[1])[0]
+        for roof_id, skylights in list(skylight_by_roof_id.items()):
+            # roof_found = False
+            for i in range(len(zone_roof)):
+                if roof_id in zone_roof[i]['_roofids']:
+                    # roof_found = True
+                    for skylight in skylights:
+                        skylight_by_roof_num[i].append(skylight)
+                    break
+            # if not roof_found:
+                # The roof attached is not simulated, should we: 1. attach to the first roof or 2. discard the skylight?
+                # for skylight in skylights:
+                #     skylight_by_roof_num[0].append(skylight)
+
+        # combine skylights by roof_num
+        zone_skylight = []
+        for roof_num, skylights in list(skylight_by_roof_num.items()):
+            skylight_d = OrderedDict()
+            zone_skylight.append(skylight_d)
+
+            if len(skylights) == 0:
+                skylight_d['skylight_area'] = 0
+                continue
+            # Get areas, u-factors, and shgcs if they exist
+            uvalues, shgcs, areas = map(list, zip(*[[xpath(skylight, 'h:%s/text()' % x)
+                                                     for x in ('UFactor', 'SHGC', 'Area')]
+                                                    for skylight in skylights]))
+            if None in areas:
+                raise TranslationError('Every skylight needs an area.')
+            areas = list(map(float, areas))
+            skylight_d['skylight_area'] = sum(areas)
+
+            # Remove skylights from the calculation where a uvalue or shgc isn't set.
+            idxstoremove = set()
+            for i, uvalue in enumerate(uvalues):
+                if uvalue is None:
+                    idxstoremove.add(i)
+            for i, shgc in enumerate(shgcs):
+                if shgc is None:
+                    idxstoremove.add(i)
+            for i in sorted(idxstoremove, reverse=True):
+                uvalues.pop(i)
+                shgcs.pop(i)
+                areas.pop(i)
+            assert len(uvalues) == len(shgcs)
+            uvalues = list(map(float, uvalues))
+            shgcs = list(map(float, shgcs))
+
+            if len(uvalues) > 0:
+                # Use an area weighted average of the uvalues, shgcs
+                skylight_d['skylight_method'] = 'custom'
+                skylight_d['skylight_u_value'] = old_div(sum(
+                    [uvalue * area for (uvalue, area) in zip(uvalues, areas)]), sum(areas))
+                skylight_d['skylight_shgc'] = sum([shgc * area for (shgc, area) in zip(shgcs, areas)]) / sum(areas)
+            else:
+                # use a construction code
+                skylight_type_areas = {}
+                for skylight in skylights:
+                    area = convert_to_type(float, xpath(skylight, 'h:Area/text()', raise_err=True))
+                    skylight_code = self.get_window_code(skylight)
+                    try:
+                        skylight_type_areas[skylight_code] += area
+                    except KeyError:
+                        skylight_type_areas[skylight_code] = area
+                skylight_d['skylight_method'] = 'code'
+                skylight_d['skylight_code'] = max(list(skylight_type_areas.items()), key=lambda x: x[1])[0]
+            skylight_sunscreen_areas = {}
+            for skylight in skylights:
+                solar_screen = self.get_sunscreen(skylight)
+                area = convert_to_type(float, xpath(skylight, 'h:Area/text()', raise_err=True))
+                try:
+                    skylight_sunscreen_areas[solar_screen] += area
+                except KeyError:
+                    skylight_sunscreen_areas[solar_screen] = area
+
+            skylight_d['solar_screen'] = max(list(skylight_sunscreen_areas.items()), key=lambda x: x[1])[0]
 
         return zone_skylight
 
