@@ -1283,7 +1283,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             skylight_by_roof_num[i] = []
 
         for skylight in skylights:
-            if xpath(skylight, 'h:AttachedToRoof/@idref')is None:
+            if xpath(skylight, 'h:AttachedToRoof/@idref') is None:
                 # No roof attached, attach to the first roof
                 skylight_by_roof_num[0].append(skylight)
             else:
