@@ -1180,7 +1180,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
             if knee_walls:
                 knee_wall_rvalue, knee_wall_area = self.get_attic_knee_wall_rvalue_and_area(attic, b)
-                knee_wall_coc_rvalue = knee_wall_rvalue + 0.5
+                knee_wall_coc_rvalue = knee_wall_rvalue + 1.8
                 knee_wall_ua = knee_wall_area / knee_wall_coc_rvalue
 
                 attic_floor_coc_rvalue = attic_floor_rvalue + 0.5
