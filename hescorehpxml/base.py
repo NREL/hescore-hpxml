@@ -1287,7 +1287,11 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 # No roof attached, attach to the first roof
                 skylight_by_roof_num[0].append(skylight)
             else:
-                skylight_by_roof_id[xpath(skylight, 'h:AttachedToRoof/@idref')].append(skylight)
+                try:
+                    skylight_by_roof_id[xpath(skylight, 'h:AttachedToRoof/@idref')].append(skylight)
+                except KeyError:
+                    skylight_by_roof_id[xpath(skylight, 'h:AttachedToRoof/@idref')] = []
+                    skylight_by_roof_id[xpath(skylight, 'h:AttachedToRoof/@idref')].append(skylight)
 
         for roof_id, skylights in list(skylight_by_roof_id.items()):
             # roof_found = False
