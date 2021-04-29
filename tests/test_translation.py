@@ -1149,6 +1149,14 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
                                'num_floor_above_grade is out of bounds',
                                tr.hpxml_to_hescore)
 
+    def test_number_bedrooms(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:NumberofBedrooms')
+        el.text = '25'
+        self.assertRaisesRegex(InputOutOfBounds,
+                               'number_bedrooms is out of bounds',
+                               tr.hpxml_to_hescore)
+
     def test_floor_to_ceiling_height1(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:AverageCeilingHeight')
