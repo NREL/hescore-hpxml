@@ -36,7 +36,9 @@ window properties be assigned to each direction, the
 windows will be specified separately. 
 
 Skylights in HEScore do not have an orientation that can be set, therefore
-orientation/azimuth information about skylights is ignored.
+orientation/azimuth information about skylights is ignored. Use `AttachedToRoof`
+to specify which HPXML roof each skylight is attached to. If not specified, skylights
+will be assigned to the first hescore roof.
 
 .. _window-prop:
 

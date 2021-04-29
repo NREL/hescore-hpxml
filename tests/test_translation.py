@@ -2677,6 +2677,45 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         self.assertEqual(d_4['building']['systems']['hvac'], d_4_v3['building']['systems']['hvac'])
 
 
+class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
+
+    def test_skylight_assignment(self):
+        tr = self._load_xmlfile('house4_v3')
+        attach_roof = etree.Element(tr.addns('h:AttachedToRoof'))
+        attach_roof.attrib['idref'] = "roof2"
+        glass_type = self.xpath('//h:Skylight/h:GlassType')
+        glass_type.addnext(attach_roof)
+        res = tr.hpxml_to_hescore()
+        # Skylight attached to the second roof
+        self.assertEqual(res['building']['zone']['zone_roof'][1]['zone_skylight']['skylight_area'], 12.0)
+        self.assertEqual(res['building']['zone']['zone_roof'][1]['zone_skylight']['skylight_code'], 'dtab')
+        self.assertFalse(res['building']['zone']['zone_roof'][1]['zone_skylight']['solar_screen'])
+
+        skylight = self.xpath('//h:Skylight')
+        skylight_2 = deepcopy(skylight)
+        skylight.addnext(skylight_2)
+        tr.xpath(skylight_2, 'h:SystemIdentifier').attrib['id'] = "skylight2"
+        tr.xpath(skylight_2, 'h:AttachedToRoof').attrib['idref'] = "roof1"
+        tr.xpath(skylight_2, 'h:Area').text = "15"
+        res2 = tr.hpxml_to_hescore()
+        # Skylight attached to the first and second roof
+        self.assertEqual(res2['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_area'], 15.0)
+        self.assertEqual(res2['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_code'], 'dtab')
+        self.assertFalse(res2['building']['zone']['zone_roof'][0]['zone_skylight']['solar_screen'])
+        self.assertEqual(res2['building']['zone']['zone_roof'][1]['zone_skylight']['skylight_area'], 12.0)
+        self.assertEqual(res2['building']['zone']['zone_roof'][1]['zone_skylight']['skylight_code'], 'dtab')
+        self.assertFalse(res2['building']['zone']['zone_roof'][1]['zone_skylight']['solar_screen'])
+
+        tr.xpath(skylight_2, 'h:AttachedToRoof').attrib['idref'] = "roof2"
+        tr.xpath(skylight_2, 'h:Area').text = "10"
+        tr.xpath(skylight_2, 'h:GlassType').text = "low-e"
+        # skylight1 dominates the properties
+        res3 = tr.hpxml_to_hescore()
+        self.assertEqual(res3['building']['zone']['zone_roof'][1]['zone_skylight']['skylight_area'], 22.0)
+        self.assertEqual(res3['building']['zone']['zone_roof'][1]['zone_skylight']['skylight_code'], 'dtab')
+        self.assertFalse(res3['building']['zone']['zone_roof'][1]['zone_skylight']['solar_screen'])
+
+
 class TestHEScoreV3(unittest.TestCase, ComparatorBase):
 
     def test_attic_with_multiple_roofs(self):
