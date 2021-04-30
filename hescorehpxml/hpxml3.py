@@ -180,9 +180,10 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         return False
 
     def get_duct_location(self, hpxml_duct_location, bldg):
-        loc_hierarchy = self.duct_location_map[hpxml_duct_location]
-        if loc_hierarchy is None:
-            return
+        try:
+            loc_hierarchy = self.duct_location_map[hpxml_duct_location]
+        except:
+            raise TranslationError('Invalid duct location specified')
         for loc in loc_hierarchy:
             if loc == 'uncond_attic':
                 check_loc = 'vented_attic'
