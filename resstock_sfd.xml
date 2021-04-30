@@ -16,7 +16,11 @@
     <Site>
       <SiteID id='SiteID'/>
       <Address>
+        <AddressType>street</AddressType> 
+        <Address1>1 API House</Address1>
+        <CityMunicipality>Denver</CityMunicipality>
         <StateCode>CO</StateCode>
+        <ZipCode>80214</ZipCode>
       </Address>
     </Site>
     <ProjectStatus>
@@ -25,6 +29,7 @@
     <BuildingDetails>
       <BuildingSummary>
         <Site>
+          <OrientationOfFrontOfHome>east</OrientationOfFrontOfHome>
           <extension>
             <Neighbors>
               <NeighborBuilding>
@@ -42,6 +47,7 @@
           <NumberofResidents>3.0</NumberofResidents>
         </BuildingOccupancy>
         <BuildingConstruction>
+          <YearBuilt>1953</YearBuilt>
           <ResidentialFacilityType>single-family detached</ResidentialFacilityType>
           <NumberofConditionedFloors>2.0</NumberofConditionedFloors>
           <NumberofConditionedFloorsAboveGrade>2.0</NumberofConditionedFloorsAboveGrade>
@@ -78,13 +84,23 @@
         </AirInfiltration>
         <Attics>
           <Attic>
-            <SystemIdentifier id='VentedAttic'/>
+            <SystemIdentifier id='VentedAttic1'/>
             <AtticType>
               <Attic>
                 <Vented>true</Vented>
               </Attic>
             </AtticType>
+            <AttachedToRoof idref='Surface_14'/>
           </Attic>
+          <Attic>
+            <SystemIdentifier id='VentedAttic2'/>
+            <AtticType>
+              <Attic>
+                <Vented>true</Vented>
+              </Attic>
+            </AtticType>
+            <AttachedToRoof idref='Surface_15'/>
+          </Attic>  
         </Attics>
         <Foundations>
           <Foundation>
@@ -92,6 +108,7 @@
             <FoundationType>
               <SlabOnGrade/>
             </FoundationType>
+            <AttachedToSlab idref="Surface_1"/>
           </Foundation>
         </Foundations>
         <Roofs>
@@ -100,6 +117,7 @@
             <InteriorAdjacentTo>attic - vented</InteriorAdjacentTo>
             <Area>559.0</Area>
             <Azimuth>180</Azimuth>
+            <RoofType>metal surfacing</RoofType>
             <RoofColor>medium</RoofColor>
             <Pitch>6.0</Pitch>
             <RadiantBarrier>false</RadiantBarrier>
@@ -113,6 +131,7 @@
             <InteriorAdjacentTo>attic - vented</InteriorAdjacentTo>
             <Area>559.0</Area>
             <Azimuth>0</Azimuth>
+            <RoofType>metal surfacing</RoofType>
             <RoofColor>medium</RoofColor>
             <Pitch>6.0</Pitch>
             <RadiantBarrier>false</RadiantBarrier>
@@ -132,6 +151,7 @@
             </WallType>
             <Area>179.0</Area>
             <Azimuth>90</Azimuth>
+            <Siding>stucco</Siding>
             <Color>medium</Color>
             <Insulation>
               <SystemIdentifier id='Surface_10Insulation'/>
@@ -147,6 +167,7 @@
             </WallType>
             <Area>358.0</Area>
             <Azimuth>180</Azimuth>
+            <Siding>stucco</Siding>
             <Color>medium</Color>
             <Insulation>
               <SystemIdentifier id='Surface_11Insulation'/>
@@ -162,6 +183,7 @@
             </WallType>
             <Area>63.0</Area>
             <Azimuth>270</Azimuth>
+            <Siding>stucco</Siding>
             <Color>medium</Color>
             <Insulation>
               <SystemIdentifier id='Surface_16Insulation'/>
@@ -177,6 +199,7 @@
             </WallType>
             <Area>63.0</Area>
             <Azimuth>90</Azimuth>
+            <Siding>stucco</Siding>
             <Color>medium</Color>
             <Insulation>
               <SystemIdentifier id='Surface_17Insulation'/>
@@ -192,6 +215,7 @@
             </WallType>
             <Area>179.0</Area>
             <Azimuth>270</Azimuth>
+            <Siding>stucco</Siding>
             <Color>medium</Color>
             <Insulation>
               <SystemIdentifier id='Surface_2Insulation'/>
@@ -207,6 +231,7 @@
             </WallType>
             <Area>358.0</Area>
             <Azimuth>0</Azimuth>
+            <Siding>stucco</Siding>
             <Color>medium</Color>
             <Insulation>
               <SystemIdentifier id='Surface_3Insulation'/>
@@ -222,6 +247,7 @@
             </WallType>
             <Area>179.0</Area>
             <Azimuth>90</Azimuth>
+            <Siding>stucco</Siding>
             <Color>medium</Color>
             <Insulation>
               <SystemIdentifier id='Surface_4Insulation'/>
@@ -237,6 +263,7 @@
             </WallType>
             <Area>358.0</Area>
             <Azimuth>180</Azimuth>
+            <Siding>stucco</Siding>
             <Color>medium</Color>
             <Insulation>
               <SystemIdentifier id='Surface_5Insulation'/>
@@ -252,6 +279,7 @@
             </WallType>
             <Area>179.0</Area>
             <Azimuth>270</Azimuth>
+            <Siding>stucco</Siding>
             <Color>medium</Color>
             <Insulation>
               <SystemIdentifier id='Surface_8Insulation'/>
@@ -267,6 +295,7 @@
             </WallType>
             <Area>358.0</Area>
             <Azimuth>0</Azimuth>
+            <Siding>stucco</Siding>
             <Color>medium</Color>
             <Insulation>
               <SystemIdentifier id='Surface_9Insulation'/>
@@ -849,10 +878,14 @@
                 <Ducts>
                   <DuctType>supply</DuctType>
                   <DuctInsulationRValue>0.0</DuctInsulationRValue>
+                  <DuctLocation>living space</DuctLocation>
+                  <FractionDuctArea>1</FractionDuctArea>
                 </Ducts>
                 <Ducts>
                   <DuctType>return</DuctType>
                   <DuctInsulationRValue>0.0</DuctInsulationRValue>
+                  <DuctLocation>living space</DuctLocation>
+                  <FractionDuctArea>1</FractionDuctArea>
                 </Ducts>
               </AirDistribution>
             </DistributionSystemType>
