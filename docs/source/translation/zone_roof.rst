@@ -360,7 +360,7 @@ wall". See below an example:
    <Walls>
 
 If an attic has knee walls specified, the area of the knee walls will be added
-to the attic floor area. The knee walls center-of-cavity R-value is R-0.5 greater 
+to the attic floor area. The knee walls center-of-cavity R-value is R-1.8 greater 
 than the nominal R-value. The knee walls center-of-cavity R-value will be reflected 
 in the area weighted center-of-cavity effective R-value of the attic floor. 
 This averaged center-of-cavity effective R value is combined from all knee walls 
