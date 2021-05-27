@@ -12,6 +12,7 @@ from decimal import Decimal
 from collections import OrderedDict
 import os
 import re
+from jsonschema import validate
 
 from .exceptions import (
     TranslationError,
@@ -77,6 +78,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
     def __init__(self, hpxmlfilename):
         self.hpxmldoc = etree.parse(hpxmlfilename)
         self.schemapath = os.path.join(thisdir, 'schemas', self.SCHEMA_DIR, 'HPXML.xsd')
+        self.jsonschemapath = os.path.join(thisdir, 'schemas', 'hescore_json.schema.json')
         schematree = etree.parse(self.schemapath)
         self.schema = etree.XMLSchema(schematree)
         if not self.schema.validate(self.hpxmldoc):
@@ -688,7 +690,18 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
     def hpxml_to_hescore_json(self, outfile, *args, **kwargs):
         hescore_bldg = self.hpxml_to_hescore(*args, **kwargs)
-        json.dump(hescore_bldg, outfile, indent=2)
+        with open(os.path.abspath(outfile.name), 'w') as fout:
+            json.dump(hescore_bldg, fout, indent=2)
+            fout.close()
+
+    def validate_json(self, infile):
+        with open(os.path.abspath(infile.name), 'r') as jf:
+            json_file = json.loads(jf.read())
+            jf.close()
+        with open(self.jsonschemapath, 'r') as js:
+            json_schema = json.loads(js.read())
+            js.close()
+        validate(json_file, json_schema)
 
     def hpxml_to_hescore(
             self,
