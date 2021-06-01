@@ -77,7 +77,6 @@ def main(argv=sys.argv[1:]):
             hpxml_project_id=args.projectid,
             hpxml_contractor_id=args.contractorid
         )
-        t.validate_json(args.output)
     except (HPXMLtoHEScoreError, ValidationError, SchemaError) as ex:
         exclass = type(ex).__name__
         logging.error('%s:%s', exclass, str(ex))

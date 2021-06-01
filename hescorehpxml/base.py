@@ -690,18 +690,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
     def hpxml_to_hescore_json(self, outfile, *args, **kwargs):
         hescore_bldg = self.hpxml_to_hescore(*args, **kwargs)
-        with open(os.path.abspath(outfile.name), 'w') as fout:
-            json.dump(hescore_bldg, fout, indent=2)
-            fout.close()
-
-    def validate_json(self, infile):
-        with open(os.path.abspath(infile.name), 'r') as jf:
-            json_file = json.loads(jf.read())
-            jf.close()
-        with open(self.jsonschemapath, 'r') as js:
-            json_schema = json.loads(js.read())
-            js.close()
-        validate(json_file, json_schema)
+        json.dump(hescore_bldg, outfile, indent=2)
 
     def hpxml_to_hescore(
             self,
@@ -787,6 +776,11 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         # Validate
         self.validate_hescore_inputs(hescore_inputs)
+        # Validate against JSON schema
+        with open(self.jsonschemapath, 'r') as js:
+            json_schema = json.loads(js.read())
+            js.close()
+        validate(hescore_inputs, json_schema)
 
         return hescore_inputs
 
