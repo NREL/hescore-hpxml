@@ -29,11 +29,46 @@
                 },
                 "zip_code": {
                     "$id": "#/properties/building_address/properties/zip_code",
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "^[0-9]{5}$"
                 },
                 "assessment_type": {
                     "$id": "#/properties/building_address/properties/assessment_type",
                     "type": "string"
+                }
+            }
+        },
+        "hpwes": {
+            "$id": "#/properties/hpwes",
+            "type": "object",
+            "properties": {
+                "improvement_installation_start_date": {
+                    "$id": "#/properties/building/properties/improvement_installation_start_date",
+                    "type": "string",
+                    "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+                    "description": "The date on which HPwES upgrade installation began, in YYYY-MM-DD format"
+                },
+                "improvement_installation_completion_date": {
+                    "$id": "#/properties/building/properties/improvement_installation_completion_date",
+                    "type": "string",
+                    "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+                    "description": "The date on which HPwES upgrade installation was completed, in YYYY-MM-DD format"
+                },
+                "contractor_zip_code": {
+                    "$id": "#/properties/building/properties/contractor_zip_code",
+                    "type": "string",
+                    "pattern": "^[0-9]{5}$",
+                    "description": "Five-digit postal code of the contractor installing the HPwES upgrades"
+                },
+                "contractor_business_name": {
+                    "$id": "#/properties/building/properties/contractor_business_name",
+                    "type": "string",
+                    "description": "The name of the contracting business installing the HPwES upgrades"
+                },
+                "is_income_eligible_program": {
+                    "$id": "#/properties/building/properties/is_income_eligible_program",
+                    "type": "boolean",
+                    "description": "Whether or not the HPwES upgrades were performed for a homeowner participating in an income-eligible program"
                 }
             }
         },
@@ -65,7 +100,7 @@
                         },
                         "comments": {
                             "$id": "#/properties/building/properties/about/properties/comments",
-                            "type": "string",
+                            "type": ["string", "null"],
                             "maxLength": 256,
                             "description": "Free text comment field"
                         },
@@ -138,14 +173,19 @@
                         "air_sealing_present": {
                             "$id": "#/properties/building/properties/about/properties/air_sealing_present",
                             "type": "boolean",
-                            "description": "Has the building been air sealed? (only used if blower_door_test is 0 )"
+                            "description": "Has the building been air sealed? (only used if blower_door_test is false)"
                         },
                         "envelope_leakage": {
                             "$id": "#/properties/building/properties/about/properties/envelope_leakage",
                             "type": "integer",
                             "minimum": 0,
                             "maximum": 25000,
-                            "description": "Building air leakage measured with a blower door (CFM50) (only used if blower_door_test is 1 )"
+                            "description": "Building air leakage measured with a blower door (CFM50) (only used if blower_door_test is true)"
+                        },
+                        "external_building_id": {
+                            "$id": "#/properties/building_address/properties/external_building_id",
+                            "type": "string",
+                            "description": " Allows an organization to assign an ID to the building for that organization's internal use. This field has no impact within the HES system, except that it can be filtered on in some of the retrieve_* methods."
                         }
                     },
                     "if": {
@@ -482,25 +522,6 @@
                             "$id": "#/properties/building/properties/zone/properties/window_construction_same",
                             "type": "boolean",
                             "description": "Do all the windows have the same construction?"
-                        }
-                    },
-                    "if": {
-                        "properties": {
-                            "window_construction_same": {"const": false}
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "zone_wall": {
-                                "$ref": "#/definitions/def_wall"
-                            }
-                        }
-                    },
-                    "else": {
-                        "properties": {
-                            "zone_wall": {
-                                "$ref": "#/definitions/def_wall_has_same_windows"
-                            }
                         }
                     }
                 },
@@ -1542,7 +1563,7 @@
                                 "type": {
                                     "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/type",
                                     "type": "string",
-                                    "enum": ["storage", "indirect", "tankless_coil", "heat_pump"],
+                                    "enum": ["storage", "indirect", "tankless_coil", "tankless", "heat_pump"],
                                     "maxLength": 20,
                                     "description": "Water heater type"
                                 },
@@ -1951,6 +1972,246 @@
                             }
                         }
                     }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "wall_construction_same": {"const": false},
+                                    "window_construction_same": {"const": false}
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "if": {
+                            "not": {
+                                "allOf": [
+                                    {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "shape": {"const": "town_house"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"not": {"const": "back_right_front"}}
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "zone": {
+                                    "properties": {
+                                        "zone_wall": {
+                                            "$ref": "#/definitions/def_mf_back_right_front_wall"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "else": {
+                            "if": {
+                                "not": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "about": {
+                                                    "properties": {
+                                                        "shape": {"const": "town_house"}
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "about": {
+                                                    "properties": {
+                                                        "town_house_walls": {"not": {"const": "back_front_left"}}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "then": {
+                                "properties": {
+                                    "zone": {
+                                        "properties": {
+                                            "zone_wall": {
+                                                "$ref": "#/definitions/def_mf_back_front_left_wall"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "else": {
+                                "properties": {
+                                    "zone": {
+                                        "properties": {
+                                            "zone_wall": {
+                                                "$ref": "#/definitions/def_wall"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "wall_construction_same": {"const": true},
+                                    "window_construction_same": {"const": false}
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "zone_wall": {
+                                        "$ref": "#/definitions/def_wall_has_same_walls"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "wall_construction_same": {"const": false},
+                                    "window_construction_same": {"const": true}
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "if": {
+                            "not": {
+                                "allOf": [
+                                    {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "shape": {"const": "town_house"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"not": {"const": "back_right_front"}}
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "zone": {
+                                    "properties": {
+                                        "zone_wall": {
+                                            "$ref": "#/definitions/def_mf_back_right_front_wall_has_same_windows"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "else": {
+                            "if": {
+                                "not": {
+                                    "allOf": [
+                                        {
+                                            "properties": {
+                                                "about": {
+                                                    "properties": {
+                                                        "shape": {"const": "town_house"}
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "properties": {
+                                                "about": {
+                                                    "properties": {
+                                                        "town_house_walls": {"not": {"const": "back_front_left"}}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "then": {
+                                "properties": {
+                                    "zone": {
+                                        "properties": {
+                                            "zone_wall": {
+                                                "$ref": "#/definitions/def_mf_back_front_left_wall_has_same_windows"
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "else": {
+                                "properties": {
+                                    "zone": {
+                                        "properties": {
+                                            "zone_wall": {
+                                                "$ref": "#/definitions/def_wall"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "wall_construction_same": {"const": true},
+                                    "window_construction_same": {"const": true}
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "zone_wall": {
+                                        "$ref": "#/definitions/def_wall_has_same_walls_and_windows"
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             ]
         }
@@ -2144,17 +2405,7 @@
                 {"$ref": "#/definitions/def_front_window_constraint_2"}
             ]
         },
-        "def_wall_has_same_windows": {
-            "$id": "#/properties/zone_wall",
-            "type": "array",
-            "description": "Inputs about the construction of the walls",
-            "additionalItems": false,
-            "minItems": 0,
-            "maxItems": 4,
-            "uniqueItems": true,
-            "items": { 
-                "$ref": "#/definitions/def_zone_wall_items_has_same_windows"
-            },
+        "def_has_same_walls_constraint": {
             "allOf": [
                 {
                     "contains": {
@@ -2174,17 +2425,7 @@
                 }
             ]
         },
-        "def_wall": {
-            "$id": "#/properties/zone_wall",
-            "type": "array",
-            "description": "Inputs about the construction of the walls",
-            "additionalItems": false,
-            "minItems": 0,
-            "maxItems": 4,
-            "uniqueItems": true,
-            "items": { 
-                "$ref": "#/definitions/def_zone_wall_items"
-            },
+        "def_walls_constraint": {
             "allOf": [
                 {
                     "contains": {
@@ -2196,13 +2437,173 @@
                 },
                 {
                     "contains": {
-                        "required": ["side"],
+                        "required": ["side", "wall_assembly_code"],
                         "properties": {
                             "side": {"enum": ["back"]}
                         }
                     }
                 }
             ]
+        },
+        "def_mf_back_right_front_walls_constraint": {
+            "allOf": [
+                {
+                    "contains": {
+                        "required": ["side", "wall_assembly_code"],
+                        "properties": {
+                            "side": {"enum": ["front"]}
+                        }
+                    }
+                },
+                {
+                    "contains": {
+                        "required": ["side", "wall_assembly_code"],
+                        "properties": {
+                            "side": {"enum": ["back"]}
+                        }
+                    }
+                },
+                {
+                    "contains": {
+                        "required": ["side", "wall_assembly_code"],
+                        "properties": {
+                            "side": {"enum": ["right"]}
+                        }
+                    }
+                }
+            ]
+        },
+        "def_mf_back_front_left_walls_constraint": {
+            "allOf": [
+                {
+                    "contains": {
+                        "required": ["side", "wall_assembly_code"],
+                        "properties": {
+                            "side": {"enum": ["front"]}
+                        }
+                    }
+                },
+                {
+                    "contains": {
+                        "required": ["side", "wall_assembly_code"],
+                        "properties": {
+                            "side": {"enum": ["back"]}
+                        }
+                    }
+                },
+                {
+                    "contains": {
+                        "required": ["side", "wall_assembly_code"],
+                        "properties": {
+                            "side": {"enum": ["left"]}
+                        }
+                    }
+                }
+            ]
+        },
+        "def_wall_has_same_walls_and_windows": {
+            "$id": "#/properties/def_wall_has_same_walls_and_windows",
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items_has_same_windows"
+            },
+            "$ref": "#/definitions/def_has_same_walls_constraint"
+        },
+        "def_wall_has_same_walls": {
+            "$id": "#/properties/def_wall_has_same_walls",
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
+            },
+            "$ref": "#/definitions/def_has_same_walls_constraint"
+        },
+        "def_wall_has_same_windows": {
+            "$id": "#/properties/def_wall_has_same_windows",
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items_has_same_windows"
+            },
+            "$ref": "#/definitions/def_walls_constraint"
+        },
+        "def_wall": {
+            "$id": "#/properties/def_wall",
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
+            },
+            "$ref": "#/definitions/def_walls_constraint"
+        },
+        "def_mf_back_right_front_wall_has_same_windows": {
+            "$id": "#/properties/def_mf_back_right_front_wall_has_same_windows",
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items_has_same_windows"
+            },
+            "$ref": "#/definitions/def_mf_back_right_front_walls_constraint"
+        },
+        "def_mf_back_right_front_wall": {
+            "$id": "#/properties/def_mf_back_right_front_wall",
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
+            },
+            "$ref": "#/definitions/def_mf_back_right_front_walls_constraint"
+        },
+        "def_mf_back_front_left_wall_has_same_windows": {
+            "$id": "#/properties/def_mf_back_front_left_wall_has_same_windows",
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items_has_same_windows"
+            },
+            "$ref": "#/definitions/def_mf_back_front_left_walls_constraint"
+        },
+        "def_mf_back_front_left_wall": {
+            "$id": "#/properties/def_mf_back_front_left_wall",
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
+            },
+            "$ref": "#/definitions/def_mf_back_front_left_walls_constraint"
         }
     }
 }
