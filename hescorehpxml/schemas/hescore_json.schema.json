@@ -326,21 +326,21 @@
                                                          "dtaa", "dtab", "dtaw", "dpeaw", "dpeaab", "dpeaaw",
                                                          "dseaa", "dseab", "dseaw", "dseaaw", "thmabw"],
                                                 "maxLength": 20,
-                                                "description": "Assembly code for skylights (only used if skylight_method is code )"
+                                                "description": "Assembly code for skylights (only used if skylight_method is code)"
                                             },
                                             "skylight_u_value": {
                                                 "$id": "#/properties/building/properties/zone/properties/zone_roof/items/properties/zone_skylight/properties/skylight_u_value",
                                                 "type": "number",
                                                 "minimum": 0.01,
                                                 "maximum": 5,
-                                                "description": "U-value of skylights (Btu/sf-hr-F) (only used if skylight_method is custom )"
+                                                "description": "U-value of skylights (Btu/sf-hr-F) (only used if skylight_method is custom)"
                                             },
                                             "skylight_shgc": {
                                                 "$id": "#/properties/building/properties/zone/properties/zone_roof/items/properties/zone_skylight/properties/skylight_shgc",
                                                 "type": "number",
                                                 "minimum": 0,
                                                 "maximum": 1,
-                                                "description": "Solar heat gain coefficient of skylights (only used if skylight_method is custom )"
+                                                "description": "Solar heat gain coefficient of skylights (only used if skylight_method is custom)"
                                             },
                                             "solar_screen": {
                                                 "$id": "#/properties/building/properties/zone/properties/zone_roof/items/properties/zone_skylight/properties/solar_screen",
@@ -1705,14 +1705,14 @@
                                             "type": "number",
                                             "minimum": 0.05,
                                             "maximum": 100,
-                                            "description": "DC capacity of system (kW) (only used if capacity_known is 1)"
+                                            "description": "DC capacity of system (kW) (only used if capacity_known is true)"
                                         },
                                         "num_panels": {
                                             "$id": "#/properties/building/properties/systems/properties/generation/items/properties/solar_electric/num_panels",
                                             "type": "integer",
                                             "minimum": 1,
                                             "maximum": 100,
-                                            "description": "Number of panels in the system (only used if capacity_known is 0)"
+                                            "description": "Number of panels in the system (only used if capacity_known is false)"
                                         },
                                         "year": {
                                             "$id": "#/properties/building/properties/systems/properties/generation/items/properties/solar_electric/year",
@@ -2570,7 +2570,7 @@
                     "type": "number",
                     "minimum": 0,
                     "maximum": 1,
-                    "description": "Solar heat gain coefficient of this window (only used if window_method is custom )"
+                    "description": "Solar heat gain coefficient of this window (only used if window_method is custom)"
                 },
                 "solar_screen": {
                     "type": "boolean",
