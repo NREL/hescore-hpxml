@@ -1986,83 +1986,90 @@
                     },
                     "then": {
                         "if": {
-                            "not": {
-                                "allOf": [
-                                    {
+                            "properties": {
+                                "about": {
+                                    "properties": {
+                                        "shape": {"const": "town_house"}
+                                    }
+                                }
+                            }
+                        },
+                        "then": {
+                            "allOf": [
+                                {
+                                    "if": {
                                         "properties": {
                                             "about": {
                                                 "properties": {
-                                                    "shape": {"const": "town_house"}
+                                                    "town_house_walls": {"const": "back_right_front"}
                                                 }
                                             }
                                         }
                                     },
-                                    {
+                                    "then": {
                                         "properties": {
-                                            "about": {
+                                            "zone": {
                                                 "properties": {
-                                                    "town_house_walls": {"not": {"const": "back_right_front"}}
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_right_front"
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                ]
-                            }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front_left"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_left"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         },
-                        "then": {
+                        "else": {
                             "properties": {
                                 "zone": {
                                     "properties": {
                                         "zone_wall": {
-                                            "$ref": "#/definitions/def_mf_back_right_front_wall"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "else": {
-                            "if": {
-                                "not": {
-                                    "allOf": [
-                                        {
-                                            "properties": {
-                                                "about": {
-                                                    "properties": {
-                                                        "shape": {"const": "town_house"}
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "properties": {
-                                                "about": {
-                                                    "properties": {
-                                                        "town_house_walls": {"not": {"const": "back_front_left"}}
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            "then": {
-                                "properties": {
-                                    "zone": {
-                                        "properties": {
-                                            "zone_wall": {
-                                                "$ref": "#/definitions/def_mf_back_front_left_wall"
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "else": {
-                                "properties": {
-                                    "zone": {
-                                        "properties": {
-                                            "zone_wall": {
-                                                "$ref": "#/definitions/def_wall"
-                                            }
+                                            "$ref": "#/definitions/def_sf"
                                         }
                                     }
                                 }
@@ -2082,11 +2089,92 @@
                         }
                     },
                     "then": {
-                        "properties": {
-                            "zone": {
-                                "properties": {
-                                    "zone_wall": {
-                                        "$ref": "#/definitions/def_wall_has_same_walls"
+                        "if": {
+                            "properties": {
+                                "about": {
+                                    "properties": {
+                                        "shape": {"const": "town_house"}
+                                    }
+                                }
+                            }
+                        },
+                        "then": {
+                            "allOf": [
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_right_front"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_right_front_has_same_walls"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front_left"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_left_has_same_walls"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_has_same_walls"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "else": {
+                            "properties": {
+                                "zone": {
+                                    "properties": {
+                                        "zone_wall": {
+                                            "$ref": "#/definitions/def_sf_has_same_walls"
+                                        }
                                     }
                                 }
                             }
@@ -2106,83 +2194,90 @@
                     },
                     "then": {
                         "if": {
-                            "not": {
-                                "allOf": [
-                                    {
+                            "properties": {
+                                "about": {
+                                    "properties": {
+                                        "shape": {"const": "town_house"}
+                                    }
+                                }
+                            }
+                        },
+                        "then": {
+                            "allOf": [
+                                {
+                                    "if": {
                                         "properties": {
                                             "about": {
                                                 "properties": {
-                                                    "shape": {"const": "town_house"}
+                                                    "town_house_walls": {"const": "back_right_front"}
                                                 }
                                             }
                                         }
                                     },
-                                    {
+                                    "then": {
                                         "properties": {
-                                            "about": {
+                                            "zone": {
                                                 "properties": {
-                                                    "town_house_walls": {"not": {"const": "back_right_front"}}
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_right_front_has_same_windows"
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                ]
-                            }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front_left"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_left_has_same_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_has_same_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         },
-                        "then": {
+                        "else": {
                             "properties": {
                                 "zone": {
                                     "properties": {
                                         "zone_wall": {
-                                            "$ref": "#/definitions/def_mf_back_right_front_wall_has_same_windows"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "else": {
-                            "if": {
-                                "not": {
-                                    "allOf": [
-                                        {
-                                            "properties": {
-                                                "about": {
-                                                    "properties": {
-                                                        "shape": {"const": "town_house"}
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "properties": {
-                                                "about": {
-                                                    "properties": {
-                                                        "town_house_walls": {"not": {"const": "back_front_left"}}
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            "then": {
-                                "properties": {
-                                    "zone": {
-                                        "properties": {
-                                            "zone_wall": {
-                                                "$ref": "#/definitions/def_mf_back_front_left_wall_has_same_windows"
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            "else": {
-                                "properties": {
-                                    "zone": {
-                                        "properties": {
-                                            "zone_wall": {
-                                                "$ref": "#/definitions/def_wall"
-                                            }
+                                            "$ref": "#/definitions/def_sf_has_same_windows"
                                         }
                                     }
                                 }
@@ -2206,7 +2301,7 @@
                             "zone": {
                                 "properties": {
                                     "zone_wall": {
-                                        "$ref": "#/definitions/def_wall_has_same_walls_and_windows"
+                                        "$ref": "#/definitions/def_sf_mf_has_same_walls_and_windows"
                                     }
                                 }
                             }
@@ -2219,7 +2314,6 @@
     "additionalProperties": false,
     "definitions": {
         "def_wall_assembly_code": {
-            "$id": "#wall_assembly_code",
             "type": "string",
             "enum": ["ewwf00wo", "ewwf00st", "ewwf00vi", "ewwf00al", "ewwf00br",
                      "ewwf03wo", "ewwf03st", "ewwf03vi", "ewwf03al", "ewwf03br",
@@ -2250,36 +2344,43 @@
             "maxLength": 20,
             "description": "Wall construction assembly code"
         },
-        "def_zone_window_constraint_1": {
-            "if": {
-                "properties": {
-                    "window_method": {"enum": ["custom"]}
-                },
-                "required": ["window_method"]
-            },
-            "then": {
-                "required": ["window_u_value", "window_shgc"]
-            }
-        },
-        "def_zone_window_constraint_2": {
-            "if": {
-                "properties": {
-                    "window_method": {"const": "code"}
-                },
-                "required": ["window_method"]
-            },
-            "then": {
-                "required": ["window_code"]
-            }
-        },
-        "def_front_window_constraint_1": {
-            "if": {
+        "def_front_wall_constraint": {
+            "contains": {
+                "required": ["side", "wall_assembly_code"],
                 "properties": {
                     "side": {"enum": ["front"]}
                 }
-            }, 
-            "then": {
+            }
+        },
+        "def_back_wall_constraint": {
+            "contains": {
+                "required": ["side", "wall_assembly_code"],
                 "properties": {
+                    "side": {"enum": ["back"]}
+                }
+            }
+        },
+        "def_right_wall_constraint": {
+            "contains": {
+                "required": ["side", "wall_assembly_code"],
+                "properties": {
+                    "side": {"enum": ["right"]}
+                }
+            }
+        },
+        "def_left_wall_constraint": {
+            "contains": {
+                "required": ["side", "wall_assembly_code"],
+                "properties": {
+                    "side": {"enum": ["left"]}
+                }
+            }
+        },
+        "def_front_window_constraint_1": {
+            "contains": {
+                "required": ["side", "zone_window"],
+                "properties": {
+                    "side": {"enum": ["front"]},
                     "zone_window": {
                         "required": ["window_area", "window_method"]
                     }
@@ -2287,45 +2388,171 @@
             }
         },
         "def_front_window_constraint_2": {
-            "if": {
-                "properties": {
-                    "side": {"enum": ["front"]},
-                    "zone_window": {
+            "contains": {
+                "oneOf": [
+                    {
+                        "required": ["side", "zone_window"],
                         "properties": {
-                            "window_method": {"enum": ["code"]}
+                            "side": {"enum": ["front"]},
+                            "zone_window": {
+                                "properties": {
+                                    "window_method": {"enum": ["code"]}
+                                },
+                                "required": ["window_code"]
+                            }
+                        }
+                    },
+                    {
+                        "required": ["side", "zone_window"],
+                        "properties": {
+                            "side": {"enum": ["front"]},
+                            "zone_window": {
+                                "properties": {
+                                    "window_method": {"enum": ["custom"]}
+                                },
+                                "required": ["window_u_value", "window_shgc"]
+                            }
                         }
                     }
-                }
-            }, 
-            "then": {
-                "properties": {
-                    "zone_window": {
-                        "required": ["window_code"]
+                ]
+            }
+        },
+        "def_back_window_constraint": {
+            "if": {
+                "contains": {
+                    "properties": {
+                        "side": {"const": "back"}
                     }
                 }
+            },
+            "then": {
+                "oneOf": [
+                    {
+                        "contains": {
+                            "properties": {
+                                "side": {"const": "back"},
+                                "zone_window": {
+                                    "properties": {
+                                        "window_method": {"const": "custom"}
+                                    },
+                                    "required": ["window_u_value", "window_shgc"]
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "contains": {
+                            "properties": {
+                                "side": {"const": "back"},
+                                "zone_window": {
+                                    "properties": {
+                                        "window_method": {"const": "code"}
+                                    },
+                                    "required": ["window_code"]
+                                }
+                            }
+                        }
+                    }
+                ]
+                
+            }
+        },
+        "def_right_window_constraint": {
+            "if": {
+                "contains": {
+                    "properties": {
+                        "side": {"const": "right"}
+                    }
+                }
+            },
+            "then": {
+                "oneOf": [
+                    {
+                        "contains": {
+                            "properties": {
+                                "side": {"const": "right"},
+                                "zone_window": {
+                                    "properties": {
+                                        "window_method": {"const": "custom"}
+                                    },
+                                    "required": ["window_u_value", "window_shgc"]
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "contains": {
+                            "properties": {
+                                "side": {"const": "right"},
+                                "zone_window": {
+                                    "properties": {
+                                        "window_method": {"const": "code"}
+                                    },
+                                    "required": ["window_code"]
+                                }
+                            }
+                        }
+                    }
+                ]
+                
+            }
+        },
+        "def_left_window_constraint": {
+            "if": {
+                "contains": {
+                    "properties": {
+                        "side": {"const": "left"}
+                    }
+                }
+            },
+            "then": {
+                "oneOf": [
+                    {
+                        "contains": {
+                            "properties": {
+                                "side": {"const": "left"},
+                                "zone_window": {
+                                    "properties": {
+                                        "window_method": {"const": "custom"}
+                                    },
+                                    "required": ["window_u_value", "window_shgc"]
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "contains": {
+                            "properties": {
+                                "side": {"const": "left"},
+                                "zone_window": {
+                                    "properties": {
+                                        "window_method": {"const": "code"}
+                                    },
+                                    "required": ["window_code"]
+                                }
+                            }
+                        }
+                    }
+                ]
             }
         },
         "def_zone_window": {
-            "$id": "#zone_window",
             "type": "object",
             "description": "Inputs about the windows on this wall",
             "properties": {
                 "window_area": {
-                    "$id": "#window_area",
                     "type": "number",
                     "minimum": 0,
                     "maximum": 999,
                     "description": "Area of windows on this wall (square feet)"
                 },
                 "window_method": {
-                    "$id": "#window_method",
                     "type": "string",
                     "enum": ["code", "custom"],
                     "maxLength": 20,
                     "description": "Construction method to use for this window"
                 },
                 "window_code": {
-                    "$id": "#window_code",
                     "type": "string",
                     "enum": ["scna", "scnw", "stna", "stnw", "dcaa", "dcab", "dcaw",
                              "dtaa", "dtab", "dtaw", "dpeaw", "dpeaab", "dpeaaw",
@@ -2334,36 +2561,26 @@
                     "description": "assembly code for this window (only used if window_method is code)"
                 },
                 "window_u_value": {
-                    "$id": "#window_u_value",
                     "type": "number",
                     "minimum": 0.01,
                     "maximum": 5,
                     "description": "U-value of this window (Btu/sf-hr-F) (only used if window_method is custom)"
                 },
                 "window_shgc": {
-                    "$id": "#window_shgc",
                     "type": "number",
                     "minimum": 0,
                     "maximum": 1,
                     "description": "Solar heat gain coefficient of this window (only used if window_method is custom )"
                 },
                 "solar_screen": {
-                    "$id": "#solar_screen",
                     "type": "boolean",
                     "description": "Does this window have a solar screen?"
                 }
-            },
-            "allOf": [
-                {"$ref": "#/definitions/def_zone_window_constraint_1"},
-                {"$ref": "#/definitions/def_zone_window_constraint_2"}
-            ]
+            }
         },
         "def_zone_wall_items": {
             "type": "object",
             "additionalProperties": false,
-            "required": [
-                "side"
-            ],
             "properties": {
                 "side": {
                     "$id": "#side",
@@ -2377,145 +2594,121 @@
                 "zone_window": {
                     "$ref": "#/definitions/def_zone_window"
                 }
+            }
+        },
+
+
+        "def_sf_mf_has_same_walls_and_windows": {
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
             },
             "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
                 {"$ref": "#/definitions/def_front_window_constraint_1"},
                 {"$ref": "#/definitions/def_front_window_constraint_2"}
             ]
         },
-        "def_zone_wall_items_has_same_windows": {
-            "type": "object",
-            "required": [
-                "side"
-            ],
-            "properties": {
-                "side": {
-                    "$id": "#side",
-                    "type": "string",
-                    "enum": ["front", "back", "right", "left"],
-                    "maxLength": 20,
-                    "description": "Side this wall faces"
-                },
-                "wall_assembly_code": {
-                    "$ref": "#/definitions/def_wall_assembly_code"
-                }
+        "def_sf_has_same_walls": {
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
             },
             "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint_1"},
+                {"$ref": "#/definitions/def_front_window_constraint_2"},
+                {"$ref": "#/definitions/def_back_window_constraint"},
+                {"$ref": "#/definitions/def_right_window_constraint"},
+                {"$ref": "#/definitions/def_left_window_constraint"}
+            ]
+        },
+        "def_sf_has_same_windows": {
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
+            },
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_constraint"},
+                {"$ref": "#/definitions/def_right_wall_constraint"},
+                {"$ref": "#/definitions/def_left_wall_constraint"}
+            ]
+        },
+        "def_sf": {
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
+            },
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_constraint"},
+                {"$ref": "#/definitions/def_right_wall_constraint"},
+                {"$ref": "#/definitions/def_left_wall_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint_1"},
+                {"$ref": "#/definitions/def_front_window_constraint_2"},
+                {"$ref": "#/definitions/def_back_window_constraint"},
+                {"$ref": "#/definitions/def_right_window_constraint"},
+                {"$ref": "#/definitions/def_left_window_constraint"}
+            ]
+        },
+        "def_mf_back_right_front_has_same_walls": {
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
+            },
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint_1"},
+                {"$ref": "#/definitions/def_front_window_constraint_2"},
+                {"$ref": "#/definitions/def_back_window_constraint"},
+                {"$ref": "#/definitions/def_right_window_constraint"}
+            ]
+        },
+        "def_mf_back_right_front_has_same_windows": {
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
+            },
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_constraint"},
+                {"$ref": "#/definitions/def_right_wall_constraint"},
                 {"$ref": "#/definitions/def_front_window_constraint_1"},
                 {"$ref": "#/definitions/def_front_window_constraint_2"}
             ]
         },
-        "def_has_same_walls_constraint": {
-            "allOf": [
-                {
-                    "contains": {
-                        "required": ["side", "wall_assembly_code"],
-                        "properties": {
-                            "side": {"enum": ["front"]}
-                        }
-                    }
-                },
-                {
-                    "contains": {
-                        "required": ["side"],
-                        "properties": {
-                            "side": {"enum": ["back"]}
-                        }
-                    }
-                }
-            ]
-        },
-        "def_walls_constraint": {
-            "allOf": [
-                {
-                    "contains": {
-                        "required": ["side", "wall_assembly_code"],
-                        "properties": {
-                            "side": {"enum": ["front"]}
-                        }
-                    }
-                },
-                {
-                    "contains": {
-                        "required": ["side", "wall_assembly_code"],
-                        "properties": {
-                            "side": {"enum": ["back"]}
-                        }
-                    }
-                }
-            ]
-        },
-        "def_mf_back_right_front_walls_constraint": {
-            "allOf": [
-                {
-                    "contains": {
-                        "required": ["side", "wall_assembly_code"],
-                        "properties": {
-                            "side": {"enum": ["front"]}
-                        }
-                    }
-                },
-                {
-                    "contains": {
-                        "required": ["side", "wall_assembly_code"],
-                        "properties": {
-                            "side": {"enum": ["back"]}
-                        }
-                    }
-                },
-                {
-                    "contains": {
-                        "required": ["side", "wall_assembly_code"],
-                        "properties": {
-                            "side": {"enum": ["right"]}
-                        }
-                    }
-                }
-            ]
-        },
-        "def_mf_back_front_left_walls_constraint": {
-            "allOf": [
-                {
-                    "contains": {
-                        "required": ["side", "wall_assembly_code"],
-                        "properties": {
-                            "side": {"enum": ["front"]}
-                        }
-                    }
-                },
-                {
-                    "contains": {
-                        "required": ["side", "wall_assembly_code"],
-                        "properties": {
-                            "side": {"enum": ["back"]}
-                        }
-                    }
-                },
-                {
-                    "contains": {
-                        "required": ["side", "wall_assembly_code"],
-                        "properties": {
-                            "side": {"enum": ["left"]}
-                        }
-                    }
-                }
-            ]
-        },
-        "def_wall_has_same_walls_and_windows": {
-            "$id": "#/properties/def_wall_has_same_walls_and_windows",
-            "type": "array",
-            "description": "Inputs about the construction of the walls",
-            "additionalItems": false,
-            "minItems": 0,
-            "maxItems": 4,
-            "uniqueItems": true,
-            "items": { 
-                "$ref": "#/definitions/def_zone_wall_items_has_same_windows"
-            },
-            "$ref": "#/definitions/def_has_same_walls_constraint"
-        },
-        "def_wall_has_same_walls": {
-            "$id": "#/properties/def_wall_has_same_walls",
+        "def_mf_back_right_front": {
             "type": "array",
             "description": "Inputs about the construction of the walls",
             "additionalItems": false,
@@ -2525,49 +2718,17 @@
             "items": { 
                 "$ref": "#/definitions/def_zone_wall_items"
             },
-            "$ref": "#/definitions/def_has_same_walls_constraint"
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_constraint"},
+                {"$ref": "#/definitions/def_right_wall_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint_1"},
+                {"$ref": "#/definitions/def_front_window_constraint_2"},
+                {"$ref": "#/definitions/def_back_window_constraint"},
+                {"$ref": "#/definitions/def_right_window_constraint"}
+            ]
         },
-        "def_wall_has_same_windows": {
-            "$id": "#/properties/def_wall_has_same_windows",
-            "type": "array",
-            "description": "Inputs about the construction of the walls",
-            "additionalItems": false,
-            "minItems": 0,
-            "maxItems": 4,
-            "uniqueItems": true,
-            "items": { 
-                "$ref": "#/definitions/def_zone_wall_items_has_same_windows"
-            },
-            "$ref": "#/definitions/def_walls_constraint"
-        },
-        "def_wall": {
-            "$id": "#/properties/def_wall",
-            "type": "array",
-            "description": "Inputs about the construction of the walls",
-            "additionalItems": false,
-            "minItems": 0,
-            "maxItems": 4,
-            "uniqueItems": true,
-            "items": { 
-                "$ref": "#/definitions/def_zone_wall_items"
-            },
-            "$ref": "#/definitions/def_walls_constraint"
-        },
-        "def_mf_back_right_front_wall_has_same_windows": {
-            "$id": "#/properties/def_mf_back_right_front_wall_has_same_windows",
-            "type": "array",
-            "description": "Inputs about the construction of the walls",
-            "additionalItems": false,
-            "minItems": 0,
-            "maxItems": 4,
-            "uniqueItems": true,
-            "items": { 
-                "$ref": "#/definitions/def_zone_wall_items_has_same_windows"
-            },
-            "$ref": "#/definitions/def_mf_back_right_front_walls_constraint"
-        },
-        "def_mf_back_right_front_wall": {
-            "$id": "#/properties/def_mf_back_right_front_wall",
+        "def_mf_back_front_left_has_same_walls": {
             "type": "array",
             "description": "Inputs about the construction of the walls",
             "additionalItems": false,
@@ -2577,23 +2738,15 @@
             "items": { 
                 "$ref": "#/definitions/def_zone_wall_items"
             },
-            "$ref": "#/definitions/def_mf_back_right_front_walls_constraint"
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint_1"},
+                {"$ref": "#/definitions/def_front_window_constraint_2"},
+                {"$ref": "#/definitions/def_back_window_constraint"},
+                {"$ref": "#/definitions/def_left_window_constraint"}
+            ]
         },
-        "def_mf_back_front_left_wall_has_same_windows": {
-            "$id": "#/properties/def_mf_back_front_left_wall_has_same_windows",
-            "type": "array",
-            "description": "Inputs about the construction of the walls",
-            "additionalItems": false,
-            "minItems": 0,
-            "maxItems": 4,
-            "uniqueItems": true,
-            "items": { 
-                "$ref": "#/definitions/def_zone_wall_items_has_same_windows"
-            },
-            "$ref": "#/definitions/def_mf_back_front_left_walls_constraint"
-        },
-        "def_mf_back_front_left_wall": {
-            "$id": "#/properties/def_mf_back_front_left_wall",
+        "def_mf_back_front_left_has_same_windows": {
             "type": "array",
             "description": "Inputs about the construction of the walls",
             "additionalItems": false,
@@ -2603,7 +2756,85 @@
             "items": { 
                 "$ref": "#/definitions/def_zone_wall_items"
             },
-            "$ref": "#/definitions/def_mf_back_front_left_walls_constraint"
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_constraint"},
+                {"$ref": "#/definitions/def_left_wall_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint_1"},
+                {"$ref": "#/definitions/def_front_window_constraint_2"}
+            ]
+        },
+        "def_mf_back_front_left": {
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
+            },
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_constraint"},
+                {"$ref": "#/definitions/def_left_wall_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint_1"},
+                {"$ref": "#/definitions/def_front_window_constraint_2"},
+                {"$ref": "#/definitions/def_back_window_constraint"},
+                {"$ref": "#/definitions/def_left_window_constraint"}
+            ]
+        },
+        "def_mf_back_front_has_same_walls": {
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
+            },
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint_1"},
+                {"$ref": "#/definitions/def_front_window_constraint_2"},
+                {"$ref": "#/definitions/def_back_window_constraint"}
+            ]
+        },
+        "def_mf_back_front_has_same_windows": {
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
+            },
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint_1"},
+                {"$ref": "#/definitions/def_front_window_constraint_2"}
+            ]
+        },
+        "def_mf_back_front": {
+            "type": "array",
+            "description": "Inputs about the construction of the walls",
+            "additionalItems": false,
+            "minItems": 0,
+            "maxItems": 4,
+            "uniqueItems": true,
+            "items": { 
+                "$ref": "#/definitions/def_zone_wall_items"
+            },
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint_1"},
+                {"$ref": "#/definitions/def_front_window_constraint_2"},
+                {"$ref": "#/definitions/def_back_window_constraint"}
+            ]
         }
     }
 }
