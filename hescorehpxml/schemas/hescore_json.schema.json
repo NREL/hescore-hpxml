@@ -7,13 +7,6 @@
             "$id": "#/properties/building_address",
             "type": "object",
             "additionalProperties": false,
-            "required": [
-                "address",
-                "city",
-                "state",
-                "zip_code",
-                "assessment_type"
-            ],
             "properties": {
                 "address": {
                     "$id": "#/properties/building_address/properties/address",
@@ -35,6 +28,11 @@
                 "assessment_type": {
                     "$id": "#/properties/building_address/properties/assessment_type",
                     "type": "string"
+                },
+                "external_building_id": {
+                    "$id": "#/properties/building_address/properties/external_building_id",
+                    "type": "string",
+                    "description": " Allows an organization to assign an ID to the building for that organization's internal use. This field has no impact within the HES system, except that it can be filtered on in some of the retrieve_* methods."
                 }
             }
         },
@@ -181,11 +179,6 @@
                             "minimum": 0,
                             "maximum": 25000,
                             "description": "Building air leakage measured with a blower door (CFM50) (only used if blower_door_test is true)"
-                        },
-                        "external_building_id": {
-                            "$id": "#/properties/building_address/properties/external_building_id",
-                            "type": "string",
-                            "description": " Allows an organization to assign an ID to the building for that organization's internal use. This field has no impact within the HES system, except that it can be filtered on in some of the retrieve_* methods."
                         }
                     },
                     "if": {
@@ -785,13 +778,6 @@
                                                 "type": "integer",
                                                 "minimum": 1970,
                                                 "description": "Year equipment was manufactured (only used if efficiency_method is shipment_weighted)"
-                                            },
-                                            "efficiency": {
-                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
-                                                "type": "number",
-                                                "minimum": 8,
-                                                "maximum": 40,
-                                                "description": "EER or SEER of cooling equipment (only used if efficiency_method is user)"
                                             }
                                         },
                                         "allOf": [
@@ -1427,6 +1413,47 @@
                                     }
                                 ],
                                 "definitions": {
+                                    "def_hvac_distribution_items": {
+                                        "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_items",
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "required": [
+                                            "name"
+                                        ],
+                                        "properties": {
+                                            "name": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/name",
+                                                "type": "string",
+                                                "enum": ["duct1", "duct2", "duct3"],
+                                                "maxLength": 20,
+                                                "description": "Name of distribution system"
+                                            },
+                                            "location": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/location",
+                                                "type": "string",
+                                                "enum": ["", "cond_space", "uncond_basement", "unvented_crawl", "vented_crawl", "uncond_attic"],
+                                                "maxLength": 20,
+                                                "description": "Location of distribution system"
+                                            },
+                                            "fraction": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/fraction",
+                                                "type": "integer",
+                                                "minimum": 0,
+                                                "maximum": 100,
+                                                "description": "Fraction of total duct length"
+                                            },
+                                            "insulated": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/insulated",
+                                                "type": "boolean",
+                                                "description": "Are the ducts insulated?"
+                                            },
+                                            "sealed": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/sealed",
+                                                "type": "boolean",
+                                                "description": "Are the ducts sealed?"
+                                            }
+                                        }
+                                    },
                                     "def_hvac_distribution_no_constraint": {
                                         "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_with_constraint",
                                         "type": "array",
@@ -1435,45 +1462,7 @@
                                         "minItems": 0,
                                         "maxItems": 3,
                                         "items": {
-                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_items",
-                                            "type": "object",
-                                            "additionalProperties": false,
-                                            "required": [
-                                                "name"
-                                            ],
-                                            "properties": {
-                                                "name": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/name",
-                                                    "type": "string",
-                                                    "enum": ["duct1", "duct2", "duct3"],
-                                                    "maxLength": 20,
-                                                    "description": "Name of distribution system"
-                                                },
-                                                "location": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/location",
-                                                    "type": "string",
-                                                    "enum": ["cond_space", "uncond_basement", "unvented_crawl", "vented_crawl", "uncond_attic"],
-                                                    "maxLength": 20,
-                                                    "description": "Location of distribution system"
-                                                },
-                                                "fraction": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/fraction",
-                                                    "type": "integer",
-                                                    "minimum": 0,
-                                                    "maximum": 100,
-                                                    "description": "Fraction of total duct length"
-                                                },
-                                                "insulated": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/insulated",
-                                                    "type": "boolean",
-                                                    "description": "Are the ducts insulated?"
-                                                },
-                                                "sealed": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/sealed",
-                                                    "type": "boolean",
-                                                    "description": "Are the ducts sealed?"
-                                                }
-                                            }
+                                            "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_items"
                                         }
                                     },
                                     "def_hvac_distribution_with_constraint": {
@@ -1484,45 +1473,7 @@
                                         "minItems": 0,
                                         "maxItems": 3,
                                         "items": {
-                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_items",
-                                            "type": "object",
-                                            "additionalProperties": false,
-                                            "required": [
-                                                "name"
-                                            ],
-                                            "properties": {
-                                                "name": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/name",
-                                                    "type": "string",
-                                                    "enum": ["duct1", "duct2", "duct3"],
-                                                    "maxLength": 20,
-                                                    "description": "Name of distribution system"
-                                                },
-                                                "location": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/location",
-                                                    "type": "string",
-                                                    "enum": ["cond_space", "uncond_basement", "unvented_crawl", "vented_crawl", "uncond_attic"],
-                                                    "maxLength": 20,
-                                                    "description": "Location of distribution system"
-                                                },
-                                                "fraction": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/fraction",
-                                                    "type": "integer",
-                                                    "minimum": 0,
-                                                    "maximum": 100,
-                                                    "description": "Fraction of total duct length"
-                                                },
-                                                "insulated": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/insulated",
-                                                    "type": "boolean",
-                                                    "description": "Are the ducts insulated?"
-                                                },
-                                                "sealed": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/sealed",
-                                                    "type": "boolean",
-                                                    "description": "Are the ducts sealed?"
-                                                }
-                                            },
+                                            "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_items",
                                             "allOf": [
                                                 {
                                                     "required": ["fraction"]
@@ -1916,44 +1867,18 @@
                 },
                 {
                     "if": {
-                        "anyOf": [
-                            {
+                        "properties": {
+                            "about": {
                                 "properties": {
-                                    "about": {
-                                        "shape": {"const": "rectangle"}
-                                    },
-                                    "zone": {
-                                        "properties": {
-                                            "window_construction_same": {"const": false}
-                                        }
-                                    }
+                                    "shape": {"const": "rectangle"}
                                 }
                             },
-                            {
+                            "zone": {
                                 "properties": {
-                                    "about": {
-                                        "town_house_walls": {"const": "back_right_front"}
-                                    },
-                                    "zone": {
-                                        "properties": {
-                                            "window_construction_same": {"const": false}
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                "properties": {
-                                    "about": {
-                                        "town_house_walls": {"const": "back_front_left"}
-                                    },
-                                    "zone": {
-                                        "properties": {
-                                            "window_construction_same": {"const": false}
-                                        }
-                                    }
+                                    "window_construction_same": {"const": false}
                                 }
                             }
-                        ]
+                        }
                     },
                     "then": {
                         "properties": {
@@ -1971,6 +1896,154 @@
                                 }
                             }
                         }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "about": {
+                                "properties": {
+                                    "town_house_walls": {"const": "back_right_front"}
+                                }
+                            },
+                            "zone": {
+                                "properties": {
+                                    "window_construction_same": {"const": false}
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "allOf": [
+                            {
+                                "properties": {
+                                    "zone": {
+                                        "properties": {
+                                            "zone_wall": {
+                                                "contains": {
+                                                    "properties": {
+                                                        "side": {"const": "front"},
+                                                        "zone_window": {
+                                                            "required": ["window_method"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "properties": {
+                                    "zone": {
+                                        "properties": {
+                                            "zone_wall": {
+                                                "contains": {
+                                                    "properties": {
+                                                        "side": {"const": "back"},
+                                                        "zone_window": {
+                                                            "required": ["window_method"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "properties": {
+                                    "zone": {
+                                        "properties": {
+                                            "zone_wall": {
+                                                "contains": {
+                                                    "properties": {
+                                                        "side": {"const": "right"},
+                                                        "zone_window": {
+                                                            "required": ["window_method"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "about": {
+                                "properties": {
+                                    "town_house_walls": {"const": "back_front_left"}
+                                }
+                            },
+                            "zone": {
+                                "properties": {
+                                    "window_construction_same": {"const": false}
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "allOf": [
+                            {
+                                "properties": {
+                                    "zone": {
+                                        "properties": {
+                                            "zone_wall": {
+                                                "contains": {
+                                                    "properties": {
+                                                        "side": {"const": "front"},
+                                                        "zone_window": {
+                                                            "required": ["window_method"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "properties": {
+                                    "zone": {
+                                        "properties": {
+                                            "zone_wall": {
+                                                "contains": {
+                                                    "properties": {
+                                                        "side": {"const": "back"},
+                                                        "zone_window": {
+                                                            "required": ["window_method"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                "properties": {
+                                    "zone": {
+                                        "properties": {
+                                            "zone_wall": {
+                                                "contains": {
+                                                    "properties": {
+                                                        "side": {"const": "left"},
+                                                        "zone_window": {
+                                                            "required": ["window_method"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
                     }
                 },
                 {
