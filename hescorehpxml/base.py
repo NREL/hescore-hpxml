@@ -694,7 +694,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             self,
             hpxml_bldg_id=None,
             hpxml_project_id=None,
-            hpxml_contractor_id=None
+            hpxml_contractor_id=None,
+            resstock_file=False
     ):
         '''
         Convert a HPXML building file to a python dict with the same structure as the HEScore API
@@ -746,7 +747,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         # Create return dict
         hescore_inputs = OrderedDict()
-        hescore_inputs['building_address'] = self.get_building_address(b)
+        hescore_inputs['building_address'] = self.get_building_address(b, resstock_file)
         if self.check_hpwes(p, b):
             hescore_inputs['hpwes'] = self.get_hpwes(p, c)
 
@@ -799,17 +800,22 @@ class HPXMLtoHEScoreTranslatorBase(object):
             for item in d:
                 cls.remove_hidden_keys(item)
 
-    def get_building_address(self, b):
+    def get_building_address(self, b, resstock_file):
         xpath = self.xpath
         ns = self.ns
         bldgaddr = OrderedDict()
-        hpxmladdress = xpath(b, 'h:Site/h:Address[h:AddressType="street"]', raise_err=True)
-        bldgaddr['address'] = ' '.join(hpxmladdress.xpath('h:Address1/text() | h:Address2/text()', namespaces=ns))
-        if not bldgaddr['address'].strip():
-            raise ElementNotFoundError(hpxmladdress, 'h:Address1/text() | h:Address2/text()', {})
-        bldgaddr['city'] = xpath(b, 'h:Site/h:Address/h:CityMunicipality/text()', raise_err=True)
-        bldgaddr['state'] = xpath(b, 'h:Site/h:Address/h:StateCode/text()', raise_err=True)
-        bldgaddr['zip_code'] = xpath(b, 'h:Site/h:Address/h:ZipCode/text()', raise_err=True)
+        if resstock_file:
+            ## TO-DO map location to zip
+            bldgaddr['zip_code'] = 80214
+        else:
+            hpxmladdress = xpath(b, 'h:Site/h:Address[h:AddressType="street"]', raise_err=True)
+            bldgaddr['address'] = ' '.join(hpxmladdress.xpath('h:Address1/text() | h:Address2/text()', namespaces=ns))
+            if not bldgaddr['address'].strip():
+                raise ElementNotFoundError(hpxmladdress, 'h:Address1/text() | h:Address2/text()', {})
+            bldgaddr['state'] = xpath(b, 'h:Site/h:Address/h:StateCode/text()', raise_err=True)
+            bldgaddr['city'] = xpath(b, 'h:Site/h:Address/h:CityMunicipality/text()', raise_err=True)
+            bldgaddr['zip_code'] = xpath(b, 'h:Site/h:Address/h:ZipCode/text()', raise_err=True)
+        
         transaction_type = xpath(self.hpxmldoc, 'h:XMLTransactionHeaderInformation/h:Transaction/text()')
         is_mentor = xpath(b, 'boolean(h:ProjectStatus/h:extension/h:HEScoreMentorAssessment)')
         if is_mentor:

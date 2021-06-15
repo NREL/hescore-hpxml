@@ -48,6 +48,11 @@ def main(argv=sys.argv[1:]):
         type=argparse.FileType('wb'),
         help='Path to save HPXML file scrubbed of PII.'
     )
+    parser.add_argument(
+        '--resstock',
+        action='store_true',
+        help='Run with a ResStock-generated HPXML file'
+    )
 
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.ERROR, format='%(levelname)s:%(message)s')
@@ -74,7 +79,8 @@ def main(argv=sys.argv[1:]):
             args.output,
             hpxml_bldg_id=args.bldgid,
             hpxml_project_id=args.projectid,
-            hpxml_contractor_id=args.contractorid
+            hpxml_contractor_id=args.contractorid,
+            resstock_file=args.resstock
         )
     except HPXMLtoHEScoreError as ex:
         exclass = type(ex).__name__

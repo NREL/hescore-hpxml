@@ -16,11 +16,7 @@
     <Site>
       <SiteID id='SiteID'/>
       <Address>
-        <AddressType>street</AddressType> 
-        <Address1>1 API House</Address1>
-        <CityMunicipality>Denver</CityMunicipality>
         <StateCode>CO</StateCode>
-        <ZipCode>80214</ZipCode>
       </Address>
     </Site>
     <ProjectStatus>
@@ -84,23 +80,15 @@
         </AirInfiltration>
         <Attics>
           <Attic>
-            <SystemIdentifier id='VentedAttic1'/>
+            <SystemIdentifier id='VentedAttic'/>
             <AtticType>
               <Attic>
                 <Vented>true</Vented>
               </Attic>
             </AtticType>
             <AttachedToRoof idref='Surface_14'/>
-          </Attic>
-          <Attic>
-            <SystemIdentifier id='VentedAttic2'/>
-            <AtticType>
-              <Attic>
-                <Vented>true</Vented>
-              </Attic>
-            </AtticType>
             <AttachedToRoof idref='Surface_15'/>
-          </Attic>  
+          </Attic>
         </Attics>
         <Foundations>
           <Foundation>
@@ -108,7 +96,7 @@
             <FoundationType>
               <SlabOnGrade/>
             </FoundationType>
-            <AttachedToSlab idref="Surface_1"/>
+            <AttachedToSlab idref='Surface_1'/>
           </Foundation>
         </Foundations>
         <Roofs>
