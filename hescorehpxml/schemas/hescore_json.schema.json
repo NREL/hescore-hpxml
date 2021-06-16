@@ -354,7 +354,8 @@
                                                 "if": {
                                                     "properties": {
                                                         "skylight_area": {"not": {"const": 0}}
-                                                    }
+                                                    },
+                                                    "required": ["skylight_area"]
                                                 },
                                                 "then": {
                                                     "required": ["skylight_method"]
@@ -365,7 +366,8 @@
                                                     "properties": {
                                                         "skylight_area": {"not": {"const": 0}},
                                                         "skylight_method": {"enum": ["code"]}
-                                                    }
+                                                    },
+                                                    "required": ["skylight_area", "skylight_method"]
                                                 },
                                                 "then": {
                                                     "required": ["skylight_code"]
@@ -376,7 +378,8 @@
                                                     "properties": {
                                                         "skylight_area": {"not": {"const": 0}},
                                                         "skylight_method": {"enum": ["custom"]}
-                                                    }
+                                                    },
+                                                    "required": ["skylight_area", "skylight_method"]
                                                 },
                                                 "then": {
                                                     "required": ["skylight_u_value", "skylight_shgc"]

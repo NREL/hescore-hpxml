@@ -122,3 +122,17 @@ def test_invalid_files():
     assert "'roof_type' is a required property" in errors
     assert "'ceiling_assembly_code' is a required property" not in errors
     assert "'roof_absorptance' is a required property" not in errors
+
+    js5 = copy.deepcopy(js)
+    # dependent building.zone.zone_skylight properties
+    js5['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_method'] = 'custom'
+    errors = get_error_messages(js5, js_schema)
+    assert "'skylight_u_value' is a required property" in errors
+    assert "'skylight_shgc' is a required property" in errors
+    del js5['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_method']
+    del js5['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_code']
+    errors = get_error_messages(js5, js_schema)
+    assert "'skylight_method' is a required property" in errors
+    assert "'skylight_code' is a required property" not in errors
+    assert "'skylight_u_value' is a required property" not in errors
+    assert "'skylight_shgc' is a required property" not in errors
