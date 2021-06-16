@@ -59,38 +59,66 @@ def test_invalid_files():
     js1['building']['about'] = []
     js1['building']['about'].append(js1_about)
     js1['building']['about'].append(js1_about)
+    js1_zone = copy.deepcopy(js['building']['zone'])
+    del js1['building']['zone']
+    js1['building']['zone'] = []
+    js1['building']['zone'].append(js1_zone)
+    js1['building']['zone'].append(js1_zone)
     errors = get_error_messages(js1, js_schema)
     assert any(error.startswith("[{'assessment_date': '2014-12-02', 'shape': 'town_house'") and
                error.endswith("is not of type 'object'") for error in errors)
-
-    js2 = copy.deepcopy(js)
-    js2_zone = copy.deepcopy(js['building']['zone'])
-    del js2['building']['zone']
-    js2['building']['zone'] = []
-    js2['building']['zone'].append(js2_zone)
-    js2['building']['zone'].append(js2_zone)
-    errors = get_error_messages(js2, js_schema)
     assert any(error.startswith("[{'zone_roof': [{'roof_name': 'roof1', 'roof_area': 1200.0") and
                error.endswith("is not of type 'object'") for error in errors)
 
-    js3 = copy.deepcopy(js)
-    del js3['building']['about']['town_house_walls']
-    errors = get_error_messages(js3, js_schema)
+    js2 = copy.deepcopy(js)
+    # dependent building.about properties
+    del js2['building']['about']['envelope_leakage']
+    errors = get_error_messages(js2, js_schema)
+    assert "'envelope_leakage' is a required property" in errors
+    assert "'air_sealing_present' is a required property" not in errors
+    js2['building']['about']['blower_door_test'] = False
+    errors = get_error_messages(js2, js_schema)
+    assert "'air_sealing_present' is a required property" in errors
+    # required building.about properties
+    del js2['building']['about']['town_house_walls']
+    del js2['building']['about']['assessment_date']
+    del js2['building']['about']['shape']
+    del js2['building']['about']['year_built']
+    del js2['building']['about']['number_bedrooms']
+    del js2['building']['about']['num_floor_above_grade']
+    del js2['building']['about']['floor_to_ceiling_height']
+    del js2['building']['about']['conditioned_floor_area']
+    del js2['building']['about']['orientation']
+    del js2['building']['about']['blower_door_test']
+    errors = get_error_messages(js2, js_schema)
     assert "'town_house_walls' is a required property" in errors
+    assert "'assessment_date' is a required property" in errors
+    assert "'shape' is a required property" in errors
+    assert "'year_built' is a required property" in errors
+    assert "'number_bedrooms' is a required property" in errors
+    assert "'num_floor_above_grade' is a required property" in errors
+    assert "'floor_to_ceiling_height' is a required property" in errors
+    assert "'conditioned_floor_area' is a required property" in errors
+    assert "'orientation' is a required property" in errors
+    assert "'blower_door_test' is a required property" in errors
+
+    js3 = copy.deepcopy(js)
+    # required building.zone properties
+    del js3['building']['zone']['wall_construction_same']
+    del js3['building']['zone']['window_construction_same']
+    errors = get_error_messages(js3, js_schema)
+    assert "'wall_construction_same' is a required property" in errors
+    assert "'window_construction_same' is a required property" in errors
 
     js4 = copy.deepcopy(js)
-    del js4['building']['about']['assessment_date']
+    # dependent building.zone.zone_roof properties
+    del js4['building']['zone']['zone_roof'][0]['roof_assembly_code']
+    del js4['building']['zone']['zone_roof'][0]['roof_color']
+    del js4['building']['zone']['zone_roof'][0]['roof_type']
+    del js4['building']['zone']['zone_roof'][0]['ceiling_assembly_code']
     errors = get_error_messages(js4, js_schema)
-    assert "'assessment_date' is a required property" in errors
-
-    js5 = copy.deepcopy(js)
-    del js5['building']['about']['shape']
-    errors = get_error_messages(js5, js_schema)
-    assert "'shape' is a required property" in errors
-
-    js6 = copy.deepcopy(js)
-    del js6['building']['about']['shape']
-    errors = get_error_messages(js6, js_schema)
-    assert "'shape' is a required property" in errors
-
-    # TODO: Add more tests
+    assert "'roof_assembly_code' is a required property" in errors
+    assert "'roof_color' is a required property" in errors
+    assert "'roof_type' is a required property" in errors
+    assert "'ceiling_assembly_code' is a required property" not in errors
+    assert "'roof_absorptance' is a required property" not in errors

@@ -189,18 +189,26 @@
                     "then": {
                         "required": ["town_house_walls"]
                     },
-                    "oneOf": [
+                    "allOf": [
                         {
-                            "properties": {
-                                "blower_door_test": {"const": true}
+                            "if": {
+                                "properties": {
+                                    "blower_door_test": {"const": true}
+                                }
                             },
-                            "required": ["envelope_leakage"]
+                            "then": {
+                                "required": ["envelope_leakage"]
+                            }
                         },
                         {
-                            "properties": {
-                                "blower_door_test": {"const": false}
+                            "if": {
+                                "properties": {
+                                    "blower_door_test": {"const": false}
+                                }
                             },
-                            "required": ["air_sealing_present"]
+                            "then": {
+                                "required": ["air_sealing_present"]
+                            }
                         }
                     ]
                 },
@@ -377,15 +385,24 @@
                                         ]
                                     }
                                 },
-                                "dependencies" : {
-                                    "roof_area" : ["roof_assembly_code", "roof_color", "roof_type"]
-                                },
                                 "allOf": [
                                     {
                                         "if": {
                                             "properties": {
+                                                "roof_area": {"not": {"const": 0}}
+                                            },
+                                            "required": ["roof_area"]
+                                        },
+                                        "then": {
+                                            "required": ["roof_assembly_code", "roof_color", "roof_type"]
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
                                                 "roof_name": {"enum": ["roof1"]}
-                                            }
+                                            },
+                                            "required": ["roof_name"]
                                         },
                                         "then": {
                                             "required": ["roof_area"]
@@ -394,10 +411,11 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "roof_name": {"enum": ["roof1"]},
+                                                "roof_name": {"const": "roof1"},
                                                 "roof_area": {"not": {"const": 0}},
-                                                "roof_color": {"enum": ["cool_color"]}
-                                            }
+                                                "roof_color": {"const": "cool_color"}
+                                            },
+                                            "required": ["roof_name", "roof_area", "roof_color"]
                                         },
                                         "then": {
                                             "required": ["roof_absorptance"]
@@ -406,10 +424,11 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "roof_name": {"enum": ["roof1"]},
+                                                "roof_name": {"const": "roof1"},
                                                 "roof_area": {"not": {"const": 0}},
                                                 "roof_type": {"enum": ["vented_attic", "cond_attic"]}
-                                            }
+                                            },
+                                            "required": ["roof_name", "roof_area", "roof_type"]
                                         },
                                         "then": {
                                             "required": ["ceiling_assembly_code"]
