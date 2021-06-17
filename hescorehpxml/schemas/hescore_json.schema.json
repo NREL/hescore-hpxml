@@ -496,7 +496,8 @@
                                         "if": {
                                             "properties": {
                                                 "floor_name": {"enum": ["floor1"]}
-                                            }
+                                            },
+                                            "required": ["floor_name"]
                                         },
                                         "then": {
                                             "required": ["floor_area"]
@@ -507,7 +508,8 @@
                                             "properties": {
                                                 "floor_name": {"enum": ["floor1"]},
                                                 "floor_area": {"not": {"const": 0}}
-                                            }
+                                            },
+                                            "required": ["floor_name", "floor_area"]
                                         },
                                         "then": {
                                             "required": ["foundation_type", "foundation_insulation_level"]
@@ -519,7 +521,8 @@
                                                 "floor_name": {"enum": ["floor1"]},
                                                 "floor_area": {"not": {"const": 0}},
                                                 "foundation_type": {"not": {"enum": ["slab_on_grade"]}}
-                                            }
+                                            },
+                                            "required": ["floor_name", "floor_area", "foundation_type"]
                                         },
                                         "then": {
                                             "required": ["floor_assembly_code"]
@@ -957,14 +960,14 @@
                                 "then": {
                                     "properties": {
                                         "hvac_distribution": {
-                                            "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_with_constraint"
+                                            "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_with_constraints"
                                         }
                                     }
                                 },
                                 "else": {
                                     "properties": {
                                         "hvac_distribution": {
-                                            "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_no_constraint"
+                                            "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution"
                                         }
                                     }
                                 },
@@ -1435,78 +1438,107 @@
                                     }
                                 ],
                                 "definitions": {
-                                    "def_hvac_distribution_items": {
-                                        "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_items",
-                                        "type": "object",
-                                        "additionalProperties": false,
-                                        "required": [
-                                            "name"
-                                        ],
-                                        "properties": {
-                                            "name": {
-                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/name",
-                                                "type": "string",
-                                                "enum": ["duct1", "duct2", "duct3"],
-                                                "maxLength": 20,
-                                                "description": "Name of distribution system"
-                                            },
-                                            "location": {
-                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/location",
-                                                "type": "string",
-                                                "enum": ["", "cond_space", "uncond_basement", "unvented_crawl", "vented_crawl", "uncond_attic"],
-                                                "maxLength": 20,
-                                                "description": "Location of distribution system"
-                                            },
-                                            "fraction": {
-                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/fraction",
-                                                "type": "integer",
-                                                "minimum": 0,
-                                                "maximum": 100,
-                                                "description": "Fraction of total duct length"
-                                            },
-                                            "insulated": {
-                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/insulated",
-                                                "type": "boolean",
-                                                "description": "Are the ducts insulated?"
-                                            },
-                                            "sealed": {
-                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/sealed",
-                                                "type": "boolean",
-                                                "description": "Are the ducts sealed?"
-                                            }
-                                        }
-                                    },
-                                    "def_hvac_distribution_no_constraint": {
-                                        "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_with_constraint",
+                                    "def_hvac_distribution": {
+                                        "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution",
                                         "type": "array",
                                         "description": "Inputs about the ducts",
                                         "additionalItems": false,
                                         "minItems": 0,
                                         "maxItems": 3,
                                         "items": {
-                                            "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_items"
+                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_items",
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "name": {
+                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/name",
+                                                    "type": "string",
+                                                    "enum": ["duct1", "duct2", "duct3"],
+                                                    "maxLength": 20,
+                                                    "description": "Name of distribution system"
+                                                },
+                                                "location": {
+                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/location",
+                                                    "type": "string",
+                                                    "enum": ["", "cond_space", "uncond_basement", "unvented_crawl", "vented_crawl", "uncond_attic"],
+                                                    "maxLength": 20,
+                                                    "description": "Location of distribution system"
+                                                },
+                                                "fraction": {
+                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/fraction",
+                                                    "type": "integer",
+                                                    "minimum": 0,
+                                                    "maximum": 100,
+                                                    "description": "Fraction of total duct length"
+                                                },
+                                                "insulated": {
+                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/insulated",
+                                                    "type": "boolean",
+                                                    "description": "Are the ducts insulated?"
+                                                },
+                                                "sealed": {
+                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/sealed",
+                                                    "type": "boolean",
+                                                    "description": "Are the ducts sealed?"
+                                                }
+                                            },
+                                            "required": ["name"]
                                         }
                                     },
-                                    "def_hvac_distribution_with_constraint": {
-                                        "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_with_constraint",
+                                    "def_hvac_distribution_with_constraints": {
+                                        "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_with_constraints",
                                         "type": "array",
                                         "description": "Inputs about the ducts",
                                         "additionalItems": false,
                                         "minItems": 0,
                                         "maxItems": 3,
                                         "items": {
-                                            "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_items",
+                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_items",
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "name": {
+                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/name",
+                                                    "type": "string",
+                                                    "enum": ["duct1", "duct2", "duct3"],
+                                                    "maxLength": 20,
+                                                    "description": "Name of distribution system"
+                                                },
+                                                "location": {
+                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/location",
+                                                    "type": "string",
+                                                    "enum": ["", "cond_space", "uncond_basement", "unvented_crawl", "vented_crawl", "uncond_attic"],
+                                                    "maxLength": 20,
+                                                    "description": "Location of distribution system"
+                                                },
+                                                "fraction": {
+                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/fraction",
+                                                    "type": "integer",
+                                                    "minimum": 0,
+                                                    "maximum": 100,
+                                                    "description": "Fraction of total duct length"
+                                                },
+                                                "insulated": {
+                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/insulated",
+                                                    "type": "boolean",
+                                                    "description": "Are the ducts insulated?"
+                                                },
+                                                "sealed": {
+                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/sealed",
+                                                    "type": "boolean",
+                                                    "description": "Are the ducts sealed?"
+                                                }
+                                            },
                                             "allOf": [
                                                 {
-                                                    "required": ["fraction"]
+                                                    "required": ["name", "fraction"]
                                                 },
                                                 {
                                                     "if": {
-                                                        "not": {
-                                                            "properties": {
-                                                                "fraction": {"const": 0}
-                                                            }
-                                                        }
+                                                        "properties": {
+                                                            "fraction": {"not": {"const": 0}}
+                                                        },
+                                                        "required": ["fraction"]
                                                     },
                                                     "then": {
                                                         "required": ["location", "insulated", "sealed"]
@@ -1706,7 +1738,8 @@
                                             "if": {
                                                 "properties": {
                                                     "year": {}
-                                                }
+                                                },
+                                                "required": ["year"]
                                             },
                                             "then": {
                                                 "required": ["capacity_known"]
@@ -1716,30 +1749,22 @@
                                             "if": {
                                                 "properties": {
                                                     "capacity_known": {"const": true}
-                                                }
+                                                },
+                                                "required": ["capacity_known"]
                                             },
                                             "then": {
-                                                "required": ["system_capacity"]
+                                                "required": ["system_capacity", "year"]
                                             }
                                         },
                                         {
                                             "if": {
                                                 "properties": {
                                                     "capacity_known": {"const": false}
-                                                }
+                                                },
+                                                "required": ["capacity_known"]
                                             },
                                             "then": {
-                                                "required": ["num_panels"]
-                                            }
-                                        },
-                                        {
-                                            "if": {
-                                                "properties": {
-                                                    "capacity_known": {}
-                                                }
-                                            },
-                                            "then": {
-                                                "required": ["year"]
+                                                "required": ["num_panels", "year"]
                                             }
                                         },
                                         {
@@ -1748,12 +1773,14 @@
                                                     {
                                                         "properties": {
                                                             "year": {}
-                                                        }
+                                                        },
+                                                        "required": ["year"]
                                                     },
                                                     {
                                                         "properties": {
                                                             "capacity_known": {}
-                                                        }
+                                                        },
+                                                        "required": ["capacity_known"]
                                                     }
                                                 ]
                                             },
