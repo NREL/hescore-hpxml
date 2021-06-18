@@ -31,7 +31,10 @@ def get_json_schema():
 def get_error_messages(jsonfile, jsonschema):
     errors = []
     for error in sorted(jsonschema.iter_errors(jsonfile), key=str):
-        errors.append(error.message)
+        if 'zone_wall' in error.absolute_path:
+            errors.append(error.schema["error_msg"])
+        else:
+            errors.append(error.message)
     return errors
 
 
@@ -74,7 +77,6 @@ def test_invalid_building_about(hpxml_filebase):
                    error.endswith("is not of type 'object'") for error in errors)
 
     js2 = copy.deepcopy(js)
-    # dependent building.about properties
     if hpxml_filebase == 'townhouse_walls':
         del js2['building']['about']['envelope_leakage']
         errors = get_error_messages(js2, js_schema)
@@ -88,7 +90,6 @@ def test_invalid_building_about(hpxml_filebase):
         errors = get_error_messages(js2, js_schema)
         assert "'envelope_leakage' is a required property" not in errors
         assert "'air_sealing_present' is a required property" in errors
-    # required building.about properties
     del js2['building']['about']['assessment_date']
     del js2['building']['about']['shape']
     del js2['building']['about']['year_built']
@@ -138,7 +139,6 @@ def test_invalid_roof(hpxml_filebase):
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema)
     js = get_example_json(hpxml_filebase)
-    # dependent building.zone.zone_roof properties
     del js['building']['zone']['zone_roof'][0]['roof_assembly_code']
     del js['building']['zone']['zone_roof'][0]['roof_color']
     del js['building']['zone']['zone_roof'][0]['roof_type']
@@ -156,7 +156,6 @@ def test_invalid_skylight():
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema)
     js = get_example_json(hpxml_filebase)
-    # dependent building.zone.zone_skylight properties
     js['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_method'] = 'custom'
     errors = get_error_messages(js, js_schema)
     assert "'skylight_u_value' is a required property" in errors
@@ -175,7 +174,6 @@ def test_invalid_floor(hpxml_filebase):
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema)
     js = get_example_json(hpxml_filebase)
-    # dependent building.zone.zone_roof properties
     del js['building']['zone']['zone_floor'][0]['foundation_type']
     del js['building']['zone']['zone_floor'][0]['foundation_insulation_level']
     errors = get_error_messages(js, js_schema)
@@ -195,7 +193,6 @@ def test_invalid_wall_window_construction_same(hpxml_filebase):
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema)
     js = get_example_json(hpxml_filebase)
-    # required building.zone properties
     del js['building']['zone']['wall_construction_same']
     del js['building']['zone']['window_construction_same']
     errors = get_error_messages(js, js_schema)
@@ -208,10 +205,40 @@ def test_invalid_wall(hpxml_filebase):
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema)
     js = get_example_json(hpxml_filebase)
-    # required building.zone.zone_wall properties
     del js['building']['zone']['zone_wall'][0]['side']
+    del js['building']['zone']['zone_wall'][1]['wall_assembly_code']
     errors = get_error_messages(js, js_schema)
-    assert "'side' is a required property" in errors
+    if hpxml_filebase == 'townhouse_walls':
+        assert 'zone_wall/side["front"] requires "side" and "wall_assembly_code"' in errors
+        assert 'zone_wall/side["left"] requires "side" and "wall_assembly_code"' in errors
+    elif hpxml_filebase == 'house1':
+        assert 'zone_wall/side["right"] requires "side" and "wall_assembly_code"' in errors
+        assert 'zone_wall/side["front"] requires "side" and "wall_assembly_code"' in errors
+
+
+@pytest.mark.parametrize('hpxml_filebase', hescore_examples)
+def test_invalid_window(hpxml_filebase):
+    schema = get_json_schema()
+    js_schema = jsonschema.Draft7Validator(schema)
+    js = get_example_json(hpxml_filebase)
+    if hpxml_filebase == 'townhouse_walls':
+        del js['building']['zone']['zone_wall'][0]['zone_window']['window_u_value']
+    del js['building']['zone']['zone_wall'][0]['zone_window']['window_area']
+    del js['building']['zone']['zone_wall'][2]['zone_window']['window_code']
+    errors = get_error_messages(js, js_schema)
+    if hpxml_filebase == 'townhouse_walls':
+        assert 'zone_wall/side["front"]/zone_window requires "window_area" and "window_method"' in errors
+        assert 'zone_wall/side["back"]/zone_window requires "window_code"' in errors
+        assert 'zone_wall/side["front"]/zone_window requires "window_u_value" and "window_shgc"' in errors
+    elif hpxml_filebase == 'house1':
+        assert 'zone_wall/side["right"]/zone_window requires "window_area" and "window_method"' in errors
+        assert 'zone_wall/side["left"]/zone_window requires "window_code"' in errors
+    del js['building']['zone']['zone_wall'][2]['zone_window']['window_method']
+    errors = get_error_messages(js, js_schema)
+    if hpxml_filebase == 'townhouse_walls':
+        assert 'zone_wall/side["back"]/zone_window requires "window_area" and "window_method"' in errors
+    elif hpxml_filebase == 'house1':
+        assert 'zone_wall/side["left"]/zone_window requires "window_area" and "window_method"' in errors
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -353,7 +380,6 @@ def test_invalid_solar_electric(hpxml_filebase):
     assert "'system_capacity' is a required property" in errors
     assert "'year' is a required property" in errors
     assert "'array_azimuth' is a required property" in errors
-    # js['building']['systems']['generation']['solar_electric'] = {'year': 2021}
     js['building']['systems']['generation']['solar_electric']['year'] = 2021
     del js['building']['systems']['generation']['solar_electric']['capacity_known']
     errors = get_error_messages(js, js_schema)
