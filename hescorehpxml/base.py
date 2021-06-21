@@ -77,7 +77,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
     def __init__(self, hpxmlfilename):
         self.hpxmldoc = etree.parse(hpxmlfilename)
         self.schemapath = os.path.join(thisdir, 'schemas', self.SCHEMA_DIR, 'HPXML.xsd')
-        self.jsonschemapath = os.path.join(thisdir, 'schemas', 'hescore_json.schema.json')
         schematree = etree.parse(self.schemapath)
         self.schema = etree.XMLSchema(schematree)
         if not self.schema.validate(self.hpxmldoc):
