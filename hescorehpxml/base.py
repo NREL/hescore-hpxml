@@ -77,6 +77,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
     def __init__(self, hpxmlfilename):
         self.hpxmldoc = etree.parse(hpxmlfilename)
         self.schemapath = os.path.join(thisdir, 'schemas', self.SCHEMA_DIR, 'HPXML.xsd')
+        self.jsonschemapath = os.path.join(thisdir, 'schemas', 'hescore_json.schema.json')
         schematree = etree.parse(self.schemapath)
         self.schema = etree.XMLSchema(schematree)
         if not self.schema.validate(self.hpxmldoc):
@@ -828,6 +829,17 @@ class HPXMLtoHEScoreTranslatorBase(object):
             else:
                 assert transaction_type == 'update'
                 bldgaddr['assessment_type'] = 'corrected'
+
+        ext_id_xpath_exprs = (
+            'h:extension/h:HESExternalID/text()',
+            'h:BuildingID/h:SendingSystemIdentifierValue/text()'
+        )
+        for ext_id_xpath_expr in ext_id_xpath_exprs:
+            external_id_value = xpath(b, ext_id_xpath_expr)
+            if external_id_value is not None:
+                bldgaddr['external_building_id'] = external_id_value
+                break
+
         return bldgaddr
 
     def get_hpwes(self, p, c):
@@ -868,16 +880,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         xpath = self.xpath
         ns = self.ns
         bldg_about = OrderedDict()
-
-        ext_id_xpath_exprs = (
-            'h:extension/h:HESExternalID/text()',
-            'h:BuildingID/h:SendingSystemIdentifierValue/text()'
-        )
-        for ext_id_xpath_expr in ext_id_xpath_exprs:
-            external_id_value = xpath(b, ext_id_xpath_expr)
-            if external_id_value is not None:
-                bldg_about['external_building_id'] = external_id_value
-                break
 
         project_status_date_el = b.find('h:ProjectStatus/h:Date', namespaces=ns)
         if project_status_date_el is None:

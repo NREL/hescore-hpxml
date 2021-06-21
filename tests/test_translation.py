@@ -1056,7 +1056,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         myid = uuid.uuid4().hex
         el.text = myid
         res = tr.hpxml_to_hescore()
-        self.assertEqual(myid, res['building']['about'].get('external_building_id'))
+        self.assertEqual(myid, res['building_address'].get('external_building_id'))
 
     def test_external_id_extension_passthru(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1069,7 +1069,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = etree.SubElement(self.xpath('//h:Building/h:BuildingID'), tr.addns('h:SendingSystemIdentifierValue'))
         el.text = uuid.uuid4().hex
         res = tr.hpxml_to_hescore()
-        self.assertEqual(myid, res['building']['about'].get('external_building_id'))
+        self.assertEqual(myid, res['building_address'].get('external_building_id'))
 
     def test_preconstruction_event_type(self):
         tr = self._load_xmlfile('hescore_min')
