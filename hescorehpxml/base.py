@@ -12,6 +12,7 @@ from decimal import Decimal
 from collections import OrderedDict
 import os
 import re
+import pandas as pd
 
 from .exceptions import (
     TranslationError,
@@ -563,15 +564,20 @@ class HPXMLtoHEScoreTranslatorBase(object):
         hescore_duct_loc_has_insulation = defaultdict(bool)
         for duct_el in self.xpath(airdist_el, 'h:Ducts', aslist=True):
 
+
             # Duct Location
-            hpxml_duct_location = self.xpath(duct_el, 'h:DuctLocation/text()')
+            #### FIXME: mannually setting duct location
+            # hpxml_duct_location = self.xpath(duct_el, 'h:DuctLocation/text()')
+            hpxml_duct_location = 'living space'
             hescore_duct_location = self.get_duct_location(hpxml_duct_location, bldg)
 
             if hescore_duct_location is None:
                 raise TranslationError('No comparable duct location in HEScore: %s' % hpxml_duct_location)
 
             # Fraction of Duct Area
-            frac_duct_area = float(self.xpath(duct_el, 'h:FractionDuctArea/text()', raise_err=True))
+            #### FIXME: mannually setting duct fraction
+            # frac_duct_area = float(self.xpath(duct_el, 'h:FractionDuctArea/text()', raise_err=True))
+            frac_duct_area = 1.0
             duct_fracs_by_hescore_duct_loc[hescore_duct_location] += frac_duct_area
 
             # Duct Insulation
@@ -801,12 +807,19 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 cls.remove_hidden_keys(item)
 
     def get_building_address(self, b, resstock_file):
+        def get_zip_from_fips(fips):
+            #### FIXME: map county to closes zipcode
+            # zip_map = pd.read_csv(os.path.join(thisdir, 'COUNTY_ZIP_032021.csv'), dtype={'COUNTY': object})
+            # zipcode = zip_map[zip_map['COUNTY']==fips]['ZIP'][0]
+            # return(str(zipcode))
+            return('80214')
+            
         xpath = self.xpath
         ns = self.ns
         bldgaddr = OrderedDict()
         if resstock_file:
-            ## TO-DO map location to zip
-            bldgaddr['zip_code'] = 80214
+            fips = xpath(b, 'h:Site/h:Address/h:extension/h:FIPS/text()', raise_err=True)
+            bldgaddr['zip_code'] = get_zip_from_fips(fips)
         else:
             hpxmladdress = xpath(b, 'h:Site/h:Address[h:AddressType="street"]', raise_err=True)
             bldgaddr['address'] = ' '.join(hpxmladdress.xpath('h:Address1/text() | h:Address2/text()', namespaces=ns))

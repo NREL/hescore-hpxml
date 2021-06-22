@@ -16,7 +16,14 @@
     <Site>
       <SiteID id='SiteID'/>
       <Address>
+        <AddressType>street</AddressType> 
+        <Address1>1 API House</Address1>
+        <CityMunicipality>Denver</CityMunicipality>
         <StateCode>CO</StateCode>
+        <ZipCode>80214</ZipCode>
+        <extension>
+          <PUMA>02100</PUMA>
+        </extension>
       </Address>
     </Site>
     <ProjectStatus>
@@ -864,6 +871,7 @@
                   </DuctLeakage>
                 </DuctLeakageMeasurement>
                 <Ducts>
+                  <!-- Mannually added duct location -->
                   <DuctType>supply</DuctType>
                   <DuctInsulationRValue>0.0</DuctInsulationRValue>
                   <DuctLocation>living space</DuctLocation>
