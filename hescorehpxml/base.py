@@ -808,11 +808,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
     def get_building_address(self, b, resstock_file):
         def get_zip_from_fips(fips):
-            #### FIXME: map county to closes zipcode
-            # zip_map = pd.read_csv(os.path.join(thisdir, 'COUNTY_ZIP_032021.csv'), dtype={'COUNTY': object})
-            # zipcode = zip_map[zip_map['COUNTY']==fips]['ZIP'][0]
-            # return(str(zipcode))
-            return('80214')
+            zip_map = pd.read_csv(os.path.join(thisdir, 'COUNTY_ZIP_032021.csv'), dtype={'COUNTY': object})
+            zipcodes = zip_map[zip_map['COUNTY']==fips]
+            zipcode = zipcodes[zipcodes['RES_RATIO'] == zipcodes['RES_RATIO'].max()]['ZIP']
+            return(str(zipcode))
             
         xpath = self.xpath
         ns = self.ns
