@@ -12,7 +12,6 @@ from decimal import Decimal
 from collections import OrderedDict
 import os
 import re
-import pandas as pd
 
 from .exceptions import (
     TranslationError,
