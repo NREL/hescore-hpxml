@@ -566,17 +566,14 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
 
             # Duct Location
-            #### FIXME: mannually setting duct location
-            # hpxml_duct_location = self.xpath(duct_el, 'h:DuctLocation/text()')
-            hpxml_duct_location = 'living space'
+            hpxml_duct_location = self.xpath(duct_el, 'h:DuctLocation/text()')
             hescore_duct_location = self.get_duct_location(hpxml_duct_location, bldg)
 
             if hescore_duct_location is None:
                 raise TranslationError('No comparable duct location in HEScore: %s' % hpxml_duct_location)
 
             # Fraction of Duct Area
-            #### FIXME: mannually setting duct fraction
-            # frac_duct_area = float(self.xpath(duct_el, 'h:FractionDuctArea/text()', raise_err=True))
+            frac_duct_area = float(self.xpath(duct_el, 'h:FractionDuctArea/text()', raise_err=True))
             frac_duct_area = 1.0
             duct_fracs_by_hescore_duct_loc[hescore_duct_location] += frac_duct_area
 
