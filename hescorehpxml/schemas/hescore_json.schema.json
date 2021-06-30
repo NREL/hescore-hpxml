@@ -742,7 +742,7 @@
                                             },
                                             {
                                                 "if": {
-                                                    "properties": {"type": {"const": "wall_furnace"}},
+                                                    "properties": {"type": {"enum": ["wall_furnace", "boiler"]}},
                                                     "required": ["type"]
                                                 },
                                                 "then": {
@@ -759,41 +759,7 @@
                                             },
                                             {
                                                 "if": {
-                                                    "properties": {"type": {"const": "boiler"}},
-                                                    "required": ["type"]
-                                                },
-                                                "then": {
-                                                    "properties": {
-                                                        "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                            "type": "number",
-                                                            "minimum": 0.6,
-                                                            "maximum": 1,
-                                                            "description": "AFUE of heating equipment (only used if efficiency_method is user)"
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                "if": {
-                                                    "properties": {"type": {"const": "heat_pump"}},
-                                                    "required": ["type"]
-                                                },
-                                                "then": {
-                                                    "properties": {
-                                                        "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                            "type": "number",
-                                                            "minimum": 6,
-                                                            "maximum": 20,
-                                                            "description": "HSPF of heating equipment (only used if efficiency_method is user)"
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                "if": {
-                                                    "properties": {"type": {"const": "mini_split"}},
+                                                    "properties": {"type": {"enum": ["heat_pump", "mini_split"]}},
                                                     "required": ["type"]
                                                 },
                                                 "then": {
@@ -827,37 +793,7 @@
                                             },
                                             {
                                                 "if": {
-                                                    "properties": {"type": {"const": "baseboard"}},
-                                                    "required": ["type"]
-                                                },
-                                                "then": {
-                                                    "properties": {
-                                                        "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                            "type": "number",
-                                                            "description": "Efficiency of heating equipment (only used if efficiency_method is user)"
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                "if": {
-                                                    "properties": {"type": {"const": "wood_stove"}},
-                                                    "required": ["type"]
-                                                },
-                                                "then": {
-                                                    "properties": {
-                                                        "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                            "type": "number",
-                                                            "description": "Efficiency of heating equipment (only used if efficiency_method is user)"
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                "if": {
-                                                    "properties": {"type": {"const": "none"}},
+                                                    "properties": {"type": {"enum": ["baseboard", "wood_stove", "none"]}},
                                                     "required": ["type"]
                                                 },
                                                 "then": {
@@ -901,7 +837,7 @@
                                         "allOf": [
                                             {
                                                 "if": {
-                                                    "properties": {"type": {"const": "split_dx"}},
+                                                    "properties": {"type": {"enum": ["split_dx", "heat_pump"]}},
                                                     "required": ["type"]
                                                 },
                                                 "then": {
@@ -918,24 +854,7 @@
                                             },
                                             {
                                                 "if": {
-                                                    "properties": {"type": {"const": "heat_pump"}},
-                                                    "required": ["type"]
-                                                },
-                                                "then": {
-                                                    "properties": {
-                                                        "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
-                                                            "type": "number",
-                                                            "minimum": 8,
-                                                            "maximum": 40,
-                                                            "description": "SEER of cooling equipment (only used if efficiency_method is user)"
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                "if": {
-                                                    "properties": {"type": {"const": "packaged_dx"}},
+                                                    "properties": {"type": {"enum": ["packaged_dx", "mini_split", "gchp"]}},
                                                     "required": ["type"]
                                                 },
                                                 "then": {
@@ -952,56 +871,7 @@
                                             },
                                             {
                                                 "if": {
-                                                    "properties": {"type": {"const": "gchp"}},
-                                                    "required": ["type"]
-                                                },
-                                                "then": {
-                                                    "properties": {
-                                                        "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
-                                                            "type": "number",
-                                                            "minimum": 8,
-                                                            "maximum": 40,
-                                                            "description": "EER (ARI-330) of cooling equipment (only used if efficiency_method is user)"
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                "if": {
-                                                    "properties": {"type": {"const": "mini_split"}},
-                                                    "required": ["type"]
-                                                },
-                                                "then": {
-                                                    "properties": {
-                                                        "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
-                                                            "type": "number",
-                                                            "minimum": 8,
-                                                            "maximum": 40,
-                                                            "description": "EER of cooling equipment (only used if efficiency_method is user)"
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                "if": {
-                                                    "properties": {"type": {"const": "dec"}},
-                                                    "required": ["type"]
-                                                },
-                                                "then": {
-                                                    "properties": {
-                                                        "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
-                                                            "type": "number",
-                                                            "description": "Efficiency of cooling equipment (only used if efficiency_method is user)"
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                "if": {
-                                                    "properties": {"type": {"const": "none"}},
+                                                    "properties": {"type": {"enum": ["dec", "none"]}},
                                                     "required": ["type"]
                                                 },
                                                 "then": {
@@ -1055,7 +925,8 @@
                                         "hvac_distribution": {
                                             "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_with_constraints"
                                         }
-                                    }
+                                    },
+                                    "required": ["hvac_distribution"]
                                 },
                                 "else": {
                                     "properties": {
@@ -1137,18 +1008,7 @@
                                                         "properties": {
                                                             "heating": {
                                                                 "properties": {
-                                                                    "type": {"const": "none"}
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "not": {
-                                                        "properties": {
-                                                            "heating": {
-                                                                "properties": {
-                                                                    "type": {"const": "wood_stove"}
+                                                                    "type": {"enum": ["none", "wood_stove"]}
                                                                 }
                                                             }
                                                         }
@@ -1158,26 +1018,13 @@
                                                     "not": {
                                                         "allOf": [
                                                             {
-                                                                "anyOf": [
-                                                                    {
+                                                                "properties": {
+                                                                    "heating": {
                                                                         "properties": {
-                                                                            "heating": {
-                                                                                "properties": {
-                                                                                    "type": {"const": "baseboard"}
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    },
-                                                                    {
-                                                                        "properties": {
-                                                                            "heating": {
-                                                                                "properties": {
-                                                                                    "type": {"enum": ["central_furnace", "wall_furnace"]}
-                                                                                }
-                                                                            }
+                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace"]}
                                                                         }
                                                                     }
-                                                                ]
+                                                                }
                                                             },
                                                             {
                                                                 "properties": {
@@ -1189,7 +1036,6 @@
                                                                 }
                                                             }
                                                         ]
-                                                        
                                                     }
                                                 }
                                             ]
@@ -1226,18 +1072,7 @@
                                                         "properties": {
                                                             "heating": {
                                                                 "properties": {
-                                                                    "type": {"const": "none"}
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "not": {
-                                                        "properties": {
-                                                            "heating": {
-                                                                "properties": {
-                                                                    "type": {"const": "wood_stove"}
+                                                                    "type": {"enum": ["none", "wood_stove"]}
                                                                 }
                                                             }
                                                         }
@@ -1247,26 +1082,13 @@
                                                     "not": {
                                                         "allOf": [
                                                             {
-                                                                "anyOf": [
-                                                                    {
+                                                                "properties": {
+                                                                    "heating": {
                                                                         "properties": {
-                                                                            "heating": {
-                                                                                "properties": {
-                                                                                    "type": {"const": "baseboard"}
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    },
-                                                                    {
-                                                                        "properties": {
-                                                                            "heating": {
-                                                                                "properties": {
-                                                                                    "type": {"enum": ["central_furnace", "wall_furnace"]}
-                                                                                }
-                                                                            }
+                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace"]}
                                                                         }
                                                                     }
-                                                                ]
+                                                                }
                                                             },
                                                             {
                                                                 "properties": {
@@ -1278,7 +1100,6 @@
                                                                 }
                                                             }
                                                         ]
-                                                        
                                                     }
                                                 }
                                             ]
@@ -1315,18 +1136,7 @@
                                                         "properties": {
                                                             "heating": {
                                                                 "properties": {
-                                                                    "type": {"const": "none"}
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "not": {
-                                                        "properties": {
-                                                            "heating": {
-                                                                "properties": {
-                                                                    "type": {"const": "wood_stove"}
+                                                                    "type": {"enum": ["none", "wood_stove"]}
                                                                 }
                                                             }
                                                         }
@@ -1336,26 +1146,13 @@
                                                     "not": {
                                                         "allOf": [
                                                             {
-                                                                "anyOf": [
-                                                                    {
+                                                                "properties": {
+                                                                    "heating": {
                                                                         "properties": {
-                                                                            "heating": {
-                                                                                "properties": {
-                                                                                    "type": {"const": "baseboard"}
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    },
-                                                                    {
-                                                                        "properties": {
-                                                                            "heating": {
-                                                                                "properties": {
-                                                                                    "type": {"enum": ["central_furnace", "wall_furnace"]}
-                                                                                }
-                                                                            }
+                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace"]}
                                                                         }
                                                                     }
-                                                                ]
+                                                                }
                                                             },
                                                             {
                                                                 "properties": {
@@ -1367,7 +1164,6 @@
                                                                 }
                                                             }
                                                         ]
-                                                        
                                                     }
                                                 }
                                             ]
@@ -1451,18 +1247,7 @@
                                                         "properties": {
                                                             "cooling": {
                                                                 "properties": {
-                                                                    "type": {"const": "none"}
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "not": {
-                                                        "properties": {
-                                                            "cooling": {
-                                                                "properties": {
-                                                                    "type": {"const": "dec"}
+                                                                    "type": {"enum": ["none", "dec"]}
                                                                 }
                                                             }
                                                         }
@@ -1502,18 +1287,7 @@
                                                         "properties": {
                                                             "cooling": {
                                                                 "properties": {
-                                                                    "type": {"const": "none"}
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "not": {
-                                                        "properties": {
-                                                            "cooling": {
-                                                                "properties": {
-                                                                    "type": {"const": "dec"}
+                                                                    "type": {"enum": ["none", "dec"]}
                                                                 }
                                                             }
                                                         }
@@ -1650,6 +1424,7 @@
                                 "category",
                                 "type"
                             ],
+                            "additionalProperties": false,
                             "properties": {
                                 "category": {
                                     "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/category",
@@ -1684,78 +1459,34 @@
                                     "type": "integer",
                                     "minimum": 1972,
                                     "description": "Year water heater was manufactured (only used if efficiency_method is shipment_weighted)"
+                                },
+                                "energy_factor": {
+                                    "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/energy_factor",
+                                    "type": "number",
+                                    "description": "Energy factor of water heater (only used if efficiency_method is user)"
                                 }
                             },
                             "allOf": [
                                 {
                                     "if": {
-                                        "properties": {"type": {"const": "storage"}},
+                                        "properties": {
+                                            "type": {"enum": ["indirect", "tankless_coil"]}
+                                        },
                                         "required": ["type"]
                                     },
                                     "then": {
                                         "properties": {
-                                            "energy_factor": {
-                                                "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/energy_factor",
-                                                "type": "number",
-                                                "minimum": 0.45,
-                                                "maximum": 1.0,
-                                                "description": "Energy factor of water heater (only used if efficiency_method is user)"
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "if": {
-                                        "properties": {"type": {"const": "indirect"}},
-                                        "required": ["type"]
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "energy_factor": {
-                                                "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/energy_factor",
-                                                "type": "number",
-                                                "description": "Energy factor of water heater (only used if efficiency_method is user)"
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "if": {
-                                        "properties": {"type": {"const": "tankless_coil"}},
-                                        "required": ["type"]
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "energy_factor": {
-                                                "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/energy_factor",
-                                                "type": "number",
-                                                "description": "Energy factor of water heater (only used if efficiency_method is user)"
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "if": {
-                                        "properties": {"type": {"const": "heat_pump"}},
-                                        "required": ["type"]
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "energy_factor": {
-                                                "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/energy_factor",
-                                                "type": "number",
-                                                "minimum": 1.0,
-                                                "maximum": 4.0,
-                                                "description": "Energy factor of water heater (only used if efficiency_method is user)"
-                                            }
-                                        }
+                                            "category": {"const": "combined"}
+                                        },
+                                        "required": ["category"]
                                     }
                                 },
                                 {
                                     "if": {
                                         "properties": {
                                             "category": {"enum": ["unit"]}
-                                        }
+                                        },
+                                        "required": ["category"]
                                     },
                                     "then": {
                                         "required": ["fuel_primary", "efficiency_method"]
@@ -1766,7 +1497,8 @@
                                         "properties": {
                                             "category": {"enum": ["unit"]},
                                             "efficiency_method": {"enum": ["shipment_weighted"]}
-                                        }
+                                        },
+                                        "required": ["category", "efficiency_method"]
                                     },
                                     "then": {
                                         "required": ["year"]
@@ -1777,10 +1509,68 @@
                                         "properties": {
                                             "category": {"enum": ["unit"]},
                                             "efficiency_method": {"enum": ["user", "uef"]}
-                                        }
+                                        },
+                                        "required": ["category", "efficiency_method"]
                                     },
                                     "then": {
                                         "required": ["energy_factor"]
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "type": {"enum": ["storage"]},
+                                            "efficiency_method": {"enum": ["user", "uef", "shipment_weighted"]}
+                                        },
+                                        "required": ["type", "efficiency_method"]
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "energy_factor": {
+                                                "type": "number",
+                                                "minimum": 0.45,
+                                                "maximum": 1.0,
+                                                "description": "Energy factor of water heater (only used if efficiency_method is user)"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "type": {"enum": ["tankless"]},
+                                            "efficiency_method": {"enum": ["user", "uef"]}
+                                        },
+                                        "required": ["type", "efficiency_method"]
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "energy_factor": {
+                                                "type": "number",
+                                                "minimum": 0.45,
+                                                "maximum": 1.0,
+                                                "description": "Energy factor of water heater (only used if efficiency_method is user)"
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "type": {"enum": ["heat_pump"]},
+                                            "efficiency_method": {"const": "user"}
+                                        },
+                                        "required": ["type", "efficiency_method"]
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "energy_factor": {
+                                                "type": "number",
+                                                "minimum": 1.0,
+                                                "maximum": 4.0,
+                                                "description": "Energy factor of water heater (only used if efficiency_method is user)"
+                                            }
+                                        }
                                     }
                                 }
                             ]
@@ -1885,7 +1675,37 @@
                                 }
                             }
                         }
-                    }
+                    },
+                    "allOf": [
+                        {
+                            "if": {
+                                "properties": {
+                                    "domestic_hot_water": {
+                                        "properties": {
+                                            "category": {"const": "combined"}
+                                        }
+                                    }
+                                }
+                            },
+                            "then": {
+                                "properties": {
+                                    "hvac": {
+                                        "contains": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"enum": ["boiler"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        },
+                                        "error_msg": "The category element can only be set to \"combined\" if the heating/type is \"boiler\" and the boiler provides the domestic hot water"
+                                    }
+                                }
+                            }
+                        }
+                    ]
                 }
             },
             "additionalProperties": false,
