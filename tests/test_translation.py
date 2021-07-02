@@ -865,7 +865,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         attic_type.addprevious(etree.Element(tr.addns('h:AtticKneeWall'), {'idref': 'wall2'}))
         # run translation
         resp = tr.hpxml_to_hescore()
-        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf30')
+        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf38')
         self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
 
         # HPXML v3
@@ -928,7 +928,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         kneewall_rvalue_el.text = '0'
         # run translation
         resp = tr.hpxml_to_hescore()
-        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf03')
+        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf09')
         self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
         # Set kneewall R-value to 11 and attic floor R-value to zero
         kneewall_rvalue_el.text = '11'
@@ -1056,7 +1056,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         myid = uuid.uuid4().hex
         el.text = myid
         res = tr.hpxml_to_hescore()
-        self.assertEqual(myid, res['building']['about'].get('external_building_id'))
+        self.assertEqual(myid, res['building_address'].get('external_building_id'))
 
     def test_external_id_extension_passthru(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1069,7 +1069,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = etree.SubElement(self.xpath('//h:Building/h:BuildingID'), tr.addns('h:SendingSystemIdentifierValue'))
         el.text = uuid.uuid4().hex
         res = tr.hpxml_to_hescore()
-        self.assertEqual(myid, res['building']['about'].get('external_building_id'))
+        self.assertEqual(myid, res['building_address'].get('external_building_id'))
 
     def test_preconstruction_event_type(self):
         tr = self._load_xmlfile('hescore_min')

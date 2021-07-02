@@ -843,6 +843,17 @@ class HPXMLtoHEScoreTranslatorBase(object):
             else:
                 assert transaction_type == 'update'
                 bldgaddr['assessment_type'] = 'corrected'
+
+        ext_id_xpath_exprs = (
+            'h:extension/h:HESExternalID/text()',
+            'h:BuildingID/h:SendingSystemIdentifierValue/text()'
+        )
+        for ext_id_xpath_expr in ext_id_xpath_exprs:
+            external_id_value = xpath(b, ext_id_xpath_expr)
+            if external_id_value is not None:
+                bldgaddr['external_building_id'] = external_id_value
+                break
+
         return bldgaddr
 
     def get_hpwes(self, p, c):
@@ -883,16 +894,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         xpath = self.xpath
         ns = self.ns
         bldg_about = OrderedDict()
-
-        ext_id_xpath_exprs = (
-            'h:extension/h:HESExternalID/text()',
-            'h:BuildingID/h:SendingSystemIdentifierValue/text()'
-        )
-        for ext_id_xpath_expr in ext_id_xpath_exprs:
-            external_id_value = xpath(b, ext_id_xpath_expr)
-            if external_id_value is not None:
-                bldg_about['external_building_id'] = external_id_value
-                break
 
         project_status_date_el = b.find('h:ProjectStatus/h:Date', namespaces=ns)
         if project_status_date_el is None:
@@ -1191,7 +1192,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
             if knee_walls:
                 knee_wall_rvalue, knee_wall_area = self.get_attic_knee_wall_rvalue_and_area(attic, b)
-                knee_wall_coc_rvalue = knee_wall_rvalue + 0.5
+                knee_wall_coc_rvalue = knee_wall_rvalue + 1.8
                 knee_wall_ua = knee_wall_area / knee_wall_coc_rvalue
 
                 attic_floor_coc_rvalue = attic_floor_rvalue + 0.5
