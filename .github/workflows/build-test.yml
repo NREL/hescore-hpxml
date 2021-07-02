@@ -47,7 +47,6 @@ jobs:
           path: coverage/coverage.xml
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           minimum_coverage: 83
-          fail_below_threshold: true
       - name: Build documentation
         if: ${{ matrix.python-version == 3.9 }}
         run: |
@@ -58,4 +57,4 @@ jobs:
         if: ${{ matrix.python-version == 3.9 }}
         with:
           name: documentation
-          path: build/html/
+          path: docs/build/html/
