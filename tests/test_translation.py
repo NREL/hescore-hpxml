@@ -961,6 +961,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         att_to_roof.addnext(E.AttachedToWall(idref='wall2'))
 
         resp = tr.hpxml_to_hescore()
+        assert resp['building']['zone']['zone_roof'][0]['roof_area'] == 1200
 
     def test_wall_construction_ps_low_r(self):
         """
