@@ -46,7 +46,8 @@ setup(
             'sphinx',
             'sphinx_rtd_theme',
             'sphinx-autobuild',
-            'pytest'
+            'pytest',
+            'pytest-cov'
         ],
         'test': [
             'flake8',
@@ -54,7 +55,8 @@ setup(
             'sphinx',
             'sphinx_rtd_theme',
             'sphinx-autobuild',
-            'pytest'
+            'pytest',
+            'pytest-cov'
         ]
     },
     include_package_data=True,
