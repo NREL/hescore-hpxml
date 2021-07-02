@@ -13,3 +13,4 @@ build
 .env
 .devcontainer
 coverage
+.coverage
