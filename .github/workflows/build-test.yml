@@ -34,7 +34,8 @@ jobs:
           report_paths: coverage/junit.xml
           check_name: Testing Report
           fail_on_failure: true
-      - uses: actions/upload-artifact@v2
+      - name: Save Coverage Report
+        uses: actions/upload-artifact@v2
         if: ${{ matrix.python-version == 3.9 }}
         with:
           name: coverage-report-html
@@ -47,3 +48,14 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           minimum_coverage: 83
           fail_below_threshold: true
+      - name: Build documentation
+        if: ${{ matrix.python-version == 3.9 }}
+        run: |
+          cd docs
+          make html
+      - name: Save Docs
+        uses: actions/upload-artifact@v2
+        if: ${{ matrix.python-version == 3.9 }}
+        with:
+          name: documentation
+          path: build/html/
