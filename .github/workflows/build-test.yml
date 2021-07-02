@@ -26,6 +26,12 @@ jobs:
           flake8 . --count --max-line-length=127 --statistics
       - name: Run Tests and Coverage Report
         run: pytest --junitxml=coverage/junit.xml --cov=hescorehpxml --cov-report=xml:coverage/coverage.xml --cov-report=html:coverage/htmlreport
+        continue-on-error: true
+      - name: JUnit Report Action
+        uses: mikepenz/action-junit-report@v2.4.3
+        if: ${{ matrix.python-version == 3.9 }}
+        with:
+          report_paths: coverage/junit.xml
       - uses: actions/upload-artifact@v2
         if: ${{ matrix.python-version == 3.9 }}
         with:
@@ -38,8 +44,3 @@ jobs:
           path: coverage/coverage.xml
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           minimum_coverage: 83
-      - name: JUnit Report Action
-        uses: mikepenz/action-junit-report@v2.4.3
-        if: ${{ matrix.python-version == 3.9 }}
-        with:
-          report_paths: coverage/junit.xml
