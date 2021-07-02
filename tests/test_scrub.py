@@ -233,3 +233,7 @@ def test_cli_scrubbed():
         with pytest.raises(SystemExit):
             main([str(infile3), '--scrubbed-hpxml', str(outfile3)])
         assert not outfile3.exists()
+
+
+def test_failure():
+    assert False
