@@ -6,6 +6,7 @@ import os
 import unittest
 import datetime as dt
 from lxml import etree, objectify
+from lxml.builder import ElementMaker
 from hescorehpxml import HPXMLtoHEScoreTranslator, main
 from hescorehpxml.exceptions import TranslationError, InputOutOfBounds, ElementNotFoundError
 import io
@@ -65,8 +66,7 @@ class ComparatorBase(object):
         return self.translator.xpath(self.translator.hpxmldoc, xpathexpr, *args, **kwargs)
 
     def element_maker(self):
-        E = objectify.ElementMaker(
-            annotate=False,
+        E = ElementMaker(
             namespace=self.translator.ns['h'],
             nsmap=self.translator.ns
         )
@@ -938,6 +938,29 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         resp = tr.hpxml_to_hescore()
         self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf00')
         self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
+
+    def test_gable_wall_ignore(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+        E = self.element_maker()
+        wall1 = self.xpath('//h:Wall[1]')
+        wall2 = deepcopy(wall1)
+        wall1type = wall1.find(tr.addns('h:WallType'))
+        wall1type.addnext(E.Area('100'))
+        wall2type = wall2.find(tr.addns('h:WallType'))
+        wall2type.addnext(E.Area('20'))
+        # change the system id
+        sysid = wall2.find(tr.addns('h:SystemIdentifier'))
+        sysid.attrib['id'] = 'wall2'
+        # and the insulation id
+        ins_sysid = wall2.xpath('h:Insulation/h:SystemIdentifier', namespaces=tr.ns)[0]
+        ins_sysid.attrib['id'] = 'wall2ins'
+        wall1.addnext(wall2)
+        sysid.addnext(E.InteriorAdjacentTo('attic - vented'))
+        sysid.addnext(E.ExteriorAdjacentTo('outside'))
+        att_to_roof = self.xpath('//h:Attic/h:AttachedToRoof')
+        att_to_roof.addnext(E.AttachedToWall(idref='wall2'))
+
+        resp = tr.hpxml_to_hescore()
 
     def test_wall_construction_ps_low_r(self):
         """
@@ -2485,11 +2508,11 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
 
         window3_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window3"]/h:FrameType')
         window3_frametype.clear()
-        window3_frametype.append(E.Aluminum(E.ThermalBreak(True)))
+        window3_frametype.append(E.Aluminum(E.ThermalBreak("true")))
 
         window4_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window4"]/h:FrameType')
         window4_frametype.clear()
-        window4_frametype.append(E.Aluminum(E.ThermalBreak(True)))
+        window4_frametype.append(E.Aluminum(E.ThermalBreak("true")))
         window4_frametype.getparent().append(E.GlassType('low-e'))
 
         d = tr.hpxml_to_hescore()
@@ -2519,11 +2542,11 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
 
         window3_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window3"]/h:FrameType')
         window3_frametype.clear()
-        window3_frametype.append(E.Aluminum(E.ThermalBreak(True)))
+        window3_frametype.append(E.Aluminum(E.ThermalBreak("true")))
 
         window4_frametype = self.xpath('//h:Window[h:SystemIdentifier/@id="window4"]/h:FrameType')
         window4_frametype.clear()
-        window4_frametype.append(E.Aluminum(E.ThermalBreak(True)))
+        window4_frametype.append(E.Aluminum(E.ThermalBreak("true")))
         window4_frametype.getparent().append(E.GlassType('low-e'))
 
         d_v3 = tr_v3.hpxml_to_hescore()
