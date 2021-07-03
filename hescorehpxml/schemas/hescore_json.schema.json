@@ -112,14 +112,12 @@
                             "$id": "#/properties/building/properties/about/properties/shape",
                             "type": "string",
                             "enum": ["rectangle", "town_house"],
-                            "maxLength": 20,
                             "description": "House shape"
                         },
                         "town_house_walls": {
                             "$id": "#/properties/building/properties/about/properties/town_house_walls",
                             "type": "string",
                             "enum": ["back_front", "back_right_front", "back_front_left"],
-                            "maxLength": 20,
                             "description": "Which townhouse walls are exposed (only used if shape is town_house)"
                         },
                         "year_built": {
@@ -160,7 +158,6 @@
                             "$id": "#/properties/building/properties/about/properties/orientation",
                             "type": "string",
                             "enum": ["north", "north_east", "east", "south_east", "south", "south_west", "west", "north_west"],
-                            "maxLength": 20,
                             "description": "Orientation of the front door"
                         },
                         "blower_door_test": {
@@ -183,7 +180,7 @@
                     },
                     "if": {
                         "properties": {
-                            "shape": {"enum": ["town_house"]}
+                            "shape": {"const": "town_house"}
                         }
                     },
                     "then": {
@@ -267,14 +264,12 @@
                                                  "rfps15co", "rfps15wo", "rfps15rc", "rfps15lc", "rfps15tg",
                                                  "rfps19co", "rfps19wo", "rfps19rc", "rfps19lc", "rfps19tg",
                                                  "rfps21co", "rfps21wo", "rfps21rc", "rfps21lc", "rfps21tg"],
-                                        "maxLength": 20,
                                         "description": "Roof construction assembly code"
                                     },
                                     "roof_color": {
                                         "$id": "#/properties/building/properties/zone/properties/zone_roof/items/properties/roof_color",
                                         "type": "string",
                                         "enum": ["white", "light", "medium", "medium_dark", "dark", "cool_color"],
-                                        "maxLength": 20,
                                         "description": "Color of roof exterior surface"
                                     },
                                     "roof_absorptance": {
@@ -288,7 +283,6 @@
                                         "$id": "#/properties/building/properties/zone/properties/zone_roof/items/properties/roof_type",
                                         "type": "string",
                                         "enum": ["vented_attic", "cond_attic", "cath_ceiling"],
-                                        "maxLength": 20,
                                         "description": "Type of roof"
                                     },
                                     "ceiling_assembly_code": {
@@ -297,7 +291,6 @@
                                         "enum": ["ecwf00", "ecwf03", "ecwf06", "ecwf09", "ecwf11", "ecwf19",
                                                  "ecwf21", "ecwf25", "ecwf30", "ecwf38", "ecwf44", "ecwf49",
                                                  "ecwf60"],
-                                        "maxLength": 20,
                                         "description": "Ceiling construction assembly code (required unless roof_type is cath_ceiling)"
                                     },
                                     "zone_skylight": {
@@ -317,7 +310,6 @@
                                                 "$id": "#/properties/building/properties/zone/properties/zone_roof/items/properties/zone_skylight/properties/skylight_method",
                                                 "type": "string",
                                                 "enum": ["code", "custom"],
-                                                "maxLength": 20,
                                                 "description": "Construction method to use for skylights"
                                             },
                                             "skylight_code": {
@@ -326,7 +318,6 @@
                                                 "enum": ["scna", "scnw", "stna", "stnw", "dcaa", "dcab", "dcaw",
                                                          "dtaa", "dtab", "dtaw", "dpeaw", "dpeaab", "dpeaaw",
                                                          "dseaa", "dseab", "dseaw", "dseaaw", "thmabw"],
-                                                "maxLength": 20,
                                                 "description": "Assembly code for skylights (only used if skylight_method is code)"
                                             },
                                             "skylight_u_value": {
@@ -339,8 +330,8 @@
                                             "skylight_shgc": {
                                                 "$id": "#/properties/building/properties/zone/properties/zone_roof/items/properties/zone_skylight/properties/skylight_shgc",
                                                 "type": "number",
-                                                "minimum": 0,
-                                                "maximum": 1,
+                                                "exclusiveMinimum": 0,
+                                                "exclusiveMaximum": 1,
                                                 "description": "Solar heat gain coefficient of skylights (only used if skylight_method is custom)"
                                             },
                                             "solar_screen": {
@@ -353,7 +344,7 @@
                                             {
                                                 "if": {
                                                     "properties": {
-                                                        "skylight_area": {"not": {"const": 0}}
+                                                        "skylight_area": {"exclusiveMinimum": 0}
                                                     },
                                                     "required": ["skylight_area"]
                                                 },
@@ -364,8 +355,8 @@
                                             {
                                                 "if": {
                                                     "properties": {
-                                                        "skylight_area": {"not": {"const": 0}},
-                                                        "skylight_method": {"enum": ["code"]}
+                                                        "skylight_area": {"exclusiveMinimum": 0},
+                                                        "skylight_method": {"const": "code"}
                                                     },
                                                     "required": ["skylight_area", "skylight_method"]
                                                 },
@@ -376,8 +367,8 @@
                                             {
                                                 "if": {
                                                     "properties": {
-                                                        "skylight_area": {"not": {"const": 0}},
-                                                        "skylight_method": {"enum": ["custom"]}
+                                                        "skylight_area": {"exclusiveMinimum": 0},
+                                                        "skylight_method": {"const": "custom"}
                                                     },
                                                     "required": ["skylight_area", "skylight_method"]
                                                 },
@@ -392,7 +383,7 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "roof_area": {"not": {"const": 0}}
+                                                "roof_area": {"exclusiveMinimum": 0}
                                             },
                                             "required": ["roof_area"]
                                         },
@@ -403,7 +394,7 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "roof_name": {"enum": ["roof1"]}
+                                                "roof_name": {"const": "roof1"}
                                             },
                                             "required": ["roof_name"]
                                         },
@@ -415,7 +406,7 @@
                                         "if": {
                                             "properties": {
                                                 "roof_name": {"const": "roof1"},
-                                                "roof_area": {"not": {"const": 0}},
+                                                "roof_area": {"exclusiveMinimum": 0},
                                                 "roof_color": {"const": "cool_color"}
                                             },
                                             "required": ["roof_name", "roof_area", "roof_color"]
@@ -428,7 +419,7 @@
                                         "if": {
                                             "properties": {
                                                 "roof_name": {"const": "roof1"},
-                                                "roof_area": {"not": {"const": 0}},
+                                                "roof_area": {"exclusiveMinimum": 0},
                                                 "roof_type": {"enum": ["vented_attic", "cond_attic"]}
                                             },
                                             "required": ["roof_name", "roof_area", "roof_type"]
@@ -458,7 +449,6 @@
                                         "$id": "#/properties/building/properties/zone/properties/zone_floor/items/properties/floor_name",
                                         "type": "string",
                                         "enum": ["floor1", "floor2"],
-                                        "maxLength": 20,
                                         "description": "Name of this floor instance"
                                     },
                                     "floor_area": {
@@ -472,7 +462,6 @@
                                         "$id": "#/properties/building/properties/zone/properties/zone_floor/items/properties/foundation_type",
                                         "type": "string",
                                         "enum": ["uncond_basement", "cond_basement", "vented_crawl", "unvented_crawl", "slab_on_grade"],
-                                        "maxLength": 20,
                                         "description": "Type of foundation"
                                     },
                                     "foundation_insulation_level": {
@@ -487,7 +476,6 @@
                                         "type": "string",
                                         "enum": ["efwf00ca", "efwf11ca", "efwf13ca", "efwf15ca", "efwf19ca",
                                                  "efwf21ca", "efwf25ca", "efwf30ca", "efwf38ca"],
-                                        "maxLength": 20,
                                         "description": "Floor construction assembly code (only used if foundation_type is not slab_on_grade)"
                                     }
                                 },
@@ -495,7 +483,7 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "floor_name": {"enum": ["floor1"]}
+                                                "floor_name": {"const": "floor1"}
                                             },
                                             "required": ["floor_name"]
                                         },
@@ -506,8 +494,8 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "floor_name": {"enum": ["floor1"]},
-                                                "floor_area": {"not": {"const": 0}}
+                                                "floor_name": {"const": "floor1"},
+                                                "floor_area": {"exclusiveMinimum": 0}
                                             },
                                             "required": ["floor_name", "floor_area"]
                                         },
@@ -518,9 +506,9 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "floor_name": {"enum": ["floor1"]},
-                                                "floor_area": {"not": {"const": 0}},
-                                                "foundation_type": {"not": {"enum": ["slab_on_grade"]}}
+                                                "floor_name": {"const": "floor1"},
+                                                "floor_area": {"exclusiveMinimum": 0},
+                                                "foundation_type": {"not": {"const": "slab_on_grade"}}
                                             },
                                             "required": ["floor_name", "floor_area", "foundation_type"]
                                         },
@@ -586,7 +574,6 @@
                                                  "ewcb03st", "ewcb03br", "ewcb03nn",
                                                  "ewcb06st", "ewcb06br", "ewcb06nn",
                                                  "ewsb00st"],
-                                        "maxLength": 20,
                                         "description": "Wall construction assembly code"
                                     },
                                     "zone_window": {
@@ -602,15 +589,13 @@
                                             "window_method": {
                                                 "type": "string",
                                                 "enum": ["code", "custom"],
-                                                "maxLength": 20,
                                                 "description": "Construction method to use for this window"
                                             },
                                             "window_code": {
                                                 "type": "string",
                                                 "enum": ["scna", "scnw", "stna", "stnw", "dcaa", "dcab", "dcaw",
-                                                        "dtaa", "dtab", "dtaw", "dpeaw", "dpeaab", "dpeaaw",
-                                                        "dseaa", "dseab", "dseaw", "dseaaw", "thmabw"],
-                                                "maxLength": 20,
+                                                         "dtaa", "dtab", "dtaw", "dpeaw", "dpeaab", "dpeaaw",
+                                                         "dseaa", "dseab", "dseaw", "dseaaw", "thmabw"],
                                                 "description": "assembly code for this window (only used if window_method is code)"
                                             },
                                             "window_u_value": {
@@ -621,8 +606,8 @@
                                             },
                                             "window_shgc": {
                                                 "type": "number",
-                                                "minimum": 0,
-                                                "maximum": 1,
+                                                "exclusiveMinimum": 0,
+                                                "exclusiveMaximum": 1,
                                                 "description": "Solar heat gain coefficient of this window (only used if window_method is custom)"
                                             },
                                             "solar_screen": {
@@ -658,7 +643,6 @@
                                         "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_name",
                                         "type": "string",
                                         "enum": ["hvac1", "hvac2"],
-                                        "maxLength": 20,
                                         "description": "Name of this system instance"
                                     },
                                     "hvac_fraction": {
@@ -683,21 +667,18 @@
                                                 "type": "string",
                                                 "enum": ["heat_pump", "central_furnace", "wall_furnace", "baseboard", 
                                                          "boiler", "gchp", "wood_stove", "mini_split", "none"],
-                                                "maxLength": 20,
                                                 "description": "Heating equipment type"
                                             },
                                             "fuel_primary": {
                                                 "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/fuel_primary",
                                                 "type": "string",
                                                 "enum": ["electric", "natural_gas", "lpg", "fuel_oil", "cord_wood", "pellet_wood"],
-                                                "maxLength": 20,
                                                 "description": "Primary heating fuel"
                                             },
                                             "efficiency_method": {
                                                 "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency_method",
                                                 "type": "string",
                                                 "enum": ["user", "shipment_weighted"],
-                                                "maxLength": 20,
                                                 "description": "Method to determine heating efficiency"
                                             },
                                             "year": {
@@ -817,14 +798,12 @@
                                                 "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/type",
                                                 "type": "string",
                                                 "enum": ["packaged_dx", "split_dx", "heat_pump", "gchp", "dec", "mini_split", "none"],
-                                                "maxLength": 20,
                                                 "description": "Cooling equipment type"
                                             },
                                             "efficiency_method": {
                                                 "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency_method",
                                                 "type": "string",
                                                 "enum": ["user", "shipment_weighted"],
-                                                "maxLength": 20,
                                                 "description": "Method to determine cooling efficiency"
                                             },
                                             "year": {
@@ -1321,14 +1300,12 @@
                                                     "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/name",
                                                     "type": "string",
                                                     "enum": ["duct1", "duct2", "duct3"],
-                                                    "maxLength": 20,
                                                     "description": "Name of distribution system"
                                                 },
                                                 "location": {
                                                     "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/location",
                                                     "type": "string",
                                                     "enum": ["cond_space", "uncond_basement", "unvented_crawl", "vented_crawl", "uncond_attic"],
-                                                    "maxLength": 20,
                                                     "description": "Location of distribution system"
                                                 },
                                                 "fraction": {
@@ -1368,14 +1345,12 @@
                                                     "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/name",
                                                     "type": "string",
                                                     "enum": ["duct1", "duct2", "duct3"],
-                                                    "maxLength": 20,
                                                     "description": "Name of distribution system"
                                                 },
                                                 "location": {
                                                     "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/location",
                                                     "type": "string",
                                                     "enum": ["cond_space", "uncond_basement", "unvented_crawl", "vented_crawl", "uncond_attic"],
-                                                    "maxLength": 20,
                                                     "description": "Location of distribution system"
                                                 },
                                                 "fraction": {
@@ -1403,7 +1378,7 @@
                                                 {
                                                     "if": {
                                                         "properties": {
-                                                            "fraction": {"not": {"const": 0}}
+                                                            "fraction": {"exclusiveMinimum": 0}
                                                         },
                                                         "required": ["fraction"]
                                                     },
@@ -1430,28 +1405,24 @@
                                     "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/category",
                                     "type": "string",
                                     "enum": ["unit", "combined"],
-                                    "maxLength": 20,
                                     "description": "Water heater category"
                                 },
                                 "type": {
                                     "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/type",
                                     "type": "string",
                                     "enum": ["storage", "indirect", "tankless_coil", "tankless", "heat_pump"],
-                                    "maxLength": 20,
                                     "description": "Water heater type"
                                 },
                                 "fuel_primary": {
                                     "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/fuel_primary",
                                     "type": "string",
                                     "enum": ["electric", "natural_gas", "lpg", "fuel_oil"],
-                                    "maxLength": 20,
                                     "description": "Primary water heater fuel"
                                 },
                                 "efficiency_method": {
                                     "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/efficiency_method",
                                     "type": "string",
                                     "enum": ["user", "uef", "shipment_weighted"],
-                                    "maxLength": 20,
                                     "description": "Method to determine water heater efficiency"
                                 },
                                 "year": {
@@ -1484,7 +1455,7 @@
                                 {
                                     "if": {
                                         "properties": {
-                                            "category": {"enum": ["unit"]}
+                                            "category": {"const": "unit"}
                                         },
                                         "required": ["category"]
                                     },
@@ -1495,8 +1466,8 @@
                                 {
                                     "if": {
                                         "properties": {
-                                            "category": {"enum": ["unit"]},
-                                            "efficiency_method": {"enum": ["shipment_weighted"]}
+                                            "category": {"const": "unit"},
+                                            "efficiency_method": {"const": "shipment_weighted"}
                                         },
                                         "required": ["category", "efficiency_method"]
                                     },
@@ -1507,7 +1478,7 @@
                                 {
                                     "if": {
                                         "properties": {
-                                            "category": {"enum": ["unit"]},
+                                            "category": {"const": "unit"},
                                             "efficiency_method": {"enum": ["user", "uef"]}
                                         },
                                         "required": ["category", "efficiency_method"]
@@ -1519,7 +1490,7 @@
                                 {
                                     "if": {
                                         "properties": {
-                                            "type": {"enum": ["storage"]},
+                                            "type": {"const": "storage"},
                                             "efficiency_method": {"enum": ["user", "uef", "shipment_weighted"]}
                                         },
                                         "required": ["type", "efficiency_method"]
@@ -1538,7 +1509,7 @@
                                 {
                                     "if": {
                                         "properties": {
-                                            "type": {"enum": ["tankless"]},
+                                            "type": {"const": "tankless"},
                                             "efficiency_method": {"enum": ["user", "uef"]}
                                         },
                                         "required": ["type", "efficiency_method"]
@@ -1557,7 +1528,7 @@
                                 {
                                     "if": {
                                         "properties": {
-                                            "type": {"enum": ["heat_pump"]},
+                                            "type": {"const": "heat_pump"},
                                             "efficiency_method": {"const": "user"}
                                         },
                                         "required": ["type", "efficiency_method"]
@@ -1612,7 +1583,6 @@
                                             "$id": "#/properties/building/properties/systems/properties/generation/items/properties/solar_electric/array_azimuth",
                                             "type": "string",
                                             "enum": ["north", "north_east", "east", "south_east", "south", "south_west", "west", "north_west"],
-                                            "maxLength": 20,
                                             "description": "Direction panels face"
                                         }
                                     },
@@ -1694,7 +1664,7 @@
                                             "properties": {
                                                 "heating": {
                                                     "properties": {
-                                                        "type": {"enum": ["boiler"]}
+                                                        "type": {"const": "boiler"}
                                                     },
                                                     "required": ["type"]
                                                 }
@@ -2053,7 +2023,7 @@
         "def_front_wall_constraint": {
             "contains": {
                 "properties": {
-                    "side": {"enum": ["front"]}
+                    "side": {"const": "front"}
                 },
                 "required": ["side", "wall_assembly_code"]
             },
@@ -2062,7 +2032,7 @@
         "def_back_wall_constraint": {
             "contains": {
                 "properties": {
-                    "side": {"enum": ["back"]}
+                    "side": {"const": "back"}
                 },
                 "required": ["side", "wall_assembly_code"]
             },
@@ -2071,7 +2041,7 @@
         "def_right_wall_constraint": {
             "contains": {
                 "properties": {
-                    "side": {"enum": ["right"]}
+                    "side": {"const": "right"}
                 },
                 "required": ["side", "wall_assembly_code"]
             },
@@ -2080,7 +2050,7 @@
         "def_left_wall_constraint": {
             "contains": {
                 "properties": {
-                    "side": {"enum": ["left"]}
+                    "side": {"const": "left"}
                 },
                 "required": ["side", "wall_assembly_code"]
             },
@@ -2091,7 +2061,7 @@
                 {
                     "contains": {
                         "properties": {
-                            "side": {"enum": ["front"]},
+                            "side": {"const": "front"},
                             "zone_window": {
                                 "required": ["window_area", "window_method"]
                             }
@@ -2162,7 +2132,7 @@
                 {
                     "contains": {
                         "properties": {
-                            "side": {"enum": ["back"]},
+                            "side": {"const": "back"},
                             "zone_window": {
                                 "required": ["window_area", "window_method"]
                             }
@@ -2232,7 +2202,7 @@
                 {
                     "contains": {
                         "properties": {
-                            "side": {"enum": ["right"]},
+                            "side": {"const": "right"},
                             "zone_window": {
                                 "required": ["window_area", "window_method"]
                             }
@@ -2303,7 +2273,7 @@
                 {
                     "contains": {
                         "properties": {
-                            "side": {"enum": ["left"]},
+                            "side": {"const": "left"},
                             "zone_window": {
                                 "required": ["window_area", "window_method"]
                             }

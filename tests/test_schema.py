@@ -156,17 +156,25 @@ def test_invalid_skylight():
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema)
     js = get_example_json(hpxml_filebase)
-    js['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_method'] = 'custom'
-    errors = get_error_messages(js, js_schema)
+
+    js1 = copy.deepcopy(js)
+    js1['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_method'] = 'custom'
+    errors = get_error_messages(js1, js_schema)
     assert "'skylight_u_value' is a required property" in errors
     assert "'skylight_shgc' is a required property" in errors
-    del js['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_method']
-    del js['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_code']
-    errors = get_error_messages(js, js_schema)
+    del js1['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_method']
+    del js1['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_code']
+    errors = get_error_messages(js1, js_schema)
     assert "'skylight_method' is a required property" in errors
     assert "'skylight_code' is a required property" not in errors
     assert "'skylight_u_value' is a required property" not in errors
     assert "'skylight_shgc' is a required property" not in errors
+
+    js2 = copy.deepcopy(js)
+    js2['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_area'] = 0
+    del js2['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_method']
+    errors = get_error_messages(js2, js_schema)
+    assert "'skylight_method' is a required property" not in errors
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -239,6 +247,9 @@ def test_invalid_window(hpxml_filebase):
         assert 'zone_wall/side["back"]/zone_window requires "window_area" and "window_method"' in errors
     elif hpxml_filebase == 'house1':
         assert 'zone_wall/side["left"]/zone_window requires "window_area" and "window_method"' in errors
+    js['building']['zone']['zone_wall'][0]['zone_window']['window_shgc'] = 1
+    errors = get_error_messages(js, js_schema)
+    assert '1 is greater than or equal to the maximum of 1' in errors
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
