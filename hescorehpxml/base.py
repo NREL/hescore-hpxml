@@ -81,8 +81,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
         schematree = etree.parse(self.schemapath)
         self.schema = etree.XMLSchema(schematree)
         if not self.schema.validate(self.hpxmldoc):
+            log = self.schema.error_log
             raise TranslationError(
-                'Failed to validate against the following HPXML schema: {}'.format(self.SCHEMA_DIR)
+                'Failed to validate against the following HPXML schema: {}\n{}'.format(self.SCHEMA_DIR, log)
             )
         self.ns = {'xs': 'http://www.w3.org/2001/XMLSchema'}
         self.ns['h'] = schematree.xpath('//xs:schema/@targetNamespace', namespaces=self.ns)[0]
