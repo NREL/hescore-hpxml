@@ -808,7 +808,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             zip_map = pd.read_csv(os.path.join(thisdir, 'COUNTY_ZIP_032021.csv'), dtype={'COUNTY': object})
             zipcodes = zip_map[zip_map['COUNTY']==fips]
             zipcode = zipcodes[zipcodes['RES_RATIO'] == zipcodes['RES_RATIO'].max()]['ZIP']
-            return(str(zipcode))
+            return(str(zipcode.values[0]))
             
         xpath = self.xpath
         ns = self.ns
