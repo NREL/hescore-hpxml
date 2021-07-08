@@ -43,13 +43,13 @@
                 "improvement_installation_start_date": {
                     "$id": "#/properties/building/properties/improvement_installation_start_date",
                     "type": "string",
-                    "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+                    "format": "date",
                     "description": "The date on which HPwES upgrade installation began, in YYYY-MM-DD format"
                 },
                 "improvement_installation_completion_date": {
                     "$id": "#/properties/building/properties/improvement_installation_completion_date",
                     "type": "string",
-                    "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+                    "format": "date",
                     "description": "The date on which HPwES upgrade installation was completed, in YYYY-MM-DD format"
                 },
                 "contractor_zip_code": {
@@ -93,7 +93,7 @@
                         "assessment_date": {
                             "$id": "#/properties/building/properties/about/properties/assessment_date",
                             "type": "string",
-                            "pattern": "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+                            "format": "date",
                             "description": "Date the assessment was performed"
                         },
                         "comments": {

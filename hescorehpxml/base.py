@@ -12,7 +12,7 @@ from decimal import Decimal
 from collections import OrderedDict
 import os
 import re
-from jsonschema import validate
+from jsonschema import validate, FormatChecker
 
 from .exceptions import (
     TranslationError,
@@ -780,7 +780,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         with open(self.jsonschemapath, 'r') as js:
             json_schema = json.loads(js.read())
             js.close()
-        validate(hescore_inputs, json_schema)
+        validate(hescore_inputs, json_schema, format_checker=FormatChecker())
 
         return hescore_inputs
 

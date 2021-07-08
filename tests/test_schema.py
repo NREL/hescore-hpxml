@@ -50,7 +50,7 @@ def test_example_files():
     for examplefile in glob.glob(examplefiles):
         hpxml_filebase = os.path.basename(examplefile).split('.')[0]
         schema = get_json_schema()
-        js_schema = jsonschema.Draft7Validator(schema)
+        js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
         js = get_example_json(hpxml_filebase)
         errors = get_error_messages(js, js_schema)
         assert len(errors) == 0
@@ -59,7 +59,7 @@ def test_example_files():
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_building_about(hpxml_filebase):
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
 
     js1 = copy.deepcopy(js)
@@ -114,11 +114,16 @@ def test_invalid_building_about(hpxml_filebase):
         errors = get_error_messages(js2, js_schema)
         assert "'town_house_walls' is a required property" in errors
 
+    js3 = copy.deepcopy(js)
+    js3['building']['about']['assessment_date'] = '2021'
+    errors = get_error_messages(js3, js_schema)
+    assert "'2021' is not a 'date'" in errors
+
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_building_zone(hpxml_filebase):
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
     zone = copy.deepcopy(js['building']['zone'])
     del js['building']['zone']
@@ -137,7 +142,7 @@ def test_invalid_building_zone(hpxml_filebase):
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_roof(hpxml_filebase):
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
     del js['building']['zone']['zone_roof'][0]['roof_assembly_code']
     del js['building']['zone']['zone_roof'][0]['roof_color']
@@ -154,7 +159,7 @@ def test_invalid_roof(hpxml_filebase):
 def test_invalid_skylight():
     hpxml_filebase = 'townhouse_walls'
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
 
     js1 = copy.deepcopy(js)
@@ -180,7 +185,7 @@ def test_invalid_skylight():
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_floor(hpxml_filebase):
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
     del js['building']['zone']['zone_floor'][0]['foundation_type']
     del js['building']['zone']['zone_floor'][0]['foundation_insulation_level']
@@ -199,7 +204,7 @@ def test_invalid_floor(hpxml_filebase):
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_wall_window_construction_same(hpxml_filebase):
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
     del js['building']['zone']['wall_construction_same']
     del js['building']['zone']['window_construction_same']
@@ -211,7 +216,7 @@ def test_invalid_wall_window_construction_same(hpxml_filebase):
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_wall(hpxml_filebase):
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
     del js['building']['zone']['zone_wall'][0]['side']
     del js['building']['zone']['zone_wall'][1]['wall_assembly_code']
@@ -227,7 +232,7 @@ def test_invalid_wall(hpxml_filebase):
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_window(hpxml_filebase):
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
     if hpxml_filebase == 'townhouse_walls':
         del js['building']['zone']['zone_wall'][0]['zone_window']['window_u_value']
@@ -255,7 +260,7 @@ def test_invalid_window(hpxml_filebase):
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_heating(hpxml_filebase):
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
 
     js1 = copy.deepcopy(js)
@@ -338,7 +343,7 @@ def test_invalid_heating(hpxml_filebase):
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_cooling(hpxml_filebase):
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
 
     js1 = copy.deepcopy(js)
@@ -395,7 +400,7 @@ def test_invalid_cooling(hpxml_filebase):
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_hvac_distribution(hpxml_filebase):
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
 
     js1 = copy.deepcopy(js)
@@ -441,7 +446,7 @@ def test_invalid_hvac_distribution(hpxml_filebase):
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_domestic_hot_water(hpxml_filebase):
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
 
     js1 = copy.deepcopy(js)
@@ -504,7 +509,7 @@ def test_invalid_domestic_hot_water(hpxml_filebase):
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_solar_electric(hpxml_filebase):
     schema = get_json_schema()
-    js_schema = jsonschema.Draft7Validator(schema)
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
     js['building']['systems'] = {'generation': {'solar_electric': {'capacity_known': False}}}
     errors = get_error_messages(js, js_schema)
