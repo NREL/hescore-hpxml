@@ -398,7 +398,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         knee_wall_area = sum(x['area'] for x in knee_wall_dict_ls)
         try:
             knee_wall_r = knee_wall_area / \
-                          sum(x['area'] / x['rvalue'] for x in knee_wall_dict_ls)
+                sum(x['area'] / x['rvalue'] for x in knee_wall_dict_ls)
         except ZeroDivisionError:
             knee_wall_r = 0
 
@@ -564,7 +564,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         duct_fracs_by_hescore_duct_loc = defaultdict(float)
         hescore_duct_loc_has_insulation = defaultdict(bool)
         for duct_el in self.xpath(airdist_el, 'h:Ducts', aslist=True):
-
 
             # Duct Location
             hpxml_duct_location = self.xpath(duct_el, 'h:DuctLocation/text()')
@@ -807,10 +806,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
     def get_building_address(self, b, resstock_file):
         def get_zip_from_fips(fips):
             zip_map = pd.read_csv(os.path.join(thisdir, 'COUNTY_ZIP_032021.csv'), dtype={'COUNTY': object})
-            zipcodes = zip_map[zip_map['COUNTY']==fips]
+            zipcodes = zip_map[zip_map['COUNTY'] == fips]
             zipcode = zipcodes[zipcodes['RES_RATIO'] == zipcodes['RES_RATIO'].max()]['ZIP']
             return(str(zipcode.values[0]))
-            
+
         xpath = self.xpath
         ns = self.ns
         bldgaddr = OrderedDict()
@@ -825,7 +824,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             bldgaddr['state'] = xpath(b, 'h:Site/h:Address/h:StateCode/text()', raise_err=True)
             bldgaddr['city'] = xpath(b, 'h:Site/h:Address/h:CityMunicipality/text()', raise_err=True)
             bldgaddr['zip_code'] = xpath(b, 'h:Site/h:Address/h:ZipCode/text()', raise_err=True)
-        
+
         transaction_type = xpath(self.hpxmldoc, 'h:XMLTransactionHeaderInformation/h:Transaction/text()')
         is_mentor = xpath(b, 'boolean(h:ProjectStatus/h:extension/h:HEScoreMentorAssessment)')
         if is_mentor:
@@ -951,7 +950,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         if avg_ceiling_ht is None:
             try:
                 avg_ceiling_ht = float(xpath(bldg_cons_el, 'h:ConditionedBuildingVolume/text()', raise_err=True)) / \
-                                 float(xpath(bldg_cons_el, 'h:ConditionedFloorArea/text()', raise_err=True))
+                    float(xpath(bldg_cons_el, 'h:ConditionedFloorArea/text()', raise_err=True))
             except ElementNotFoundError:
                 raise TranslationError(
                     'Either AverageCeilingHeight or both ConditionedBuildingVolume and ConditionedFloorArea are '
@@ -997,9 +996,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
             elif xpath(blower_door_test, 'h:BuildingAirLeakage/h:UnitofMeasure/text()') == 'ACH':
                 bldg_about['envelope_leakage'] = bldg_about['floor_to_ceiling_height'] * bldg_about[
                     'conditioned_floor_area'] * \
-                                                 float(xpath(blower_door_test,
-                                                             'h:BuildingAirLeakage/h:AirLeakage/text()',
-                                                             raise_err=True)) / 60.
+                    float(xpath(blower_door_test,
+                                'h:BuildingAirLeakage/h:AirLeakage/text()',
+                                raise_err=True)) / 60.
             else:
                 raise TranslationError('BuildingAirLeakage/UnitofMeasure must be either "CFM" or "ACH"')
             bldg_about['envelope_leakage'] = int(python2round(bldg_about['envelope_leakage']))
@@ -1148,7 +1147,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     roof_rvalue -= 5
                 roof_rvalue, attic_roofs_d['roof_coc_rvalue'] = \
                     min(list(roof_center_of_cavity_rvalues[attic_roofs_d['roofconstype']][
-                                 attic_roofs_d['extfinish']].items()),
+                        attic_roofs_d['extfinish']].items()),
                         key=lambda x: abs(x[0] - roof_rvalue))
 
             # Please review this, it is combining properties of multiple roofs attached into one for each attic
@@ -2384,7 +2383,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         do_bounds_check('heating_year', sys_heating['year'], 1970, this_year)
                 else:
                     if not ((sys_heating['type'] in ('central_furnace', 'baseboard') and
-                            sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
+                             sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
                         raise TranslationError(
                             'Heating system %(fuel_primary)s %(type)s needs an efficiency value.' %
                             sys_heating)

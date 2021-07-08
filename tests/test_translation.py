@@ -768,7 +768,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'Cooling efficiency could not be determined',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_heating_system_wrong_efficiency_type(self):
         '''
@@ -781,7 +781,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'Heating efficiency could not be determined',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_hvac_fractions_sum_to_one(self):
         tr = self._load_xmlfile('house6')
@@ -836,7 +836,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'Every wall insulation layer needs a NominalRValue',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_attic_knee_wall(self):
         """
@@ -990,7 +990,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'Wall R-value outside HEScore bounds',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_heating_system_no_efficiency(self):
         """
@@ -1007,14 +1007,14 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             'efficiency',
             d['building']['systems']['hvac'][0]['heating'],
             'Electric furnace should not have an efficiency.'
-            )
+        )
         annual_heating_eff.getparent().remove(annual_heating_eff)
         d = tr.hpxml_to_hescore()
         self.assertNotIn(
             'efficiency',
             d['building']['systems']['hvac'][0]['heating'],
             'Electric furnace should not have an efficiency.'
-            )
+        )
         htgsys_fuel.text = 'wood'
         htgsys_type = self.xpath('//h:HeatingSystem[1]/h:HeatingSystemType')
         htgsys_type.clear()
@@ -1024,7 +1024,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             'efficiency',
             d['building']['systems']['hvac'][0]['heating'],
             'Wood stove should not have an efficiency.'
-            )
+        )
         htgsys = self.xpath('//h:HeatingSystem[1]')
         htgsys.append(annual_heating_eff)
         d = tr.hpxml_to_hescore()
@@ -1032,7 +1032,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             'efficiency',
             d['building']['systems']['hvac'][0]['heating'],
             'Wood stove should not have an efficiency.'
-            )
+        )
 
     def test_zipcode_missing(self):
         """
@@ -1055,7 +1055,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'(Cooling|Heating) system heatpump1 is not associated with an air distribution system',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_mentor_extension(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1087,7 +1087,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = etree.SubElement(
             etree.SubElement(self.xpath('//h:Building'), tr.addns('h:extension')),
             tr.addns('h:HESExternalID')
-            )
+        )
         myid = uuid.uuid4().hex
         el.text = myid
         el = etree.SubElement(self.xpath('//h:Building/h:BuildingID'), tr.addns('h:SendingSystemIdentifierValue'))
@@ -1686,7 +1686,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'MaxPowerOutput or CollectorArea is required',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_collector_area(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1711,7 +1711,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'ArrayAzimuth or ArrayOrientation is required for every PVSystem',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_years_missing(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1720,7 +1720,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'Either YearInverterManufactured or YearModulesManufactured is required for every PVSystem',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_two_sys_avg(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1747,7 +1747,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'Either a MaxPowerOutput must be specified for every PVSystem or CollectorArea',
             tr.hpxml_to_hescore
-            )
+        )
 
 
 class TesHPXMLVersion2Point3(unittest.TestCase, ComparatorBase):
@@ -1761,7 +1761,7 @@ class TesHPXMLVersion2Point3(unittest.TestCase, ComparatorBase):
         self.assertEqual(
             d['building']['systems']['hvac'][0]['heating']['type'],
             'wall_furnace'
-            )
+        )
 
     def test_medium_dark_roof_color(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1771,7 +1771,7 @@ class TesHPXMLVersion2Point3(unittest.TestCase, ComparatorBase):
         self.assertEqual(
             d['building']['zone']['zone_roof'][0]['roof_color'],
             'medium_dark'
-            )
+        )
 
     def test_roof_absorptance(self):
         tr = self._load_xmlfile('hescore_min')
@@ -2609,7 +2609,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         heatpump_type.addprevious(E.DistributionSystem(idref='hvacd1'))
         self.assertRaisesRegex(
             TranslationError,
-            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.', # noqa E501
+            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.',  # noqa E501
             tr.hpxml_to_hescore)
 
         # heatpump system type: mini-split + other cooling system
@@ -2681,7 +2681,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         heatpump_type.addprevious(E.DistributionSystem(idref='hvacd1'))
         self.assertRaisesRegex(
             TranslationError,
-            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.', # noqa E501
+            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.',  # noqa E501
             tr_v3.hpxml_to_hescore)
 
         # heatpump system type: mini-split + other cooling system
@@ -2855,7 +2855,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         heatpump_type.addprevious(E.DistributionSystem(idref='hvacd1'))
         self.assertRaisesRegex(
             TranslationError,
-            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.', # noqa E501
+            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.',  # noqa E501
             tr.hpxml_to_hescore)
 
         # heatpump system type: mini-split + other cooling system

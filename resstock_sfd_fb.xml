@@ -732,7 +732,6 @@
                 <Ducts>
                   <DuctType>supply</DuctType>
                   <DuctInsulationRValue>0.0</DuctInsulationRValue>
-                  <DuctLocation dataSource='software'>basement - conditioned</DuctLocation>
                   <FractionDuctArea dataSource='software'>0.75</FractionDuctArea>
                   <DuctSurfaceArea dataSource='software'>405.0</DuctSurfaceArea>
                 </Ducts>
