@@ -1563,7 +1563,7 @@
                                 "energy_factor": {
                                     "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/energy_factor",
                                     "type": "number",
-                                    "description": "Energy factor of water heater (only used if efficiency_method is user)"
+                                    "description": "Energy factor of water heater (only used if efficiency_method is user or uef)"
                                 }
                             },
                             "allOf": [
