@@ -361,7 +361,21 @@
                                                     "required": ["skylight_area", "skylight_method"]
                                                 },
                                                 "then": {
-                                                    "required": ["skylight_code"]
+                                                    "allOf": [
+                                                        {
+                                                            "required": ["skylight_code"]
+                                                        },
+                                                        {
+                                                            "not": {
+                                                                "required": ["skylight_u_value"]
+                                                            }
+                                                        },
+                                                        {
+                                                            "not": {
+                                                                "required": ["skylight_shgc"]
+                                                            }
+                                                        }
+                                                    ]
                                                 }
                                             },
                                             {
@@ -373,7 +387,16 @@
                                                     "required": ["skylight_area", "skylight_method"]
                                                 },
                                                 "then": {
-                                                    "required": ["skylight_u_value", "skylight_shgc"]
+                                                    "allOf": [
+                                                        {
+                                                            "required": ["skylight_u_value", "skylight_shgc"]
+                                                        },
+                                                        {
+                                                            "not": {
+                                                                "required": ["skylight_code"]
+                                                            }
+                                                        }
+                                                    ]
                                                 }
                                             }
                                         ]
@@ -1084,11 +1107,24 @@
                                             ]
                                         },
                                         "then": {
-                                            "properties": {
-                                                "heating": {
-                                                    "required": ["year"]
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "required": ["year"]
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "not": {
+                                                                "required": ["efficiency"]
+                                                            }
+                                                        }
+                                                    }
                                                 }
-                                            }
+                                            ]
                                         }
                                     },
                                     {   
@@ -1148,11 +1184,24 @@
                                             ]
                                         },
                                         "then": {
-                                            "properties": {
-                                                "heating": {
-                                                    "required": ["efficiency"]
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "required": ["efficiency"]
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "not": {
+                                                                "required": ["year"]
+                                                            }
+                                                        }
+                                                    }
                                                 }
-                                            }
+                                            ]
                                         }
                                     },
                                     {
@@ -1235,11 +1284,24 @@
                                             ]
                                         },
                                         "then": {
-                                            "properties": {
-                                                "cooling": {
-                                                    "required": ["year"]
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "required": ["year"]
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "not": {
+                                                                "required": ["efficiency"]
+                                                            }
+                                                        }
+                                                    }
                                                 }
-                                            }
+                                            ]
                                         }
                                     },
                                     {   
@@ -1275,11 +1337,24 @@
                                             ]
                                         },
                                         "then": {
-                                            "properties": {
-                                                "cooling": {
-                                                    "required": ["efficiency"]
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "required": ["efficiency"]
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "not": {
+                                                                "required": ["year"]
+                                                            }
+                                                        }
+                                                    }
                                                 }
-                                            }
+                                            ]
                                         }
                                     }
                                 ],
@@ -2085,17 +2160,41 @@
                         }
                     },
                     "then": {
-                        "contains": {
-                            "properties": {
-                                "side": {"const": "front"},
-                                "zone_window": {
-                                    "required": ["window_code"]
-                                    
-                                }
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "front"},
+                                        "zone_window": {
+                                            "required": ["window_code"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"front\"]/zone_window requires \"window_code\""
                             },
-                            "required": ["side"]
-                        },
-                        "error_msg": "zone_wall/side[\"front\"]/zone_window requires \"window_code\""
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "front"},
+                                        "zone_window": {
+                                            "not": {
+                                                "anyOf": [
+                                                    {
+                                                        "required": ["window_u_value"]
+                                                    },
+                                                    {
+                                                        "required": ["window_shgc"]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"front\"]/zone_window does not require \"window_u_value\" or \"window_shgc\""
+                            }
+                        ]
                     }
                 },
                 {
@@ -2113,16 +2212,34 @@
                         }
                     },
                     "then": {
-                        "contains": {
-                            "properties": {
-                                "side": {"const": "front"},
-                                "zone_window": {
-                                    "required": ["window_u_value", "window_shgc"]
-                                }
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "front"},
+                                        "zone_window": {
+                                            "required": ["window_u_value", "window_shgc"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"front\"]/zone_window requires \"window_u_value\" and \"window_shgc\""
                             },
-                            "required": ["side"]
-                        },
-                        "error_msg": "zone_wall/side[\"front\"]/zone_window requires \"window_u_value\" and \"window_shgc\""
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "front"},
+                                        "zone_window": {
+                                            "not": {
+                                                "required": ["window_code"]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"front\"]/zone_window does not require \"window_code\""
+                            }
+                        ]
                     }
                 }
             ]
@@ -2156,16 +2273,41 @@
                         }
                     },
                     "then": {
-                        "contains": {
-                            "properties": {
-                                "side": {"const": "back"},
-                                "zone_window": {
-                                    "required": ["window_code"]
-                                }
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "back"},
+                                        "zone_window": {
+                                            "required": ["window_code"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"back\"]/zone_window requires \"window_code\""
                             },
-                            "required": ["side"]
-                        },
-                        "error_msg": "zone_wall/side[\"back\"]/zone_window requires \"window_code\""
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "back"},
+                                        "zone_window": {
+                                            "not": {
+                                                "anyOf": [
+                                                    {
+                                                        "required": ["window_u_value"]
+                                                    },
+                                                    {
+                                                        "required": ["window_shgc"]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"back\"]/zone_window does not require \"window_u_value\" or \"window_shgc\""
+                            }
+                        ]
                     }
                 },
                 {
@@ -2183,16 +2325,34 @@
                         }
                     },
                     "then": {
-                        "contains": {
-                            "properties": {
-                                "side": {"const": "back"},
-                                "zone_window": {
-                                    "required": ["window_u_value", "window_shgc"]
-                                }
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "back"},
+                                        "zone_window": {
+                                            "required": ["window_u_value", "window_shgc"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"back\"]/zone_window requires \"window_u_value\" and \"window_shgc\""
                             },
-                            "required": ["side"]
-                        },
-                        "error_msg": "zone_wall/side[\"back\"]/zone_window requires \"window_u_value\" and \"window_shgc\""
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "back"},
+                                        "zone_window": {
+                                            "not": {
+                                                "required": ["window_code"]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"back\"]/zone_window does not require \"window_code\""
+                            }
+                        ]
                     }
                 }
             ]
@@ -2226,17 +2386,41 @@
                         }
                     },
                     "then": {
-                        "contains": {
-                            "properties": {
-                                "side": {"const": "right"},
-                                "zone_window": {
-                                    "required": ["window_code"]
-                                    
-                                }
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "right"},
+                                        "zone_window": {
+                                            "required": ["window_code"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"right\"]/zone_window requires \"window_code\""
                             },
-                            "required": ["side"]
-                        },
-                        "error_msg": "zone_wall/side[\"right\"]/zone_window requires \"window_code\""
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "right"},
+                                        "zone_window": {
+                                            "not": {
+                                                "anyOf": [
+                                                    {
+                                                        "required": ["window_u_value"]
+                                                    },
+                                                    {
+                                                        "required": ["window_shgc"]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"right\"]/zone_window does not require \"window_u_value\" or \"window_shgc\""
+                            }
+                        ]
                     }
                 },
                 {
@@ -2254,16 +2438,34 @@
                         }
                     },
                     "then": {
-                        "contains": {
-                            "properties": {
-                                "side": {"const": "right"},
-                                "zone_window": {
-                                    "required": ["window_u_value", "window_shgc"]
-                                }
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "right"},
+                                        "zone_window": {
+                                            "required": ["window_u_value", "window_shgc"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"right\"]/zone_window requires \"window_u_value\" and \"window_shgc\""
                             },
-                            "required": ["side"]
-                        },
-                        "error_msg": "zone_wall/side[\"right\"]/zone_window requires \"window_u_value\" and \"window_shgc\""
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "right"},
+                                        "zone_window": {
+                                            "not": {
+                                                "required": ["window_code"]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"right\"]/zone_window does not require \"window_code\""
+                            }
+                        ]
                     }
                 }
             ]
@@ -2297,17 +2499,41 @@
                         }
                     },
                     "then": {
-                        "contains": {
-                            "properties": {
-                                "side": {"const": "left"},
-                                "zone_window": {
-                                    "required": ["window_code"]
-                                    
-                                }
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "left"},
+                                        "zone_window": {
+                                            "required": ["window_code"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"left\"]/zone_window requires \"window_code\""
                             },
-                            "required": ["side"]
-                        },
-                        "error_msg": "zone_wall/side[\"left\"]/zone_window requires \"window_code\""
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "left"},
+                                        "zone_window": {
+                                            "not": {
+                                                "anyOf": [
+                                                    {
+                                                        "required": ["window_u_value"]
+                                                    },
+                                                    {
+                                                        "required": ["window_shgc"]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"left\"]/zone_window does not require \"window_u_value\" or \"window_shgc\""
+                            }
+                        ]
                     }
                 },
                 {
@@ -2325,16 +2551,34 @@
                         }
                     },
                     "then": {
-                        "contains": {
-                            "properties": {
-                                "side": {"const": "left"},
-                                "zone_window": {
-                                    "required": ["window_u_value", "window_shgc"]
-                                }
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "left"},
+                                        "zone_window": {
+                                            "required": ["window_u_value", "window_shgc"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"left\"]/zone_window requires \"window_u_value\" and \"window_shgc\""
                             },
-                            "required": ["side"]
-                        },
-                        "error_msg": "zone_wall/side[\"left\"]/zone_window requires \"window_u_value\" and \"window_shgc\""
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "left"},
+                                        "zone_window": {
+                                            "not": {
+                                                "required": ["window_code"]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"left\"]/zone_window does not require \"window_code\""
+                            }
+                        ]
                     }
                 }
             ]

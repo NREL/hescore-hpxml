@@ -167,6 +167,8 @@ def test_invalid_skylight():
     errors = get_error_messages(js1, js_schema)
     assert "'skylight_u_value' is a required property" in errors
     assert "'skylight_shgc' is a required property" in errors
+    assert ("{'required': ['skylight_code']} is not allowed for {'skylight_area': 11.0, 'skylight_method': 'custom', "
+            "'skylight_code': 'dcab', 'solar_screen': False}") in errors
     del js1['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_method']
     del js1['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_code']
     errors = get_error_messages(js1, js_schema)
@@ -180,6 +182,12 @@ def test_invalid_skylight():
     del js2['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_method']
     errors = get_error_messages(js2, js_schema)
     assert "'skylight_method' is a required property" not in errors
+
+    js3 = copy.deepcopy(js)
+    js3['building']['zone']['zone_roof'][0]['zone_skylight']['skylight_u_value'] = 0.5
+    errors = get_error_messages(js3, js_schema)
+    assert ("{'required': ['skylight_u_value']} is not allowed for {'skylight_area': 11.0, 'skylight_method': 'code', "
+            "'skylight_code': 'dcab', 'solar_screen': False, 'skylight_u_value': 0.5}") in errors
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -234,11 +242,13 @@ def test_invalid_window(hpxml_filebase):
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
+
+    js1 = copy.deepcopy(js)
     if hpxml_filebase == 'townhouse_walls':
-        del js['building']['zone']['zone_wall'][0]['zone_window']['window_u_value']
-    del js['building']['zone']['zone_wall'][0]['zone_window']['window_area']
-    del js['building']['zone']['zone_wall'][2]['zone_window']['window_code']
-    errors = get_error_messages(js, js_schema)
+        del js1['building']['zone']['zone_wall'][0]['zone_window']['window_u_value']
+    del js1['building']['zone']['zone_wall'][0]['zone_window']['window_area']
+    del js1['building']['zone']['zone_wall'][2]['zone_window']['window_code']
+    errors = get_error_messages(js1, js_schema)
     if hpxml_filebase == 'townhouse_walls':
         assert 'zone_wall/side["front"]/zone_window requires "window_area" and "window_method"' in errors
         assert 'zone_wall/side["back"]/zone_window requires "window_code"' in errors
@@ -246,15 +256,31 @@ def test_invalid_window(hpxml_filebase):
     elif hpxml_filebase == 'house1':
         assert 'zone_wall/side["right"]/zone_window requires "window_area" and "window_method"' in errors
         assert 'zone_wall/side["left"]/zone_window requires "window_code"' in errors
-    del js['building']['zone']['zone_wall'][2]['zone_window']['window_method']
-    errors = get_error_messages(js, js_schema)
+    del js1['building']['zone']['zone_wall'][2]['zone_window']['window_method']
+    errors = get_error_messages(js1, js_schema)
     if hpxml_filebase == 'townhouse_walls':
         assert 'zone_wall/side["back"]/zone_window requires "window_area" and "window_method"' in errors
     elif hpxml_filebase == 'house1':
         assert 'zone_wall/side["left"]/zone_window requires "window_area" and "window_method"' in errors
-    js['building']['zone']['zone_wall'][0]['zone_window']['window_shgc'] = 1
-    errors = get_error_messages(js, js_schema)
+    js1['building']['zone']['zone_wall'][0]['zone_window']['window_shgc'] = 1
+    errors = get_error_messages(js1, js_schema)
     assert '1 is greater than or equal to the maximum of 1' in errors
+
+    js2 = copy.deepcopy(js)
+    js2['building']['zone']['zone_wall'][0]['zone_window']['window_u_value'] = 0.5
+    errors = get_error_messages(js2, js_schema)
+    if hpxml_filebase == 'townhouse_walls':
+        assert len(errors) == 0
+    elif hpxml_filebase == 'house1':
+        assert 'zone_wall/side["right"]/zone_window does not require "window_u_value" or "window_shgc"' in errors
+
+    js3 = copy.deepcopy(js)
+    js3['building']['zone']['zone_wall'][0]['zone_window']['window_code'] = 'dcaa'
+    errors = get_error_messages(js3, js_schema)
+    if hpxml_filebase == 'townhouse_walls':
+        assert 'zone_wall/side["front"]/zone_window does not require "window_code"' in errors
+    elif hpxml_filebase == 'house1':
+        assert len(errors) == 0
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -291,7 +317,9 @@ def test_invalid_heating(hpxml_filebase):
     assert "'year' is a required property" in errors
     js3['building']['systems']['hvac'][0]['heating']['efficiency'] = 0.5
     errors = get_error_messages(js3, js_schema)
-    assert "0.5 is less than the minimum of 0.6"
+    assert "0.5 is less than the minimum of 0.6" in errors
+    assert ("{'required': ['efficiency']} is not allowed for {'fuel_primary': 'natural_gas', 'type': 'central_furnace',"
+            " 'efficiency_method': 'shipment_weighted', 'efficiency': 0.5}") in errors
     del js3['building']['systems']['hvac'][0]['heating']['fuel_primary']
     errors = get_error_messages(js3, js_schema)
     assert "'fuel_primary' is a required property" in errors
@@ -302,25 +330,25 @@ def test_invalid_heating(hpxml_filebase):
     # electric wall furnace
     js3['building']['systems']['hvac'][0]['heating']['type'] = 'wall_furnace'
     errors = get_error_messages(js3, js_schema)
-    assert "0.5 is less than the minimum of 0.6"
+    assert "0.5 is less than the minimum of 0.6" in errors
     # electric boiler
     js3['building']['systems']['hvac'][0]['heating']['type'] = 'boiler'
     js3['building']['systems']['hvac'][0]['heating']['efficiency'] = 1.1
     errors = get_error_messages(js3, js_schema)
-    assert "1.1 is greater than the maximum of 1.0"
+    assert "1.1 is greater than the maximum of 1" in errors
     # heat pump
     js3['building']['systems']['hvac'][0]['heating']['type'] = 'heat_pump'
     errors = get_error_messages(js3, js_schema)
-    assert "1.1 is less than the minimum of 6.0"
+    assert "1.1 is less than the minimum of 6" in errors
     # mini-split
     js3['building']['systems']['hvac'][0]['heating']['type'] = 'mini_split'
     js3['building']['systems']['hvac'][0]['heating']['efficiency'] = 20.1
     errors = get_error_messages(js3, js_schema)
-    assert "20.1 is greater than the maximum of 20.0"
+    assert "20.1 is greater than the maximum of 20" in errors
     # gchp
     js3['building']['systems']['hvac'][0]['heating']['type'] = 'gchp'
     errors = get_error_messages(js3, js_schema)
-    assert "20.1 is greater than the maximum of 5.0"
+    assert "20.1 is greater than the maximum of 5" in errors
     # electric baseboard
     js3['building']['systems']['hvac'][0]['heating']['type'] = 'baseboard'
     errors = get_error_messages(js3, js_schema)
@@ -339,6 +367,16 @@ def test_invalid_heating(hpxml_filebase):
     errors = get_error_messages(js4, js_schema)
     assert "'hvac_fraction' is a required property" in errors
 
+    js5 = copy.deepcopy(js)
+    js5['building']['systems']['hvac'][0]['heating']['year'] = 2021
+    errors = get_error_messages(js5, js_schema)
+    if hpxml_filebase == 'townhouse_walls':
+        assert ("{'required': ['year']} is not allowed for {'fuel_primary': 'natural_gas', 'type': 'central_furnace', "
+                "'efficiency_method': 'user', 'efficiency': 0.95, 'year': 2021}") in errors
+    elif hpxml_filebase == 'house1':
+        assert ("{'required': ['year']} is not allowed for {'fuel_primary': 'natural_gas', 'type': 'central_furnace', "
+                "'efficiency_method': 'user', 'efficiency': 0.92, 'year': 2021}") in errors
+
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_cooling(hpxml_filebase):
@@ -348,8 +386,11 @@ def test_invalid_cooling(hpxml_filebase):
 
     js1 = copy.deepcopy(js)
     del js1['building']['systems']['hvac'][0]['hvac_name']
+    js1['building']['systems']['hvac'][0]['cooling']['year'] = 2021
     errors = get_error_messages(js1, js_schema)
     assert "'hvac_name' is a required property" in errors
+    assert ("{'required': ['year']} is not allowed for {'type': 'split_dx', 'efficiency_method': 'user', "
+            "'efficiency': 13.0, 'year': 2021}") in errors
 
     js2 = copy.deepcopy(js)
     js2['building']['systems']['hvac'][0]['cooling']['type'] = 'none'
@@ -373,24 +414,26 @@ def test_invalid_cooling(hpxml_filebase):
     assert "'year' is a required property" in errors
     js3['building']['systems']['hvac'][0]['cooling']['efficiency'] = 7.9
     errors = get_error_messages(js3, js_schema)
-    assert "7.9 is less than the minimum of 8.0"
+    assert "7.9 is less than the minimum of 8" in errors
+    assert ("{'required': ['efficiency']} is not allowed for {'type': 'split_dx', "
+            "'efficiency_method': 'shipment_weighted', 'efficiency': 7.9}") in errors
     # heat pump
     js3['building']['systems']['hvac'][0]['cooling']['type'] = 'heat_pump'
     errors = get_error_messages(js3, js_schema)
-    assert "7.9 is less than the minimum of 8.0"
+    assert "7.9 is less than the minimum of 8" in errors
     # packaged dx
     js3['building']['systems']['hvac'][0]['cooling']['type'] = 'packaged_dx'
     js3['building']['systems']['hvac'][0]['cooling']['efficiency'] = 40.1
     errors = get_error_messages(js3, js_schema)
-    assert "40.1 is greater than the maximum of 40.0"
+    assert "40.1 is greater than the maximum of 40" in errors
     # mini-split
     js3['building']['systems']['hvac'][0]['cooling']['type'] = 'mini_split'
     errors = get_error_messages(js3, js_schema)
-    assert "40.1 is greater than the maximum of 40.0"
+    assert "40.1 is greater than the maximum of 40" in errors
     # gchp
     js3['building']['systems']['hvac'][0]['cooling']['type'] = 'gchp'
     errors = get_error_messages(js3, js_schema)
-    assert "40.1 is greater than the maximum of 40.0"
+    assert "40.1 is greater than the maximum of 40" in errors
     # dec
     js3['building']['systems']['hvac'][0]['cooling']['type'] = 'dec'
     errors = get_error_messages(js3, js_schema)
