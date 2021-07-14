@@ -118,6 +118,28 @@ def test_invalid_building_about(hpxml_filebase):
     js3['building']['about']['assessment_date'] = '2021'
     errors = get_error_messages(js3, js_schema)
     assert "'2021' is not a 'date'" in errors
+    if hpxml_filebase == 'townhouse_walls':
+        js3['building']['about']['shape'] = 'rectangle'
+        errors = get_error_messages(js3, js_schema)
+        assert ("{'required': ['town_house_walls']} is not allowed for {'assessment_date': '2021', "
+                "'shape': 'rectangle', 'town_house_walls': 'back_front_left', 'year_built': 1961, "
+                "'number_bedrooms': 4, 'num_floor_above_grade': 2, 'floor_to_ceiling_height': 7, "
+                "'conditioned_floor_area': 2400, 'orientation': 'north', 'blower_door_test': True, "
+                "'envelope_leakage': 1204}") in errors
+        js3['building']['about']['air_sealing_present'] = True
+        errors = get_error_messages(js3, js_schema)
+        assert ("{'required': ['air_sealing_present']} is not allowed for {'assessment_date': '2021', "
+                "'shape': 'rectangle', 'town_house_walls': 'back_front_left', 'year_built': 1961, "
+                "'number_bedrooms': 4, 'num_floor_above_grade': 2, 'floor_to_ceiling_height': 7, "
+                "'conditioned_floor_area': 2400, 'orientation': 'north', 'blower_door_test': True, "
+                "'envelope_leakage': 1204, 'air_sealing_present': True}") in errors
+    elif hpxml_filebase == 'house1':
+        js3['building']['about']['envelope_leakage'] = 1204
+        errors = get_error_messages(js3, js_schema)
+        assert ("{'required': ['envelope_leakage']} is not allowed for {'assessment_date': '2021', "
+                "'shape': 'rectangle', 'year_built': 1953, 'number_bedrooms': 3, 'num_floor_above_grade': 2, "
+                "'floor_to_ceiling_height': 11, 'conditioned_floor_area': 1620, 'orientation': 'east', "
+                "'blower_door_test': False, 'air_sealing_present': False, 'envelope_leakage': 1204}") in errors
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -144,16 +166,43 @@ def test_invalid_roof(hpxml_filebase):
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
-    del js['building']['zone']['zone_roof'][0]['roof_assembly_code']
-    del js['building']['zone']['zone_roof'][0]['roof_color']
-    del js['building']['zone']['zone_roof'][0]['roof_type']
-    del js['building']['zone']['zone_roof'][0]['ceiling_assembly_code']
-    errors = get_error_messages(js, js_schema)
+
+    js1 = copy.deepcopy(js)
+    del js1['building']['zone']['zone_roof'][0]['roof_assembly_code']
+    del js1['building']['zone']['zone_roof'][0]['roof_color']
+    del js1['building']['zone']['zone_roof'][0]['roof_type']
+    del js1['building']['zone']['zone_roof'][0]['ceiling_assembly_code']
+    errors = get_error_messages(js1, js_schema)
     assert "'roof_assembly_code' is a required property" in errors
     assert "'roof_color' is a required property" in errors
     assert "'roof_type' is a required property" in errors
     assert "'ceiling_assembly_code' is a required property" not in errors
     assert "'roof_absorptance' is a required property" not in errors
+
+    js2 = copy.deepcopy(js)
+    js2['building']['zone']['zone_roof'][0]['roof_type'] = 'cath_ceiling'
+    js2['building']['zone']['zone_roof'][0]['roof_absorptance'] = 0.6
+    errors = get_error_messages(js2, js_schema)
+    if hpxml_filebase == 'townhouse_walls':
+        assert ("{'required': ['ceiling_assembly_code']} is not allowed for {'roof_name': 'roof1', "
+                "'roof_area': 1200.0, 'roof_assembly_code': 'rfwf00co', 'roof_color': 'medium', "
+                "'roof_type': 'cath_ceiling', 'ceiling_assembly_code': 'ecwf49', "
+                "'zone_skylight': {'skylight_area': 11.0, 'skylight_method': 'code', 'skylight_code': 'dcab', "
+                "'solar_screen': False}, 'roof_absorptance': 0.6}") in errors
+        assert ("{'required': ['roof_absorptance']} is not allowed for {'roof_name': 'roof1', "
+                "'roof_area': 1200.0, 'roof_assembly_code': 'rfwf00co', 'roof_color': 'medium', "
+                "'roof_type': 'cath_ceiling', 'ceiling_assembly_code': 'ecwf49', "
+                "'zone_skylight': {'skylight_area': 11.0, 'skylight_method': 'code', 'skylight_code': 'dcab', "
+                "'solar_screen': False}, 'roof_absorptance': 0.6}") in errors
+    elif hpxml_filebase == 'house1':
+        assert ("{'required': ['ceiling_assembly_code']} is not allowed for {'roof_name': 'roof1', 'roof_area': 810, "
+                "'roof_assembly_code': 'rfrb00co', 'roof_color': 'dark', 'roof_type': 'cath_ceiling', "
+                "'ceiling_assembly_code': 'ecwf11', 'zone_skylight': {'skylight_area': 0}, "
+                "'roof_absorptance': 0.6}") in errors
+        assert ("{'required': ['roof_absorptance']} is not allowed for {'roof_name': 'roof1', 'roof_area': 810, "
+                "'roof_assembly_code': 'rfrb00co', 'roof_color': 'dark', 'roof_type': 'cath_ceiling', "
+                "'ceiling_assembly_code': 'ecwf11', 'zone_skylight': {'skylight_area': 0}, "
+                "'roof_absorptance': 0.6}") in errors
 
 
 def test_invalid_skylight():
@@ -195,18 +244,32 @@ def test_invalid_floor(hpxml_filebase):
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
-    del js['building']['zone']['zone_floor'][0]['foundation_type']
-    del js['building']['zone']['zone_floor'][0]['foundation_insulation_level']
-    errors = get_error_messages(js, js_schema)
+
+    js1 = copy.deepcopy(js)
+    del js1['building']['zone']['zone_floor'][0]['foundation_type']
+    del js1['building']['zone']['zone_floor'][0]['foundation_insulation_level']
+    errors = get_error_messages(js1, js_schema)
     assert "'foundation_type' is a required property" in errors
     assert "'foundation_insulation_level' is a required property" in errors
-    del js['building']['zone']['zone_floor'][0]['floor_area']
-    del js['building']['zone']['zone_floor'][0]['floor_assembly_code']
-    errors = get_error_messages(js, js_schema)
+    del js1['building']['zone']['zone_floor'][0]['floor_area']
+    del js1['building']['zone']['zone_floor'][0]['floor_assembly_code']
+    errors = get_error_messages(js1, js_schema)
     assert "'floor_area' is a required property" in errors
     assert "'foundation_type' is a required property" not in errors
     assert "'foundation_insulation_level' is a required property" not in errors
     assert "'floor_assembly_code' is a required property" not in errors
+
+    js2 = copy.deepcopy(js)
+    js2['building']['zone']['zone_floor'][0]['foundation_type'] = 'slab_on_grade'
+    errors = get_error_messages(js2, js_schema)
+    if hpxml_filebase == 'townhouse_walls':
+        assert ("{'required': ['floor_assembly_code']} is not allowed for {'floor_name': 'floor1', 'floor_area': 800, "
+                "'foundation_type': 'slab_on_grade', 'foundation_insulation_level': 0, "
+                "'floor_assembly_code': 'efwf00ca'}") in errors
+    elif hpxml_filebase == 'house1':
+        assert ("{'required': ['floor_assembly_code']} is not allowed for {'floor_name': 'floor1', "
+                "'floor_area': 810.0, 'foundation_type': 'slab_on_grade', 'foundation_insulation_level': 0, "
+                "'floor_assembly_code': 'efwf00ca'}") in errors
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)

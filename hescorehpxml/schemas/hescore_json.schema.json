@@ -178,15 +178,29 @@
                             "description": "Building air leakage measured with a blower door (CFM50) (only used if blower_door_test is true)"
                         }
                     },
-                    "if": {
-                        "properties": {
-                            "shape": {"const": "town_house"}
-                        }
-                    },
-                    "then": {
-                        "required": ["town_house_walls"]
-                    },
                     "allOf": [
+                        {
+                            "if": {
+                                "properties": {
+                                    "shape": {"const": "rectangle"}
+                                }
+                            },
+                            "then": {
+                                "not": {
+                                    "required": ["town_house_walls"]
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "shape": {"const": "town_house"}
+                                }
+                            },
+                            "then": {
+                                "required": ["town_house_walls"]
+                            }
+                        },
                         {
                             "if": {
                                 "properties": {
@@ -194,7 +208,16 @@
                                 }
                             },
                             "then": {
-                                "required": ["envelope_leakage"]
+                                "allOf": [
+                                    {
+                                        "required": ["envelope_leakage"]
+                                    },
+                                    {
+                                        "not": {
+                                            "required": ["air_sealing_present"]
+                                        }
+                                    }
+                                ]
                             }
                         },
                         {
@@ -204,7 +227,17 @@
                                 }
                             },
                             "then": {
-                                "required": ["air_sealing_present"]
+                                "allOf": [
+                                    {
+                                        "required": ["air_sealing_present"]
+                                    },
+                                    {
+                                        "not": {
+                                            "required": ["envelope_leakage"]
+                                        }
+                                    }
+                                ]
+                                
                             }
                         }
                     ]
@@ -429,26 +462,50 @@
                                         "if": {
                                             "properties": {
                                                 "roof_name": {"const": "roof1"},
-                                                "roof_area": {"exclusiveMinimum": 0},
-                                                "roof_color": {"const": "cool_color"}
+                                                "roof_area": {"exclusiveMinimum": 0}
                                             },
-                                            "required": ["roof_name", "roof_area", "roof_color"]
+                                            "required": ["roof_name", "roof_area"]
                                         },
                                         "then": {
-                                            "required": ["roof_absorptance"]
+                                            "if": {
+                                                "properties": {
+                                                    "roof_color": {"const": "cool_color"}
+                                                },
+                                                "required": ["roof_color"]
+                                            },
+                                            "then": {
+                                                "required": ["roof_absorptance"]
+                                            },
+                                            "else": {
+                                                "not": {
+                                                    "required": ["roof_absorptance"]
+                                                }
+                                            }
                                         }
                                     },
                                     {
                                         "if": {
                                             "properties": {
                                                 "roof_name": {"const": "roof1"},
-                                                "roof_area": {"exclusiveMinimum": 0},
-                                                "roof_type": {"enum": ["vented_attic", "cond_attic"]}
+                                                "roof_area": {"exclusiveMinimum": 0}
                                             },
-                                            "required": ["roof_name", "roof_area", "roof_type"]
+                                            "required": ["roof_name", "roof_area"]
                                         },
                                         "then": {
-                                            "required": ["ceiling_assembly_code"]
+                                            "if": {
+                                                "properties": {
+                                                    "roof_type": {"enum": ["vented_attic", "cond_attic"]}
+                                                },
+                                                "required": ["roof_type"]
+                                            },
+                                            "then": {
+                                                "required": ["ceiling_assembly_code"]
+                                            },
+                                            "else": {
+                                                "not": {
+                                                    "required": ["ceiling_assembly_code"]
+                                                }
+                                            }
                                         }
                                     }
                                 ]
@@ -523,20 +580,24 @@
                                             "required": ["floor_name", "floor_area"]
                                         },
                                         "then": {
-                                            "required": ["foundation_type", "foundation_insulation_level"]
-                                        }
-                                    },
-                                    {
-                                        "if": {
-                                            "properties": {
-                                                "floor_name": {"const": "floor1"},
-                                                "floor_area": {"exclusiveMinimum": 0},
-                                                "foundation_type": {"not": {"const": "slab_on_grade"}}
-                                            },
-                                            "required": ["floor_name", "floor_area", "foundation_type"]
-                                        },
-                                        "then": {
-                                            "required": ["floor_assembly_code"]
+                                            "allOf": [
+                                                {
+                                                    "required": ["foundation_type", "foundation_insulation_level"]
+                                                },
+                                                {
+                                                    "if": {
+                                                        "foundation_type": {"const": "slab_on_grade"}
+                                                    },
+                                                    "then": {
+                                                        "not": {
+                                                            "required": ["floor_assembly_code"]
+                                                        }
+                                                    },
+                                                    "else": {
+                                                        "required": ["floor_assembly_code"]
+                                                    }
+                                                }
+                                            ]
                                         }
                                     }
                                 ]
@@ -2603,7 +2664,8 @@
                 {"$ref": "#/definitions/def_front_wall_constraint"},
                 {"$ref": "#/definitions/def_back_wall_constraint"},
                 {"$ref": "#/definitions/def_right_wall_constraint"},
-                {"$ref": "#/definitions/def_left_wall_constraint"}
+                {"$ref": "#/definitions/def_left_wall_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint"}
             ]
         },
         "def_sf": {
