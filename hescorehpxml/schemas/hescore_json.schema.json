@@ -99,13 +99,11 @@
                         "comments": {
                             "$id": "#/properties/building/properties/about/properties/comments",
                             "type": ["string", "null"],
-                            "maxLength": 256,
                             "description": "Free text comment field"
                         },
                         "comment_api_only": {
                             "$id": "#/properties/building/properties/about/properties/comment_api_only",
                             "type": "string",
-                            "maxLength": 40,
                             "description": "Pass through field for use by api users"
                         },
                         "shape": {
@@ -246,7 +244,6 @@
                         "zone_roof": {
                             "$id": "#/properties/building/properties/zone/properties/zone_roof",
                             "type": "array",
-                            "maxLength": 20,
                             "description": "Inputs about the construction of the roof(s)",
                             "additionalItems": false,
                             "minItems": 0,
