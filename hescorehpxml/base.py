@@ -12,7 +12,7 @@ from decimal import Decimal
 from collections import OrderedDict
 import os
 import re
-import pandas as pd
+import csv
 
 from .exceptions import (
     TranslationError,
@@ -805,10 +805,18 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
     def get_building_address(self, b, resstock_file):
         def get_zip_from_fips(fips):
-            zip_map = pd.read_csv(os.path.join(thisdir, 'COUNTY_ZIP_032021.csv'), dtype={'COUNTY': object})
-            zipcodes = zip_map[zip_map['COUNTY'] == fips]
-            zipcode = zipcodes[zipcodes['RES_RATIO'] == zipcodes['RES_RATIO'].max()]['ZIP']
-            return(str(zipcode.values[0]))
+            map_file = os.path.join(thisdir, 'COUNTY_ZIP_032021.csv')
+            with open(map_file, newline='') as csvfile:
+                csvreader = csv.reader(csvfile, delimiter=',')
+                max_res = 0
+                for row in csvreader:
+                    if row[0] == fips:
+                        res_ratio = float(row[4])
+                        if res_ratio > max_res:
+                            max_res = res_ratio
+                            zipcode = row[1]
+
+            return(str(zipcode))
 
         xpath = self.xpath
         ns = self.ns
