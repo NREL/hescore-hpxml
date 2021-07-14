@@ -182,23 +182,16 @@
                         {
                             "if": {
                                 "properties": {
-                                    "shape": {"const": "rectangle"}
-                                }
-                            },
-                            "then": {
-                                "not": {
-                                    "required": ["town_house_walls"]
-                                }
-                            }
-                        },
-                        {
-                            "if": {
-                                "properties": {
                                     "shape": {"const": "town_house"}
                                 }
                             },
                             "then": {
                                 "required": ["town_house_walls"]
+                            },
+                            "else": {
+                                "not": {
+                                    "required": ["town_house_walls"]
+                                }
                             }
                         },
                         {
@@ -586,7 +579,10 @@
                                                 },
                                                 {
                                                     "if": {
-                                                        "foundation_type": {"const": "slab_on_grade"}
+                                                        "properties": {
+                                                            "foundation_type": {"const": "slab_on_grade"}
+                                                        },
+                                                        "required": ["foundation_type"]
                                                     },
                                                     "then": {
                                                         "not": {
