@@ -1651,8 +1651,7 @@
                                             "energy_factor": {
                                                 "type": "number",
                                                 "minimum": 0.45,
-                                                "maximum": 1.0,
-                                                "description": "Energy factor of water heater (only used if efficiency_method is user or uef)"
+                                                "maximum": 1.0
                                             }
                                         }
                                     }
@@ -1670,8 +1669,7 @@
                                             "energy_factor": {
                                                 "type": "number",
                                                 "minimum": 0.45,
-                                                "maximum": 1.0,
-                                                "description": "Energy factor of water heater (only used if efficiency_method is user or uef)"
+                                                "maximum": 1.0
                                             }
                                         }
                                     }
@@ -1689,8 +1687,7 @@
                                             "energy_factor": {
                                                 "type": "number",
                                                 "minimum": 1.0,
-                                                "maximum": 4.0,
-                                                "description": "Energy factor of water heater (only used if efficiency_method is user or uef)"
+                                                "maximum": 4.0
                                             }
                                         }
                                     }
@@ -2225,6 +2222,42 @@
             },
             "error_msg": "zone_wall/side[\"left\"] requires \"side\" and \"wall_assembly_code\""
         },
+        "def_back_wall_has_same_construction_constraint": {
+            "contains": {
+                "properties": {
+                    "side": {"const": "back"}
+                },
+                "required": ["side"],
+                "not": {
+                    "required": ["wall_assembly_code"]
+                }
+            },
+            "error_msg": "\"wall_assembly_code\" is not allowed for zone_wall/side[\"back\"]"
+        },
+        "def_left_wall_has_same_construction_constraint": {
+            "contains": {
+                "properties": {
+                    "side": {"const": "left"}
+                },
+                "required": ["side"],
+                "not": {
+                    "required": ["wall_assembly_code"]
+                }
+            },
+            "error_msg": "\"wall_assembly_code\" is not allowed for zone_wall/side[\"left\"]"
+        },
+        "def_right_wall_has_same_construction_constraint": {
+            "contains": {
+                "properties": {
+                    "side": {"const": "right"}
+                },
+                "required": ["side"],
+                "not": {
+                    "required": ["wall_assembly_code"]
+                }
+            },
+            "error_msg": "\"wall_assembly_code\" is not allowed for zone_wall/side[\"right\"]"
+        },
         "def_front_window_constraint": {
             "allOf": [
                 {
@@ -2286,7 +2319,7 @@
                                     },
                                     "required": ["side"]
                                 },
-                                "error_msg": "zone_wall/side[\"front\"]/zone_window does not require \"window_u_value\" or \"window_shgc\""
+                                "error_msg": "\"window_u_value\" and \"window_shgc\" are not allowed for zone_wall/side[\"front\"]/zone_window"
                             }
                         ]
                     }
@@ -2331,7 +2364,7 @@
                                     },
                                     "required": ["side"]
                                 },
-                                "error_msg": "zone_wall/side[\"front\"]/zone_window does not require \"window_code\""
+                                "error_msg": "\"window_code\" is not allowed for zone_wall/side[\"front\"]/zone_window"
                             }
                         ]
                     }
@@ -2399,7 +2432,7 @@
                                     },
                                     "required": ["side"]
                                 },
-                                "error_msg": "zone_wall/side[\"back\"]/zone_window does not require \"window_u_value\" or \"window_shgc\""
+                                "error_msg": "\"window_u_value\" and \"window_shgc\" are not allowed for zone_wall/side[\"back\"]/zone_window"
                             }
                         ]
                     }
@@ -2444,7 +2477,7 @@
                                     },
                                     "required": ["side"]
                                 },
-                                "error_msg": "zone_wall/side[\"back\"]/zone_window does not require \"window_code\""
+                                "error_msg": "\"window_code\" is not allowed for zone_wall/side[\"back\"]/zone_window"
                             }
                         ]
                     }
@@ -2512,7 +2545,7 @@
                                     },
                                     "required": ["side"]
                                 },
-                                "error_msg": "zone_wall/side[\"right\"]/zone_window does not require \"window_u_value\" or \"window_shgc\""
+                                "error_msg": "\"window_u_value\" and \"window_shgc\" are not allowed for zone_wall/side[\"right\"]/zone_window"
                             }
                         ]
                     }
@@ -2557,7 +2590,7 @@
                                     },
                                     "required": ["side"]
                                 },
-                                "error_msg": "zone_wall/side[\"right\"]/zone_window does not require \"window_code\""
+                                "error_msg": "\"window_code\" is not allowed for zone_wall/side[\"right\"]/zone_window"
                             }
                         ]
                     }
@@ -2625,7 +2658,7 @@
                                     },
                                     "required": ["side"]
                                 },
-                                "error_msg": "zone_wall/side[\"left\"]/zone_window does not require \"window_u_value\" or \"window_shgc\""
+                                "error_msg": "\"window_u_value\" and \"window_shgc\" are not allowed for zone_wall/side[\"left\"]/zone_window"
                             }
                         ]
                     }
@@ -2670,7 +2703,7 @@
                                     },
                                     "required": ["side"]
                                 },
-                                "error_msg": "zone_wall/side[\"left\"]/zone_window does not require \"window_code\""
+                                "error_msg": "\"window_code\" is not allowed for zone_wall/side[\"left\"]/zone_window"
                             }
                         ]
                     }
@@ -2680,12 +2713,18 @@
         "def_sf_mf_has_same_walls_and_windows": {
             "allOf": [
                 {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_right_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_left_wall_has_same_construction_constraint"},
                 {"$ref": "#/definitions/def_front_window_constraint"}
             ]
         },
         "def_sf_has_same_walls": {
             "allOf": [
                 {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_right_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_left_wall_has_same_construction_constraint"},
                 {"$ref": "#/definitions/def_front_window_constraint"},
                 {"$ref": "#/definitions/def_back_window_constraint"},
                 {"$ref": "#/definitions/def_right_window_constraint"},
@@ -2716,6 +2755,8 @@
         "def_mf_back_right_front_has_same_walls": {
             "allOf": [
                 {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_right_wall_has_same_construction_constraint"},
                 {"$ref": "#/definitions/def_front_window_constraint"},
                 {"$ref": "#/definitions/def_back_window_constraint"},
                 {"$ref": "#/definitions/def_right_window_constraint"}
@@ -2742,6 +2783,8 @@
         "def_mf_back_front_left_has_same_walls": {
             "allOf": [
                 {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_left_wall_has_same_construction_constraint"},
                 {"$ref": "#/definitions/def_front_window_constraint"},
                 {"$ref": "#/definitions/def_back_window_constraint"},
                 {"$ref": "#/definitions/def_left_window_constraint"}
@@ -2768,6 +2811,7 @@
         "def_mf_back_front_has_same_walls": {
             "allOf": [
                 {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_has_same_construction_constraint"},
                 {"$ref": "#/definitions/def_front_window_constraint"},
                 {"$ref": "#/definitions/def_back_window_constraint"}
             ]

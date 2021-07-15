@@ -289,11 +289,23 @@ def test_invalid_wall(hpxml_filebase):
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
-    del js['building']['zone']['zone_wall'][0]['side']
-    del js['building']['zone']['zone_wall'][1]['wall_assembly_code']
-    errors = get_error_messages(js, js_schema)
+
+    js1 = copy.deepcopy(js)
+    del js1['building']['zone']['zone_wall'][0]['side']
+    del js1['building']['zone']['zone_wall'][1]['wall_assembly_code']
+    errors = get_error_messages(js1, js_schema)
     assert 'zone_wall/side["front"] requires "side" and "wall_assembly_code"' in errors
     assert 'zone_wall/side["left"] requires "side" and "wall_assembly_code"' in errors
+
+    js2 = copy.deepcopy(js)
+    js2['building']['zone']['wall_construction_same'] = True
+    del js2['building']['zone']['zone_wall'][1]['wall_assembly_code']
+    errors = get_error_messages(js2, js_schema)
+    if hpxml_filebase == 'townhouse_walls':
+        assert '\"wall_assembly_code\" is not allowed for zone_wall/side[\"back\"]' in errors
+    elif hpxml_filebase == 'house1':
+        assert '\"wall_assembly_code\" is not allowed for zone_wall/side[\"back\"]' in errors
+        assert '\"wall_assembly_code\" is not allowed for zone_wall/side[\"right\"]' in errors
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -328,13 +340,13 @@ def test_invalid_window(hpxml_filebase):
     if hpxml_filebase == 'townhouse_walls':
         assert len(errors) == 0
     elif hpxml_filebase == 'house1':
-        assert 'zone_wall/side["front"]/zone_window does not require "window_u_value" or "window_shgc"' in errors
+        assert '"window_u_value" and "window_shgc" are not allowed for zone_wall/side["front"]/zone_window' in errors
 
     js3 = copy.deepcopy(js)
     js3['building']['zone']['zone_wall'][0]['zone_window']['window_code'] = 'dcaa'
     errors = get_error_messages(js3, js_schema)
     if hpxml_filebase == 'townhouse_walls':
-        assert 'zone_wall/side["front"]/zone_window does not require "window_code"' in errors
+        assert '"window_code" is not allowed for zone_wall/side["front"]/zone_window' in errors
     elif hpxml_filebase == 'house1':
         assert len(errors) == 0
 
