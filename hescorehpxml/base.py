@@ -1505,7 +1505,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 fftotalarea = 0
                 framefloors = self.get_foundation_frame_floors(foundation, b)
                 floor_eff_rvalues = dict(zip((0, 11, 13, 15, 19, 21, 25, 30, 38),
-                                            (4.0, 15.8, 17.8, 19.8, 23.8, 25.8, 31.8, 37.8, 42.8)))
+                                             (4.0, 15.8, 17.8, 19.8, 23.8, 25.8, 31.8, 37.8, 42.8)))
                 if len(framefloors) > 0:
                     for framefloor in framefloors:
                         ffarea = convert_to_type(float, xpath(framefloor, 'h:Area/text()'))
