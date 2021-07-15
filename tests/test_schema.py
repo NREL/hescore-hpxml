@@ -604,6 +604,20 @@ def test_invalid_domestic_hot_water(hpxml_filebase):
     errors = get_error_messages(js4, js_schema)
     assert "'combined' was expected" in errors
 
+    js5 = copy.deepcopy(js)
+    if hpxml_filebase == 'townhouse_walls':
+        js5['building']['systems']['domestic_hot_water']['energy_factor'] = 0.6
+        errors = get_error_messages(js5, js_schema)
+        assert ("{'required': ['energy_factor']} is not allowed for {'category': 'unit', 'type': 'storage', "
+                "'fuel_primary': 'natural_gas', 'efficiency_method': 'shipment_weighted', 'year': 2010, "
+                "'energy_factor': 0.6}") in errors
+    elif hpxml_filebase == 'house1':
+        js5['building']['systems']['domestic_hot_water']['year'] = 2021
+        errors = get_error_messages(js5, js_schema)
+        assert ("{'required': ['year']} is not allowed for {'category': 'unit', 'type': 'storage', "
+                "'fuel_primary': 'electric', 'efficiency_method': 'user', 'energy_factor': 0.8, "
+                "'year': 2021}") in errors
+
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_solar_electric(hpxml_filebase):
