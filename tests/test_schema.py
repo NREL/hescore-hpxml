@@ -610,19 +610,27 @@ def test_invalid_solar_electric(hpxml_filebase):
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
-    js['building']['systems'] = {'generation': {'solar_electric': {'capacity_known': False}}}
-    errors = get_error_messages(js, js_schema)
+
+    js1 = copy.deepcopy(js)
+    js1['building']['systems'] = {'generation': {'solar_electric': {'capacity_known': False, 'system_capacity': 50}}}
+    errors = get_error_messages(js1, js_schema)
     assert "'num_panels' is a required property" in errors
     assert "'year' is a required property" in errors
     assert "'array_azimuth' is a required property" in errors
-    js['building']['systems']['generation']['solar_electric']['capacity_known'] = True
-    errors = get_error_messages(js, js_schema)
+    assert ("{'required': ['system_capacity']} is not allowed for {'capacity_known': False, "
+            "'system_capacity': 50}") in errors
+
+    js2 = copy.deepcopy(js)
+    js2['building']['systems'] = {'generation': {'solar_electric': {'capacity_known': True, 'num_panels': 5}}}
+    errors = get_error_messages(js2, js_schema)
     assert "'system_capacity' is a required property" in errors
     assert "'year' is a required property" in errors
     assert "'array_azimuth' is a required property" in errors
-    js['building']['systems']['generation']['solar_electric']['year'] = 2021
-    del js['building']['systems']['generation']['solar_electric']['capacity_known']
-    errors = get_error_messages(js, js_schema)
+    assert ("{'required': ['num_panels']} is not allowed for {'capacity_known': True, 'num_panels': 5}") in errors
+
+    js3 = copy.deepcopy(js)
+    js3['building']['systems'] = {'generation': {'solar_electric': {'year': 2021}}}
+    errors = get_error_messages(js3, js_schema)
     assert "'capacity_known' is a required property" in errors
     assert "'array_azimuth' is a required property" in errors
     assert "'num_panels' is a required property" not in errors

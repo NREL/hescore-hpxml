@@ -1757,7 +1757,16 @@
                                                 "required": ["capacity_known"]
                                             },
                                             "then": {
-                                                "required": ["system_capacity", "year"]
+                                                "allOf": [
+                                                    {
+                                                        "required": ["system_capacity", "year"]
+                                                    },
+                                                    {
+                                                        "not": {
+                                                            "required": ["num_panels"]
+                                                        }
+                                                    }
+                                                ]
                                             }
                                         },
                                         {
@@ -1768,7 +1777,16 @@
                                                 "required": ["capacity_known"]
                                             },
                                             "then": {
-                                                "required": ["num_panels", "year"]
+                                                "allOf": [
+                                                    {
+                                                        "required": ["num_panels", "year"]
+                                                    },
+                                                    {
+                                                        "not": {
+                                                            "required": ["system_capacity"]
+                                                        }
+                                                    }
+                                                ]
                                             }
                                         },
                                         {
