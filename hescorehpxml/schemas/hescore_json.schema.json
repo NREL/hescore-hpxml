@@ -1595,25 +1595,47 @@
                                 {
                                     "if": {
                                         "properties": {
-                                            "category": {"const": "unit"},
-                                            "efficiency_method": {"const": "shipment_weighted"}
+                                            "category": {"const": "unit"}
                                         },
-                                        "required": ["category", "efficiency_method"]
+                                        "required": ["category"]
                                     },
                                     "then": {
-                                        "required": ["year"]
+                                        "if": {
+                                            "properties": {
+                                                "efficiency_method": {"const": "shipment_weighted"}
+                                            }
+                                        },
+                                        "then": {
+                                            "required": ["year"]
+                                        },
+                                        "else": {
+                                            "not": {
+                                                "required": ["year"]
+                                            }
+                                        }
                                     }
                                 },
                                 {
                                     "if": {
                                         "properties": {
-                                            "category": {"const": "unit"},
-                                            "efficiency_method": {"enum": ["user", "uef"]}
+                                            "category": {"const": "unit"}
                                         },
-                                        "required": ["category", "efficiency_method"]
+                                        "required": ["category"]
                                     },
                                     "then": {
-                                        "required": ["energy_factor"]
+                                        "if": {
+                                            "properties": {
+                                                "efficiency_method": {"enum": ["user", "uef"]}
+                                            }
+                                        },
+                                        "then": {
+                                            "required": ["energy_factor"]
+                                        },
+                                        "else": {
+                                            "not": {
+                                                "required": ["energy_factor"]
+                                            }
+                                        }
                                     }
                                 },
                                 {
@@ -1630,7 +1652,7 @@
                                                 "type": "number",
                                                 "minimum": 0.45,
                                                 "maximum": 1.0,
-                                                "description": "Energy factor of water heater (only used if efficiency_method is user)"
+                                                "description": "Energy factor of water heater (only used if efficiency_method is user or uef)"
                                             }
                                         }
                                     }
@@ -1649,7 +1671,7 @@
                                                 "type": "number",
                                                 "minimum": 0.45,
                                                 "maximum": 1.0,
-                                                "description": "Energy factor of water heater (only used if efficiency_method is user)"
+                                                "description": "Energy factor of water heater (only used if efficiency_method is user or uef)"
                                             }
                                         }
                                     }
@@ -1668,7 +1690,7 @@
                                                 "type": "number",
                                                 "minimum": 1.0,
                                                 "maximum": 4.0,
-                                                "description": "Energy factor of water heater (only used if efficiency_method is user)"
+                                                "description": "Energy factor of water heater (only used if efficiency_method is user or uef)"
                                             }
                                         }
                                     }

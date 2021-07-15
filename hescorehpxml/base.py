@@ -1500,32 +1500,33 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 zone_floor['foundation_insulation_level'] - x))
 
             # floor above foundation insulation
-            ffua = 0
-            fftotalarea = 0
-            framefloors = self.get_foundation_frame_floors(foundation, b)
-            floor_eff_rvalues = dict(zip((0, 11, 13, 15, 19, 21, 25, 30, 38),
-                                         (4.0, 15.8, 17.8, 19.8, 23.8, 25.8, 31.8, 37.8, 42.8)))
-            if len(framefloors) > 0:
-                for framefloor in framefloors:
-                    ffarea = convert_to_type(float, xpath(framefloor, 'h:Area/text()'))
-                    if ffarea is None:
-                        if len(framefloors) == 1:
-                            ffarea = 1.0
-                        else:
-                            raise TranslationError(
-                                'If there is more than one FrameFloor, an Area is required for each.')
-                    ffrvalue = xpath(framefloor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-                    ffeffrvalue = floor_eff_rvalues[min(
-                        list(floor_eff_rvalues.keys()),
-                        key=lambda x: abs(ffrvalue - x)
-                    )]
-                    ffua += old_div(ffarea, ffeffrvalue)
-                    fftotalarea += ffarea
-                ffrvalue = old_div(fftotalarea, ffua) - 4.0
-                zone_floor['floor_assembly_code'] = 'efwf%02dca' % min(list(floor_eff_rvalues.keys()),
-                                                                       key=lambda x: abs(ffrvalue - x))
-            else:
-                zone_floor['floor_assembly_code'] = 'efwf00ca'
+            if zone_floor['foundation_type'] != 'slab_on_grade':
+                ffua = 0
+                fftotalarea = 0
+                framefloors = self.get_foundation_frame_floors(foundation, b)
+                floor_eff_rvalues = dict(zip((0, 11, 13, 15, 19, 21, 25, 30, 38),
+                                            (4.0, 15.8, 17.8, 19.8, 23.8, 25.8, 31.8, 37.8, 42.8)))
+                if len(framefloors) > 0:
+                    for framefloor in framefloors:
+                        ffarea = convert_to_type(float, xpath(framefloor, 'h:Area/text()'))
+                        if ffarea is None:
+                            if len(framefloors) == 1:
+                                ffarea = 1.0
+                            else:
+                                raise TranslationError(
+                                    'If there is more than one FrameFloor, an Area is required for each.')
+                        ffrvalue = xpath(framefloor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+                        ffeffrvalue = floor_eff_rvalues[min(
+                            list(floor_eff_rvalues.keys()),
+                            key=lambda x: abs(ffrvalue - x)
+                        )]
+                        ffua += old_div(ffarea, ffeffrvalue)
+                        fftotalarea += ffarea
+                    ffrvalue = old_div(fftotalarea, ffua) - 4.0
+                    zone_floor['floor_assembly_code'] = 'efwf%02dca' % min(list(floor_eff_rvalues.keys()),
+                                                                           key=lambda x: abs(ffrvalue - x))
+                else:
+                    zone_floor['floor_assembly_code'] = 'efwf00ca'
 
             zone_floors.append(zone_floor)
 

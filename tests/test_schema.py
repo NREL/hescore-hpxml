@@ -292,12 +292,8 @@ def test_invalid_wall(hpxml_filebase):
     del js['building']['zone']['zone_wall'][0]['side']
     del js['building']['zone']['zone_wall'][1]['wall_assembly_code']
     errors = get_error_messages(js, js_schema)
-    if hpxml_filebase == 'townhouse_walls':
-        assert 'zone_wall/side["front"] requires "side" and "wall_assembly_code"' in errors
-        assert 'zone_wall/side["left"] requires "side" and "wall_assembly_code"' in errors
-    elif hpxml_filebase == 'house1':
-        assert 'zone_wall/side["right"] requires "side" and "wall_assembly_code"' in errors
-        assert 'zone_wall/side["front"] requires "side" and "wall_assembly_code"' in errors
+    assert 'zone_wall/side["front"] requires "side" and "wall_assembly_code"' in errors
+    assert 'zone_wall/side["left"] requires "side" and "wall_assembly_code"' in errors
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -317,14 +313,11 @@ def test_invalid_window(hpxml_filebase):
         assert 'zone_wall/side["back"]/zone_window requires "window_code"' in errors
         assert 'zone_wall/side["front"]/zone_window requires "window_u_value" and "window_shgc"' in errors
     elif hpxml_filebase == 'house1':
-        assert 'zone_wall/side["right"]/zone_window requires "window_area" and "window_method"' in errors
-        assert 'zone_wall/side["left"]/zone_window requires "window_code"' in errors
+        assert 'zone_wall/side["front"]/zone_window requires "window_area" and "window_method"' in errors
+        assert 'zone_wall/side["back"]/zone_window requires "window_code"' in errors
     del js1['building']['zone']['zone_wall'][2]['zone_window']['window_method']
     errors = get_error_messages(js1, js_schema)
-    if hpxml_filebase == 'townhouse_walls':
-        assert 'zone_wall/side["back"]/zone_window requires "window_area" and "window_method"' in errors
-    elif hpxml_filebase == 'house1':
-        assert 'zone_wall/side["left"]/zone_window requires "window_area" and "window_method"' in errors
+    assert 'zone_wall/side["back"]/zone_window requires "window_area" and "window_method"' in errors
     js1['building']['zone']['zone_wall'][0]['zone_window']['window_shgc'] = 1
     errors = get_error_messages(js1, js_schema)
     assert '1 is greater than or equal to the maximum of 1' in errors
@@ -335,7 +328,7 @@ def test_invalid_window(hpxml_filebase):
     if hpxml_filebase == 'townhouse_walls':
         assert len(errors) == 0
     elif hpxml_filebase == 'house1':
-        assert 'zone_wall/side["right"]/zone_window does not require "window_u_value" or "window_shgc"' in errors
+        assert 'zone_wall/side["front"]/zone_window does not require "window_u_value" or "window_shgc"' in errors
 
     js3 = copy.deepcopy(js)
     js3['building']['zone']['zone_wall'][0]['zone_window']['window_code'] = 'dcaa'
