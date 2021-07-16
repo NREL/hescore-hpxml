@@ -440,7 +440,7 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "roof_name": {"const": "roof1"}
+                                                "roof_name": {"enum": ["roof1", "roof2"]}
                                             },
                                             "required": ["roof_name"]
                                         },
@@ -451,51 +451,46 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "roof_name": {"const": "roof1"},
+                                                "roof_name": {"enum": ["roof1", "roof2"]},
                                                 "roof_area": {"exclusiveMinimum": 0}
                                             },
                                             "required": ["roof_name", "roof_area"]
                                         },
                                         "then": {
-                                            "if": {
-                                                "properties": {
-                                                    "roof_color": {"const": "cool_color"}
+                                            "allOf": [
+                                                {
+                                                    "if": {
+                                                        "properties": {
+                                                            "roof_color": {"const": "cool_color"}
+                                                        },
+                                                        "required": ["roof_color"]
+                                                    },
+                                                    "then": {
+                                                        "required": ["roof_absorptance"]
+                                                    },
+                                                    "else": {
+                                                        "not": {
+                                                            "required": ["roof_absorptance"]
+                                                        }
+                                                    }
                                                 },
-                                                "required": ["roof_color"]
-                                            },
-                                            "then": {
-                                                "required": ["roof_absorptance"]
-                                            },
-                                            "else": {
-                                                "not": {
-                                                    "required": ["roof_absorptance"]
+                                                {
+                                                    "if": {
+                                                        "properties": {
+                                                            "roof_type": {"enum": ["vented_attic", "cond_attic"]}
+                                                        },
+                                                        "required": ["roof_type"]
+                                                    },
+                                                    "then": {
+                                                        "required": ["ceiling_assembly_code"]
+                                                    },
+                                                    "else": {
+                                                        "not": {
+                                                            "required": ["ceiling_assembly_code"]
+                                                        }
+                                                    }
                                                 }
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "if": {
-                                            "properties": {
-                                                "roof_name": {"const": "roof1"},
-                                                "roof_area": {"exclusiveMinimum": 0}
-                                            },
-                                            "required": ["roof_name", "roof_area"]
-                                        },
-                                        "then": {
-                                            "if": {
-                                                "properties": {
-                                                    "roof_type": {"enum": ["vented_attic", "cond_attic"]}
-                                                },
-                                                "required": ["roof_type"]
-                                            },
-                                            "then": {
-                                                "required": ["ceiling_assembly_code"]
-                                            },
-                                            "else": {
-                                                "not": {
-                                                    "required": ["ceiling_assembly_code"]
-                                                }
-                                            }
+                                            ]
                                         }
                                     }
                                 ]
@@ -553,7 +548,7 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "floor_name": {"const": "floor1"}
+                                                "floor_name": {"enum": ["floor1", "floor2"]}
                                             },
                                             "required": ["floor_name"]
                                         },
@@ -564,7 +559,7 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "floor_name": {"const": "floor1"},
+                                                "floor_name": {"enum": ["floor1", "floor2"]},
                                                 "floor_area": {"exclusiveMinimum": 0}
                                             },
                                             "required": ["floor_name", "floor_area"]
@@ -995,7 +990,7 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "hvac_name": {"const": "hvac1"}
+                                                "hvac_name": {"enum": ["hvac1", "hvac2"]}
                                             }
                                         },
                                         "then": {
