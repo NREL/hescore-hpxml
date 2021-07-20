@@ -38,6 +38,7 @@ setup(
     install_requires=[
         'lxml',
         'future',
+        'jsonschema'
     ],
     extras_require={
         'dev': [

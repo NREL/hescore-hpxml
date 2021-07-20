@@ -38,28 +38,27 @@
           "floor_name": "floor1",
           "floor_area": 900.0,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0,
-          "floor_assembly_code": "efwf00ca"
+          "foundation_insulation_level": 0
         }
       ],
       "wall_construction_same": false,
       "window_construction_same": false,
       "zone_wall": [
         {
-          "side": "back",
+          "side": "front",
           "wall_assembly_code": "ewbr00nn",
           "zone_window": {
-            "window_area": 108.0,
+            "window_area": 112.0,
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false
           }
         },
         {
-          "side": "front",
+          "side": "back",
           "wall_assembly_code": "ewbr00nn",
           "zone_window": {
-            "window_area": 112.0,
+            "window_area": 108.0,
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false

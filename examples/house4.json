@@ -58,23 +58,12 @@
           "floor_name": "floor2",
           "floor_area": 600.0,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0,
-          "floor_assembly_code": "efwf00ca"
+          "foundation_insulation_level": 0
         }
       ],
       "wall_construction_same": false,
       "window_construction_same": false,
       "zone_wall": [
-        {
-          "side": "right",
-          "wall_assembly_code": "ewwf07st",
-          "zone_window": {
-            "window_area": 153.0,
-            "window_method": "code",
-            "window_code": "dpeaaw",
-            "solar_screen": false
-          }
-        },
         {
           "side": "front",
           "wall_assembly_code": "ewwf07st",
@@ -100,6 +89,16 @@
           "wall_assembly_code": "ewwf11st",
           "zone_window": {
             "window_area": 165.333,
+            "window_method": "code",
+            "window_code": "dpeaaw",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "right",
+          "wall_assembly_code": "ewwf07st",
+          "zone_window": {
+            "window_area": 153.0,
             "window_method": "code",
             "window_code": "dpeaaw",
             "solar_screen": false

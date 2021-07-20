@@ -55,8 +55,7 @@
           "floor_name": "floor2",
           "floor_area": 771.4285714285714,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0,
-          "floor_assembly_code": "efwf00ca"
+          "foundation_insulation_level": 0
         }
       ],
       "wall_construction_same": false,
