@@ -66,10 +66,11 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
             wall = self.xpath(
                 b,
                 '//h:Wall[h:SystemIdentifier/@id=$kneewallid][h:AtticWallType="knee wall"]',
-                raise_err=True,
+                raise_err=False,
                 kneewallid=kneewall_idref
             )
-            knee_walls.append(wall)
+            if wall is not None:
+                knee_walls.append(wall)
 
         return knee_walls
 
