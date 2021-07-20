@@ -81,7 +81,6 @@ def test_remove_customer(hpxml_filebase):
 
 @pytest.mark.parametrize('hpxml_filebase', both_hescore_min)
 def test_remove_health_and_safety(hpxml_filebase):
-    assert False
     doc, E = get_example_xml_tree_elementmaker(hpxml_filebase)
     hpxml = doc.getroot()
     hpxml.Building.BuildingDetails.Systems.addnext(
