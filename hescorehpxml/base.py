@@ -2,6 +2,7 @@ from __future__ import division
 from builtins import map
 from builtins import zip
 from builtins import object
+import csv
 from past.utils import old_div
 import datetime as dt
 import json
@@ -87,6 +88,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             )
         self.ns = {'xs': 'http://www.w3.org/2001/XMLSchema'}
         self.ns['h'] = schematree.xpath('//xs:schema/@targetNamespace', namespaces=self.ns)[0]
+        self._wall_assembly_eff_rvalues = None
 
     def xpath(self, el, xpathquery, aslist=False, raise_err=False, **kwargs):
         if isinstance(el, etree._ElementTree):
@@ -149,9 +151,18 @@ class HPXMLtoHEScoreTranslatorBase(object):
         # Write out the scrubbed doc
         etree.ElementTree(root).write(outfile_obj, pretty_print=True)
 
+    @property
+    def wall_assembly_eff_rvalues(self):
+        if self._wall_assembly_eff_rvalues is None:
+            with open(os.path.join(thisdir, 'lookups', 'lu_wall_eff_rvalue.csv'), newline='') as f:
+                reader = csv.DictReader(f)
+                self._wall_assembly_eff_rvalues = {}
+                for row in reader:
+                    self._wall_assembly_eff_rvalues[row['doe2code']] = float(row['Eff-R-value'])
+        return self._wall_assembly_eff_rvalues
+
     def get_wall_assembly_code(self, hpxmlwall):
         xpath = self.xpath
-        ns = self.ns
         wallid = xpath(hpxmlwall, 'h:SystemIdentifier/@id', raise_err=True)
 
         # siding
@@ -175,50 +186,40 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         # construction type
         wall_type = xpath(hpxmlwall, 'name(h:WallType/*)', raise_err=True)
-        for layer in xpath(hpxmlwall, 'h:Insulation/h:Layer', aslist=True):
-            if xpath(layer, 'h:NominalRValue') is None:
-                raise TranslationError('Every wall insulation layer needs a NominalRValue, (wallid = "%s")' % wallid)
+        assembly_eff_rvalue = None
+
+        # This variable will be true if every wall layer has a NominalRValue *or*
+        # if there are no insulation layers
+        every_wall_layer_has_nominal_rvalue = True
+        wall_layers = xpath(hpxmlwall, 'h:Insulation/h:Layer', aslist=True)
+        if wall_layers:
+            every_wall_layer_has_nominal_rvalue = True
+            for layer in wall_layers:
+                if xpath(layer, 'h:NominalRValue') is None:
+                    every_wall_layer_has_nominal_rvalue = False
+                    break
+
+        # Assembly effective R-value or None if element not present
+        assembly_eff_rvalue = convert_to_type(
+            float,
+            xpath(hpxmlwall, 'h:Insulation/h:AssemblyEffectiveRValue/text()', raise_err=False)
+        )
+
+        # Siding
         if wall_type == 'WoodStud':
-            wall_rvalue = xpath(hpxmlwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)', raise_err=True)
-            has_rigid_ins = xpath(
-                hpxmlwall,
-                'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean('
-                'h:InsulationMaterial/h:Rigid)])'
-            )
-            if tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')) or has_rigid_ins:
-                wallconstype = 'ps'
-                # account for the rigid foam sheathing in the construction code
-                wall_rvalue -= 5
-                rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
-            elif tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:OptimumValueEngineering/text()')):
-                wallconstype = 'ov'
-                rvalue = wall_round_to_nearest(wall_rvalue, (19, 21, 27, 33, 38))
-            else:
-                wallconstype = 'wf'
-                rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
             hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
             try:
                 sidingtype = sidingmap[hpxmlsiding]
             except KeyError:
-                raise TranslationError('Wall %s: Exterior finish information is missing' % wallid)
+                raise TranslationError(f'Wall {wallid}: Exterior finish information is missing')
             else:
                 if sidingtype is None:
                     raise TranslationError(
-                        'Wall %s: There is no HEScore wall siding equivalent for the HPXML option: %s' %
-                        (wallid, hpxmlsiding))
+                        f'Wall {wallid}: There is no HEScore wall siding equivalent for the HPXML option: {hpxmlsiding}'
+                    )
         elif wall_type == 'StructuralBrick':
-            wallconstype = 'br'
             sidingtype = 'nn'
-            rvalue = 0
-            for lyr in hpxmlwall.xpath('h:Insulation/h:Layer', namespaces=ns):
-                rvalue += float(xpath(lyr, 'h:NominalRValue/text()', raise_err=True))
-            rvalue = wall_round_to_nearest(rvalue, (0, 5, 10))
         elif wall_type in ('ConcreteMasonryUnit', 'Stone'):
-            wallconstype = 'cb'
-            rvalue = 0
-            for lyr in hpxmlwall.xpath('h:Insulation/h:Layer', namespaces=ns):
-                rvalue += float(xpath(lyr, 'h:NominalRValue/text()'))
-            rvalue = wall_round_to_nearest(rvalue, (0, 3, 6))
             hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
             if hpxmlsiding is None:
                 sidingtype = 'nn'
@@ -226,17 +227,71 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 sidingtype = sidingmap[hpxmlsiding]
                 if sidingtype not in ('st', 'br'):
                     raise TranslationError(
-                        'Wall {}: is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. '
-                        'It has a siding type of {}'.format(wallid, hpxmlsiding)
+                        f'Wall {wallid}: is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. '
+                        f'It has a siding type of {hpxmlsiding}'
                     )
         elif wall_type == 'StrawBale':
-            wallconstype = 'sb'
-            rvalue = 0
             sidingtype = 'st'
         else:
-            raise TranslationError('Wall type %s not supported, wall id: %s' % (wall_type, wallid))
+            raise TranslationError(f'Wall type {wall_type} not supported, wall id: {wallid}')
 
-        return 'ew%s%02d%s' % (wallconstype, rvalue, sidingtype)
+        # R-value and construction code
+        if every_wall_layer_has_nominal_rvalue and assembly_eff_rvalue is None:
+            # If the wall as a NominalRValue element for every layer (or there are no layers)
+            # and there isn't an AssemblyEffectiveRValue element
+            wall_rvalue = xpath(hpxmlwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)', raise_err=True)
+            if wall_type == 'WoodStud':
+                has_rigid_ins = xpath(
+                    hpxmlwall,
+                    'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean('
+                    'h:InsulationMaterial/h:Rigid)])'
+                )
+                if tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')) or has_rigid_ins:
+                    wallconstype = 'ps'
+                    # account for the rigid foam sheathing in the construction code
+                    wall_rvalue -= 5
+                    rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+                elif tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:OptimumValueEngineering/text()')):
+                    wallconstype = 'ov'
+                    rvalue = wall_round_to_nearest(wall_rvalue, (19, 21, 27, 33, 38))
+                else:
+                    wallconstype = 'wf'
+                    rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+            elif wall_type == 'StructuralBrick':
+                wallconstype = 'br'
+                rvalue = wall_round_to_nearest(wall_rvalue, (0, 5, 10))
+            elif wall_type in ('ConcreteMasonryUnit', 'Stone'):
+                wallconstype = 'cb'
+                rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 6))
+            else:
+                # We will have already thrown an error above if this is another wall type.
+                assert wall_type == 'StrawBale'
+                wallconstype = 'sb'
+                rvalue = 0
+            return f'ew{wallconstype}{rvalue:02d}{sidingtype}'
+        elif assembly_eff_rvalue is not None:
+            # If there's an AssemblyEffectiveRValue element
+            try:
+                doe2walltypes = {
+                    'WoodStud': ('ps', 'ov', 'wf'),
+                    'StructuralBrick': ('br',),
+                    'ConcreteMasonryUnit': ('cb',),
+                    'Stone': ('cb',),
+                    'StrawBale': ('st',)
+                }[wall_type]
+            except KeyError:
+                raise TranslationError(f'Wall type {wall_type} not supported, wall id: {wallid}')
+            closest_wall_code, closest_code_rvalue = min(
+                [(doe2code, code_rvalue)
+                 for doe2code, code_rvalue in self.wall_assembly_eff_rvalues.items()
+                 if doe2code[2:4] in doe2walltypes and doe2code[6:8] == sidingtype],
+                key=lambda x: abs(x[1] - assembly_eff_rvalue)
+            )
+            return closest_wall_code
+
+        else:
+            raise TranslationError('Every wall insulation layer needs a NominalRValue or '
+                                   f'AssemblyEffectiveRValue needs to be defined, (wallid = "{wallid}")')
 
     def get_window_code(self, window):
         # Please review the refactoring for this function

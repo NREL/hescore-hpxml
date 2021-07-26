@@ -104,6 +104,9 @@ class TestAPIHouses(unittest.TestCase, ComparatorBase):
     def test_house8(self):
         self._do_full_compare('house8')
 
+    def test_assembly_rvalue(self):
+        self._do_full_compare('hescore_min_assembly_rvalue')
+
 
 class TestCLI(unittest.TestCase, ComparatorBase):
 
