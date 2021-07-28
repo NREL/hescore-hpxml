@@ -21,7 +21,7 @@ for subdir, dirs, files in os.walk(xml_path):
         if filename.split('.')[-1] != 'xml':
             continue
         filepath = subdir + os.sep + filename
-        print(f"Translating {subdir}\{filename}")
+        print(f"Translating {subdir}\\{filename}")
         file_name = filename.split('.')[0]
         command = 'hpxml2hescore ' + filepath + ' --resstock ' + '-o ' + os.path.join(sub_out_path, file_name + '.json')
         os.system(command)
