@@ -1,8 +1,4 @@
 import os
-from hescorehpxml import (
-    HPXMLtoHEScoreTranslator,
-    main
-)
 
 thisdir = os.path.dirname(os.path.abspath(__file__))
 xml_path = os.path.join(thisdir, 'xmls')
