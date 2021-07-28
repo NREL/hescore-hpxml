@@ -46,17 +46,6 @@
       "window_construction_same": false,
       "zone_wall": [
         {
-          "side": "right",
-          "wall_assembly_code": "ewwf00br",
-          "zone_window": {
-            "window_area": 45.0,
-            "window_method": "custom",
-            "window_u_value": 0.65,
-            "window_shgc": 0.8,
-            "solar_screen": false
-          }
-        },
-        {
           "side": "front",
           "wall_assembly_code": "ewwf00br",
           "zone_window": {
@@ -86,6 +75,17 @@
             "window_method": "custom",
             "window_u_value": 0.25,
             "window_shgc": 0.42000000000000004,
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "right",
+          "wall_assembly_code": "ewwf00br",
+          "zone_window": {
+            "window_area": 45.0,
+            "window_method": "custom",
+            "window_u_value": 0.65,
+            "window_shgc": 0.8,
             "solar_screen": false
           }
         }

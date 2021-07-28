@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+from jsonschema import ValidationError, SchemaError
 from .base import HPXMLtoHEScoreTranslatorBase
 from .hpxml2 import HPXML2toHEScoreTranslator
 from .hpxml3 import HPXML3toHEScoreTranslator
@@ -82,7 +83,7 @@ def main(argv=sys.argv[1:]):
             hpxml_contractor_id=args.contractorid,
             resstock_file=args.resstock
         )
-    except HPXMLtoHEScoreError as ex:
+    except (HPXMLtoHEScoreError, ValidationError, SchemaError) as ex:
         exclass = type(ex).__name__
         logging.error('%s:%s', exclass, str(ex))
         sys.exit(1)
