@@ -18,7 +18,8 @@ for subdir, dirs, files in os.walk(xml_path):
     if not os.path.exists(sub_out_path):
         os.makedirs(sub_out_path)
     for filename in files:
-        if filename.split('.')[-1] != 'xml' : continue
+        if filename.split('.')[-1] != 'xml':
+            continue
         filepath = subdir + os.sep + filename
         print(f"Translating {subdir}\{filename}")
         file_name = filename.split('.')[0]
