@@ -3,7 +3,7 @@
   <XMLTransactionHeaderInformation>
     <XMLType>HPXML</XMLType>
     <XMLGeneratedBy>BuildResidentialHPXML</XMLGeneratedBy>
-    <CreatedDateAndTime>2021-07-07T15:02:53-06:00</CreatedDateAndTime>
+    <CreatedDateAndTime>2021-07-27T12:14:20-06:00</CreatedDateAndTime>
     <Transaction>create</Transaction>
   </XMLTransactionHeaderInformation>
   <SoftwareInfo>
@@ -49,14 +49,16 @@
         <Site>
           <SiteType dataSource='software'>suburban</SiteType>
           <ShieldingofHome dataSource='software'>normal</ShieldingofHome>
-          <OrientationOfFrontOfHome>south</OrientationOfFrontOfHome>
+          <AzimuthOfFrontOfHome>180</AzimuthOfFrontOfHome>
           <extension>
             <Neighbors>
               <NeighborBuilding>
+                <Orientation dataSource='software'>west</Orientation>
                 <Azimuth>270</Azimuth>
                 <Distance>10.0</Distance>
               </NeighborBuilding>
               <NeighborBuilding>
+                <Orientation dataSource='software'>east</Orientation>
                 <Azimuth>90</Azimuth>
                 <Distance>10.0</Distance>
               </NeighborBuilding>
@@ -139,6 +141,7 @@
             <SystemIdentifier id='Surface_14'/>
             <InteriorAdjacentTo>attic - vented</InteriorAdjacentTo>
             <Area>559.0</Area>
+            <Orientation dataSource='software'>south</Orientation>
             <Azimuth>180</Azimuth>
             <RoofType>asphalt or fiberglass shingles</RoofType>
             <RoofColor>medium</RoofColor>
@@ -158,6 +161,7 @@
             <SystemIdentifier id='Surface_15'/>
             <InteriorAdjacentTo>attic - vented</InteriorAdjacentTo>
             <Area>559.0</Area>
+            <Orientation dataSource='software'>north</Orientation>
             <Azimuth>0</Azimuth>
             <RoofType>asphalt or fiberglass shingles</RoofType>
             <RoofColor>medium</RoofColor>
@@ -183,6 +187,7 @@
               <WoodStud/>
             </WallType>
             <Area>357.8</Area>
+            <Orientation dataSource='software'>east</Orientation>
             <Azimuth>90</Azimuth>
             <Siding>vinyl siding</Siding>
             <Color>medium</Color>
@@ -205,6 +210,7 @@
               <WoodStud/>
             </WallType>
             <Area>715.5</Area>
+            <Orientation dataSource='software'>south</Orientation>
             <Azimuth>180</Azimuth>
             <Siding>vinyl siding</Siding>
             <Color>medium</Color>
@@ -228,6 +234,7 @@
               <WoodStud/>
             </WallType>
             <Area>62.5</Area>
+            <Orientation dataSource='software'>west</Orientation>
             <Azimuth>270</Azimuth>
             <Siding>vinyl siding</Siding>
             <Color>medium</Color>
@@ -250,6 +257,7 @@
               <WoodStud/>
             </WallType>
             <Area>62.5</Area>
+            <Orientation dataSource='software'>east</Orientation>
             <Azimuth>90</Azimuth>
             <Siding>vinyl siding</Siding>
             <Color>medium</Color>
@@ -271,6 +279,7 @@
               <WoodStud/>
             </WallType>
             <Area>357.8</Area>
+            <Orientation dataSource='software'>west</Orientation>
             <Azimuth>270</Azimuth>
             <Siding>vinyl siding</Siding>
             <Color>medium</Color>
@@ -293,6 +302,7 @@
               <WoodStud/>
             </WallType>
             <Area>715.6</Area>
+            <Orientation dataSource='software'>north</Orientation>
             <Azimuth>0</Azimuth>
             <Siding>vinyl siding</Siding>
             <Color>medium</Color>
@@ -357,6 +367,7 @@
             <SystemIdentifier id='Surface_10_-_Window_1_right'/>
             <Area>32.099999999999994</Area>
             <Azimuth>90</Azimuth>
+            <Orientation dataSource='software'>east</Orientation>
             <UFactor>0.37</UFactor>
             <SHGC>0.3</SHGC>
             <ExteriorShading>
@@ -381,6 +392,7 @@
             <SystemIdentifier id='Surface_11_-_Window_1_front'/>
             <Area>67.2</Area>
             <Azimuth>180</Azimuth>
+            <Orientation dataSource='software'>south</Orientation>
             <UFactor>0.37</UFactor>
             <SHGC>0.3</SHGC>
             <ExteriorShading>
@@ -405,6 +417,7 @@
             <SystemIdentifier id='Surface_2_-_Window_1_left'/>
             <Area>32.099999999999994</Area>
             <Azimuth>270</Azimuth>
+            <Orientation dataSource='software'>west</Orientation>
             <UFactor>0.37</UFactor>
             <SHGC>0.3</SHGC>
             <ExteriorShading>
@@ -429,6 +442,7 @@
             <SystemIdentifier id='Surface_3_-_Window_1_back'/>
             <Area>64.2</Area>
             <Azimuth>0</Azimuth>
+            <Orientation dataSource='software'>north</Orientation>
             <UFactor>0.37</UFactor>
             <SHGC>0.3</SHGC>
             <ExteriorShading>
@@ -453,6 +467,7 @@
             <SystemIdentifier id='Surface_4_-_Window_1_right'/>
             <Area>32.099999999999994</Area>
             <Azimuth>90</Azimuth>
+            <Orientation dataSource='software'>east</Orientation>
             <UFactor>0.37</UFactor>
             <SHGC>0.3</SHGC>
             <ExteriorShading>
@@ -477,6 +492,7 @@
             <SystemIdentifier id='Surface_5_-_Window_1_front'/>
             <Area>61.8</Area>
             <Azimuth>180</Azimuth>
+            <Orientation dataSource='software'>south</Orientation>
             <UFactor>0.37</UFactor>
             <SHGC>0.3</SHGC>
             <ExteriorShading>
@@ -501,6 +517,7 @@
             <SystemIdentifier id='Surface_8_-_Window_1_left'/>
             <Area>32.099999999999994</Area>
             <Azimuth>270</Azimuth>
+            <Orientation dataSource='software'>west</Orientation>
             <UFactor>0.37</UFactor>
             <SHGC>0.3</SHGC>
             <ExteriorShading>
@@ -525,6 +542,7 @@
             <SystemIdentifier id='Surface_9_-_Window_1_back'/>
             <Area>64.2</Area>
             <Azimuth>0</Azimuth>
+            <Orientation dataSource='software'>north</Orientation>
             <UFactor>0.37</UFactor>
             <SHGC>0.3</SHGC>
             <ExteriorShading>
@@ -552,6 +570,7 @@
             <AttachedToWall idref='Surface_11'/>
             <Area>20.0</Area>
             <Azimuth>180</Azimuth>
+            <Orientation dataSource='software'>south</Orientation>
             <RValue>5.0</RValue>
           </Door>
         </Doors>

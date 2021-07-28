@@ -1,17 +1,17 @@
 {
   "building_address": {
-    "zip_code": "90250",
+    "zip_code": "98052",
     "assessment_type": "alternative"
   },
   "building": {
     "about": {
-      "assessment_date": "2021-07-20",
+      "assessment_date": "2021-07-28",
       "shape": "rectangle",
       "year_built": 1940,
-      "number_bedrooms": 3,
-      "num_floor_above_grade": 1,
+      "number_bedrooms": 4,
+      "num_floor_above_grade": 2,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 1220,
+      "conditioned_floor_area": 1690,
       "orientation": "west",
       "blower_door_test": false,
       "air_sealing_present": false
@@ -20,10 +20,10 @@
       "zone_roof": [
         {
           "roof_name": "roof1",
-          "roof_area": 1220.0,
-          "roof_assembly_code": "rfwf00rc",
+          "roof_area": 1690.0,
+          "roof_assembly_code": "rfwf00co",
           "roof_color": "cool_color",
-          "roof_absorptance": 0.75,
+          "roof_absorptance": 0.85,
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf00",
           "zone_skylight": {
@@ -34,8 +34,8 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 1220.0,
-          "foundation_type": "slab_on_grade",
+          "floor_area": 845.0,
+          "foundation_type": "vented_crawl",
           "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         }
@@ -45,45 +45,45 @@
       "zone_wall": [
         {
           "side": "front",
-          "wall_assembly_code": "ewwf00st",
+          "wall_assembly_code": "ewwf00wo",
           "zone_window": {
-            "window_area": 33.599999999999994,
+            "window_area": 74.9,
             "window_method": "custom",
-            "window_u_value": 0.49000000000000005,
-            "window_shgc": 0.56,
+            "window_u_value": 0.84,
+            "window_shgc": 0.63,
             "solar_screen": false
           }
         },
         {
           "side": "left",
-          "wall_assembly_code": "ewwf00st",
+          "wall_assembly_code": "ewwf00wo",
           "zone_window": {
-            "window_area": 18.8,
+            "window_area": 41.6,
             "window_method": "custom",
-            "window_u_value": 0.49,
-            "window_shgc": 0.56,
+            "window_u_value": 0.8400000000000001,
+            "window_shgc": 0.63,
             "solar_screen": false
           }
         },
         {
           "side": "back",
-          "wall_assembly_code": "ewwf00st",
+          "wall_assembly_code": "ewwf00wo",
           "zone_window": {
-            "window_area": 33.599999999999994,
+            "window_area": 75.2,
             "window_method": "custom",
-            "window_u_value": 0.49000000000000005,
-            "window_shgc": 0.56,
+            "window_u_value": 0.84,
+            "window_shgc": 0.63,
             "solar_screen": false
           }
         },
         {
           "side": "right",
-          "wall_assembly_code": "ewwf00st",
+          "wall_assembly_code": "ewwf00wo",
           "zone_window": {
-            "window_area": 18.8,
+            "window_area": 41.6,
             "window_method": "custom",
-            "window_u_value": 0.49,
-            "window_shgc": 0.56,
+            "window_u_value": 0.8400000000000001,
+            "window_shgc": 0.63,
             "solar_screen": false
           }
         }
@@ -96,14 +96,29 @@
           "hvac_fraction": 1.0,
           "heating": {
             "fuel_primary": "natural_gas",
-            "type": "wall_furnace",
+            "type": "central_furnace",
             "efficiency_method": "user",
-            "efficiency": 0.68
+            "efficiency": 0.76
           },
           "cooling": {
             "type": "none"
           },
-          "hvac_distribution": []
+          "hvac_distribution": [
+            {
+              "name": "duct1",
+              "location": "vented_crawl",
+              "fraction": 75,
+              "insulated": false,
+              "sealed": false
+            },
+            {
+              "name": "duct2",
+              "location": "cond_space",
+              "fraction": 25,
+              "insulated": false,
+              "sealed": false
+            }
+          ]
         }
       ],
       "domestic_hot_water": {

@@ -1,18 +1,18 @@
 {
   "building_address": {
-    "zip_code": "77449",
+    "zip_code": "90250",
     "assessment_type": "alternative"
   },
   "building": {
     "about": {
-      "assessment_date": "2021-07-20",
+      "assessment_date": "2021-07-28",
       "shape": "rectangle",
-      "year_built": 2000,
+      "year_built": 1950,
       "number_bedrooms": 3,
-      "num_floor_above_grade": 1,
+      "num_floor_above_grade": 2,
       "floor_to_ceiling_height": 8,
       "conditioned_floor_area": 1690,
-      "orientation": "east",
+      "orientation": "north",
       "blower_door_test": false,
       "air_sealing_present": false
     },
@@ -20,7 +20,7 @@
       "zone_roof": [
         {
           "roof_name": "roof1",
-          "roof_area": 2266.0,
+          "roof_area": 989.0,
           "roof_assembly_code": "rfwf00co",
           "roof_color": "cool_color",
           "roof_absorptance": 0.85,
@@ -34,7 +34,7 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 2266.0,
+          "floor_area": 989.0,
           "foundation_type": "slab_on_grade",
           "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
@@ -45,9 +45,20 @@
       "zone_wall": [
         {
           "side": "front",
-          "wall_assembly_code": "ewwf00br",
+          "wall_assembly_code": "ewwf00wo",
           "zone_window": {
-            "window_area": 34.2,
+            "window_area": 79.10000000000001,
+            "window_method": "custom",
+            "window_u_value": 0.48999999999999994,
+            "window_shgc": 0.56,
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf00wo",
+          "zone_window": {
+            "window_area": 66.6,
             "window_method": "custom",
             "window_u_value": 0.49000000000000005,
             "window_shgc": 0.56,
@@ -55,21 +66,10 @@
           }
         },
         {
-          "side": "left",
-          "wall_assembly_code": "ewwf00br",
-          "zone_window": {
-            "window_area": 31.799999999999997,
-            "window_method": "custom",
-            "window_u_value": 0.49,
-            "window_shgc": 0.56,
-            "solar_screen": false
-          }
-        },
-        {
           "side": "back",
-          "wall_assembly_code": "ewwf00br",
+          "wall_assembly_code": "ewwf00wo",
           "zone_window": {
-            "window_area": 57.5,
+            "window_area": 93.6,
             "window_method": "custom",
             "window_u_value": 0.49,
             "window_shgc": 0.56,
@@ -78,9 +78,9 @@
         },
         {
           "side": "right",
-          "wall_assembly_code": "ewwf00br",
+          "wall_assembly_code": "ewwf00wo",
           "zone_window": {
-            "window_area": 20.4,
+            "window_area": 52.0,
             "window_method": "custom",
             "window_u_value": 0.49,
             "window_shgc": 0.56,
@@ -103,13 +103,20 @@
           "cooling": {
             "type": "split_dx",
             "efficiency_method": "user",
-            "efficiency": 13.0
+            "efficiency": 15.0
           },
           "hvac_distribution": [
             {
               "name": "duct1",
               "location": "uncond_attic",
-              "fraction": 100,
+              "fraction": 75,
+              "insulated": true,
+              "sealed": false
+            },
+            {
+              "name": "duct2",
+              "location": "cond_space",
+              "fraction": 25,
               "insulated": true,
               "sealed": false
             }
@@ -118,10 +125,10 @@
       ],
       "domestic_hot_water": {
         "category": "unit",
-        "type": "storage",
+        "type": "tankless",
         "fuel_primary": "natural_gas",
         "efficiency_method": "user",
-        "energy_factor": 0.59
+        "energy_factor": 0.82
       }
     }
   }
