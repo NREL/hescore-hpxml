@@ -576,7 +576,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             # Fraction of Duct Area
             frac_duct_area = float(self.xpath(duct_el, 'h:FractionDuctArea/text()', raise_err=True))
-            frac_duct_area = 1.0
             duct_fracs_by_hescore_duct_loc[hescore_duct_location] += frac_duct_area
 
             # Duct Insulation
