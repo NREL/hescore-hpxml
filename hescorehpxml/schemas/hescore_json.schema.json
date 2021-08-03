@@ -2,6 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
     "title": "HEScore JSON Schema",
+    "additionalProperties": false,
     "properties": {
         "building_address": {
             "$id": "#/properties/building_address",
@@ -39,6 +40,7 @@
         "hpwes": {
             "$id": "#/properties/hpwes",
             "type": "object",
+            "additionalProperties": false,
             "properties": {
                 "improvement_installation_start_date": {
                     "$id": "#/properties/building/properties/improvement_installation_start_date",
@@ -73,11 +75,11 @@
         "building": {
             "$id": "#/properties/building",
             "type": "object",
+            "additionalProperties": false,
             "properties": {
                 "about": {
                     "$id": "#/properties/building/properties/about",
                     "type": "object",
-                    "additionalProperties": false,
                     "required": [
                         "assessment_date",
                         "shape",
@@ -89,6 +91,7 @@
                         "orientation",
                         "blower_door_test"
                     ],
+                    "additionalProperties": false,
                     "properties": {
                         "assessment_date": {
                             "$id": "#/properties/building/properties/about/properties/assessment_date",
@@ -240,6 +243,7 @@
                         "wall_construction_same",
                         "window_construction_same"
                     ],
+                    "additionalProperties": false,
                     "properties": {
                         "zone_roof": {
                             "$id": "#/properties/building/properties/zone/properties/zone_roof",
@@ -651,6 +655,7 @@
                                     "zone_window": {
                                         "type": "object",
                                         "description": "Inputs about the windows on this wall",
+                                        "additionalProperties": false,
                                         "properties": {
                                             "window_area": {
                                                 "type": "number",
@@ -710,6 +715,7 @@
                                 "required": [
                                     "hvac_name"
                                 ],
+                                "additionalProperties": false,
                                 "properties": {
                                     "hvac_name": {
                                         "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_name",
@@ -733,6 +739,7 @@
                                         "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating",
                                         "type": "object",
                                         "description": "Inputs about the heating system",
+                                        "additionalProperties": false,
                                         "properties": {
                                             "type": {
                                                 "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/type",
@@ -758,6 +765,17 @@
                                                 "type": "integer",
                                                 "minimum": 1970,
                                                 "description": "Year equipment was manufactured (only used if efficiency_method is shipment_weighted)"
+                                            },
+                                            "efficiency": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
+                                                "type": "number",
+                                                "$comment": "Additional requirements for this property apply based on the heating system type"
+                                            },
+                                            "efficiency_level": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency_level",
+                                                "type": "string",
+                                                "enum": ["energy_star"],
+                                                "description": "Efficiency level upgrade of the heating system (Optional)"
                                             }
                                         },
                                         "allOf": [
@@ -774,8 +792,6 @@
                                                     "then": {
                                                         "properties": {
                                                             "efficiency": {
-                                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                                "type": "number",
                                                                 "description": "Efficiency of heating equipment (only used if efficiency_method is user)"
                                                             }
                                                         }
@@ -783,8 +799,6 @@
                                                     "else": {
                                                         "properties": {
                                                             "efficiency": {
-                                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                                "type": "number",
                                                                 "minimum": 0.6,
                                                                 "maximum": 1,
                                                                 "description": "AFUE of heating equipment (only used if efficiency_method is user)"
@@ -801,8 +815,6 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                            "type": "number",
                                                             "minimum": 0.6,
                                                             "maximum": 1,
                                                             "description": "AFUE of heating equipment (only used if efficiency_method is user)"
@@ -818,8 +830,6 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                            "type": "number",
                                                             "minimum": 6,
                                                             "maximum": 20,
                                                             "description": "HSPF of heating equipment (only used if efficiency_method is user)"
@@ -835,8 +845,6 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                            "type": "number",
                                                             "minimum": 2,
                                                             "maximum": 5,
                                                             "description": "COP (ARI-330) of heating equipment (only used if efficiency_method is user)"
@@ -852,8 +860,6 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                            "type": "number",
                                                             "description": "Efficiency of heating equipment (only used if efficiency_method is user)"
                                                         }
                                                     }
@@ -865,6 +871,7 @@
                                         "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling",
                                         "type": "object",
                                         "description": "Inputs about the cooling system",
+                                        "additionalProperties": false,
                                         "properties": {
                                             "type": {
                                                 "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/type",
@@ -883,6 +890,17 @@
                                                 "type": "integer",
                                                 "minimum": 1970,
                                                 "description": "Year equipment was manufactured (only used if efficiency_method is shipment_weighted)"
+                                            },
+                                            "efficiency": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
+                                                "type": "number",
+                                                "$comment": "Additional requirements for this property apply based on the cooling system type"
+                                            },
+                                            "efficiency_level": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency_level",
+                                                "type": "string",
+                                                "enum": ["energy_star"],
+                                                "description": "Efficiency level upgrade of the cooling system (Optional)"
                                             }
                                         },
                                         "allOf": [
@@ -894,8 +912,6 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
-                                                            "type": "number",
                                                             "minimum": 8,
                                                             "maximum": 40,
                                                             "description": "SEER of cooling equipment (only used if efficiency_method is user)"
@@ -911,8 +927,6 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
-                                                            "type": "number",
                                                             "minimum": 8,
                                                             "maximum": 40,
                                                             "description": "EER of cooling equipment (only used if efficiency_method is user)"
@@ -928,14 +942,15 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
-                                                            "type": "number",
                                                             "description": "Efficiency of cooling equipment (only used if efficiency_method is user)"
                                                         }
                                                     }
                                                 }
                                             }
                                         ]
+                                    },
+                                    "hvac_distribution": {
+                                        "$comment": "Additional requirements for this property apply based on the heating and cooling system type"
                                     }
                                 },
                                 "if": {
@@ -1559,6 +1574,12 @@
                                     "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/energy_factor",
                                     "type": "number",
                                     "description": "Energy factor of water heater (only used if efficiency_method is user or uef)"
+                                },
+                                "efficiency_level": {
+                                    "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/efficiency_level",
+                                    "type": "string",
+                                    "enum": ["energy_star"],
+                                    "description": "Efficiency level upgrade of the domestic hot water system (Optional)"
                                 }
                             },
                             "allOf": [
@@ -1692,10 +1713,12 @@
                         "generation": {
                             "$id": "#/properties/building/properties/systems/properties/generation",
                             "type": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "solar_electric": {
                                     "$id": "#/properties/building/properties/systems/properties/generation/items/properties/solar_electric",
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "properties": {
                                         "capacity_known": {
                                             "$id": "#/properties/building/properties/systems/properties/generation/items/properties/solar_electric/capacity_known",
@@ -1839,7 +1862,6 @@
                     ]
                 }
             },
-            "additionalProperties": false,
             "allOf": [
                 {
                     "if": {
@@ -2179,7 +2201,6 @@
             ]
         }
     },
-    "additionalProperties": false,
     "definitions": {
         "def_front_wall_constraint": {
             "contains": {
