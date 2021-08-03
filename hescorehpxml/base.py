@@ -1657,7 +1657,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             windowd = {'area': convert_to_type(float, xpath(hpxmlwndw, 'h:Area/text()', raise_err=True))}
             windowd['uvalue'] = convert_to_type(float, xpath(hpxmlwndw, 'h:UFactor/text()'))
             windowd['shgc'] = convert_to_type(float, xpath(hpxmlwndw, 'h:SHGC/text()'))
-            windowd['sun_screen'] = self.get_sunscreen(hpxmlwndw)
+            windowd['solar_screen'] = self.get_sunscreen(hpxmlwndw)
             if windowd['uvalue'] is not None and windowd['shgc'] is not None:
                 windowd['window_code'] = None
             else:
@@ -1771,7 +1771,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 zone_window['window_area'] = 0
                 zone_window['window_method'] = 'code'
                 zone_window['window_code'] = 'scna'
-                zone_window['sun_screen'] = False
+                zone_window['solar_screen'] = False
                 continue
 
             # Get the list of uvalues and shgcs for the windows on this side of the house.
@@ -1815,9 +1815,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
             window_sunscreen_areas = {}
             for window in windows:
                 try:
-                    window_sunscreen_areas[window['sun_screen']] += window['area']
+                    window_sunscreen_areas[window['solar_screen']] += window['area']
                 except KeyError:
-                    window_sunscreen_areas[window['sun_screen']] = window['area']
+                    window_sunscreen_areas[window['solar_screen']] = window['area']
             zone_window['solar_screen'] = max(list(window_sunscreen_areas.items()), key=lambda x: x[1])[0]
         return zone_wall
 
