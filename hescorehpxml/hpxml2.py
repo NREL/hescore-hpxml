@@ -94,7 +94,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_attic_roof_area(self, roof):
         return self.xpath(roof, 'h:RoofArea/text()')
 
-    def get_sunscreen(self, wndw_skylight):
+    def get_solarscreen(self, wndw_skylight):
         return bool(self.xpath(wndw_skylight, 'h:Treatments/text()') == 'solar screen'
                     or self.xpath(wndw_skylight, 'h:ExteriorShading/text()') == 'solar screens')
 

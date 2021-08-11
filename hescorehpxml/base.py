@@ -1364,16 +1364,16 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         skylight_type_areas[skylight_code] = area
                 skylight_d['skylight_method'] = 'code'
                 skylight_d['skylight_code'] = max(list(skylight_type_areas.items()), key=lambda x: x[1])[0]
-            skylight_sunscreen_areas = {}
+            skylight_solarscreen_areas = {}
             for skylight in skylights:
-                solar_screen = self.get_sunscreen(skylight)
+                solar_screen = self.get_solarscreen(skylight)
                 area = convert_to_type(float, xpath(skylight, 'h:Area/text()', raise_err=True))
                 try:
-                    skylight_sunscreen_areas[solar_screen] += area
+                    skylight_solarscreen_areas[solar_screen] += area
                 except KeyError:
-                    skylight_sunscreen_areas[solar_screen] = area
+                    skylight_solarscreen_areas[solar_screen] = area
 
-            skylight_d['solar_screen'] = max(list(skylight_sunscreen_areas.items()), key=lambda x: x[1])[0]
+            skylight_d['solar_screen'] = max(list(skylight_solarscreen_areas.items()), key=lambda x: x[1])[0]
 
         return zone_skylight
 
@@ -1657,7 +1657,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             windowd = {'area': convert_to_type(float, xpath(hpxmlwndw, 'h:Area/text()', raise_err=True))}
             windowd['uvalue'] = convert_to_type(float, xpath(hpxmlwndw, 'h:UFactor/text()'))
             windowd['shgc'] = convert_to_type(float, xpath(hpxmlwndw, 'h:SHGC/text()'))
-            windowd['solar_screen'] = self.get_sunscreen(hpxmlwndw)
+            windowd['solar_screen'] = self.get_solarscreen(hpxmlwndw)
             if windowd['uvalue'] is not None and windowd['shgc'] is not None:
                 windowd['window_code'] = None
             else:
@@ -1812,13 +1812,13 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     except KeyError:
                         window_code_areas[window['window_code']] = window['area']
                 zone_window['window_code'] = max(list(window_code_areas.items()), key=lambda x: x[1])[0]
-            window_sunscreen_areas = {}
+            window_solarscreen_areas = {}
             for window in windows:
                 try:
-                    window_sunscreen_areas[window['solar_screen']] += window['area']
+                    window_solarscreen_areas[window['solar_screen']] += window['area']
                 except KeyError:
-                    window_sunscreen_areas[window['solar_screen']] = window['area']
-            zone_window['solar_screen'] = max(list(window_sunscreen_areas.items()), key=lambda x: x[1])[0]
+                    window_solarscreen_areas[window['solar_screen']] = window['area']
+            zone_window['solar_screen'] = max(list(window_solarscreen_areas.items()), key=lambda x: x[1])[0]
         return zone_wall
 
     def get_hvac(self, b, bldg):
