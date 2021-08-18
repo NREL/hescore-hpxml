@@ -3049,7 +3049,7 @@ class TestIrrelevantSurfaces(unittest.TestCase, ComparatorBase):
         orig_json = tr.hpxml_to_hescore(resstock_file=True)
         underslab_ins_rvalue = self.xpath('//h:Slabs/h:Slab[h:InteriorAdjacentTo="crawlspace - vented"]/\
                                           h:UnderSlabInsulation/h:Layer/h:NominalRValue')
-        underslab_ins_rvalue.text = '15.0'
+        underslab_ins_rvalue.text = '99.0'
         new_json = tr.hpxml_to_hescore(resstock_file=True)
         self.assertEqual(orig_json, new_json)
 
@@ -3058,7 +3058,7 @@ class TestIrrelevantSurfaces(unittest.TestCase, ComparatorBase):
         orig_json = tr.hpxml_to_hescore(resstock_file=True)
         underslab_ins_rvalue = self.xpath('//h:Slabs/h:Slab[h:InteriorAdjacentTo="basement - conditioned"]/\
                                           h:UnderSlabInsulation/h:Layer/h:NominalRValue')
-        underslab_ins_rvalue.text = '15.0'
+        underslab_ins_rvalue.text = '99.0'
         new_json = tr.hpxml_to_hescore(resstock_file=True)
         self.assertEqual(orig_json, new_json)
 
