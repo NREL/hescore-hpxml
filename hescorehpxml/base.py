@@ -448,9 +448,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
         allowed_fuel_types = {'heat_pump': ('electric',),
                               'mini_split': ('electric',),
                               'central_furnace': ('natural_gas', 'lpg', 'fuel_oil', 'electric'),
-                              'wall_furnace': ('natural_gas', 'lpg'),
+                              'wall_furnace': ('natural_gas', 'lpg', 'fuel_oil'),
                               'baseboard': ('electric',),
-                              'boiler': ('natural_gas', 'lpg', 'fuel_oil'),
+                              'boiler': ('natural_gas', 'lpg', 'fuel_oil', 'electric'),
                               'gchp': ('electric',),
                               'none': tuple(),
                               'wood_stove': ('cord_wood', 'pellet_wood')}
