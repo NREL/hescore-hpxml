@@ -3,7 +3,7 @@
   <XMLTransactionHeaderInformation>
     <XMLType>HPXML</XMLType>
     <XMLGeneratedBy>BuildResidentialHPXML</XMLGeneratedBy>
-    <CreatedDateAndTime>2021-07-27T13:46:20-06:00</CreatedDateAndTime>
+    <CreatedDateAndTime>2021-08-23T16:31:34-06:00</CreatedDateAndTime>
     <Transaction>create</Transaction>
   </XMLTransactionHeaderInformation>
   <SoftwareInfo>
@@ -29,7 +29,7 @@
         <UseMaxLoadForHeatPumps dataSource='software'>true</UseMaxLoadForHeatPumps>
         <AllowIncreasedFixedCapacities dataSource='software'>false</AllowIncreasedFixedCapacities>
       </HVACSizingControl>
-      <OccupancySchedulesCSVPath>../existing_schedules.csv</OccupancySchedulesCSVPath>
+      <SchedulesFilePath>../existing_schedules.csv</SchedulesFilePath>
     </extension>
   </SoftwareInfo>
   <Building>
@@ -38,9 +38,7 @@
       <SiteID id='SiteID'/>
       <Address>
         <StateCode>TX</StateCode>
-        <extension>
-          <FIPS>48201</FIPS>
-        </extension>
+        <ZipCode>77449</ZipCode>
       </Address>
     </Site>
     <ProjectStatus>
@@ -142,7 +140,7 @@
           <Roof>
             <SystemIdentifier id='Surface_14'/>
             <InteriorAdjacentTo>attic - vented</InteriorAdjacentTo>
-            <Area>608.2</Area>
+            <Area>608.21</Area>
             <Orientation dataSource='software'>south</Orientation>
             <Azimuth>180</Azimuth>
             <RoofType>asphalt or fiberglass shingles</RoofType>
@@ -156,13 +154,13 @@
             <RadiantBarrier>false</RadiantBarrier>
             <Insulation>
               <SystemIdentifier id='Surface_14Insulation'/>
-              <AssemblyEffectiveRValue>1.24</AssemblyEffectiveRValue>
+              <AssemblyEffectiveRValue>2.3</AssemblyEffectiveRValue>
             </Insulation>
           </Roof>
           <Roof>
             <SystemIdentifier id='Surface_15'/>
             <InteriorAdjacentTo>attic - vented</InteriorAdjacentTo>
-            <Area>608.2</Area>
+            <Area>608.21</Area>
             <Orientation dataSource='software'>north</Orientation>
             <Azimuth>0</Azimuth>
             <RoofType>asphalt or fiberglass shingles</RoofType>
@@ -176,7 +174,7 @@
             <RadiantBarrier>false</RadiantBarrier>
             <Insulation>
               <SystemIdentifier id='Surface_15Insulation'/>
-              <AssemblyEffectiveRValue>1.24</AssemblyEffectiveRValue>
+              <AssemblyEffectiveRValue>2.3</AssemblyEffectiveRValue>
             </Insulation>
           </Roof>
         </Roofs>
@@ -188,7 +186,7 @@
             <WallType>
               <WoodStud/>
             </WallType>
-            <Area>393.4</Area>
+            <Area>393.36</Area>
             <Orientation dataSource='software'>east</Orientation>
             <Azimuth>90</Azimuth>
             <Siding>brick veneer</Siding>
@@ -211,7 +209,7 @@
             <WallType>
               <WoodStud/>
             </WallType>
-            <Area>708.0</Area>
+            <Area>708.0600000000001</Area>
             <Orientation dataSource='software'>south</Orientation>
             <Azimuth>180</Azimuth>
             <Siding>brick veneer</Siding>
@@ -235,7 +233,7 @@
             <WallType>
               <WoodStud/>
             </WallType>
-            <Area>75.6</Area>
+            <Area>75.56</Area>
             <Orientation dataSource='software'>west</Orientation>
             <Azimuth>270</Azimuth>
             <Siding>brick veneer</Siding>
@@ -258,7 +256,7 @@
             <WallType>
               <WoodStud/>
             </WallType>
-            <Area>75.6</Area>
+            <Area>75.56</Area>
             <Orientation dataSource='software'>east</Orientation>
             <Azimuth>90</Azimuth>
             <Siding>brick veneer</Siding>
@@ -280,7 +278,7 @@
             <WallType>
               <WoodStud/>
             </WallType>
-            <Area>393.4</Area>
+            <Area>393.36</Area>
             <Orientation dataSource='software'>west</Orientation>
             <Azimuth>270</Azimuth>
             <Siding>brick veneer</Siding>
@@ -303,7 +301,7 @@
             <WallType>
               <WoodStud/>
             </WallType>
-            <Area>708.0</Area>
+            <Area>708.06</Area>
             <Orientation dataSource='software'>north</Orientation>
             <Azimuth>0</Azimuth>
             <Siding>brick veneer</Siding>
@@ -370,8 +368,8 @@
             <Area>23.6</Area>
             <Azimuth>90</Azimuth>
             <Orientation dataSource='software'>east</Orientation>
-            <UFactor>0.84</UFactor>
-            <SHGC>0.63</SHGC>
+            <UFactor>0.76</UFactor>
+            <SHGC>0.67</SHGC>
             <ExteriorShading>
               <SystemIdentifier id='Surface_10_-_Window_1_rightExteriorShading'/>
               <SummerShadingCoefficient dataSource='software'>1.0</SummerShadingCoefficient>
@@ -380,7 +378,7 @@
             <InteriorShading>
               <SystemIdentifier id='Surface_10_-_Window_1_rightInteriorShading'/>
               <SummerShadingCoefficient>0.7</SummerShadingCoefficient>
-              <WinterShadingCoefficient>0.7</WinterShadingCoefficient>
+              <WinterShadingCoefficient>0.85</WinterShadingCoefficient>
             </InteriorShading>
             <Overhangs>
               <Depth>2.0</Depth>
@@ -392,11 +390,11 @@
           </Window>
           <Window>
             <SystemIdentifier id='Surface_11_-_Window_1_front'/>
-            <Area>44.4</Area>
+            <Area>44.2</Area>
             <Azimuth>180</Azimuth>
             <Orientation dataSource='software'>south</Orientation>
-            <UFactor>0.84</UFactor>
-            <SHGC>0.63</SHGC>
+            <UFactor>0.76</UFactor>
+            <SHGC>0.67</SHGC>
             <ExteriorShading>
               <SystemIdentifier id='Surface_11_-_Window_1_frontExteriorShading'/>
               <SummerShadingCoefficient dataSource='software'>1.0</SummerShadingCoefficient>
@@ -405,7 +403,7 @@
             <InteriorShading>
               <SystemIdentifier id='Surface_11_-_Window_1_frontInteriorShading'/>
               <SummerShadingCoefficient>0.7</SummerShadingCoefficient>
-              <WinterShadingCoefficient>0.7</WinterShadingCoefficient>
+              <WinterShadingCoefficient>0.85</WinterShadingCoefficient>
             </InteriorShading>
             <Overhangs>
               <Depth>2.0</Depth>
@@ -420,8 +418,8 @@
             <Area>23.6</Area>
             <Azimuth>270</Azimuth>
             <Orientation dataSource='software'>west</Orientation>
-            <UFactor>0.84</UFactor>
-            <SHGC>0.63</SHGC>
+            <UFactor>0.76</UFactor>
+            <SHGC>0.67</SHGC>
             <ExteriorShading>
               <SystemIdentifier id='Surface_2_-_Window_1_leftExteriorShading'/>
               <SummerShadingCoefficient dataSource='software'>1.0</SummerShadingCoefficient>
@@ -430,7 +428,7 @@
             <InteriorShading>
               <SystemIdentifier id='Surface_2_-_Window_1_leftInteriorShading'/>
               <SummerShadingCoefficient>0.7</SummerShadingCoefficient>
-              <WinterShadingCoefficient>0.7</WinterShadingCoefficient>
+              <WinterShadingCoefficient>0.85</WinterShadingCoefficient>
             </InteriorShading>
             <Overhangs>
               <Depth>2.0</Depth>
@@ -442,11 +440,11 @@
           </Window>
           <Window>
             <SystemIdentifier id='Surface_3_-_Window_1_back'/>
-            <Area>42.4</Area>
+            <Area>42.48</Area>
             <Azimuth>0</Azimuth>
             <Orientation dataSource='software'>north</Orientation>
-            <UFactor>0.84</UFactor>
-            <SHGC>0.63</SHGC>
+            <UFactor>0.76</UFactor>
+            <SHGC>0.67</SHGC>
             <ExteriorShading>
               <SystemIdentifier id='Surface_3_-_Window_1_backExteriorShading'/>
               <SummerShadingCoefficient dataSource='software'>1.0</SummerShadingCoefficient>
@@ -455,7 +453,7 @@
             <InteriorShading>
               <SystemIdentifier id='Surface_3_-_Window_1_backInteriorShading'/>
               <SummerShadingCoefficient>0.7</SummerShadingCoefficient>
-              <WinterShadingCoefficient>0.7</WinterShadingCoefficient>
+              <WinterShadingCoefficient>0.85</WinterShadingCoefficient>
             </InteriorShading>
             <Overhangs>
               <Depth>2.0</Depth>
@@ -470,8 +468,8 @@
             <Area>23.6</Area>
             <Azimuth>90</Azimuth>
             <Orientation dataSource='software'>east</Orientation>
-            <UFactor>0.84</UFactor>
-            <SHGC>0.63</SHGC>
+            <UFactor>0.76</UFactor>
+            <SHGC>0.67</SHGC>
             <ExteriorShading>
               <SystemIdentifier id='Surface_4_-_Window_1_rightExteriorShading'/>
               <SummerShadingCoefficient dataSource='software'>1.0</SummerShadingCoefficient>
@@ -480,7 +478,7 @@
             <InteriorShading>
               <SystemIdentifier id='Surface_4_-_Window_1_rightInteriorShading'/>
               <SummerShadingCoefficient>0.7</SummerShadingCoefficient>
-              <WinterShadingCoefficient>0.7</WinterShadingCoefficient>
+              <WinterShadingCoefficient>0.85</WinterShadingCoefficient>
             </InteriorShading>
             <Overhangs>
               <Depth>2.0</Depth>
@@ -492,11 +490,11 @@
           </Window>
           <Window>
             <SystemIdentifier id='Surface_5_-_Window_1_front'/>
-            <Area>40.8</Area>
+            <Area>40.76</Area>
             <Azimuth>180</Azimuth>
             <Orientation dataSource='software'>south</Orientation>
-            <UFactor>0.84</UFactor>
-            <SHGC>0.63</SHGC>
+            <UFactor>0.76</UFactor>
+            <SHGC>0.67</SHGC>
             <ExteriorShading>
               <SystemIdentifier id='Surface_5_-_Window_1_frontExteriorShading'/>
               <SummerShadingCoefficient dataSource='software'>1.0</SummerShadingCoefficient>
@@ -505,7 +503,7 @@
             <InteriorShading>
               <SystemIdentifier id='Surface_5_-_Window_1_frontInteriorShading'/>
               <SummerShadingCoefficient>0.7</SummerShadingCoefficient>
-              <WinterShadingCoefficient>0.7</WinterShadingCoefficient>
+              <WinterShadingCoefficient>0.85</WinterShadingCoefficient>
             </InteriorShading>
             <Overhangs>
               <Depth>2.0</Depth>
@@ -520,8 +518,8 @@
             <Area>23.6</Area>
             <Azimuth>270</Azimuth>
             <Orientation dataSource='software'>west</Orientation>
-            <UFactor>0.84</UFactor>
-            <SHGC>0.63</SHGC>
+            <UFactor>0.76</UFactor>
+            <SHGC>0.67</SHGC>
             <ExteriorShading>
               <SystemIdentifier id='Surface_8_-_Window_1_leftExteriorShading'/>
               <SummerShadingCoefficient dataSource='software'>1.0</SummerShadingCoefficient>
@@ -530,7 +528,7 @@
             <InteriorShading>
               <SystemIdentifier id='Surface_8_-_Window_1_leftInteriorShading'/>
               <SummerShadingCoefficient>0.7</SummerShadingCoefficient>
-              <WinterShadingCoefficient>0.7</WinterShadingCoefficient>
+              <WinterShadingCoefficient>0.85</WinterShadingCoefficient>
             </InteriorShading>
             <Overhangs>
               <Depth>2.0</Depth>
@@ -542,11 +540,11 @@
           </Window>
           <Window>
             <SystemIdentifier id='Surface_9_-_Window_1_back'/>
-            <Area>42.4</Area>
+            <Area>42.48</Area>
             <Azimuth>0</Azimuth>
             <Orientation dataSource='software'>north</Orientation>
-            <UFactor>0.84</UFactor>
-            <SHGC>0.63</SHGC>
+            <UFactor>0.76</UFactor>
+            <SHGC>0.67</SHGC>
             <ExteriorShading>
               <SystemIdentifier id='Surface_9_-_Window_1_backExteriorShading'/>
               <SummerShadingCoefficient dataSource='software'>1.0</SummerShadingCoefficient>
@@ -555,7 +553,7 @@
             <InteriorShading>
               <SystemIdentifier id='Surface_9_-_Window_1_backInteriorShading'/>
               <SummerShadingCoefficient>0.7</SummerShadingCoefficient>
-              <WinterShadingCoefficient>0.7</WinterShadingCoefficient>
+              <WinterShadingCoefficient>0.85</WinterShadingCoefficient>
             </InteriorShading>
             <Overhangs>
               <Depth>2.0</Depth>
@@ -587,7 +585,7 @@
                 <Furnace/>
               </HeatingSystemType>
               <HeatingSystemFuel>natural gas</HeatingSystemFuel>
-              <HeatingCapacity dataSource='software'>68481.0</HeatingCapacity>
+              <HeatingCapacity dataSource='software'>73259.0</HeatingCapacity>
               <AnnualHeatingEfficiency>
                 <Units>AFUE</Units>
                 <Value>0.8</Value>
@@ -596,7 +594,7 @@
               <extension>
                 <FanPowerWattsPerCFM dataSource='software'>0.5</FanPowerWattsPerCFM>
                 <AirflowDefectRatio dataSource='software'>0.0</AirflowDefectRatio>
-                <HeatingAirflowCFM dataSource='software'>1249.0</HeatingAirflowCFM>
+                <HeatingAirflowCFM dataSource='software'>1336.0</HeatingAirflowCFM>
               </extension>
             </HeatingSystem>
             <CoolingSystem>
@@ -604,7 +602,7 @@
               <DistributionSystem idref='AirDistribution'/>
               <CoolingSystemType>central air conditioner</CoolingSystemType>
               <CoolingSystemFuel>electricity</CoolingSystemFuel>
-              <CoolingCapacity dataSource='software'>56919.0</CoolingCapacity>
+              <CoolingCapacity dataSource='software'>66168.0</CoolingCapacity>
               <CompressorType dataSource='software'>single stage</CompressorType>
               <FractionCoolLoadServed>1.0</FractionCoolLoadServed>
               <AnnualCoolingEfficiency>
@@ -616,18 +614,18 @@
                 <AirflowDefectRatio dataSource='software'>0.0</AirflowDefectRatio>
                 <ChargeDefectRatio dataSource='software'>0.0</ChargeDefectRatio>
                 <FanPowerWattsPerCFM dataSource='software'>0.5</FanPowerWattsPerCFM>
-                <CoolingAirflowCFM dataSource='software'>1792.0</CoolingAirflowCFM>
+                <CoolingAirflowCFM dataSource='software'>2074.0</CoolingAirflowCFM>
               </extension>
             </CoolingSystem>
             <extension>
               <DesignLoads dataSource='software'>
                 <Heating>
-                  <Total>68481.0</Total>
-                  <Ducts>13509.0</Ducts>
-                  <Windows>8240.0</Windows>
+                  <Total>73259.0</Total>
+                  <Ducts>19073.0</Ducts>
+                  <Windows>7453.0</Windows>
                   <Skylights>0.0</Skylights>
                   <Doors>148.0</Doors>
-                  <Walls>17793.0</Walls>
+                  <Walls>17794.0</Walls>
                   <Roofs>0.0</Roofs>
                   <Floors>0.0</Floors>
                   <Slabs>7245.0</Slabs>
@@ -635,12 +633,12 @@
                   <InfilVent>19586.0</InfilVent>
                 </Heating>
                 <CoolingSensible>
-                  <Total>44212.0</Total>
-                  <Ducts>12606.0</Ducts>
-                  <Windows>8609.0</Windows>
+                  <Total>50883.0</Total>
+                  <Ducts>19437.0</Ducts>
+                  <Windows>8449.0</Windows>
                   <Skylights>0.0</Skylights>
                   <Doors>124.0</Doors>
-                  <Walls>11376.0</Walls>
+                  <Walls>11377.0</Walls>
                   <Roofs>0.0</Roofs>
                   <Floors>0.0</Floors>
                   <Slabs>0.0</Slabs>
@@ -649,8 +647,8 @@
                   <InternalGains>2520.0</InternalGains>
                 </CoolingSensible>
                 <CoolingLatent>
-                  <Total>9812.0</Total>
-                  <Ducts>1554.0</Ducts>
+                  <Total>11919.0</Total>
+                  <Ducts>3661.0</Ducts>
                   <InfilVent>7458.0</InfilVent>
                   <InternalGains>800.0</InternalGains>
                 </CoolingLatent>
@@ -672,10 +670,10 @@
               <EndDayOfMonth dataSource='software'>31</EndDayOfMonth>
             </CoolingSeason>
             <extension>
-              <WeekdaySetpointTempsHeatingSeason>70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0</WeekdaySetpointTempsHeatingSeason>
-              <WeekendSetpointTempsHeatingSeason>70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0</WeekendSetpointTempsHeatingSeason>
-              <WeekdaySetpointTempsCoolingSeason>73.0, 73.0, 73.0, 73.0, 73.0, 73.0, 73.0, 73.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 73.0</WeekdaySetpointTempsCoolingSeason>
-              <WeekendSetpointTempsCoolingSeason>73.0, 73.0, 73.0, 73.0, 73.0, 73.0, 73.0, 73.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 78.0, 73.0</WeekendSetpointTempsCoolingSeason>
+              <WeekdaySetpointTempsHeatingSeason>59.0, 59.0, 59.0, 59.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 59.0, 59.0, 59.0, 59.0, 59.0</WeekdaySetpointTempsHeatingSeason>
+              <WeekendSetpointTempsHeatingSeason>59.0, 59.0, 59.0, 59.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 65.0, 59.0, 59.0, 59.0, 59.0, 59.0</WeekendSetpointTempsHeatingSeason>
+              <WeekdaySetpointTempsCoolingSeason>75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0</WeekdaySetpointTempsCoolingSeason>
+              <WeekendSetpointTempsCoolingSeason>75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0, 75.0</WeekendSetpointTempsCoolingSeason>
             </extension>
           </HVACControl>
           <HVACDistribution>
@@ -687,7 +685,7 @@
                   <DuctType>supply</DuctType>
                   <DuctLeakage>
                     <Units>Percent</Units>
-                    <Value>0.067</Value>
+                    <Value>0.133</Value>
                     <TotalOrToOutside>to outside</TotalOrToOutside>
                   </DuctLeakage>
                 </DuctLeakageMeasurement>
@@ -695,7 +693,7 @@
                   <DuctType>return</DuctType>
                   <DuctLeakage>
                     <Units>Percent</Units>
-                    <Value>0.033</Value>
+                    <Value>0.067</Value>
                     <TotalOrToOutside>to outside</TotalOrToOutside>
                   </DuctLeakage>
                 </DuctLeakageMeasurement>
@@ -764,15 +762,15 @@
         <WaterHeating>
           <WaterHeatingSystem>
             <SystemIdentifier id='WaterHeater'/>
-            <FuelType>electricity</FuelType>
+            <FuelType>natural gas</FuelType>
             <WaterHeaterType>storage water heater</WaterHeaterType>
             <Location dataSource='software'>living space</Location>
             <IsSharedSystem dataSource='software'>false</IsSharedSystem>
-            <TankVolume dataSource='software'>50.0</TankVolume>
+            <TankVolume dataSource='software'>40.0</TankVolume>
             <FractionDHWLoadServed>1.0</FractionDHWLoadServed>
-            <HeatingCapacity dataSource='software'>18767.0</HeatingCapacity>
-            <EnergyFactor>0.92</EnergyFactor>
-            <RecoveryEfficiency dataSource='software'>0.98</RecoveryEfficiency>
+            <HeatingCapacity dataSource='software'>36000.0</HeatingCapacity>
+            <EnergyFactor>0.59</EnergyFactor>
+            <RecoveryEfficiency>0.76</RecoveryEfficiency>
             <HotWaterTemperature>125.0</HotWaterTemperature>
           </WaterHeatingSystem>
           <HotWaterDistribution>
@@ -797,7 +795,7 @@
             <LowFlow>false</LowFlow>
           </WaterFixture>
           <extension>
-            <WaterFixturesUsageMultiplier dataSource='software'>1.0</WaterFixturesUsageMultiplier>
+            <WaterFixturesUsageMultiplier>0.4634630567719698</WaterFixturesUsageMultiplier>
           </extension>
         </WaterHeating>
       </Systems>
@@ -806,15 +804,15 @@
           <SystemIdentifier id='ClothesWasher'/>
           <IsSharedAppliance dataSource='software'>false</IsSharedAppliance>
           <Location dataSource='software'>living space</Location>
-          <IntegratedModifiedEnergyFactor>0.95</IntegratedModifiedEnergyFactor>
-          <RatedAnnualkWh>387.0</RatedAnnualkWh>
+          <IntegratedModifiedEnergyFactor>2.07</IntegratedModifiedEnergyFactor>
+          <RatedAnnualkWh>123.0</RatedAnnualkWh>
           <LabelElectricRate>0.1065</LabelElectricRate>
           <LabelGasRate>1.218</LabelGasRate>
-          <LabelAnnualGasCost>24.0</LabelAnnualGasCost>
+          <LabelAnnualGasCost>9.0</LabelAnnualGasCost>
           <LabelUsage>7.538462</LabelUsage>
-          <Capacity>3.5</Capacity>
+          <Capacity>3.68</Capacity>
           <extension>
-            <UsageMultiplier dataSource='software'>1.0</UsageMultiplier>
+            <UsageMultiplier>0.4634630567719698</UsageMultiplier>
           </extension>
         </ClothesWasher>
         <ClothesDryer>
@@ -826,19 +824,16 @@
           <Vented dataSource='software'>true</Vented>
           <VentedFlowRate dataSource='software'>100.0</VentedFlowRate>
           <extension>
-            <UsageMultiplier dataSource='software'>1.0</UsageMultiplier>
+            <UsageMultiplier>0.4634630567719698</UsageMultiplier>
           </extension>
         </ClothesDryer>
         <Refrigerator>
           <SystemIdentifier id='Refrigerator'/>
           <Location dataSource='software'>living space</Location>
-          <RatedAnnualkWh>480.0</RatedAnnualkWh>
+          <RatedAnnualkWh>434.0</RatedAnnualkWh>
           <PrimaryIndicator dataSource='software'>true</PrimaryIndicator>
           <extension>
             <UsageMultiplier dataSource='software'>1.0</UsageMultiplier>
-            <WeekdayScheduleFractions dataSource='software'>0.040, 0.039, 0.038, 0.037, 0.036, 0.036, 0.038, 0.040, 0.041, 0.041, 0.040, 0.040, 0.042, 0.042, 0.042, 0.041, 0.044, 0.048, 0.050, 0.048, 0.047, 0.046, 0.044, 0.041</WeekdayScheduleFractions>
-            <WeekendScheduleFractions dataSource='software'>0.040, 0.039, 0.038, 0.037, 0.036, 0.036, 0.038, 0.040, 0.041, 0.041, 0.040, 0.040, 0.042, 0.042, 0.042, 0.041, 0.044, 0.048, 0.050, 0.048, 0.047, 0.046, 0.044, 0.041</WeekendScheduleFractions>
-            <MonthlyScheduleMultipliers dataSource='software'>0.837, 0.835, 1.084, 1.084, 1.084, 1.096, 1.096, 1.096, 1.096, 0.931, 0.925, 0.837</MonthlyScheduleMultipliers>
           </extension>
         </Refrigerator>
         <Freezer>
@@ -847,21 +842,15 @@
           <RatedAnnualkWh>935.0</RatedAnnualkWh>
           <extension>
             <UsageMultiplier>0.342</UsageMultiplier>
-            <WeekdayScheduleFractions dataSource='software'>0.040, 0.039, 0.038, 0.037, 0.036, 0.036, 0.038, 0.040, 0.041, 0.041, 0.040, 0.040, 0.042, 0.042, 0.042, 0.041, 0.044, 0.048, 0.050, 0.048, 0.047, 0.046, 0.044, 0.041</WeekdayScheduleFractions>
-            <WeekendScheduleFractions dataSource='software'>0.040, 0.039, 0.038, 0.037, 0.036, 0.036, 0.038, 0.040, 0.041, 0.041, 0.040, 0.040, 0.042, 0.042, 0.042, 0.041, 0.044, 0.048, 0.050, 0.048, 0.047, 0.046, 0.044, 0.041</WeekendScheduleFractions>
-            <MonthlyScheduleMultipliers dataSource='software'>0.837, 0.835, 1.084, 1.084, 1.084, 1.096, 1.096, 1.096, 1.096, 0.931, 0.925, 0.837</MonthlyScheduleMultipliers>
           </extension>
         </Freezer>
         <CookingRange>
           <SystemIdentifier id='CookingRange'/>
           <Location dataSource='software'>living space</Location>
-          <FuelType>natural gas</FuelType>
+          <FuelType>electricity</FuelType>
           <IsInduction>false</IsInduction>
           <extension>
-            <UsageMultiplier dataSource='software'>1.0</UsageMultiplier>
-            <WeekdayScheduleFractions dataSource='software'>0.007, 0.007, 0.004, 0.004, 0.007, 0.011, 0.025, 0.042, 0.046, 0.048, 0.042, 0.050, 0.057, 0.046, 0.057, 0.044, 0.092, 0.150, 0.117, 0.060, 0.035, 0.025, 0.016, 0.011</WeekdayScheduleFractions>
-            <WeekendScheduleFractions dataSource='software'>0.007, 0.007, 0.004, 0.004, 0.007, 0.011, 0.025, 0.042, 0.046, 0.048, 0.042, 0.050, 0.057, 0.046, 0.057, 0.044, 0.092, 0.150, 0.117, 0.060, 0.035, 0.025, 0.016, 0.011</WeekendScheduleFractions>
-            <MonthlyScheduleMultipliers dataSource='software'>1.097, 1.097, 0.991, 0.987, 0.991, 0.890, 0.896, 0.896, 0.890, 1.085, 1.085, 1.097</MonthlyScheduleMultipliers>
+            <UsageMultiplier>0.4634630567719698</UsageMultiplier>
           </extension>
         </CookingRange>
         <Oven>
@@ -942,13 +931,18 @@
             <LightEmittingDiode/>
           </LightingType>
         </LightingGroup>
+        <CeilingFan>
+          <SystemIdentifier id='CeilingFan'/>
+          <Airflow>
+            <FanSpeed>medium</FanSpeed>
+            <Efficiency>70.4</Efficiency>
+          </Airflow>
+          <Quantity>1</Quantity>
+        </CeilingFan>
         <extension>
           <InteriorUsageMultiplier dataSource='software'>1.0</InteriorUsageMultiplier>
           <GarageUsageMultiplier dataSource='software'>1.0</GarageUsageMultiplier>
           <ExteriorUsageMultiplier dataSource='software'>1.0</ExteriorUsageMultiplier>
-          <ExteriorWeekdayScheduleFractions dataSource='software'>0.046, 0.046, 0.046, 0.046, 0.046, 0.037, 0.035, 0.034, 0.033, 0.028, 0.022, 0.015, 0.012, 0.011, 0.011, 0.012, 0.019, 0.037, 0.049, 0.065, 0.091, 0.105, 0.091, 0.063</ExteriorWeekdayScheduleFractions>
-          <ExteriorWeekendScheduleFractions dataSource='software'>0.046, 0.046, 0.045, 0.045, 0.046, 0.045, 0.044, 0.041, 0.036, 0.03, 0.024, 0.016, 0.012, 0.011, 0.011, 0.012, 0.019, 0.038, 0.048, 0.06, 0.083, 0.098, 0.085, 0.059</ExteriorWeekendScheduleFractions>
-          <ExteriorMonthlyScheduleMultipliers dataSource='software'>1.248, 1.257, 0.993, 0.989, 0.993, 0.827, 0.821, 0.821, 0.827, 0.99, 0.987, 1.248</ExteriorMonthlyScheduleMultipliers>
         </extension>
       </Lighting>
       <MiscLoads>
@@ -963,9 +957,6 @@
             <FracSensible dataSource='software'>1.0</FracSensible>
             <FracLatent dataSource='software'>0.0</FracLatent>
             <UsageMultiplier>0.0</UsageMultiplier>
-            <WeekdayScheduleFractions dataSource='software'>0.037, 0.018, 0.009, 0.007, 0.011, 0.018, 0.029, 0.040, 0.049, 0.058, 0.065, 0.072, 0.076, 0.086, 0.091, 0.102, 0.127, 0.156, 0.210, 0.294, 0.363, 0.344, 0.208, 0.090</WeekdayScheduleFractions>
-            <WeekendScheduleFractions dataSource='software'>0.044, 0.022, 0.012, 0.008, 0.011, 0.014, 0.024, 0.043, 0.071, 0.094, 0.112, 0.123, 0.132, 0.156, 0.178, 0.196, 0.206, 0.213, 0.251, 0.330, 0.388, 0.358, 0.226, 0.103</WeekendScheduleFractions>
-            <MonthlyScheduleMultipliers dataSource='software'>1.137, 1.129, 0.961, 0.969, 0.961, 0.993, 0.996, 0.96, 0.993, 0.867, 0.86, 1.137</MonthlyScheduleMultipliers>
           </extension>
         </PlugLoad>
         <PlugLoad>
@@ -979,9 +970,6 @@
             <FracSensible>0.93</FracSensible>
             <FracLatent>0.021</FracLatent>
             <UsageMultiplier>1.13</UsageMultiplier>
-            <WeekdayScheduleFractions dataSource='software'>0.035, 0.033, 0.032, 0.031, 0.032, 0.033, 0.037, 0.042, 0.043, 0.043, 0.043, 0.044, 0.045, 0.045, 0.044, 0.046, 0.048, 0.052, 0.053, 0.05, 0.047, 0.045, 0.04, 0.036</WeekdayScheduleFractions>
-            <WeekendScheduleFractions dataSource='software'>0.035, 0.033, 0.032, 0.031, 0.032, 0.033, 0.037, 0.042, 0.043, 0.043, 0.043, 0.044, 0.045, 0.045, 0.044, 0.046, 0.048, 0.052, 0.053, 0.05, 0.047, 0.045, 0.04, 0.036</WeekendScheduleFractions>
-            <MonthlyScheduleMultipliers dataSource='software'>1.248, 1.257, 0.993, 0.989, 0.993, 0.827, 0.821, 0.821, 0.827, 0.99, 0.987, 1.248</MonthlyScheduleMultipliers>
           </extension>
         </PlugLoad>
       </MiscLoads>
