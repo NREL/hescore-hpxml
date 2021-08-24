@@ -227,9 +227,13 @@ class HPXMLtoHEScoreTranslatorBase(object):
             else:
                 sidingtype = sidingmap[hpxmlsiding]
                 if sidingtype not in ('st', 'br'):
-                    raise TranslationError(
-                        'Wall {}: is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. '
-                        'It has a siding type of {}'.format(wallid, hpxmlsiding)
+                    if self.resstock:
+                        # Fix CMU siding type to most common (brick) if file is output from resstock
+                        sidingtype = 'br'
+                    else:
+                        raise TranslationError(
+                            'Wall {}: is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. '
+                            'It has a siding type of {}'.format(wallid, hpxmlsiding)
                     )
         elif wall_type == 'StrawBale':
             wallconstype = 'sb'
@@ -748,10 +752,11 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 c = xpath(self.hpxmldoc, 'h:Contractor[1]')
 
         self.schema.assertValid(self.hpxmldoc)
+        self.resstock = resstock_file
 
         # Create return dict
         hescore_inputs = OrderedDict()
-        hescore_inputs['building_address'] = self.get_building_address(b, resstock_file)
+        hescore_inputs['building_address'] = self.get_building_address(b)
         if self.check_hpwes(p, b):
             hescore_inputs['hpwes'] = self.get_hpwes(p, c)
 
@@ -809,36 +814,18 @@ class HPXMLtoHEScoreTranslatorBase(object):
             for item in d:
                 cls.remove_hidden_keys(item)
 
-    def get_building_address(self, b, resstock_file):
-        def get_zip_from_fips(fips):
-            map_file = os.path.join(thisdir, 'COUNTY_ZIP_032021.csv')
-            with open(map_file, newline='') as csvfile:
-                csvreader = csv.reader(csvfile, delimiter=',')
-                max_res = 0
-                for row in csvreader:
-                    if row[0] == fips:
-                        res_ratio = float(row[4])
-                        if res_ratio > max_res:
-                            max_res = res_ratio
-                            zipcode = row[1]
-
-            return(str(zipcode))
-
+    def get_building_address(self, b):
         xpath = self.xpath
         ns = self.ns
         bldgaddr = OrderedDict()
-        if resstock_file:
-            fips = xpath(b, 'h:Site/h:Address/h:extension/h:FIPS/text()', raise_err=True)
-            bldgaddr['zip_code'] = get_zip_from_fips(fips)
-        else:
+        if not self.resstock:
             hpxmladdress = xpath(b, 'h:Site/h:Address[h:AddressType="street"]', raise_err=True)
             bldgaddr['address'] = ' '.join(hpxmladdress.xpath('h:Address1/text() | h:Address2/text()', namespaces=ns))
             if not bldgaddr['address'].strip():
                 raise ElementNotFoundError(hpxmladdress, 'h:Address1/text() | h:Address2/text()', {})
             bldgaddr['state'] = xpath(b, 'h:Site/h:Address/h:StateCode/text()', raise_err=True)
             bldgaddr['city'] = xpath(b, 'h:Site/h:Address/h:CityMunicipality/text()', raise_err=True)
-            bldgaddr['zip_code'] = xpath(b, 'h:Site/h:Address/h:ZipCode/text()', raise_err=True)
-
+        bldgaddr['zip_code'] = xpath(b, 'h:Site/h:Address/h:ZipCode/text()', raise_err=True)
         transaction_type = xpath(self.hpxmldoc, 'h:XMLTransactionHeaderInformation/h:Transaction/text()')
         is_mentor = xpath(b, 'boolean(h:ProjectStatus/h:extension/h:HEScoreMentorAssessment)')
         if is_mentor:
@@ -2269,6 +2256,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     aslist=True)
             )
             )
+            if self.resstock:
+                manufacture_years = [2016]
+            
             if manufacture_years:
                 years.append(max(manufacture_years))  # Use the latest year of manufacture
             else:
