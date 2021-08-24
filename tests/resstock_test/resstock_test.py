@@ -12,7 +12,7 @@ for subdir, dirs, files in os.walk(out_path):
 for subdir, dirs, files in os.walk(xml_path):
     project_name = subdir.split('\\')[-1]
     sub_out_path = os.path.join(out_path, project_name)
-    if 'project' in project_name: 
+    if 'project' in project_name:
         print('\n', project_name)
     else:
         continue

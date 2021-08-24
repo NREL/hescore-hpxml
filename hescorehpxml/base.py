@@ -12,7 +12,6 @@ from decimal import Decimal
 from collections import OrderedDict
 import os
 import re
-import csv
 from jsonschema import validate, FormatChecker
 
 from .exceptions import (
@@ -234,7 +233,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         raise TranslationError(
                             'Wall {}: is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. '
                             'It has a siding type of {}'.format(wallid, hpxmlsiding)
-                    )
+                        )
         elif wall_type == 'StrawBale':
             wallconstype = 'sb'
             rvalue = 0
@@ -2258,7 +2257,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             )
             if self.resstock:
                 manufacture_years = [2016]
-            
+
             if manufacture_years:
                 years.append(max(manufacture_years))  # Use the latest year of manufacture
             else:
