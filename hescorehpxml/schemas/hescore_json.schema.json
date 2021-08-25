@@ -1477,9 +1477,9 @@
                                                 },
                                                 "fraction": {
                                                     "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/fraction",
-                                                    "type": "integer",
+                                                    "type": "number",
                                                     "minimum": 0,
-                                                    "maximum": 100,
+                                                    "maximum": 1,
                                                     "description": "Fraction of total duct length"
                                                 },
                                                 "insulated": {
@@ -1522,9 +1522,9 @@
                                                 },
                                                 "fraction": {
                                                     "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/fraction",
-                                                    "type": "integer",
+                                                    "type": "number",
                                                     "minimum": 0,
-                                                    "maximum": 100,
+                                                    "maximum": 1,
                                                     "description": "Fraction of total duct length"
                                                 },
                                                 "insulated": {

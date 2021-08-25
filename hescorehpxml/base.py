@@ -604,14 +604,14 @@ class HPXMLtoHEScoreTranslatorBase(object):
             hvacd_out = OrderedDict()
             hvacd_out['name'] = 'duct%d' % i
             hvacd_out['location'] = hvacd['location']
-            hvacd_out['fraction'] = int(python2round(hvacd['fraction'] / sum_of_top_3_fractions * 100))
+            hvacd_out['fraction'] = hvacd['fraction'] / sum_of_top_3_fractions
             hvacd_out['insulated'] = hescore_duct_loc_has_insulation[hvacd['location']]
             hvacd_out['sealed'] = is_sealed
             hvac_distribution.append(hvacd_out)
 
-        # Make sure the fractions add up to 100
+        # Make sure the fractions add up to 1
         total_pct = sum([x['fraction'] for x in hvac_distribution])
-        pct_remainder = 100 - total_pct
+        pct_remainder = 1 - total_pct
         hvac_distribution[0]['fraction'] += pct_remainder
 
         return hvac_distribution
@@ -2396,7 +2396,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 for hvacd in sys_hvac['hvac_distribution']:
                     do_bounds_check('hvac_distribution_fraction',
                                     hvacd['fraction'],
-                                    0, 100)
+                                    0, 1)
 
                     # Test if the duct location exists in roof and floor types
                     duct_location_error = False
