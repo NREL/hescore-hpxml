@@ -1110,7 +1110,8 @@
                                                             "heating": {
                                                                 "properties": {
                                                                     "efficiency_level": {"const": "energy_star"}
-                                                                }
+                                                                },
+                                                                "required": ["efficiency_level"]
                                                             }
                                                         }
                                                     }
@@ -1324,7 +1325,8 @@
                                                             "cooling": {
                                                                 "properties": {
                                                                     "efficiency_level": {"const": "energy_star"}
-                                                                }
+                                                                },
+                                                                "required": ["efficiency_level"]
                                                             }
                                                         }
                                                     }
