@@ -1103,6 +1103,17 @@
                                                             }
                                                         ]
                                                     }
+                                                },
+                                                {
+                                                    "not": {
+                                                        "properties": {
+                                                            "heating": {
+                                                                "properties": {
+                                                                    "efficiency_level": {"const": "energy_star"}
+                                                                }
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             ]
                                         },
@@ -1129,7 +1140,8 @@
                                                         "heating": {
                                                             "properties": {
                                                                 "efficiency_method": {"const": "shipment_weighted"}
-                                                            }
+                                                            },
+                                                            "required": ["efficiency_method"]
                                                         }
                                                     }
                                                 },
@@ -1206,7 +1218,8 @@
                                                         "heating": {
                                                             "properties": {
                                                                 "efficiency_method": {"const": "user"}
-                                                            }
+                                                            },
+                                                            "required": ["efficiency_method"]
                                                         }
                                                     }
                                                 },
@@ -1304,6 +1317,17 @@
                                                             }
                                                         }
                                                     }
+                                                },
+                                                {
+                                                    "not": {
+                                                        "properties": {
+                                                            "cooling": {
+                                                                "properties": {
+                                                                    "efficiency_level": {"const": "energy_star"}
+                                                                }
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             ]
                                         },
@@ -1330,7 +1354,8 @@
                                                         "cooling": {
                                                             "properties": {
                                                                 "efficiency_method": {"const": "shipment_weighted"}
-                                                            }
+                                                            },
+                                                            "required": ["efficiency_method"]
                                                         }
                                                     }
                                                 },
@@ -1383,7 +1408,8 @@
                                                         "cooling": {
                                                             "properties": {
                                                                 "efficiency_method": {"const": "user"}
-                                                            }
+                                                            },
+                                                            "required": ["efficiency_method"]
                                                         }
                                                     }
                                                 },
@@ -1599,10 +1625,22 @@
                                 },
                                 {
                                     "if": {
-                                        "properties": {
-                                            "category": {"const": "unit"}
-                                        },
-                                        "required": ["category"]
+                                        "allOf": [
+                                            {
+                                                "properties": {
+                                                    "category": {"const": "unit"}
+                                                },
+                                                "required": ["category"]
+                                            },
+                                            {
+                                                "not": {
+                                                    "properties": {
+                                                        "efficiency_level": {"const": "energy_star"}
+                                                    },
+                                                    "required": ["efficiency_level"]
+                                                }
+                                            }
+                                        ]
                                     },
                                     "then": {
                                         "required": ["fuel_primary", "efficiency_method"]
@@ -1619,7 +1657,8 @@
                                         "if": {
                                             "properties": {
                                                 "efficiency_method": {"const": "shipment_weighted"}
-                                            }
+                                            },
+                                            "required": ["efficiency_method"]
                                         },
                                         "then": {
                                             "required": ["year"]
@@ -1642,7 +1681,8 @@
                                         "if": {
                                             "properties": {
                                                 "efficiency_method": {"enum": ["user", "uef"]}
-                                            }
+                                            },
+                                            "required": ["efficiency_method"]
                                         },
                                         "then": {
                                             "required": ["energy_factor"]
