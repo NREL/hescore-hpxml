@@ -1448,6 +1448,162 @@
                                                 }
                                             ]
                                         }
+                                    },
+                                    {
+                                        "if": {
+                                            "anyOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"const": "heat_pump"}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["heating"]
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "properties": {
+                                                                "type": {"const": "heat_pump"}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["cooling"]
+                                                }
+                                            ]
+                                        },
+                                        "then": {
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"enum": ["heat_pump", "none"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "properties": {
+                                                                "type": {"enum": ["heat_pump", "none"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "anyOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"const": "gchp"}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["heating"]
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "properties": {
+                                                                "type": {"const": "gchp"}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["cooling"]
+                                                }
+                                            ]
+                                        },
+                                        "then": {
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"enum": ["gchp", "none"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "properties": {
+                                                                "type": {"enum": ["gchp", "none"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "anyOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"const": "mini_split"}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["heating"]
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "properties": {
+                                                                "type": {"const": "mini_split"}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["cooling"]
+                                                }
+                                            ]
+                                        },
+                                        "then": {
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"enum": ["mini_split", "none"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "properties": {
+                                                                "type": {"enum": ["mini_split", "none"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
                                     }
                                 ],
                                 "definitions": {
@@ -2038,9 +2194,11 @@
                                             "about": {
                                                 "properties": {
                                                     "town_house_walls": {"const": "back_right_front"}
-                                                }
+                                                },
+                                                "required": ["town_house_walls"]
                                             }
-                                        }
+                                        },
+                                        "required": ["about"]
                                     },
                                     "then": {
                                         "properties": {
@@ -2060,9 +2218,11 @@
                                             "about": {
                                                 "properties": {
                                                     "town_house_walls": {"const": "back_front_left"}
-                                                }
+                                                },
+                                                "required": ["town_house_walls"]
                                             }
-                                        }
+                                        },
+                                        "required": ["about"]
                                     },
                                     "then": {
                                         "properties": {
@@ -2082,9 +2242,11 @@
                                             "about": {
                                                 "properties": {
                                                     "town_house_walls": {"const": "back_front"}
-                                                }
+                                                },
+                                                "required": ["town_house_walls"]
                                             }
-                                        }
+                                        },
+                                        "required": ["about"]
                                     },
                                     "then": {
                                         "properties": {
@@ -2229,11 +2391,92 @@
                         }
                     },
                     "then": {
-                        "properties": {
-                            "zone": {
-                                "properties": {
-                                    "zone_wall": {
-                                        "$ref": "#/definitions/def_sf_mf_has_same_walls_and_windows"
+                        "if": {
+                            "properties": {
+                                "about": {
+                                    "properties": {
+                                        "shape": {"const": "town_house"}
+                                    }
+                                }
+                            }
+                        },
+                        "then": {
+                            "allOf": [
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_right_front"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_right_front_has_same_walls_and_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front_left"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_left_has_same_walls_and_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_has_same_walls_and_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "else": {
+                            "properties": {
+                                "zone": {
+                                    "properties": {
+                                        "zone_wall": {
+                                            "$ref": "#/definitions/def_sf_mf_has_same_walls_and_windows"
+                                        }
                                     }
                                 }
                             }
@@ -2810,6 +3053,14 @@
                 {"$ref": "#/definitions/def_left_window_constraint"}
             ]
         },
+        "def_mf_back_right_front_has_same_walls_and_windows": {
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_right_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint"}
+            ]
+        },
         "def_mf_back_right_front_has_same_walls": {
             "allOf": [
                 {"$ref": "#/definitions/def_front_wall_constraint"},
@@ -2838,6 +3089,14 @@
                 {"$ref": "#/definitions/def_right_window_constraint"}
             ]
         },
+        "def_mf_back_front_left_has_same_walls_and_windows": {
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_left_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint"}
+            ]
+        },
         "def_mf_back_front_left_has_same_walls": {
             "allOf": [
                 {"$ref": "#/definitions/def_front_wall_constraint"},
@@ -2864,6 +3123,13 @@
                 {"$ref": "#/definitions/def_front_window_constraint"},
                 {"$ref": "#/definitions/def_back_window_constraint"},
                 {"$ref": "#/definitions/def_left_window_constraint"}
+            ]
+        },
+        "def_mf_back_front_has_same_walls_and_windows": {
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint"}
             ]
         },
         "def_mf_back_front_has_same_walls": {
