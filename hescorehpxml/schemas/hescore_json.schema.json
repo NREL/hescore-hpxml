@@ -1451,54 +1451,186 @@
                                     },
                                     {
                                         "if": {
-                                            "anyOf": [
-                                                {
+                                            "properties": {
+                                                "heating": {
                                                     "properties": {
-                                                        "heating": {
-                                                            "properties": {
-                                                                "type": {"const": "heat_pump"}
-                                                            },
-                                                            "required": ["type"]
-                                                        }
+                                                        "type": {"enum": ["central_furnace", "wall_furnace", "baseboard", "boiler"]}
                                                     },
-                                                    "required": ["heating"]
-                                                },
-                                                {
-                                                    "properties": {
-                                                        "cooling": {
-                                                            "properties": {
-                                                                "type": {"const": "heat_pump"}
-                                                            },
-                                                            "required": ["type"]
-                                                        }
-                                                    },
-                                                    "required": ["cooling"]
+                                                    "required": ["type"]
                                                 }
-                                            ]
+                                            },
+                                            "required": ["heating"]
                                         },
                                         "then": {
-                                            "allOf": [
-                                                {
+                                            "properties": {
+                                                "cooling": {
                                                     "properties": {
-                                                        "heating": {
-                                                            "properties": {
-                                                                "type": {"enum": ["heat_pump", "none"]}
-                                                            },
-                                                            "required": ["type"]
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "properties": {
-                                                        "cooling": {
-                                                            "properties": {
-                                                                "type": {"enum": ["heat_pump", "none"]}
-                                                            },
-                                                            "required": ["type"]
-                                                        }
-                                                    }
+                                                        "type": {"enum": ["packaged_dx", "split_dx", "mini_split", "dec", "none"]}
+                                                    },
+                                                    "required": ["type"]
                                                 }
-                                            ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"const": "heat_pump"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["heating"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"enum": ["packaged_dx", "heat_pump", "dec", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"const": "gchp"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["heating"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"enum": ["packaged_dx", "gchp", "dec", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"const": "mini_split"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["heating"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"enum": ["packaged_dx", "mini_split", "dec", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"const": "split_dx"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["cooling"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"enum": ["central_furnace", "wall_furnace", "baseboard", "boiler", "wood_stove", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"const": "heat_pump"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["cooling"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"enum": ["heat_pump", "wood_stove", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"const": "gchp"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["cooling"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"enum": ["gchp", "wood_stove", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"const": "mini_split"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["cooling"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"enum": ["central_furnace", "wood_furnace", "baseboard", "boiler", "mini_split", "wood_stove", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
                                         }
                                     },
                                     {
@@ -1508,7 +1640,7 @@
                                                     "properties": {
                                                         "heating": {
                                                             "properties": {
-                                                                "type": {"const": "gchp"}
+                                                                "type": {"const": "none"}
                                                             },
                                                             "required": ["type"]
                                                         }
@@ -1519,7 +1651,7 @@
                                                     "properties": {
                                                         "cooling": {
                                                             "properties": {
-                                                                "type": {"const": "gchp"}
+                                                                "type": {"const": "none"}
                                                             },
                                                             "required": ["type"]
                                                         }
@@ -1529,80 +1661,32 @@
                                             ]
                                         },
                                         "then": {
-                                            "allOf": [
-                                                {
-                                                    "properties": {
-                                                        "heating": {
-                                                            "properties": {
-                                                                "type": {"enum": ["gchp", "none"]}
-                                                            },
-                                                            "required": ["type"]
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "properties": {
-                                                        "cooling": {
-                                                            "properties": {
-                                                                "type": {"enum": ["gchp", "none"]}
-                                                            },
-                                                            "required": ["type"]
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "if": {
-                                            "anyOf": [
-                                                {
-                                                    "properties": {
-                                                        "heating": {
-                                                            "properties": {
-                                                                "type": {"const": "mini_split"}
-                                                            },
-                                                            "required": ["type"]
-                                                        }
+                                            "not": {
+                                                "allOf": [
+                                                    {
+                                                        "properties": {
+                                                            "heating": {
+                                                                "properties": {
+                                                                    "type": {"const": "none"}
+                                                                },
+                                                                "required": ["type"]
+                                                            }
+                                                        },
+                                                        "required": ["heating"]
                                                     },
-                                                    "required": ["heating"]
-                                                },
-                                                {
-                                                    "properties": {
-                                                        "cooling": {
-                                                            "properties": {
-                                                                "type": {"const": "mini_split"}
-                                                            },
-                                                            "required": ["type"]
-                                                        }
-                                                    },
-                                                    "required": ["cooling"]
-                                                }
-                                            ]
-                                        },
-                                        "then": {
-                                            "allOf": [
-                                                {
-                                                    "properties": {
-                                                        "heating": {
-                                                            "properties": {
-                                                                "type": {"enum": ["mini_split", "none"]}
-                                                            },
-                                                            "required": ["type"]
-                                                        }
+                                                    {
+                                                        "properties": {
+                                                            "cooling": {
+                                                                "properties": {
+                                                                    "type": {"const": "none"}
+                                                                },
+                                                                "required": ["type"]
+                                                            }
+                                                        },
+                                                        "required": ["cooling"]
                                                     }
-                                                },
-                                                {
-                                                    "properties": {
-                                                        "cooling": {
-                                                            "properties": {
-                                                                "type": {"enum": ["mini_split", "none"]}
-                                                            },
-                                                            "required": ["type"]
-                                                        }
-                                                    }
-                                                }
-                                            ]
+                                                ]
+                                            }
                                         }
                                     }
                                 ],
