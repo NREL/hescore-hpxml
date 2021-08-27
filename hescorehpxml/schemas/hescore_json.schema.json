@@ -1087,7 +1087,7 @@
                                                                 "properties": {
                                                                     "heating": {
                                                                         "properties": {
-                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace"]}
+                                                                            "type": {"enum": ["baseboard", "central_furnace", "boiler"]}
                                                                         }
                                                                     }
                                                                 }
@@ -1164,7 +1164,7 @@
                                                                 "properties": {
                                                                     "heating": {
                                                                         "properties": {
-                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace"]}
+                                                                            "type": {"enum": ["baseboard", "central_furnace", "boiler"]}
                                                                         }
                                                                     }
                                                                 }
@@ -1242,7 +1242,7 @@
                                                                 "properties": {
                                                                     "heating": {
                                                                         "properties": {
-                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace"]}
+                                                                            "type": {"enum": ["baseboard", "central_furnace", "boiler"]}
                                                                         }
                                                                     }
                                                                 }
