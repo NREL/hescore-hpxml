@@ -1626,7 +1626,7 @@
                                             "properties": {
                                                 "heating": {
                                                     "properties": {
-                                                        "type": {"enum": ["central_furnace", "wood_furnace", "baseboard", "boiler", "mini_split", "wood_stove", "none"]}
+                                                        "type": {"enum": ["central_furnace", "wall_furnace", "baseboard", "boiler", "mini_split", "wood_stove", "none"]}
                                                     },
                                                     "required": ["type"]
                                                 }

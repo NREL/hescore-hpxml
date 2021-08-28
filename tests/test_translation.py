@@ -15,6 +15,8 @@ from copy import deepcopy
 import uuid
 import sys
 import tempfile
+import jsonschema
+import re
 standard_library.install_aliases()  # noqa: 402
 
 
@@ -1937,12 +1939,19 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
                 hp_type = tr.xpath(hp, 'h:HeatPumpType')
                 hp_type.text = clg_system_type
                 tr.xpath(hp, 'h:FloorAreaServed').text = "3213"
-                d = tr.hpxml_to_hescore()
-                # expect tested types correctly load and translated
-                self.assertEqual(d['building']['systems']['hvac'][0]['heating']
-                                 ['type'], htg_system_type_map[htg_system_type[2:]])
-                self.assertEqual(d['building']['systems']['hvac'][0]['cooling']
-                                 ['type'], heat_pump_type_map[clg_system_type])
+                if htg_system_type == "h:Stove" or clg_system_type == 'mini-split':
+                    d = tr.hpxml_to_hescore()
+                    # expect tested types correctly load and translated
+                    self.assertEqual(d['building']['systems']['hvac'][0]['heating']
+                                     ['type'], htg_system_type_map[htg_system_type[2:]])
+                    self.assertEqual(d['building']['systems']['hvac'][0]['cooling']
+                                     ['type'], heat_pump_type_map[clg_system_type])
+                else:
+                    self.assertRaisesRegex(
+                        jsonschema.exceptions.ValidationError,
+                        re.compile(f"'{heat_pump_type_map[clg_system_type]}' is not one of ['packaged_dx', 'split_dx', 'mini_split', 'dec', 'none']*"), # noqa E501
+                        tr.hpxml_to_hescore
+                    )
                 # check the output json data
                 # print(json.dumps(d))
                 # Passed
@@ -2006,13 +2015,20 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
                 hp_type = tr.xpath(hp, 'h:HeatPumpType')
                 hp_type.text = htg_system_type
                 tr.xpath(hp, 'h:FloorAreaServed').text = "3213"
-                d = tr.hpxml_to_hescore()
-                # expect tested types correctly load and translated
-                self.assertEqual(
-                    d['building']['systems']['hvac'][0]['cooling']['type'],
-                    clg_system_map[clg_system_type])
-                self.assertEqual(d['building']['systems']['hvac'][0]['heating']
-                                 ['type'], heat_pump_type_map[htg_system_type])
+                if clg_system_type == 'room air conditioner' or clg_system_type == 'evaporative cooler':
+                    d = tr.hpxml_to_hescore()
+                    # expect tested types correctly load and translated
+                    self.assertEqual(
+                        d['building']['systems']['hvac'][0]['cooling']['type'],
+                        clg_system_map[clg_system_type])
+                    self.assertEqual(d['building']['systems']['hvac'][0]['heating']
+                                     ['type'], heat_pump_type_map[htg_system_type])
+                else:
+                    self.assertRaisesRegex(
+                        jsonschema.exceptions.ValidationError,
+                        re.compile(f"'{clg_system_map[clg_system_type]}' is not one of ['packaged_dx', 'gchp', 'dec', 'none']*"), # noqa E501
+                        tr.hpxml_to_hescore
+                    )
                 # check the output json data
                 # print(json.dumps(d))
                 # Passed
@@ -2618,9 +2634,11 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         clg_sys_type.addprevious(E.DistributionSystem(idref='hvacd1'))
         heatpump_type.text = 'mini-split'
         heatpump.remove(self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:DistributionSystem'))
-        d_3 = tr.hpxml_to_hescore()
-        self.assertEqual(d_3['building']['systems']['hvac'][0]['cooling']['type'], 'split_dx')
-        self.assertEqual(d_3['building']['systems']['hvac'][0]['heating']['type'], 'mini_split')
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r"'split_dx' is not one of ['packaged_dx', 'mini_split', 'dec', 'none']*", # noqa E501
+            tr.hpxml_to_hescore
+        )
 
         # heatpump system type: mini-split
         clg_sys.getparent().remove(clg_sys)
@@ -2690,8 +2708,11 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         clg_sys_type.addprevious(E.DistributionSystem(idref='hvacd1'))
         heatpump_type.text = 'mini-split'
         heatpump.remove(self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:DistributionSystem'))
-        d_3_v3 = tr_v3.hpxml_to_hescore()
-        self.assertEqual(d_3['building']['systems']['hvac'], d_3_v3['building']['systems']['hvac'])
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r"'split_dx' is not one of ['packaged_dx', 'mini_split', 'dec', 'none']*", # noqa E501
+            tr_v3.hpxml_to_hescore
+        )
 
         # heatpump system type: mini-split
         clg_sys.getparent().remove(clg_sys)
@@ -2864,9 +2885,11 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         clg_sys_type.addprevious(E.DistributionSystem(idref='hvacd1'))
         heatpump_type.text = 'mini-split'
         heatpump.remove(self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:DistributionSystem'))
-        d = tr.hpxml_to_hescore()
-        self.assertEqual(d['building']['systems']['hvac'][0]['cooling']['type'], 'split_dx')
-        self.assertEqual(d['building']['systems']['hvac'][0]['heating']['type'], 'mini_split')
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r"'split_dx' is not one of ['packaged_dx', 'mini_split', 'dec', 'none']*", # noqa E501
+            tr.hpxml_to_hescore
+        )
 
         # heatpump system type: mini-split
         clg_sys.getparent().remove(clg_sys)
