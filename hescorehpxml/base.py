@@ -221,7 +221,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 rvalue += float(xpath(lyr, 'h:NominalRValue/text()'))
             rvalue = wall_round_to_nearest(rvalue, (0, 3, 6))
             hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
-            if hpxmlsiding is None:
+            if hpxmlsiding is None or hpxmlsiding.lower() == 'none':
                 sidingtype = 'nn'
             else:
                 sidingtype = sidingmap[hpxmlsiding]
@@ -448,7 +448,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         allowed_fuel_types = {'heat_pump': ('electric',),
                               'mini_split': ('electric',),
                               'central_furnace': ('natural_gas', 'lpg', 'fuel_oil', 'electric'),
-                              'wall_furnace': ('natural_gas', 'lpg', 'fuel_oil'),
+                              'wall_furnace': ('natural_gas', 'lpg', 'fuel_oil', 'electric'),
                               'baseboard': ('electric',),
                               'boiler': ('natural_gas', 'lpg', 'fuel_oil', 'electric'),
                               'gchp': ('electric',),
@@ -591,7 +591,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         duct_fracs_by_hescore_duct_loc = dict([(key, old_div(value, total_duct_frac))
                                                for key, value
                                                in list(duct_fracs_by_hescore_duct_loc.items())])
-
         # Gather the ducts by type
         hvacd_sortlist = []
         for duct_loc, duct_frac in list(duct_fracs_by_hescore_duct_loc.items()):
