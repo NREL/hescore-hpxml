@@ -577,7 +577,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             duct_fracs_by_hescore_duct_loc[hescore_duct_location] += frac_duct_area
 
             # Duct Insulation
-            duct_has_ins = self.xpath(duct_el, 'h:DuctInsulationRValue > 0 or h:DuctInsulationThickness > 0')
+            duct_has_ins = self.xpath(duct_el, 'h:DuctInsulationRValue > 0 or h:DuctInsulationThickness > 0 or\
+                                      count(h:DuctInsulationMaterial[h:Unknown]) > 0')
             hescore_duct_loc_has_insulation[hescore_duct_location] = \
                 hescore_duct_loc_has_insulation[hescore_duct_location] or duct_has_ins
 
