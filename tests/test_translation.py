@@ -3042,6 +3042,70 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         d_v3 = tr_v3.hpxml_to_hescore()
         self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'unvented_crawl')
 
+    def test_v3_duct_insulation(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution'][0]['insulated'], False)
+
+        E = self.element_maker()
+        el = self.xpath('//h:Ducts/h:DuctLocation')
+        duct_ins_mat = E.DuctInsulationMaterial(
+            E.Batt('unknown')
+        )
+        el.addprevious(duct_ins_mat)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution'][0]['insulated'], True)
+        el.getparent().remove(duct_ins_mat)
+
+        duct_ins_mat = E.DuctInsulationMaterial(
+            E.LooseFill('unknown')
+        )
+        el.addprevious(duct_ins_mat)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution'][0]['insulated'], True)
+        el.getparent().remove(duct_ins_mat)
+
+        duct_ins_mat = E.DuctInsulationMaterial(
+            E.Rigid('unknown')
+        )
+        el.addprevious(duct_ins_mat)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution'][0]['insulated'], True)
+        el.getparent().remove(duct_ins_mat)
+
+        duct_ins_mat = E.DuctInsulationMaterial(
+            E.SprayFoam('unknown')
+        )
+        el.addprevious(duct_ins_mat)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution'][0]['insulated'], True)
+        el.getparent().remove(duct_ins_mat)
+
+        duct_ins_mat = E.DuctInsulationMaterial(
+            E.Other()
+        )
+        el.addprevious(duct_ins_mat)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution'][0]['insulated'], True)
+        el.getparent().remove(duct_ins_mat)
+
+        none_type = getattr(E, 'None')
+        duct_ins_mat = E.DuctInsulationMaterial(
+            none_type
+        )
+        el.addprevious(duct_ins_mat)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution'][0]['insulated'], False)
+        el.getparent().remove(duct_ins_mat)
+
+        duct_ins_mat = E.DuctInsulationMaterial(
+            E.Unknown()
+        )
+        el.addprevious(duct_ins_mat)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution'][0]['insulated'], True)
+        el.getparent().remove(duct_ins_mat)
+
 
 if __name__ == "__main__":
     unittest.main()
