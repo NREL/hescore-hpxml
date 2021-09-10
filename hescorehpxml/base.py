@@ -578,7 +578,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             # Duct Insulation
             duct_has_ins = self.xpath(duct_el, 'h:DuctInsulationRValue > 0 or h:DuctInsulationThickness > 0 or\
-                                      count(h:DuctInsulationMaterial[h:Unknown]) > 0')
+                                      count(h:DuctInsulationMaterial[h:Batt | h:LooseFill | h:Rigid | h:SprayFoam |\
+                                            h:Other | h:Unknown]) > 0')
             hescore_duct_loc_has_insulation[hescore_duct_location] = \
                 hescore_duct_loc_has_insulation[hescore_duct_location] or duct_has_ins
 
