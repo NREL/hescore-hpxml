@@ -182,8 +182,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             wall_rvalue = xpath(hpxmlwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)', raise_err=True)
             has_rigid_ins = xpath(
                 hpxmlwall,
-                'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean('
-                'h:InsulationMaterial/h:Rigid)])'
+                'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"])'
             )
             if tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')) or has_rigid_ins:
                 wallconstype = 'ps'
@@ -1623,29 +1622,32 @@ class HPXMLtoHEScoreTranslatorBase(object):
             elif len(hpxmlwalls[side]) > 1 and None in [x['area'] for x in hpxmlwalls[side]]:
                 raise TranslationError('The %s side of the house has %d walls and they do not all have areas.' % (
                     side, len(hpxmlwalls[side])))
-            wall_const_type_ext_finish_areas = defaultdict(float)
-            wallua = 0
-            walltotalarea = 0
-            for walld in hpxmlwalls[side]:
-                const_type = walld['assembly_code'][2:4]
-                ext_finish = walld['assembly_code'][6:8]
-                rvalue = int(walld['assembly_code'][4:6])
-                eff_rvalue = wall_eff_rvalues[const_type][ext_finish][rvalue]
-                wallua += old_div(walld['area'], eff_rvalue)
-                walltotalarea += walld['area']
-                wall_const_type_ext_finish_areas[(const_type, ext_finish)] += walld['area']
-            const_type, ext_finish = max(list(wall_const_type_ext_finish_areas.keys()),
-                                         key=lambda x: wall_const_type_ext_finish_areas[x])
-            try:
-                roffset = wall_eff_rvalues[const_type][ext_finish][0]
-            except KeyError:
-                rvalue, eff_rvalue = min(list(wall_eff_rvalues[const_type][ext_finish].items()), key=lambda x: x[0])
-                roffset = eff_rvalue - rvalue
-            rvalueavgeff = old_div(walltotalarea, wallua)
-            rvalueavgnom = rvalueavgeff - roffset
-            comb_rvalue = min(list(wall_eff_rvalues[const_type][ext_finish].keys()),
-                              key=lambda x: abs(rvalueavgnom - x))
-            heswall['wall_assembly_code'] = 'ew%s%02d%s' % (const_type, comb_rvalue, ext_finish)
+            if len(hpxmlwalls[side]) == 1:
+                heswall['wall_assembly_code'] = hpxmlwalls[side][0]['assembly_code']
+            else:
+                wall_const_type_ext_finish_areas = defaultdict(float)
+                wallua = 0
+                walltotalarea = 0
+                for walld in hpxmlwalls[side]:
+                    const_type = walld['assembly_code'][2:4]
+                    ext_finish = walld['assembly_code'][6:8]
+                    rvalue = int(walld['assembly_code'][4:6])
+                    eff_rvalue = wall_eff_rvalues[const_type][ext_finish][rvalue]
+                    wallua += old_div(walld['area'], eff_rvalue)
+                    walltotalarea += walld['area']
+                    wall_const_type_ext_finish_areas[(const_type, ext_finish)] += walld['area']
+                const_type, ext_finish = max(list(wall_const_type_ext_finish_areas.keys()),
+                                             key=lambda x: wall_const_type_ext_finish_areas[x])
+                try:
+                    roffset = wall_eff_rvalues[const_type][ext_finish][0]
+                except KeyError:
+                    rvalue, eff_rvalue = min(list(wall_eff_rvalues[const_type][ext_finish].items()), key=lambda x: x[0])
+                    roffset = eff_rvalue - rvalue
+                rvalueavgeff = old_div(walltotalarea, wallua)
+                rvalueavgnom = rvalueavgeff - roffset
+                comb_rvalue = min(list(wall_eff_rvalues[const_type][ext_finish].keys()),
+                                  key=lambda x: abs(rvalueavgnom - x))
+                heswall['wall_assembly_code'] = 'ew%s%02d%s' % (const_type, comb_rvalue, ext_finish)
             zone_wall.append(heswall)
 
         # building.zone.zone_wall.zone_window--------------------------------------
@@ -2195,10 +2197,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
             unified_energy_factor = xpath(primarydhw, 'h:UniformEnergyFactor/text()')
             if unified_energy_factor is not None:
                 sys_dhw['efficiency_method'] = 'uef'
-                sys_dhw['energy_factor'] = round(float(unified_energy_factor), 2)
+                sys_dhw['energy_factor'] = float(unified_energy_factor)
             elif energyfactor is not None:
                 sys_dhw['efficiency_method'] = 'user'
-                sys_dhw['energy_factor'] = round(float(energyfactor), 2)
+                sys_dhw['energy_factor'] = float(energyfactor)
             else:
                 # Tankless type must use energy factor method
                 if sys_dhw['type'] == 'tankless':
