@@ -2195,10 +2195,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
             unified_energy_factor = xpath(primarydhw, 'h:UniformEnergyFactor/text()')
             if unified_energy_factor is not None:
                 sys_dhw['efficiency_method'] = 'uef'
-                sys_dhw['energy_factor'] = round(float(unified_energy_factor), 2)
+                sys_dhw['energy_factor'] = float(unified_energy_factor)
             elif energyfactor is not None:
                 sys_dhw['efficiency_method'] = 'user'
-                sys_dhw['energy_factor'] = round(float(energyfactor), 2)
+                sys_dhw['energy_factor'] = float(energyfactor)
             else:
                 # Tankless type must use energy factor method
                 if sys_dhw['type'] == 'tankless':
