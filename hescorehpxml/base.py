@@ -182,8 +182,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             wall_rvalue = xpath(hpxmlwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)', raise_err=True)
             has_rigid_ins = xpath(
                 hpxmlwall,
-                'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean('
-                'h:InsulationMaterial/h:Rigid)])'
+                'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"])'
             )
             if tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')) or has_rigid_ins:
                 wallconstype = 'ps'
