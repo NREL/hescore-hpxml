@@ -781,7 +781,7 @@
                                         "allOf": [
                                             {
                                                 "if": {
-                                                    "properties": {"type": {"const": "central_furnace" }},
+                                                    "properties": {"type": {"enum": ["central_furnace", "wall_furnace"]}},
                                                     "required": ["type"]
                                                 },
                                                 "then": {
@@ -809,7 +809,7 @@
                                             },
                                             {
                                                 "if": {
-                                                    "properties": {"type": {"enum": ["wall_furnace", "boiler"]}},
+                                                    "properties": {"type": {"const": "boiler"}},
                                                     "required": ["type"]
                                                 },
                                                 "then": {
@@ -1087,7 +1087,7 @@
                                                                 "properties": {
                                                                     "heating": {
                                                                         "properties": {
-                                                                            "type": {"enum": ["baseboard", "central_furnace", "boiler"]}
+                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace", "boiler"]}
                                                                         }
                                                                     }
                                                                 }
@@ -1164,7 +1164,7 @@
                                                                 "properties": {
                                                                     "heating": {
                                                                         "properties": {
-                                                                            "type": {"enum": ["baseboard", "central_furnace", "boiler"]}
+                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace", "boiler"]}
                                                                         }
                                                                     }
                                                                 }
@@ -1242,7 +1242,7 @@
                                                                 "properties": {
                                                                     "heating": {
                                                                         "properties": {
-                                                                            "type": {"enum": ["baseboard", "central_furnace", "boiler"]}
+                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace", "boiler"]}
                                                                         }
                                                                     }
                                                                 }
