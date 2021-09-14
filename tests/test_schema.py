@@ -397,15 +397,16 @@ def test_invalid_heating(hpxml_filebase):
     assert len(errors) == 0
     # electric wall furnace
     js3['building']['systems']['hvac'][0]['heating']['type'] = 'wall_furnace'
+    del js3['building']['systems']['hvac'][0]['heating']['efficiency']
     errors = get_error_messages(js3, js_schema)
-    assert "0.5 is less than the minimum of 0.6" in errors
+    assert len(errors) == 0
     # electric boiler
     js3['building']['systems']['hvac'][0]['heating']['type'] = 'boiler'
-    js3['building']['systems']['hvac'][0]['heating']['efficiency'] = 1.1
     errors = get_error_messages(js3, js_schema)
-    assert "1.1 is greater than the maximum of 1" in errors
+    assert len(errors) == 0
     # heat pump
     js3['building']['systems']['hvac'][0]['heating']['type'] = 'heat_pump'
+    js3['building']['systems']['hvac'][0]['heating']['efficiency'] = 1.1
     errors = get_error_messages(js3, js_schema)
     assert "1.1 is less than the minimum of 6" in errors
     # mini-split
