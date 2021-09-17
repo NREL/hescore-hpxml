@@ -118,6 +118,28 @@ def test_invalid_building_about(hpxml_filebase):
     js3['building']['about']['assessment_date'] = '2021'
     errors = get_error_messages(js3, js_schema)
     assert "'2021' is not a 'date'" in errors
+    if hpxml_filebase == 'townhouse_walls':
+        js3['building']['about']['shape'] = 'rectangle'
+        errors = get_error_messages(js3, js_schema)
+        assert ("{'required': ['town_house_walls']} is not allowed for {'assessment_date': '2021', "
+                "'shape': 'rectangle', 'town_house_walls': 'back_front_left', 'year_built': 1961, "
+                "'number_bedrooms': 4, 'num_floor_above_grade': 2, 'floor_to_ceiling_height': 7, "
+                "'conditioned_floor_area': 2400, 'orientation': 'north', 'blower_door_test': True, "
+                "'envelope_leakage': 1204}") in errors
+        js3['building']['about']['air_sealing_present'] = True
+        errors = get_error_messages(js3, js_schema)
+        assert ("{'required': ['air_sealing_present']} is not allowed for {'assessment_date': '2021', "
+                "'shape': 'rectangle', 'town_house_walls': 'back_front_left', 'year_built': 1961, "
+                "'number_bedrooms': 4, 'num_floor_above_grade': 2, 'floor_to_ceiling_height': 7, "
+                "'conditioned_floor_area': 2400, 'orientation': 'north', 'blower_door_test': True, "
+                "'envelope_leakage': 1204, 'air_sealing_present': True}") in errors
+    elif hpxml_filebase == 'house1':
+        js3['building']['about']['envelope_leakage'] = 1204
+        errors = get_error_messages(js3, js_schema)
+        assert ("{'required': ['envelope_leakage']} is not allowed for {'assessment_date': '2021', "
+                "'shape': 'rectangle', 'year_built': 1953, 'number_bedrooms': 3, 'num_floor_above_grade': 2, "
+                "'floor_to_ceiling_height': 11, 'conditioned_floor_area': 1620, 'orientation': 'east', "
+                "'blower_door_test': False, 'air_sealing_present': False, 'envelope_leakage': 1204}") in errors
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
