@@ -202,16 +202,7 @@
                                 }
                             },
                             "then": {
-                                "allOf": [
-                                    {
-                                        "required": ["envelope_leakage"]
-                                    },
-                                    {
-                                        "not": {
-                                            "required": ["air_sealing_present"]
-                                        }
-                                    }
-                                ]
+                                "required": ["envelope_leakage"]
                             }
                         },
                         {
@@ -221,17 +212,7 @@
                                 }
                             },
                             "then": {
-                                "allOf": [
-                                    {
-                                        "required": ["air_sealing_present"]
-                                    },
-                                    {
-                                        "not": {
-                                            "required": ["envelope_leakage"]
-                                        }
-                                    }
-                                ]
-                                
+                                "required": ["air_sealing_present"]
                             }
                         }
                     ]
