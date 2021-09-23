@@ -552,7 +552,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             assert False
         elif airdist_el is None:
             # This isn't a ducted system, return a blank list
-            return hvac_distribution
+            return
 
         # Determine if the entire system is sealed (best we can do, not available duct by duct)
         is_sealed = \
@@ -2054,7 +2054,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             return retval
 
         def choose_dist_system(first_choice_dist_id, second_choice_dist_id):
-            if first_choice_dist_id is not None and len(distribution_systems[first_choice_dist_id]) > 0:
+            if first_choice_dist_id is not None and distribution_systems[first_choice_dist_id] is not None:
                 dist_id = first_choice_dist_id
             else:
                 dist_id = second_choice_dist_id
@@ -2125,8 +2125,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 hvac_sys['cooling'] = {'type': 'none'}
             if hvac_ids.dist_id is not None:
                 hvac_sys['hvac_distribution'] = distribution_systems[hvac_ids.dist_id]
-            else:
-                hvac_sys['hvac_distribution'] = []
 
             # Added a error check for separate cooling and heating heat pump system
             if hvac_sys['heating']['type'] in hp_list and hvac_sys['cooling']['type'] in hp_list and \
