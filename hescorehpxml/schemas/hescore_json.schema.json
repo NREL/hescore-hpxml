@@ -938,54 +938,6 @@
                                         "$comment": "Additional requirements for this property apply based on the heating and cooling system type"
                                     }
                                 },
-                                "if": {
-                                    "allOf": [
-                                        {
-                                            "not": {
-                                                "properties": {
-                                                    "hvac_fraction": {"const": 0}
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "anyOf": [
-                                                {
-                                                    "properties": {
-                                                        "heating": {
-                                                            "properties": {
-                                                                "type": {"enum": ["central_furnace", "heat_pump", "gchp"]}
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "properties": {
-                                                        "cooling": {
-                                                            "properties": {
-                                                                "type": {"enum": ["split_dx", "heat_pump", "gchp"]}
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                "then": {
-                                    "properties": {
-                                        "hvac_distribution": {
-                                            "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_with_constraints"
-                                        }
-                                    },
-                                    "required": ["hvac_distribution"]
-                                },
-                                "else": {
-                                    "properties": {
-                                        "hvac_distribution": {
-                                            "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution"
-                                        }
-                                    }
-                                },
                                 "allOf": [
                                     {
                                         "if": {
@@ -1673,56 +1625,105 @@
                                                 ]
                                             }
                                         }
+                                    },
+                                    {
+                                        "if": {
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"enum": ["central_furnace", "heat_pump", "gchp"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["heating"]
+                                                }
+                                            ]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "hvac_distribution": {
+                                                    "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution"
+                                                }
+                                            },
+                                            "required": ["hvac_distribution"]
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"enum": ["wall_furnace", "baseboard", "boiler", "mini_split", "wood_stove", "none"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["heating"]
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "properties": {
+                                                                "type": {"enum": ["split_dx", "heat_pump", "gchp"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["cooling"]
+                                                }
+                                            ]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "hvac_distribution": {
+                                                    "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution"
+                                                }
+                                            },
+                                            "required": ["hvac_distribution"]
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"enum": ["wall_furnace", "baseboard", "boiler", "mini_split", "wood_stove", "none"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["heating"]
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "properties": {
+                                                                "type": {"enum": ["packaged_dx", "mini_split", "dec", "none"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["cooling"]
+                                                }
+                                            ]
+                                        },
+                                        "then": {
+                                            "not": {
+                                                "required": ["hvac_distribution"]
+                                            }
+                                        }
                                     }
                                 ],
                                 "definitions": {
                                     "def_hvac_distribution": {
                                         "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution",
-                                        "type": "array",
-                                        "description": "Inputs about the ducts",
-                                        "additionalItems": false,
-                                        "minItems": 0,
-                                        "maxItems": 3,
-                                        "items": {
-                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_items",
-                                            "type": "object",
-                                            "additionalProperties": false,
-                                            "properties": {
-                                                "name": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/name",
-                                                    "type": "string",
-                                                    "enum": ["duct1", "duct2", "duct3"],
-                                                    "description": "Name of distribution system"
-                                                },
-                                                "location": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/location",
-                                                    "type": "string",
-                                                    "enum": ["cond_space", "uncond_basement", "unvented_crawl", "vented_crawl", "uncond_attic"],
-                                                    "description": "Location of distribution system"
-                                                },
-                                                "fraction": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/fraction",
-                                                    "type": "number",
-                                                    "minimum": 0,
-                                                    "maximum": 1,
-                                                    "description": "Fraction of total duct length"
-                                                },
-                                                "insulated": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/insulated",
-                                                    "type": "boolean",
-                                                    "description": "Are the ducts insulated?"
-                                                },
-                                                "sealed": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/sealed",
-                                                    "type": "boolean",
-                                                    "description": "Are the ducts sealed?"
-                                                }
-                                            },
-                                            "required": ["name"]
-                                        }
-                                    },
-                                    "def_hvac_distribution_with_constraints": {
-                                        "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_with_constraints",
                                         "type": "array",
                                         "description": "Inputs about the ducts",
                                         "additionalItems": false,
