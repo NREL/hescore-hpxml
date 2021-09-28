@@ -89,6 +89,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         self.ns = {'xs': 'http://www.w3.org/2001/XMLSchema'}
         self.ns['h'] = schematree.xpath('//xs:schema/@targetNamespace', namespaces=self.ns)[0]
         self._wall_assembly_eff_rvalues = None
+        self._roof_assembly_eff_rvalues = None
 
     def xpath(self, el, xpathquery, aslist=False, raise_err=False, **kwargs):
         if isinstance(el, etree._ElementTree):
@@ -236,7 +237,27 @@ class HPXMLtoHEScoreTranslatorBase(object):
             raise TranslationError(f'Wall type {wall_type} not supported, wall id: {wallid}')
 
         # R-value and construction code
-        if every_wall_layer_has_nominal_rvalue and assembly_eff_rvalue is None:
+        if assembly_eff_rvalue is not None:
+            # If there's an AssemblyEffectiveRValue element
+            try:
+                doe2walltypes = {
+                    'WoodStud': ('ps', 'ov', 'wf'),
+                    'StructuralBrick': ('br',),
+                    'ConcreteMasonryUnit': ('cb',),
+                    'Stone': ('cb',),
+                    'StrawBale': ('st',)
+                }[wall_type]
+            except KeyError:
+                raise TranslationError(f'Wall type {wall_type} not supported, wall id: {wallid}')
+            closest_wall_code, closest_code_rvalue = min(
+                [(doe2code, code_rvalue)
+                 for doe2code, code_rvalue in self.wall_assembly_eff_rvalues.items()
+                 if doe2code[2:4] in doe2walltypes and doe2code[6:8] == sidingtype],
+                key=lambda x: abs(x[1] - assembly_eff_rvalue)
+            )
+            return closest_wall_code
+
+        elif every_wall_layer_has_nominal_rvalue:
             # If the wall as a NominalRValue element for every layer (or there are no layers)
             # and there isn't an AssemblyEffectiveRValue element
             wall_rvalue = xpath(hpxmlwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)', raise_err=True)
@@ -269,25 +290,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 wallconstype = 'sb'
                 rvalue = 0
             return f'ew{wallconstype}{rvalue:02d}{sidingtype}'
-        elif assembly_eff_rvalue is not None:
-            # If there's an AssemblyEffectiveRValue element
-            try:
-                doe2walltypes = {
-                    'WoodStud': ('ps', 'ov', 'wf'),
-                    'StructuralBrick': ('br',),
-                    'ConcreteMasonryUnit': ('cb',),
-                    'Stone': ('cb',),
-                    'StrawBale': ('st',)
-                }[wall_type]
-            except KeyError:
-                raise TranslationError(f'Wall type {wall_type} not supported, wall id: {wallid}')
-            closest_wall_code, closest_code_rvalue = min(
-                [(doe2code, code_rvalue)
-                 for doe2code, code_rvalue in self.wall_assembly_eff_rvalues.items()
-                 if doe2code[2:4] in doe2walltypes and doe2code[6:8] == sidingtype],
-                key=lambda x: abs(x[1] - assembly_eff_rvalue)
-            )
-            return closest_wall_code
 
         else:
             raise TranslationError('Every wall insulation layer needs a NominalRValue or '
@@ -1065,6 +1067,16 @@ class HPXMLtoHEScoreTranslatorBase(object):
             bldg_about['comments'] = xpath(p, 'h:ProjectDetails/h:Notes/text()')
         return bldg_about
 
+    @property
+    def roof_assembly_eff_rvalues(self):
+        if self._roof_assembly_eff_rvalues is None:
+            with open(os.path.join(thisdir, 'lookups', 'lu_wall_eff_rvalue.csv'), newline='') as f:
+                reader = csv.DictReader(f)
+                self._roof_assembly_eff_rvalues = {}
+                for row in reader:
+                    self._roof_assembly_eff_rvalues[row['doe2code']] = float(row['Eff-R-value'])
+        return self._roof_assembly_eff_rvalues
+
     def get_building_zone_roof(self, b, footprint_area):
         xpath = self.xpath
 
@@ -1108,12 +1120,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
             atticds.append(atticd)
 
             # Attic area
-            # Discussion need here: We are using is_one_roof to say, when there's no area specified in HPXML,
-            # we can use footprint area.Should we judge is_one_roof here by looking at element amounts of both
-            # Attic and Roof elements (to be 1)?
-            # I changed it to only look at attic element here because the current logic is more like Attic is
-            # on top of Roof, is it allowed to have roofs undefined in attic? I think those roofs not referred by
-            # attics should be ignored in our translation, right?
             is_one_roof = (len(attics) == 1)
             atticd['roof_area'] = self.get_attic_area(attic, is_one_roof, footprint_area, attic_roofs, b)
 
@@ -1189,16 +1195,19 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
                 # roof center of cavity R-value
                 roof_rvalue = self.get_attic_roof_rvalue(attic, roof)
-                # subtract the R-value of the rigid sheating in the HEScore construction.
-                if attic_roofs_d['roofconstype'] == 'ps':
-                    roof_rvalue -= 5
-                roof_rvalue, attic_roofs_d['roof_coc_rvalue'] = \
-                    min(list(roof_center_of_cavity_rvalues[attic_roofs_d['roofconstype']][
-                                 attic_roofs_d['extfinish']].items()),
-                        key=lambda x: abs(x[0] - roof_rvalue))
+                roof_assembly_rvalue = self.get_attic_roof_assembly_rvalue(attic, roof)
 
-            # Please review this, it is combining properties of multiple roofs attached into one for each attic
-            # Determine predominant roof characteristics for attic.
+                if roof_assembly_rvalue is not None:
+                    pass
+                else:
+                    # subtract the R-value of the rigid sheating in the HEScore construction.
+                    if attic_roofs_d['roofconstype'] == 'ps':
+                        roof_rvalue = max(roof_rvalue - 5, 0)
+                    roof_rvalue, attic_roofs_d['roof_coc_rvalue'] = \
+                        min(list(roof_center_of_cavity_rvalues[attic_roofs_d['roofconstype']][
+                                    attic_roofs_d['extfinish']].items()),
+                            key=lambda x: abs(x[0] - roof_rvalue))
+
             # Sum of Roof Areas in the same Attic
             attic_roof_area_sum = sum([attic_roofs_dict['roof_area'] for attic_roofs_dict in attic_roof_ls])
 

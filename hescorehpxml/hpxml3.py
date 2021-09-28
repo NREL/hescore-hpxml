@@ -57,8 +57,14 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                           )
 
     def get_attic_roof_rvalue(self, v2_attic, roof):
-        return self.xpath(roof,
-                          'sum(h:Insulation/h:Layer/h:NominalRValue)')
+        if self.xpath(roof, 'h:Insulation/h:Layer/h:NominalRValue'):
+            return self.xpath(roof, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+        else:
+            return None
+
+    def get_attic_roof_assembly_rvalue(self, v2_attic, roof):
+        # TODO: xpath here
+        pass
 
     def get_attic_knee_walls(self, attic, b):
         knee_walls = []
