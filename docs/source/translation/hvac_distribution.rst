@@ -81,8 +81,8 @@ Duct Insulation
 
 If the any of the ``Ducts`` elements in a particular
 :ref:`location <ductlocationmapping>` have a ``DuctInsulationRValue`` or
-``DuctInsulationThickness`` that is greater than zero, all of the ducts in that
-location are considered insulated.
+``DuctInsulationThickness`` that is greater than zero or have a ``DuctInsulationMaterial`` that is not ``None``, 
+all of the ducts in that location are considered insulated.
 
 Duct Sealing
 ************
