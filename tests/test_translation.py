@@ -3327,31 +3327,37 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:DuctLocation[1]')
         el.text = 'unconditioned space'
         d_v3 = tr_v3.hpxml_to_hescore()
-        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'uncond_attic')
+        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location'],
+                         'uncond_attic')
 
         el.text = 'basement'
         d_v3 = tr_v3.hpxml_to_hescore()
-        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'cond_space')
+        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location'],
+                         'cond_space')
 
         el.text = 'basement - conditioned'
         d_v3 = tr_v3.hpxml_to_hescore()
-        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'cond_space')
+        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location'],
+                         'cond_space')
 
         el.text = 'attic'
         d_v3 = tr_v3.hpxml_to_hescore()
-        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'uncond_attic')
+        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location'],
+                         'uncond_attic')
 
         # Is this reasonable?
         el.text = 'crawlspace'
         d_v3 = tr_v3.hpxml_to_hescore()
-        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'cond_space')
+        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location'],
+                         'cond_space')
 
         el.text = 'garage'
         fnd_type_el = self.xpath('//h:FoundationType[1]/h:Basement')
         etree.SubElement(fnd_type_el.getparent(), tr_v3.addns('h:Garage'))
         fnd_type_el.getparent().remove(fnd_type_el)
         d_v3 = tr_v3.hpxml_to_hescore()
-        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution'][0]['location'], 'unvented_crawl')
+        self.assertEqual(d_v3['building']['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location'],
+                         'unvented_crawl')
 
 
 if __name__ == "__main__":
