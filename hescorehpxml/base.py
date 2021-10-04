@@ -551,7 +551,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # There really shouldn't be more than one
             assert False
         elif airdist_el is None:
-            # This isn't a ducted system, return a blank list
+            # This isn't a ducted system, return None
             return
 
         # Determine if the entire system is sealed (best we can do, not available duct by duct)
