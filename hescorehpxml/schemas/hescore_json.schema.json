@@ -1751,7 +1751,7 @@
                                                 "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/properties/duct",
                                                 "type": "array",
                                                 "additionalItems": false,
-                                                "minItems": 0,
+                                                "minItems": 1,
                                                 "maxItems": 3,
                                                 "items": {
                                                     "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/properties/duct/items",
