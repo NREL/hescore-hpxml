@@ -2,6 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "type": "object",
     "title": "HEScore JSON Schema",
+    "additionalProperties": false,
     "properties": {
         "building_address": {
             "$id": "#/properties/building_address",
@@ -39,6 +40,7 @@
         "hpwes": {
             "$id": "#/properties/hpwes",
             "type": "object",
+            "additionalProperties": false,
             "properties": {
                 "improvement_installation_start_date": {
                     "$id": "#/properties/building/properties/improvement_installation_start_date",
@@ -73,11 +75,11 @@
         "building": {
             "$id": "#/properties/building",
             "type": "object",
+            "additionalProperties": false,
             "properties": {
                 "about": {
                     "$id": "#/properties/building/properties/about",
                     "type": "object",
-                    "additionalProperties": false,
                     "required": [
                         "assessment_date",
                         "shape",
@@ -89,6 +91,7 @@
                         "orientation",
                         "blower_door_test"
                     ],
+                    "additionalProperties": false,
                     "properties": {
                         "assessment_date": {
                             "$id": "#/properties/building/properties/about/properties/assessment_date",
@@ -240,6 +243,7 @@
                         "wall_construction_same",
                         "window_construction_same"
                     ],
+                    "additionalProperties": false,
                     "properties": {
                         "zone_roof": {
                             "$id": "#/properties/building/properties/zone/properties/zone_roof",
@@ -651,6 +655,7 @@
                                     "zone_window": {
                                         "type": "object",
                                         "description": "Inputs about the windows on this wall",
+                                        "additionalProperties": false,
                                         "properties": {
                                             "window_area": {
                                                 "type": "number",
@@ -710,6 +715,7 @@
                                 "required": [
                                     "hvac_name"
                                 ],
+                                "additionalProperties": false,
                                 "properties": {
                                     "hvac_name": {
                                         "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_name",
@@ -733,6 +739,7 @@
                                         "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating",
                                         "type": "object",
                                         "description": "Inputs about the heating system",
+                                        "additionalProperties": false,
                                         "properties": {
                                             "type": {
                                                 "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/type",
@@ -758,12 +765,23 @@
                                                 "type": "integer",
                                                 "minimum": 1970,
                                                 "description": "Year equipment was manufactured (only used if efficiency_method is shipment_weighted)"
+                                            },
+                                            "efficiency": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
+                                                "type": "number",
+                                                "$comment": "Additional requirements for this property apply based on the heating system type"
+                                            },
+                                            "efficiency_level": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency_level",
+                                                "type": "string",
+                                                "enum": ["energy_star"],
+                                                "description": "Efficiency level upgrade of the heating system (Optional)"
                                             }
                                         },
                                         "allOf": [
                                             {
                                                 "if": {
-                                                    "properties": {"type": {"const": "central_furnace" }},
+                                                    "properties": {"type": {"enum": ["central_furnace", "wall_furnace", "boiler"]}},
                                                     "required": ["type"]
                                                 },
                                                 "then": {
@@ -774,8 +792,6 @@
                                                     "then": {
                                                         "properties": {
                                                             "efficiency": {
-                                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                                "type": "number",
                                                                 "description": "Efficiency of heating equipment (only used if efficiency_method is user)"
                                                             }
                                                         }
@@ -783,29 +799,10 @@
                                                     "else": {
                                                         "properties": {
                                                             "efficiency": {
-                                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                                "type": "number",
                                                                 "minimum": 0.6,
                                                                 "maximum": 1,
                                                                 "description": "AFUE of heating equipment (only used if efficiency_method is user)"
                                                             }
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            {
-                                                "if": {
-                                                    "properties": {"type": {"enum": ["wall_furnace", "boiler"]}},
-                                                    "required": ["type"]
-                                                },
-                                                "then": {
-                                                    "properties": {
-                                                        "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                            "type": "number",
-                                                            "minimum": 0.6,
-                                                            "maximum": 1,
-                                                            "description": "AFUE of heating equipment (only used if efficiency_method is user)"
                                                         }
                                                     }
                                                 }
@@ -818,8 +815,6 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                            "type": "number",
                                                             "minimum": 6,
                                                             "maximum": 20,
                                                             "description": "HSPF of heating equipment (only used if efficiency_method is user)"
@@ -835,8 +830,6 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                            "type": "number",
                                                             "minimum": 2,
                                                             "maximum": 5,
                                                             "description": "COP (ARI-330) of heating equipment (only used if efficiency_method is user)"
@@ -852,8 +845,6 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/heating/properties/efficiency",
-                                                            "type": "number",
                                                             "description": "Efficiency of heating equipment (only used if efficiency_method is user)"
                                                         }
                                                     }
@@ -865,6 +856,7 @@
                                         "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling",
                                         "type": "object",
                                         "description": "Inputs about the cooling system",
+                                        "additionalProperties": false,
                                         "properties": {
                                             "type": {
                                                 "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/type",
@@ -883,6 +875,17 @@
                                                 "type": "integer",
                                                 "minimum": 1970,
                                                 "description": "Year equipment was manufactured (only used if efficiency_method is shipment_weighted)"
+                                            },
+                                            "efficiency": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
+                                                "type": "number",
+                                                "$comment": "Additional requirements for this property apply based on the cooling system type"
+                                            },
+                                            "efficiency_level": {
+                                                "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency_level",
+                                                "type": "string",
+                                                "enum": ["energy_star"],
+                                                "description": "Efficiency level upgrade of the cooling system (Optional)"
                                             }
                                         },
                                         "allOf": [
@@ -894,8 +897,6 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
-                                                            "type": "number",
                                                             "minimum": 8,
                                                             "maximum": 40,
                                                             "description": "SEER of cooling equipment (only used if efficiency_method is user)"
@@ -911,8 +912,6 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
-                                                            "type": "number",
                                                             "minimum": 8,
                                                             "maximum": 40,
                                                             "description": "EER of cooling equipment (only used if efficiency_method is user)"
@@ -928,62 +927,15 @@
                                                 "then": {
                                                     "properties": {
                                                         "efficiency": {
-                                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/cooling/properties/efficiency",
-                                                            "type": "number",
                                                             "description": "Efficiency of cooling equipment (only used if efficiency_method is user)"
                                                         }
                                                     }
                                                 }
                                             }
                                         ]
-                                    }
-                                },
-                                "if": {
-                                    "allOf": [
-                                        {
-                                            "not": {
-                                                "properties": {
-                                                    "hvac_fraction": {"const": 0}
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "anyOf": [
-                                                {
-                                                    "properties": {
-                                                        "heating": {
-                                                            "properties": {
-                                                                "type": {"enum": ["central_furnace", "heat_pump", "gchp"]}
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "properties": {
-                                                        "cooling": {
-                                                            "properties": {
-                                                                "type": {"enum": ["split_dx", "heat_pump", "gchp"]}
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                "then": {
-                                    "properties": {
-                                        "hvac_distribution": {
-                                            "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_with_constraints"
-                                        }
                                     },
-                                    "required": ["hvac_distribution"]
-                                },
-                                "else": {
-                                    "properties": {
-                                        "hvac_distribution": {
-                                            "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution"
-                                        }
+                                    "hvac_distribution": {
+                                        "$comment": "Additional requirements for this property apply based on the heating and cooling system type"
                                     }
                                 },
                                 "allOf": [
@@ -1072,7 +1024,7 @@
                                                                 "properties": {
                                                                     "heating": {
                                                                         "properties": {
-                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace"]}
+                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace", "boiler"]}
                                                                         }
                                                                     }
                                                                 }
@@ -1087,6 +1039,18 @@
                                                                 }
                                                             }
                                                         ]
+                                                    }
+                                                },
+                                                {
+                                                    "not": {
+                                                        "properties": {
+                                                            "heating": {
+                                                                "properties": {
+                                                                    "efficiency_level": {"const": "energy_star"}
+                                                                },
+                                                                "required": ["efficiency_level"]
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             ]
@@ -1114,7 +1078,8 @@
                                                         "heating": {
                                                             "properties": {
                                                                 "efficiency_method": {"const": "shipment_weighted"}
-                                                            }
+                                                            },
+                                                            "required": ["efficiency_method"]
                                                         }
                                                     }
                                                 },
@@ -1136,7 +1101,7 @@
                                                                 "properties": {
                                                                     "heating": {
                                                                         "properties": {
-                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace"]}
+                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace", "boiler"]}
                                                                         }
                                                                     }
                                                                 }
@@ -1191,7 +1156,8 @@
                                                         "heating": {
                                                             "properties": {
                                                                 "efficiency_method": {"const": "user"}
-                                                            }
+                                                            },
+                                                            "required": ["efficiency_method"]
                                                         }
                                                     }
                                                 },
@@ -1213,7 +1179,7 @@
                                                                 "properties": {
                                                                     "heating": {
                                                                         "properties": {
-                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace"]}
+                                                                            "type": {"enum": ["baseboard", "central_furnace", "wall_furnace", "boiler"]}
                                                                         }
                                                                     }
                                                                 }
@@ -1289,6 +1255,18 @@
                                                             }
                                                         }
                                                     }
+                                                },
+                                                {
+                                                    "not": {
+                                                        "properties": {
+                                                            "cooling": {
+                                                                "properties": {
+                                                                    "efficiency_level": {"const": "energy_star"}
+                                                                },
+                                                                "required": ["efficiency_level"]
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             ]
                                         },
@@ -1315,7 +1293,8 @@
                                                         "cooling": {
                                                             "properties": {
                                                                 "efficiency_method": {"const": "shipment_weighted"}
-                                                            }
+                                                            },
+                                                            "required": ["efficiency_method"]
                                                         }
                                                     }
                                                 },
@@ -1368,7 +1347,8 @@
                                                         "cooling": {
                                                             "properties": {
                                                                 "efficiency_method": {"const": "user"}
-                                                            }
+                                                            },
+                                                            "required": ["efficiency_method"]
                                                         }
                                                     }
                                                 },
@@ -1405,6 +1385,340 @@
                                                 }
                                             ]
                                         }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"enum": ["central_furnace", "wall_furnace", "baseboard", "boiler"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["heating"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"enum": ["packaged_dx", "split_dx", "mini_split", "dec", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"const": "heat_pump"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["heating"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"enum": ["packaged_dx", "heat_pump", "dec", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"const": "gchp"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["heating"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"enum": ["packaged_dx", "gchp", "dec", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"const": "mini_split"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["heating"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"enum": ["packaged_dx", "mini_split", "dec", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"const": "split_dx"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["cooling"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"enum": ["central_furnace", "wall_furnace", "baseboard", "boiler", "wood_stove", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"const": "heat_pump"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["cooling"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"enum": ["heat_pump", "wood_stove", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"const": "gchp"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["cooling"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"enum": ["gchp", "wood_stove", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "cooling": {
+                                                    "properties": {
+                                                        "type": {"const": "mini_split"}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            },
+                                            "required": ["cooling"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "heating": {
+                                                    "properties": {
+                                                        "type": {"enum": ["central_furnace", "wall_furnace", "baseboard", "boiler", "mini_split", "wood_stove", "none"]}
+                                                    },
+                                                    "required": ["type"]
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "anyOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"const": "none"}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["heating"]
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "properties": {
+                                                                "type": {"const": "none"}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["cooling"]
+                                                }
+                                            ]
+                                        },
+                                        "then": {
+                                            "not": {
+                                                "allOf": [
+                                                    {
+                                                        "properties": {
+                                                            "heating": {
+                                                                "properties": {
+                                                                    "type": {"const": "none"}
+                                                                },
+                                                                "required": ["type"]
+                                                            }
+                                                        },
+                                                        "required": ["heating"]
+                                                    },
+                                                    {
+                                                        "properties": {
+                                                            "cooling": {
+                                                                "properties": {
+                                                                    "type": {"const": "none"}
+                                                                },
+                                                                "required": ["type"]
+                                                            }
+                                                        },
+                                                        "required": ["cooling"]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"enum": ["central_furnace", "heat_pump", "gchp"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["heating"]
+                                                }
+                                            ]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "hvac_distribution": {
+                                                    "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution"
+                                                }
+                                            },
+                                            "required": ["hvac_distribution"]
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"enum": ["wall_furnace", "baseboard", "boiler", "mini_split", "wood_stove", "none"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["heating"]
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "properties": {
+                                                                "type": {"enum": ["split_dx", "heat_pump", "gchp"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["cooling"]
+                                                }
+                                            ]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "hvac_distribution": {
+                                                    "$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution"
+                                                }
+                                            },
+                                            "required": ["hvac_distribution"]
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "allOf": [
+                                                {
+                                                    "properties": {
+                                                        "heating": {
+                                                            "properties": {
+                                                                "type": {"enum": ["wall_furnace", "baseboard", "boiler", "mini_split", "wood_stove", "none"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["heating"]
+                                                },
+                                                {
+                                                    "properties": {
+                                                        "cooling": {
+                                                            "properties": {
+                                                                "type": {"enum": ["packaged_dx", "mini_split", "dec", "none"]}
+                                                            },
+                                                            "required": ["type"]
+                                                        }
+                                                    },
+                                                    "required": ["cooling"]
+                                                }
+                                            ]
+                                        },
+                                        "then": {
+                                            "not": {
+                                                "required": ["hvac_distribution"]
+                                            }
+                                        }
                                     }
                                 ],
                                 "definitions": {
@@ -1434,54 +1748,9 @@
                                                 },
                                                 "fraction": {
                                                     "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/fraction",
-                                                    "type": "integer",
+                                                    "type": "number",
                                                     "minimum": 0,
-                                                    "maximum": 100,
-                                                    "description": "Fraction of total duct length"
-                                                },
-                                                "insulated": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/insulated",
-                                                    "type": "boolean",
-                                                    "description": "Are the ducts insulated?"
-                                                },
-                                                "sealed": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/sealed",
-                                                    "type": "boolean",
-                                                    "description": "Are the ducts sealed?"
-                                                }
-                                            },
-                                            "required": ["name"]
-                                        }
-                                    },
-                                    "def_hvac_distribution_with_constraints": {
-                                        "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_with_constraints",
-                                        "type": "array",
-                                        "description": "Inputs about the ducts",
-                                        "additionalItems": false,
-                                        "minItems": 0,
-                                        "maxItems": 3,
-                                        "items": {
-                                            "$id": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution_items",
-                                            "type": "object",
-                                            "additionalProperties": false,
-                                            "properties": {
-                                                "name": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/name",
-                                                    "type": "string",
-                                                    "enum": ["duct1", "duct2", "duct3"],
-                                                    "description": "Name of distribution system"
-                                                },
-                                                "location": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/location",
-                                                    "type": "string",
-                                                    "enum": ["cond_space", "uncond_basement", "unvented_crawl", "vented_crawl", "uncond_attic"],
-                                                    "description": "Location of distribution system"
-                                                },
-                                                "fraction": {
-                                                    "$id": "#/properties/building/properties/systems/properties/hvac/items/properties/hvac_distribution/items/properties/fraction",
-                                                    "type": "integer",
-                                                    "minimum": 0,
-                                                    "maximum": 100,
+                                                    "maximum": 1,
                                                     "description": "Fraction of total duct length"
                                                 },
                                                 "insulated": {
@@ -1559,6 +1828,12 @@
                                     "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/energy_factor",
                                     "type": "number",
                                     "description": "Energy factor of water heater (only used if efficiency_method is user or uef)"
+                                },
+                                "efficiency_level": {
+                                    "$id": "#/properties/building/properties/systems/properties/domestic_hot_water/properties/efficiency_level",
+                                    "type": "string",
+                                    "enum": ["energy_star"],
+                                    "description": "Efficiency level upgrade of the domestic hot water system (Optional)"
                                 }
                             },
                             "allOf": [
@@ -1578,10 +1853,22 @@
                                 },
                                 {
                                     "if": {
-                                        "properties": {
-                                            "category": {"const": "unit"}
-                                        },
-                                        "required": ["category"]
+                                        "allOf": [
+                                            {
+                                                "properties": {
+                                                    "category": {"const": "unit"}
+                                                },
+                                                "required": ["category"]
+                                            },
+                                            {
+                                                "not": {
+                                                    "properties": {
+                                                        "efficiency_level": {"const": "energy_star"}
+                                                    },
+                                                    "required": ["efficiency_level"]
+                                                }
+                                            }
+                                        ]
                                     },
                                     "then": {
                                         "required": ["fuel_primary", "efficiency_method"]
@@ -1598,7 +1885,8 @@
                                         "if": {
                                             "properties": {
                                                 "efficiency_method": {"const": "shipment_weighted"}
-                                            }
+                                            },
+                                            "required": ["efficiency_method"]
                                         },
                                         "then": {
                                             "required": ["year"]
@@ -1621,7 +1909,8 @@
                                         "if": {
                                             "properties": {
                                                 "efficiency_method": {"enum": ["user", "uef"]}
-                                            }
+                                            },
+                                            "required": ["efficiency_method"]
                                         },
                                         "then": {
                                             "required": ["energy_factor"]
@@ -1692,10 +1981,12 @@
                         "generation": {
                             "$id": "#/properties/building/properties/systems/properties/generation",
                             "type": "object",
+                            "additionalProperties": false,
                             "properties": {
                                 "solar_electric": {
                                     "$id": "#/properties/building/properties/systems/properties/generation/items/properties/solar_electric",
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "properties": {
                                         "capacity_known": {
                                             "$id": "#/properties/building/properties/systems/properties/generation/items/properties/solar_electric/capacity_known",
@@ -1839,7 +2130,6 @@
                     ]
                 }
             },
-            "additionalProperties": false,
             "allOf": [
                 {
                     "if": {
@@ -1974,9 +2264,11 @@
                                             "about": {
                                                 "properties": {
                                                     "town_house_walls": {"const": "back_right_front"}
-                                                }
+                                                },
+                                                "required": ["town_house_walls"]
                                             }
-                                        }
+                                        },
+                                        "required": ["about"]
                                     },
                                     "then": {
                                         "properties": {
@@ -1996,9 +2288,11 @@
                                             "about": {
                                                 "properties": {
                                                     "town_house_walls": {"const": "back_front_left"}
-                                                }
+                                                },
+                                                "required": ["town_house_walls"]
                                             }
-                                        }
+                                        },
+                                        "required": ["about"]
                                     },
                                     "then": {
                                         "properties": {
@@ -2018,9 +2312,11 @@
                                             "about": {
                                                 "properties": {
                                                     "town_house_walls": {"const": "back_front"}
-                                                }
+                                                },
+                                                "required": ["town_house_walls"]
                                             }
-                                        }
+                                        },
+                                        "required": ["about"]
                                     },
                                     "then": {
                                         "properties": {
@@ -2165,11 +2461,92 @@
                         }
                     },
                     "then": {
-                        "properties": {
-                            "zone": {
-                                "properties": {
-                                    "zone_wall": {
-                                        "$ref": "#/definitions/def_sf_mf_has_same_walls_and_windows"
+                        "if": {
+                            "properties": {
+                                "about": {
+                                    "properties": {
+                                        "shape": {"const": "town_house"}
+                                    }
+                                }
+                            }
+                        },
+                        "then": {
+                            "allOf": [
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_right_front"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_right_front_has_same_walls_and_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front_left"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_left_has_same_walls_and_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_has_same_walls_and_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "else": {
+                            "properties": {
+                                "zone": {
+                                    "properties": {
+                                        "zone_wall": {
+                                            "$ref": "#/definitions/def_sf_mf_has_same_walls_and_windows"
+                                        }
                                     }
                                 }
                             }
@@ -2179,7 +2556,6 @@
             ]
         }
     },
-    "additionalProperties": false,
     "definitions": {
         "def_front_wall_constraint": {
             "contains": {
@@ -2747,6 +3123,14 @@
                 {"$ref": "#/definitions/def_left_window_constraint"}
             ]
         },
+        "def_mf_back_right_front_has_same_walls_and_windows": {
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_right_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint"}
+            ]
+        },
         "def_mf_back_right_front_has_same_walls": {
             "allOf": [
                 {"$ref": "#/definitions/def_front_wall_constraint"},
@@ -2775,6 +3159,14 @@
                 {"$ref": "#/definitions/def_right_window_constraint"}
             ]
         },
+        "def_mf_back_front_left_has_same_walls_and_windows": {
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_left_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint"}
+            ]
+        },
         "def_mf_back_front_left_has_same_walls": {
             "allOf": [
                 {"$ref": "#/definitions/def_front_wall_constraint"},
@@ -2801,6 +3193,13 @@
                 {"$ref": "#/definitions/def_front_window_constraint"},
                 {"$ref": "#/definitions/def_back_window_constraint"},
                 {"$ref": "#/definitions/def_left_window_constraint"}
+            ]
+        },
+        "def_mf_back_front_has_same_walls_and_windows": {
+            "allOf": [
+                {"$ref": "#/definitions/def_front_wall_constraint"},
+                {"$ref": "#/definitions/def_back_wall_has_same_construction_constraint"},
+                {"$ref": "#/definitions/def_front_window_constraint"}
             ]
         },
         "def_mf_back_front_has_same_walls": {

@@ -551,8 +551,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # There really shouldn't be more than one
             assert False
         elif airdist_el is None:
-            # This isn't a ducted system, return a blank list
-            return hvac_distribution
+            # This isn't a ducted system, return None
+            return
 
         # Determine if the entire system is sealed (best we can do, not available duct by duct)
         is_sealed = \
@@ -604,14 +604,14 @@ class HPXMLtoHEScoreTranslatorBase(object):
             hvacd_out = OrderedDict()
             hvacd_out['name'] = 'duct%d' % i
             hvacd_out['location'] = hvacd['location']
-            hvacd_out['fraction'] = int(python2round(hvacd['fraction'] / sum_of_top_3_fractions * 100))
+            hvacd_out['fraction'] = hvacd['fraction'] / sum_of_top_3_fractions
             hvacd_out['insulated'] = hescore_duct_loc_has_insulation[hvacd['location']]
             hvacd_out['sealed'] = is_sealed
             hvac_distribution.append(hvacd_out)
 
-        # Make sure the fractions add up to 100
+        # Make sure the fractions add up to 1
         total_pct = sum([x['fraction'] for x in hvac_distribution])
-        pct_remainder = 100 - total_pct
+        pct_remainder = 1 - total_pct
         hvac_distribution[0]['fraction'] += pct_remainder
 
         return hvac_distribution
@@ -1364,16 +1364,16 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         skylight_type_areas[skylight_code] = area
                 skylight_d['skylight_method'] = 'code'
                 skylight_d['skylight_code'] = max(list(skylight_type_areas.items()), key=lambda x: x[1])[0]
-            skylight_sunscreen_areas = {}
+            skylight_solarscreen_areas = {}
             for skylight in skylights:
-                solar_screen = self.get_sunscreen(skylight)
+                solar_screen = self.get_solarscreen(skylight)
                 area = convert_to_type(float, xpath(skylight, 'h:Area/text()', raise_err=True))
                 try:
-                    skylight_sunscreen_areas[solar_screen] += area
+                    skylight_solarscreen_areas[solar_screen] += area
                 except KeyError:
-                    skylight_sunscreen_areas[solar_screen] = area
+                    skylight_solarscreen_areas[solar_screen] = area
 
-            skylight_d['solar_screen'] = max(list(skylight_sunscreen_areas.items()), key=lambda x: x[1])[0]
+            skylight_d['solar_screen'] = max(list(skylight_solarscreen_areas.items()), key=lambda x: x[1])[0]
 
         return zone_skylight
 
@@ -1660,7 +1660,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             windowd = {'area': convert_to_type(float, xpath(hpxmlwndw, 'h:Area/text()', raise_err=True))}
             windowd['uvalue'] = convert_to_type(float, xpath(hpxmlwndw, 'h:UFactor/text()'))
             windowd['shgc'] = convert_to_type(float, xpath(hpxmlwndw, 'h:SHGC/text()'))
-            windowd['sun_screen'] = self.get_sunscreen(hpxmlwndw)
+            windowd['solar_screen'] = self.get_solarscreen(hpxmlwndw)
             if windowd['uvalue'] is not None and windowd['shgc'] is not None:
                 windowd['window_code'] = None
             else:
@@ -1774,7 +1774,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 zone_window['window_area'] = 0
                 zone_window['window_method'] = 'code'
                 zone_window['window_code'] = 'scna'
-                zone_window['sun_screen'] = False
+                zone_window['solar_screen'] = False
                 continue
 
             # Get the list of uvalues and shgcs for the windows on this side of the house.
@@ -1815,13 +1815,13 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     except KeyError:
                         window_code_areas[window['window_code']] = window['area']
                 zone_window['window_code'] = max(list(window_code_areas.items()), key=lambda x: x[1])[0]
-            window_sunscreen_areas = {}
+            window_solarscreen_areas = {}
             for window in windows:
                 try:
-                    window_sunscreen_areas[window['sun_screen']] += window['area']
+                    window_solarscreen_areas[window['solar_screen']] += window['area']
                 except KeyError:
-                    window_sunscreen_areas[window['sun_screen']] = window['area']
-            zone_window['solar_screen'] = max(list(window_sunscreen_areas.items()), key=lambda x: x[1])[0]
+                    window_solarscreen_areas[window['solar_screen']] = window['area']
+            zone_window['solar_screen'] = max(list(window_solarscreen_areas.items()), key=lambda x: x[1])[0]
         return zone_wall
 
     def get_hvac(self, b, bldg):
@@ -2055,7 +2055,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             return retval
 
         def choose_dist_system(first_choice_dist_id, second_choice_dist_id):
-            if first_choice_dist_id is not None and len(distribution_systems[first_choice_dist_id]) > 0:
+            if first_choice_dist_id is not None and distribution_systems[first_choice_dist_id] is not None:
                 dist_id = first_choice_dist_id
             else:
                 dist_id = second_choice_dist_id
@@ -2126,8 +2126,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 hvac_sys['cooling'] = {'type': 'none'}
             if hvac_ids.dist_id is not None:
                 hvac_sys['hvac_distribution'] = distribution_systems[hvac_ids.dist_id]
-            else:
-                hvac_sys['hvac_distribution'] = []
 
             # Added a error check for separate cooling and heating heat pump system
             if hvac_sys['heating']['type'] in hp_list and hvac_sys['cooling']['type'] in hp_list and \
@@ -2399,7 +2397,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 for hvacd in sys_hvac['hvac_distribution']:
                     do_bounds_check('hvac_distribution_fraction',
                                     hvacd['fraction'],
-                                    0, 100)
+                                    0, 1)
 
                     # Test if the duct location exists in roof and floor types
                     duct_location_error = False

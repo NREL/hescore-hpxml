@@ -114,7 +114,7 @@
             {
               "name": "duct1",
               "location": "cond_space",
-              "fraction": 100,
+              "fraction": 1.0,
               "insulated": false,
               "sealed": false
             }
@@ -138,7 +138,7 @@
             {
               "name": "duct1",
               "location": "cond_space",
-              "fraction": 100,
+              "fraction": 1.0,
               "insulated": false,
               "sealed": false
             }
