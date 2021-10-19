@@ -107,21 +107,21 @@
             {
               "name": "duct1",
               "location": "vented_crawl",
-              "fraction": 50,
+              "fraction": 0.5,
               "insulated": true,
               "sealed": false
             },
             {
               "name": "duct2",
               "location": "uncond_attic",
-              "fraction": 35,
+              "fraction": 0.35,
               "insulated": true,
               "sealed": false
             },
             {
               "name": "duct3",
               "location": "cond_space",
-              "fraction": 15,
+              "fraction": 0.15,
               "insulated": false,
               "sealed": false
             }

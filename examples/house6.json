@@ -126,7 +126,7 @@
             {
               "name": "duct1",
               "location": "uncond_basement",
-              "fraction": 100,
+              "fraction": 1.0,
               "insulated": true,
               "sealed": false
             }
@@ -141,8 +141,7 @@
           },
           "cooling": {
             "type": "none"
-          },
-          "hvac_distribution": []
+          }
         }
       ],
       "domestic_hot_water": {
