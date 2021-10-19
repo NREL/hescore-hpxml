@@ -1071,7 +1071,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
     @property
     def roof_assembly_eff_rvalues(self):
         if self._roof_assembly_eff_rvalues is None:
-            with open(os.path.join(thisdir, 'lookups', 'lu_wall_eff_rvalue.csv'), newline='') as f:
+            with open(os.path.join(thisdir, 'lookups', 'lu_roof_eff_rvalue.csv'), newline='') as f:
                 reader = csv.DictReader(f)
                 self._roof_assembly_eff_rvalues = {}
                 for row in reader:
