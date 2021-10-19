@@ -1199,7 +1199,13 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 roof_assembly_rvalue = self.get_attic_roof_assembly_rvalue(attic, roof)
 
                 if roof_assembly_rvalue is not None:
-                    pass
+                    closeset_roof_code, closest_code_rvalue = \
+                        min([(doe2code, code_rvalue)
+                             for doe2code, code_rvalue in self.roof_assembly_eff_rvalues.items()
+                             if doe2code[2:4] in attic_roofs_d['roofconstype'] and
+                             doe2code[6:8] == attic_roofs_d['extfinish']],
+                            key=lambda x: abs(x[1] - roof_assembly_rvalue))
+                    attic_roofs_d['roof_coc_rvalue'] = closest_code_rvalue
                 else:
                     # subtract the R-value of the rigid sheating in the HEScore construction.
                     if attic_roofs_d['roofconstype'] == 'ps':
