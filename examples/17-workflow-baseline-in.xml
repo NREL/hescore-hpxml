@@ -33,10 +33,11 @@
     <Site>
       <SiteID id='SiteID'/>
       <Address>
-        <StateCode>AZ</StateCode>
-        <extension>
-          <FIPS>04013</FIPS>
-        </extension>
+        <AddressType>street</AddressType>
+        <Address1>123 Main Street</Address1>
+        <CityMunicipality>Golden</CityMunicipality>
+        <StateCode>CO</StateCode>
+        <ZipCode>80401</ZipCode>
       </Address>
     </Site>
     <ProjectStatus>
