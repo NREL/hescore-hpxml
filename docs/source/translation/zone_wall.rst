@@ -64,7 +64,7 @@ Wood Frame Walls
 ================
 
 If ``WallType/WoodStud`` is selected in HPXML, each layer of the wall insulation
-is parsed and if a rigid and continuous layer is found, or if the subelement
+is parsed and if a continuous layer is found, or if the subelement
 ``WallType/WoodStud/ExpandedPolyStyreneSheathing`` is found, the wall is
 specified in HEScore as "Wood Frame with Rigid Foam Sheathing."
 
@@ -83,11 +83,6 @@ specified in HEScore as "Wood Frame with Rigid Foam Sheathing."
           <SystemIdentifier id="wall1ins"/>
           <Layer>
               <InstallationType>continuous</InstallationType>
-              <InsulationMaterial>
-                  <Rigid>eps</Rigid>
-                  <!-- This can have any of the valid enumerations for this element, 
-                       it only cares if the Rigid element is present. -->
-              </InsulationMaterial>
               <NominalRValue>5</NominalRValue>
           </Layer>
           ...

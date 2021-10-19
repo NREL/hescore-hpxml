@@ -397,15 +397,16 @@ def test_invalid_heating(hpxml_filebase):
     assert len(errors) == 0
     # electric wall furnace
     js3['building']['systems']['hvac'][0]['heating']['type'] = 'wall_furnace'
+    del js3['building']['systems']['hvac'][0]['heating']['efficiency']
     errors = get_error_messages(js3, js_schema)
-    assert "0.5 is less than the minimum of 0.6" in errors
+    assert len(errors) == 0
     # electric boiler
     js3['building']['systems']['hvac'][0]['heating']['type'] = 'boiler'
-    js3['building']['systems']['hvac'][0]['heating']['efficiency'] = 1.1
     errors = get_error_messages(js3, js_schema)
-    assert "1.1 is greater than the maximum of 1" in errors
+    assert len(errors) == 0
     # heat pump
     js3['building']['systems']['hvac'][0]['heating']['type'] = 'heat_pump'
+    js3['building']['systems']['hvac'][0]['heating']['efficiency'] = 1.1
     errors = get_error_messages(js3, js_schema)
     assert "1.1 is less than the minimum of 6" in errors
     # mini-split
@@ -521,7 +522,18 @@ def test_invalid_hvac_distribution(hpxml_filebase):
     del js1['building']['systems']['hvac'][0]['hvac_distribution'][0]['insulated']
     del js1['building']['systems']['hvac'][0]['hvac_distribution'][0]['sealed']
     errors = get_error_messages(js1, js_schema)
-    assert len(errors) == 0
+    if hpxml_filebase == 'townhouse_walls':
+        assert ("{'required': ['hvac_distribution']} is not allowed for {'hvac_name': 'hvac1', 'hvac_fraction': 1.0, "
+                "'heating': {'fuel_primary': 'natural_gas', 'type': 'wall_furnace', 'efficiency_method': 'user', "
+                "'efficiency': 0.95}, 'cooling': {'type': 'packaged_dx', 'efficiency_method': 'user', "
+                "'efficiency': 13.0}, 'hvac_distribution': [{'name': 'duct1', 'fraction': 1.0}]}") in errors
+    elif hpxml_filebase == 'house1':
+        assert ("{'required': ['hvac_distribution']} is not allowed for {'hvac_name': 'hvac1', 'hvac_fraction': 1.0, "
+                "'heating': {'fuel_primary': 'natural_gas', 'type': 'wall_furnace', 'efficiency_method': 'user', "
+                "'efficiency': 0.92}, 'cooling': {'type': 'packaged_dx', 'efficiency_method': 'user', "
+                "'efficiency': 13.0}, 'hvac_distribution': [{'name': 'duct1', 'fraction': 0.5}, {'name': 'duct2', "
+                "'location': 'uncond_attic', 'fraction': 0.35, 'insulated': True, 'sealed': False}, {'name': 'duct3', "
+                "'location': 'cond_space', 'fraction': 0.15, 'insulated': False, 'sealed': False}]}") in errors
 
     js2 = copy.deepcopy(js)
     del js2['building']['systems']['hvac'][0]['hvac_distribution'][0]['name']
@@ -546,9 +558,10 @@ def test_invalid_hvac_distribution(hpxml_filebase):
     assert "'hvac_distribution' is a required property" in errors
     js3['building']['systems']['hvac'][0]['hvac_fraction'] = 0
     errors = get_error_messages(js3, js_schema)
-    assert len(errors) == 0
+    assert "'hvac_distribution' is a required property" in errors
     js3['building']['systems']['hvac'][0]['hvac_fraction'] = 1
-    js3['building']['systems']['hvac'][0]['heating']['type'] = 'wall_furnace'
+    js3['building']['systems']['hvac'][0]['heating']['type'] = 'mini_split'
+    js3['building']['systems']['hvac'][0]['heating']['efficiency'] = 6
     js3['building']['systems']['hvac'][0]['cooling']['type'] = 'packaged_dx'
     errors = get_error_messages(js3, js_schema)
     assert len(errors) == 0
