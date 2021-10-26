@@ -228,8 +228,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 sidingtype = sidingmap[hpxmlsiding]
                 if sidingtype not in ('st', 'br'):
                     raise TranslationError(
-                        f'Wall {wallid}: is a CMU and needs a siding of stucco, brick, or none to translate to HEScore. '
-                        f'It has a siding type of {hpxmlsiding}'
+                        f'Wall {wallid}: is a CMU and needs a siding of stucco, brick, or none to translate'
+                        f'to HEScore. It has a siding type of {hpxmlsiding}'
                     )
         elif wall_type == 'StrawBale':
             sidingtype = 'st'
@@ -267,7 +267,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean('
                     'h:InsulationMaterial/h:Rigid)])'
                 )
-                if tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')) or has_rigid_ins:
+                if has_rigid_ins or\
+                        tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')):
                     wallconstype = 'ps'
                     # account for the rigid foam sheathing in the construction code
                     wall_rvalue -= 5
