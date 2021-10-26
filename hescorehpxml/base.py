@@ -228,7 +228,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 sidingtype = sidingmap[hpxmlsiding]
                 if sidingtype not in ('st', 'br'):
                     raise TranslationError(
-                        f'Wall {wallid}: is a CMU and needs a siding of stucco, brick, or none to translate'
+                        f'Wall {wallid}: is a CMU and needs a siding of stucco, brick, or none to translate '
                         f'to HEScore. It has a siding type of {hpxmlsiding}'
                     )
         elif wall_type == 'StrawBale':
