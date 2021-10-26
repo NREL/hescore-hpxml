@@ -82,9 +82,7 @@
                         <RadiantBarrier>false</RadiantBarrier>
                         <Insulation>
                             <SystemIdentifier id="attic1roofins"/>
-                            <Layer>
-                                <NominalRValue>0</NominalRValue>
-                            </Layer>
+                            <AssemblyEffectiveRValue>2.3</AssemblyEffectiveRValue>
                         </Insulation>
                     </Roof>
                 </Roofs>
