@@ -1638,11 +1638,19 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             else:
                                 raise TranslationError(
                                     'If there is more than one FrameFloor, an Area is required for each.')
-                        ffrvalue = xpath(framefloor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-                        ffeffrvalue = floor_eff_rvalues[min(
-                            list(floor_eff_rvalues.keys()),
-                            key=lambda x: abs(ffrvalue - x)
-                        )]
+                        if self.every_framefloors_layer_has_nominal_rvalue(framefloors, b):
+                            ffrvalue = xpath(framefloor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+                            ffeffrvalue = floor_eff_rvalues[min(
+                                list(floor_eff_rvalues.keys()),
+                                key=lambda x: abs(ffrvalue - x)
+                            )]
+                        else:
+                            framefloor_assembly_rvalue = self.get_framefloor_assembly_rvalue(framefloor, b)
+                            closest_floor_code, closest_code_rvalue = \
+                                min([(doe2code, code_rvalue)
+                                    for doe2code, code_rvalue in self.floor_assembly_eff_rvalues.items()],
+                                    key=lambda x: abs(x[1] - float(framefloor_assembly_rvalue)))
+                            ffeffrvalue = closest_code_rvalue
                         ffua += old_div(ffarea, ffeffrvalue)
                         fftotalarea += ffarea
                     ffrvalue = old_div(fftotalarea, ffua) - 4.0

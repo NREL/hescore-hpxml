@@ -208,6 +208,9 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_attic_roof_area(self, roof):
         return self.xpath(roof, 'h:Area/text()')
 
+    def get_framefloor_assembly_rvalue(self, v2_framefloor, framefloor):
+        return self.xpath(framefloor, 'h:Insulation/h:AssemblyEffectiveRValue/text()')
+
     def get_solarscreen(self, wndw_skylight):
         return bool(self.xpath(wndw_skylight, 'h:ExteriorShading/h:Type/text()') == 'solar screens')
 
