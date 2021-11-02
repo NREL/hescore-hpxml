@@ -1638,7 +1638,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             else:
                                 raise TranslationError(
                                     'If there is more than one FrameFloor, an Area is required for each.')
-                        if self.every_framefloors_layer_has_nominal_rvalue(framefloors, b):
+                        if self.every_framefloor_layer_has_nominal_rvalue(framefloor, b):
                             ffrvalue = xpath(framefloor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
                             ffeffrvalue = floor_eff_rvalues[min(
                                 list(floor_eff_rvalues.keys()),

@@ -126,6 +126,17 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_framefloor_assembly_rvalue(self, framefloor, v3_framefloor):
         return self.xpath(framefloor, 'h:Insulation/h:AssemblyEffectiveRValue/text()')
 
+    def every_framefloor_layer_has_nominal_rvalue(self, framefloor, v3_framefloor):
+        framefloor_layers = self.xpath(framefloor, 'h:Insulation/h:Layer', aslist=True)
+        every_layer_has_nominal_rvalue = True  # Considered to have nominal R-value unless assembly R-value is used
+        if framefloor_layers:
+            for layer in framefloor_layers:
+                if self.xpath(layer, 'h:NominalRValue') is None:
+                    every_layer_has_nominal_rvalue = False
+                    break
+
+        return every_layer_has_nominal_rvalue
+
     def get_solarscreen(self, wndw_skylight):
         return bool(self.xpath(wndw_skylight, 'h:Treatments/text()') == 'solar screen'
                     or self.xpath(wndw_skylight, 'h:ExteriorShading/text()') == 'solar screens')
