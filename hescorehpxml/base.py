@@ -90,6 +90,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         self.ns['h'] = schematree.xpath('//xs:schema/@targetNamespace', namespaces=self.ns)[0]
         self._wall_assembly_eff_rvalues = None
         self._roof_assembly_eff_rvalues = None
+        self._floor_assembly_eff_rvalues = None
 
     def xpath(self, el, xpathquery, aslist=False, raise_err=False, **kwargs):
         if isinstance(el, etree._ElementTree):
@@ -1079,6 +1080,16 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     self._roof_assembly_eff_rvalues[row['doe2code']] = float(row['Eff-R-value'])
         return self._roof_assembly_eff_rvalues
 
+    @property
+    def floor_assembly_eff_rvalues(self):
+        if self._floor_assembly_eff_rvalues is None:
+            with open(os.path.join(thisdir, 'lookups', 'lu_floor_eff_rvalue.csv'), newline='') as f:
+                reader = csv.DictReader(f)
+                self._floor_assembly_eff_rvalues = {}
+                for row in reader:
+                    self._floor_assembly_eff_rvalues[row['doe2code']] = float(row['Eff-R-value'])
+        return self._floor_assembly_eff_rvalues
+
     def get_building_zone_roof(self, b, footprint_area):
         xpath = self.xpath
 
@@ -1257,19 +1268,27 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # Questions: here we didn't have any input validation of floor attachment based on attic type, should we
             # enhance it? Currently, a building with attic can skip specifying attic floors (0 rvalue passed) while
             # one with cathedral ceiling can have floor specified (though it will be silently ignored in output).
-            # attic floor center of cavity R-value
-            attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
-            if knee_walls:
-                knee_wall_rvalue, knee_wall_area = self.get_attic_knee_wall_rvalue_and_area(attic, b)
-                knee_wall_coc_rvalue = knee_wall_rvalue + 1.8
-                knee_wall_ua = knee_wall_area / knee_wall_coc_rvalue
+            # attic floor center of cavity R-value or assembly R-value
+            if self.every_attic_floor_layer_has_nominal_rvalue(attic, b):
+                attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
+                if knee_walls:
+                    knee_wall_rvalue, knee_wall_area = self.get_attic_knee_wall_rvalue_and_area(attic, b)
+                    knee_wall_coc_rvalue = knee_wall_rvalue + 1.8
+                    knee_wall_ua = knee_wall_area / knee_wall_coc_rvalue
 
-                attic_floor_coc_rvalue = attic_floor_rvalue + 0.5
-                attic_floor_adj_ua = knee_wall_ua + atticd['roof_area'] / attic_floor_coc_rvalue
-                attic_floor_adj_area = knee_wall_area + atticd['roof_area']
-                attic_floor_rvalue = (attic_floor_adj_area / attic_floor_adj_ua) - 0.5
-                atticd['roof_area'] = attic_floor_adj_area
-            atticd['attic_floor_coc_rvalue'] = attic_floor_rvalue + 0.5
+                    attic_floor_coc_rvalue = attic_floor_rvalue + 0.5
+                    attic_floor_adj_ua = knee_wall_ua + atticd['roof_area'] / attic_floor_coc_rvalue
+                    attic_floor_adj_area = knee_wall_area + atticd['roof_area']
+                    attic_floor_rvalue = (attic_floor_adj_area / attic_floor_adj_ua) - 0.5
+                    atticd['roof_area'] = attic_floor_adj_area
+                atticd['attic_floor_coc_rvalue'] = attic_floor_rvalue + 0.5
+            else:
+                attic_floor_assembly_rvalue = self.get_attic_floor_assembly_rvalue(attic, b)
+                closest_floor_code, closest_code_rvalue = \
+                    min([(doe2code, code_rvalue)
+                         for doe2code, code_rvalue in self.floor_assembly_eff_rvalues.items()],
+                        key=lambda x: abs(x[1] - float(attic_floor_assembly_rvalue)))
+                atticd['attic_floor_assembly_rvalue'] = closest_code_rvalue
 
         if len(atticds) == 0:
             raise TranslationError('There are no Attic elements in this building.')
@@ -1318,9 +1337,15 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         sum([old_div(atticd['roof_area'], atticd['roof_coc_rvalue']) for atticd in atticds])
 
                 # Calculate attic floor weighted average center-of-cavity R-value
-                combined_atticd['attic_floor_coc_rvalue'] = \
-                    sum([atticd['attic_floor_coc_rvalue'] * atticd['roof_area'] for atticd in atticds]) / \
-                    combined_atticd['roof_area']
+                if any('attic_floor_assembly_rvalue' in k for k in atticds):
+                    combined_atticd['attic_floor_assembly_rvalue'] = \
+                        combined_atticd['roof_area'] / \
+                        sum([old_div(atticd['roof_area'], atticd['attic_floor_assembly_rvalue']) for atticd in atticds])
+                else:
+                    combined_atticd['attic_floor_coc_rvalue'] = \
+                        combined_atticd['roof_area'] / \
+                        sum([old_div(atticd['roof_area'], atticd['attic_floor_coc_rvalue']) for atticd in atticds])
+
                 combined_atticds.append(combined_atticd)
 
             atticds = combined_atticds
@@ -1350,8 +1375,15 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 roof_code = 'rf%s%02d%s' % (atticd['roofconstype'], roof_rvalue, atticd['extfinish'])
 
             # Get Attic Floor R-value
-            attic_floor_rvalue = min(attic_floor_rvalues,
-                                     key=lambda x: abs(atticd['attic_floor_coc_rvalue'] - 0.5 - x))
+            if 'attic_floor_assembly_rvalue' in atticd:
+                closest_floor_code, closest_code_rvalue = \
+                    min([(doe2code, code_rvalue)
+                         for doe2code, code_rvalue in self.floor_assembly_eff_rvalues.items()],
+                        key=lambda x: abs(x[1] - float(atticd['attic_floor_assembly_rvalue'])))
+                attic_floor_rvalue = closest_code_rvalue
+            else:
+                attic_floor_rvalue = min(attic_floor_rvalues,
+                                         key=lambda x: abs(atticd['attic_floor_coc_rvalue'] - 0.5 - x))
 
             # store it all
             zone_roof_item = OrderedDict()

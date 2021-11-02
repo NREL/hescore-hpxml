@@ -66,14 +66,14 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def every_attic_roof_layer_has_nominal_rvalue(self, v2_attic, roof):
         roof_layers = self.xpath(roof, 'h:Insulation/h:Layer', aslist=True)
-        has_nominal_rvalue = True
+        every_layer_has_nominal_rvalue = True  # Considered to have nominal R-value unless assembly R-value is used
         if roof_layers:
             for layer in roof_layers:
                 if self.xpath(layer, 'h:NominalRValue') is None:
-                    has_nominal_rvalue = False
+                    every_layer_has_nominal_rvalue = False
                     break
 
-        return has_nominal_rvalue
+        return every_layer_has_nominal_rvalue
 
     def get_attic_knee_walls(self, attic, b):
         knee_walls = []
@@ -123,6 +123,39 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
             floor_r = 0
 
         return floor_r
+
+    def get_attic_floor_assembly_rvalue(self, attic, b):
+        frame_floors = self.get_attic_floors(attic, b)
+        if len(frame_floors) == 0:
+            return None
+
+        frame_floor_dict_ls = []
+        for frame_floor in frame_floors:
+            floor_area = convert_to_type(float, self.xpath(frame_floor, 'h:Area/text()'))
+            assembly_rvalue = convert_to_type(
+                float, self.xpath(frame_floor, 'h:Insulation/h:Layer/h:AssemblyEffectiveRValue/text())'))
+            frame_floor_dict_ls.append({'area': floor_area, 'rvalue': assembly_rvalue})
+        # Average
+        try:
+            floor_r = sum(x['area'] for x in frame_floor_dict_ls) / \
+                      sum(x['area'] / x['rvalue'] for x in frame_floor_dict_ls)
+        except ZeroDivisionError:
+            floor_r = None
+
+        return floor_r
+
+    def every_attic_floor_layer_has_nominal_rvalue(self, attic, b):
+        frame_floors = self.get_attic_floors(attic, b)
+        every_layer_has_nominal_rvalue = True  # Considered to have nominal R-value unless assembly R-value is used
+        for frame_floor in frame_floors:
+            frame_floor_layers = self.xpath(frame_floor, 'h:Insulation/h:Layer', aslist=True)
+            if frame_floor_layers:
+                for layer in frame_floor_layers:
+                    if self.xpath(layer, 'h:NominalRValue') is None:
+                        every_layer_has_nominal_rvalue = False
+                        break
+
+        return every_layer_has_nominal_rvalue
 
     def get_attic_floors(self, attic, b):
         floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')
