@@ -57,6 +57,8 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                 if self.xpath(layer, 'h:NominalRValue') is None:
                     every_layer_has_nominal_rvalue = False
                     break
+        elif self.xpath(attic, 'h:AtticRoofInsulation/h:AssemblyEffectiveRValue/text()') is not None:
+            every_layer_has_nominal_rvalue = False
 
         return every_layer_has_nominal_rvalue
 
@@ -107,6 +109,8 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                 if self.xpath(layer, 'h:NominalRValue') is None:
                     every_layer_has_nominal_rvalue = False
                     break
+        elif self.xpath(attic, 'h:AtticFloorInsulation/h:AssemblyEffectiveRValue/text()') is not None:
+            every_layer_has_nominal_rvalue = False
 
         return every_layer_has_nominal_rvalue
 

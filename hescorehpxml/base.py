@@ -90,6 +90,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         self.ns['h'] = schematree.xpath('//xs:schema/@targetNamespace', namespaces=self.ns)[0]
         self._wall_assembly_eff_rvalues = None
         self._roof_assembly_eff_rvalues = None
+        self._ceiling_assembly_eff_rvalues = None
         self._floor_assembly_eff_rvalues = None
 
     def xpath(self, el, xpathquery, aslist=False, raise_err=False, **kwargs):
@@ -1081,6 +1082,16 @@ class HPXMLtoHEScoreTranslatorBase(object):
         return self._roof_assembly_eff_rvalues
 
     @property
+    def ceiling_assembly_eff_rvalues(self):
+        if self._ceiling_assembly_eff_rvalues is None:
+            with open(os.path.join(thisdir, 'lookups', 'lu_ceiling_eff_rvalue.csv'), newline='') as f:
+                reader = csv.DictReader(f)
+                self._ceiling_assembly_eff_rvalues = {}
+                for row in reader:
+                    self._ceiling_assembly_eff_rvalues[row['doe2code']] = float(row['Eff-R-value'])
+        return self._ceiling_assembly_eff_rvalues
+
+    @property
     def floor_assembly_eff_rvalues(self):
         if self._floor_assembly_eff_rvalues is None:
             with open(os.path.join(thisdir, 'lookups', 'lu_floor_eff_rvalue.csv'), newline='') as f:
@@ -1286,7 +1297,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 attic_floor_assembly_rvalue = self.get_attic_floor_assembly_rvalue(attic, b)
                 closest_floor_code, closest_code_rvalue = \
                     min([(doe2code, code_rvalue)
-                         for doe2code, code_rvalue in self.floor_assembly_eff_rvalues.items()],
+                         for doe2code, code_rvalue in self.ceiling_assembly_eff_rvalues.items()],
                         key=lambda x: abs(x[1] - float(attic_floor_assembly_rvalue)))
                 atticd['attic_floor_assembly_rvalue'] = closest_code_rvalue
 
@@ -1378,7 +1389,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             if 'attic_floor_assembly_rvalue' in atticd:
                 closest_floor_code, closest_code_rvalue = \
                     min([(doe2code, code_rvalue)
-                         for doe2code, code_rvalue in self.floor_assembly_eff_rvalues.items()],
+                         for doe2code, code_rvalue in self.ceiling_assembly_eff_rvalues.items()],
                         key=lambda x: abs(x[1] - float(atticd['attic_floor_assembly_rvalue'])))
                 attic_floor_rvalue = closest_code_rvalue
             else:

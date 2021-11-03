@@ -27,7 +27,7 @@
           "roof_assembly_code": "rfwf00co",
           "roof_color": "medium",
           "roof_type": "vented_attic",
-          "ceiling_assembly_code": "ecwf49",
+          "ceiling_assembly_code": "ecwf38",
           "zone_skylight": {
             "skylight_area": 11.0,
             "skylight_method": "code",
@@ -39,8 +39,8 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 1200,
-          "foundation_type": "cond_basement",
+          "floor_area": 1200.0,
+          "foundation_type": "vented_crawl",
           "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         }

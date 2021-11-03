@@ -66,12 +66,13 @@
                 </Attics>
                 <Foundations>
                     <Foundation>
-                        <SystemIdentifier id="bsmt1"/>
+                        <SystemIdentifier id="crawlspace1"/>
                         <FoundationType>
-                            <Basement>
-                                <Conditioned>true</Conditioned>
-                            </Basement>
+                            <Crawlspace>
+                                <Vented>true</Vented>
+                            </Crawlspace>
                         </FoundationType>
+                        <AttachedToFrameFloor idref='framefloor2'/>
                     </Foundation>
                 </Foundations>
                 <Roofs>
@@ -105,9 +106,15 @@
                         <Area>1200</Area>
                         <Insulation>
                             <SystemIdentifier id="attic1flrins"/>
-                            <Layer>
-                                <NominalRValue>49</NominalRValue>
-                            </Layer>
+                            <AssemblyEffectiveRValue>39.3</AssemblyEffectiveRValue>
+                        </Insulation>
+                    </FrameFloor>
+                    <FrameFloor>
+                        <SystemIdentifier id="framefloor2"/>
+                        <Area>1200</Area>
+                        <Insulation>
+                            <SystemIdentifier id="frmflr2ins"/>
+                            <AssemblyEffectiveRValue>18.7</AssemblyEffectiveRValue>
                         </Insulation>
                     </FrameFloor>
                 </FrameFloors>

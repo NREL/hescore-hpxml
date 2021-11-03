@@ -72,6 +72,8 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                 if self.xpath(layer, 'h:NominalRValue') is None:
                     every_layer_has_nominal_rvalue = False
                     break
+        elif self.xpath(roof, 'h:Insulation/h:AssemblyEffectiveRValue/text()') is not None:
+            every_layer_has_nominal_rvalue = False
 
         return every_layer_has_nominal_rvalue
 
@@ -133,7 +135,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         for frame_floor in frame_floors:
             floor_area = convert_to_type(float, self.xpath(frame_floor, 'h:Area/text()'))
             assembly_rvalue = convert_to_type(
-                float, self.xpath(frame_floor, 'h:Insulation/h:Layer/h:AssemblyEffectiveRValue/text())'))
+                float, self.xpath(frame_floor, 'h:Insulation/h:AssemblyEffectiveRValue/text()'))
             frame_floor_dict_ls.append({'area': floor_area, 'rvalue': assembly_rvalue})
         # Average
         try:
@@ -154,6 +156,9 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                     if self.xpath(layer, 'h:NominalRValue') is None:
                         every_layer_has_nominal_rvalue = False
                         break
+            elif self.xpath(frame_floor, 'h:Insulation/h:AssemblyEffectiveRValue/text()') is not None:
+                every_layer_has_nominal_rvalue = False
+                break
 
         return every_layer_has_nominal_rvalue
 
