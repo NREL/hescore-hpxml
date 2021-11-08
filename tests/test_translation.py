@@ -3421,5 +3421,21 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         el.getparent().remove(duct_ins_mat)
 
 
+# TODO: Add tests for resstock-hescore
+class TestResStockHEScore(unittest.TestCase, ComparatorBase):
+
+    def test_assembly_rvalues(self):
+        tr = self._load_xmlfile('resstock_hescore')
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewwf13wo')
+        self.assertEqual(res['building']['zone']['zone_wall'][1]['wall_assembly_code'], 'ewwf13wo')
+        self.assertEqual(res['building']['zone']['zone_wall'][2]['wall_assembly_code'], 'ewwf13wo')
+        self.assertEqual(res['building']['zone']['zone_wall'][3]['wall_assembly_code'], 'ewwf13wo')
+
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00co')
+        self.assertEqual(res['building']['zone']['zone_roof'][1]['roof_assembly_code'], 'rfwf00co')
+        self.assertEqual(res['building']['zone']['zone_roof']['ceiling_assembly_code'], 'ecwf38')
+
+
 if __name__ == "__main__":
     unittest.main()
