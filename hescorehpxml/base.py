@@ -1637,6 +1637,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             if zone_floor['foundation_type'] != 'slab_on_grade':
                 ffua = 0
                 fftotalarea = 0
+                every_framefloor_has_nominal_rvalue = False
                 framefloors = self.get_foundation_frame_floors(foundation, b)
                 floor_eff_rvalues = dict(zip((0, 11, 13, 15, 19, 21, 25, 30, 38),
                                              (4.0, 15.8, 17.8, 19.8, 23.8, 25.8, 31.8, 37.8, 42.8)))
@@ -1649,14 +1650,15 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             else:
                                 raise TranslationError(
                                     'If there is more than one FrameFloor, an Area is required for each.')
-                        if self.every_framefloor_layer_has_nominal_rvalue(framefloor, b):
+                        if self.every_framefloor_layer_has_nominal_rvalue(framefloor, framefloor):
                             ffrvalue = xpath(framefloor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
                             ffeffrvalue = floor_eff_rvalues[min(
                                 list(floor_eff_rvalues.keys()),
                                 key=lambda x: abs(ffrvalue - x)
                             )]
+                            every_framefloor_has_nominal_rvalue = True
                         else:
-                            framefloor_assembly_rvalue = self.get_framefloor_assembly_rvalue(framefloor, b)
+                            framefloor_assembly_rvalue = self.get_framefloor_assembly_rvalue(framefloor, framefloor)
                             closest_floor_code, closest_code_rvalue = \
                                 min([(doe2code, code_rvalue)
                                     for doe2code, code_rvalue in self.floor_assembly_eff_rvalues.items()],
@@ -1664,7 +1666,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             ffeffrvalue = closest_code_rvalue
                         ffua += old_div(ffarea, ffeffrvalue)
                         fftotalarea += ffarea
-                    ffrvalue = old_div(fftotalarea, ffua) - 4.0
+                    if every_framefloor_has_nominal_rvalue:
+                        ffrvalue = old_div(fftotalarea, ffua) - 4.0
+                    else:
+                        ffrvalue = old_div(fftotalarea, ffua)
                     zone_floor['floor_assembly_code'] = 'efwf%02dca' % min(list(floor_eff_rvalues.keys()),
                                                                            key=lambda x: abs(ffrvalue - x))
                 else:
@@ -2519,7 +2524,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         do_bounds_check('heating_year', sys_heating['year'], 1970, this_year)
                 else:
                     if not ((sys_heating['type'] in ('central_furnace', 'baseboard') and
-                            sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
+                             sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
                         raise TranslationError(
                             'Heating system %(fuel_primary)s %(type)s needs an efficiency value.' %
                             sys_heating)
