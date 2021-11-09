@@ -224,18 +224,30 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                 if self.xpath(layer, 'h:NominalRValue') is None:
                     every_layer_has_nominal_rvalue = False
                     break
+        elif self.xpath(framefloor, 'h:Insulation/h:AssemblyEffectiveRValue/text()') is not None:
+            every_layer_has_nominal_rvalue = False
 
         return every_layer_has_nominal_rvalue
+
+    def get_hescore_frame_floors(self, attic, b):
+        floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')
+        # No frame floor attached
+        if floor_idref is None:
+            return []
+        frame_floors = self.xpath(b, '//h:FrameFloor[contains("{}",h:SystemIdentifier/@id)]'.format(floor_idref),
+                                  aslist=True, raise_err=True)
+
+        return frame_floors
 
     def get_solarscreen(self, wndw_skylight):
         return bool(self.xpath(wndw_skylight, 'h:ExteriorShading/h:Type/text()') == 'solar screens')
 
     def get_hescore_walls(self, b):
-        return self.xpath(b,
-                          'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="outside" or not('
-                          'h:ExteriorAdjacentTo)]',
-                          # noqa: E501
-                          aslist=True)
+        return self.xpath(
+            b, 'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall\
+                [((h:ExteriorAdjacentTo="outside" and not(contains(h:ExteriorAdjacentTo, "garage"))) or\
+                    not(h:ExteriorAdjacentTo)) and not(contains(h:InteriorAdjacentTo, "attic"))]',  # noqa: E501
+            aslist=True)
 
     def check_is_doublepane(self, window, glass_layers):
         return (self.xpath(window, 'h:StormWindow') is not None and glass_layers == 'single-pane') or \
@@ -248,7 +260,12 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         return False
 
     def get_duct_location(self, hpxml_duct_location, bldg):
-        loc_hierarchy = self.duct_location_map[hpxml_duct_location]
+        try:
+            loc_hierarchy = self.duct_location_map[hpxml_duct_location]
+            if loc_hierarchy is None:
+                return
+        except TypeError:
+            raise TranslationError('Invalid duct location specified')
         if loc_hierarchy is None:
             return
         for loc in loc_hierarchy:

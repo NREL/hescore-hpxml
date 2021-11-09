@@ -138,6 +138,8 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                 if self.xpath(layer, 'h:NominalRValue') is None:
                     every_layer_has_nominal_rvalue = False
                     break
+        elif self.xpath(framefloor, 'h:Insulation/h:AssemblyEffectiveRValue/text()') is not None:
+            every_layer_has_nominal_rvalue = False
 
         return every_layer_has_nominal_rvalue
 
@@ -146,9 +148,11 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                     or self.xpath(wndw_skylight, 'h:ExteriorShading/text()') == 'solar screens')
 
     def get_hescore_walls(self, b):
-        return self.xpath(b,
-                          'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall[h:ExteriorAdjacentTo="ambient" or not(h:ExteriorAdjacentTo)]',  # noqa: E501
-                          aslist=True)
+        return self.xpath(
+            b, 'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall\
+                [((h:ExteriorAdjacentTo="ambient" and not(contains(h:ExteriorAdjacentTo, "garage"))) or\
+                    not(h:ExteriorAdjacentTo)) and not(contains(h:InteriorAdjacentTo, "attic"))]',  # noqa: E501
+            aslist=True)
 
     def check_is_doublepane(self, v3_window, glass_layers):
         return glass_layers in ('double-pane', 'single-paned with storms', 'single-paned with low-e storms')
