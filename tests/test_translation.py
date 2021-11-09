@@ -3432,9 +3432,10 @@ class TestResStockHEScore(unittest.TestCase, ComparatorBase):
         self.assertEqual(res['building']['zone']['zone_wall'][2]['wall_assembly_code'], 'ewwf13wo')
         self.assertEqual(res['building']['zone']['zone_wall'][3]['wall_assembly_code'], 'ewwf13wo')
 
-        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00co')
-        self.assertEqual(res['building']['zone']['zone_roof'][1]['roof_assembly_code'], 'rfwf00co')
-        self.assertEqual(res['building']['zone']['zone_roof']['ceiling_assembly_code'], 'ecwf38')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00wo')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf38')
+
+        self.assertEqual(res['building']['zone']['zone_floor'][0]['floor_assembly_code'], 'efwf30ca')
 
 
 if __name__ == "__main__":
