@@ -218,14 +218,18 @@ according to the construction codes available in HEScore.
 Roof R-value
 ************
 
-R-values for the roof deck are added up by summing the values of the
+The roof R-value can be described by using nominal R-value or assembly R-value.
+If a user wish to use a nominal R-value, nominal R-value for all layers needs to be provided.
+Otherwise, assembly R-value needs to be provided.
+
+If nominal R-value is used, R-values for the roof deck are added up by summing the values of the
 ``Layer/NominalRValue``. If the roof construction was determined to have
 :ref:`rigid-sheathing`, an R-value of 5 is subtracted from the roof R-value sum
 to account for the R-value of the sheathing in the HEScore construction.
 
 Starting from HPXML v3, multiple roofs are allowed to be attached to the same
-attic, if the attic has more than one ``Roof`` element with roof insulation, the
-insulation values are combined by first selecting the nearest roof
+attic, if the attic has more than one ``Roof`` element with roof insulation and nominal R-value is used,
+the insulation values are combined by first selecting the nearest roof
 center-of-cavity R-value for each roof area from the table below.
 
 .. table:: Roof Center-of-Cavity Effective R-values
@@ -273,7 +277,7 @@ center-of-cavity R-value for each roof area from the table below.
    +-------------------+---------------------+------------+----------+--------------+---------------+
 
 Then a weighted average is calculated by weighting the U-values by area. This averaged Center-of-Cavity Effective
-R value is combined from all roofs attached to the same attic. The highest weighted roof construction type is selected
+R-value is combined from all roofs attached to the same attic. The highest weighted roof construction type is selected
 to represent properties of the attic.
 
 .. math::
@@ -302,13 +306,22 @@ Finally the R-value is rounded to the nearest insulation level in the
 enumeration choices for the highest weighted roof construction type for the
 attic is included in the calculation.
 
+If assembly R-value is used, the discrete R-value nearest to assembly R-value
+from the lookup table is used. The lookup table can be found at ``hescorehpxml\lookups\lu_roof_eff_rvalue.csv``.
+If the attic has more than one ``Roof`` element, a weighted average assembly R-value is determined
+by weighting the U-values by area.
+Then the discrete R-value nearest to the weighted average assembly R-value from the lookup table is used.
+
 Attic R-value
 *************
- 
+
 Determining the attic floor insulation levels uses the same procedure as
-:ref:`roof-rvalues` except the lookup table is different. The attic floor
-center-of-cavity R-values are each R-0.5 greater than the nominal R-values in
-the enumeration list. 
+:ref:`roof-rvalues` except the lookup table is different. 
+
+If nominal R-value is used, the attic floor center-of-cavity R-values are each R-0.5 greater
+than the nominal R-values in the enumeration list.
+
+If assembly R-value is used, the lookup table at ``hescorehpxml\lookups\lu_ceiling_eff_rvalue.csv`` is used. 
 
 If the primary roof type is determined to be a cathedral ceiling, then an attic
 R-value is not calculated.

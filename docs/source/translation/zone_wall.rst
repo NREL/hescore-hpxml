@@ -60,6 +60,20 @@ inputs in HPXML to discrete inputs required for HEScore.
 
 .. _construction codes: https://docs.google.com/spreadsheet/pub?key=0Avk3IqpWXaRkdGR6cXFwdVJ4ZVdYX25keDVEX1pPYXc&output=html
 
+The wall R-value can be described by using nominal R-value or assembly R-value.
+If a user wish to use a nominal R-value, nominal R-value for all layers needs to be provided.
+Otherwise, assembly R-value needs to be provided.
+
+If nominal R-value is used, the R-value is summed for all insulation layers and the
+nearest discrete R-value from the list of possible R-values for that wall type
+is used. For walls with rigid foam sheathing, R-5 is subtracted from the
+nominal R-value sum to account for the R-value of the sheathing in the HEScore
+construction assembly.
+
+If assembly R-value is used, the discrete R-value nearest to assembly R-value
+from the lookup table for that wall type is used. The lookup table can be found
+at ``hescorehpxml\lookups\lu_wall_eff_rvalue.csv``.
+
 Wood Frame Walls
 ================
 
@@ -118,20 +132,13 @@ is selected.
 Finally, if neither of the above conditions are met, the wall is specified as
 simply "Wood Frame" in HEScore. 
 
-In all cases the R-value is summed for all insulation layers and the
-nearest discrete R-value from the list of possible R-values for that wall type
-is used. For walls with rigid foam sheathing, R-5 is subtracted from the
-nominal R-value sum to account for the R-value of the sheathing in the HEScore
-construction assembly.
-
 Siding is selected according to the :ref:`siding map <sidingmap>`.
 
 Structural Brick
 ================
 
 If ``WallType/StructuralBrick`` is found in HPXML, one of the structural brick
-codes in HEScore is specified. The nearest R-value to the sum of all the
-insulation layer nominal R-values is selected.
+codes in HEScore is specified.
 
 .. code-block:: xml
    :emphasize-lines: 4,9,12
@@ -158,8 +165,7 @@ Concrete Block or Stone
 =======================
 
 If ``WallType/ConcreteMasonryUnit`` or ``WallType/Stone`` is found, one of the
-concrete block construction codes is used in HEScore. The nearest R-value to
-the sum of all the insulation layer nominal R-values is selected. The siding is
+concrete block construction codes is used in HEScore. The siding is
 translated using the :ref:`same assumptions as wood stud walls <sidingmap>`
 with the exception that vinyl, wood, or aluminum siding is not available and if
 those are specified in the HPXML an error will result.
@@ -212,7 +218,7 @@ HPXMl ``Wall`` as described in :ref:`wall-construction`. The wall construction
 and exterior finish that represent the largest combined area are used to
 represent the side of the house. 
 
-A weighted R-value is calculated by looking up the center-of-cavity
+If nominal R-value is used, a weighted R-value is calculated by looking up the center-of-cavity
 R-value for the wall construction, exterior finish, and nominal R-value for
 each ``Wall`` from the following table.
 
@@ -293,7 +299,7 @@ each ``Wall`` from the following table.
    +---------+------------------+-------+------+---------+-------------+-----+
 
 
-Then a weighted average is calculated by weighting the U-values values by area.
+Then a weighted average is calculated by weighting the U-values by area.
 
 .. math::
    :nowrap:
@@ -315,7 +321,9 @@ corresponding effective R-value.
    R = R_{eff,avg} - R_{offset}
 
 Finally the R-value is rounded to the nearest insulation level in the
-enumeration choices for the highest weighted roof construction type included in
+enumeration choices for the highest weighted wall construction type included in
 the calculation.
 
+If assembly R-value is used, a weighted average R-value is calculated using assembly R-value for each ``Wall``. 
+Then the nearest discrete R-value to the weighted average R-value from the lookup table is used.
 

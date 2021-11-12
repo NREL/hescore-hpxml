@@ -139,9 +139,14 @@ Floor insulation above basement or crawlspace
 
 If the foundation type is a basement or crawlspace, for each frame floor above
 the foundation, a weighted average using the floor area and R-value are
-calculated. The area is obtained from the ``Area`` element. The R-value is the
-sum of the ``FrameFloor/Insulation/Layer/NominalRValue`` element values for
-each frame floor. The effective R-value is looked up in the following table.
+calculated. The area is obtained from the ``Area`` element.
+
+The floor R-value can be described by using nominal R-value or assembly R-value.
+If a user wish to use a nominal R-value, nominal R-value for all layers needs to be provided.
+Otherwise, assembly R-value needs to be provided.
+
+If nominal R-value is used, the R-value is the sum of the ``FrameFloor/Insulation/Layer/NominalRValue`` element values 
+for each frame floor. The effective R-value is looked up in the following table.
 
 .. table:: Floor center-of-cavity effective R-value
 
@@ -178,6 +183,11 @@ The effective R-value of the R-0 insulation level is then subtracted.
    
 Finally, the nearest insulation level is selected from the enumeration list.
 
+If assembly R-value is used, the discrete R-value nearest to assembly R-value
+from the lookup table is used. The lookup table can be found at ``hescorehpxml\lookups\lu_floor_eff_rvalue.csv``.
+When more than one HPXML ``FrameFloor`` element must be combined into one floor
+construction for HEScore, a weighted average assembly R-value is determined by weighting the U-values by area.
+Then the discrete R-value nearest to the weighted average assembly R-value from the lookup table is used.
 
 
 
