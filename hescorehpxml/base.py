@@ -1294,12 +1294,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     atticd['roof_area'] = attic_floor_adj_area
                 atticd['attic_floor_coc_rvalue'] = attic_floor_rvalue + 0.5
             else:
-                attic_floor_assembly_rvalue = self.get_attic_floor_assembly_rvalue(attic, b)
-                closest_floor_code, closest_code_rvalue = \
-                    min([(doe2code, code_rvalue)
-                         for doe2code, code_rvalue in self.ceiling_assembly_eff_rvalues.items()],
-                        key=lambda x: abs(x[1] - float(attic_floor_assembly_rvalue)))
-                atticd['attic_floor_assembly_rvalue'] = closest_code_rvalue
+                # TODO: How should we adjust attic floor assembly rvalue if there is a knee wall?
+                attic_floor_assembly_rvalue = convert_to_type(
+                    float,
+                    self.get_attic_floor_assembly_rvalue(attic, b)
+                )
+                atticd['attic_floor_assembly_rvalue'] = attic_floor_assembly_rvalue
 
         if len(atticds) == 0:
             raise TranslationError('There are no Attic elements in this building.')
