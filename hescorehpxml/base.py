@@ -257,7 +257,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                  if doe2code[2:4] in doe2walltypes and doe2code[6:8] == sidingtype],
                 key=lambda x: abs(x[1] - assembly_eff_rvalue)
             )
-            return closest_wall_code
+            return closest_wall_code, assembly_eff_rvalue
 
         elif every_wall_layer_has_nominal_rvalue:
             # If the wall as a NominalRValue element for every layer (or there are no layers)
@@ -292,7 +292,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 assert wall_type == 'StrawBale'
                 wallconstype = 'sb'
                 rvalue = 0
-            return f'ew{wallconstype}{rvalue:02d}{sidingtype}'
+            return f'ew{wallconstype}{rvalue:02d}{sidingtype}', assembly_eff_rvalue
 
         else:
             raise TranslationError('Every wall insulation layer needs a NominalRValue or '
@@ -1668,10 +1668,15 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         fftotalarea += ffarea
                     if every_framefloor_has_nominal_rvalue:
                         ffrvalue = old_div(fftotalarea, ffua) - 4.0
+                        comb_rvalue = min(list(floor_eff_rvalues.keys()), key=lambda x: abs(ffrvalue - x))
+                        comb_ff_code = 'efwf%02dca' % comb_rvalue
                     else:
                         ffrvalue = old_div(fftotalarea, ffua)
-                    zone_floor['floor_assembly_code'] = 'efwf%02dca' % min(list(floor_eff_rvalues.keys()),
-                                                                           key=lambda x: abs(ffrvalue - x))
+                        comb_ff_code, comb_rvalue = \
+                            min([(doe2code, code_rvalue)
+                                for doe2code, code_rvalue in self.floor_assembly_eff_rvalues.items()],
+                                key=lambda x: abs(x[1] - float(ffrvalue)))
+                    zone_floor['floor_assembly_code'] = comb_ff_code
                 else:
                     zone_floor['floor_assembly_code'] = 'efwf00ca'
 
@@ -1690,7 +1695,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
         hpxmlwalls = dict([(side, []) for side in list(sidemap.values())])
         hpxmlwalls['noside'] = []
         for wall in self.get_hescore_walls(b):
-            walld = {'assembly_code': self.get_wall_assembly_code(wall),
+            assembly_code, assembly_eff_rvalue = self.get_wall_assembly_code(wall)
+            walld = {'assembly_code': assembly_code,
+                     'assembly_eff_rvalue': assembly_eff_rvalue,
                      'area': convert_to_type(float, xpath(wall, 'h:Area/text()')),
                      'id': xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)}
 
@@ -1770,22 +1777,31 @@ class HPXMLtoHEScoreTranslatorBase(object):
             elif len(hpxmlwalls[side]) > 1 and None in [x['area'] for x in hpxmlwalls[side]]:
                 raise TranslationError('The %s side of the house has %d walls and they do not all have areas.' % (
                     side, len(hpxmlwalls[side])))
-            if len(hpxmlwalls[side]) == 1:
-                heswall['wall_assembly_code'] = hpxmlwalls[side][0]['assembly_code']
-            else:
-                wall_const_type_ext_finish_areas = defaultdict(float)
-                wallua = 0
-                walltotalarea = 0
-                for walld in hpxmlwalls[side]:
-                    const_type = walld['assembly_code'][2:4]
-                    ext_finish = walld['assembly_code'][6:8]
-                    rvalue = int(walld['assembly_code'][4:6])
+            wall_const_type_ext_finish_areas = defaultdict(float)
+            wallua = 0
+            walltotalarea = 0
+            for walld in hpxmlwalls[side]:
+                const_type = walld['assembly_code'][2:4]
+                ext_finish = walld['assembly_code'][6:8]
+                rvalue = int(walld['assembly_code'][4:6])
+                if walld['assembly_eff_rvalue'] is not None:
+                    eff_rvalue = walld['assembly_eff_rvalue']
+                else:
                     eff_rvalue = wall_eff_rvalues[const_type][ext_finish][rvalue]
-                    wallua += old_div(walld['area'], eff_rvalue)
-                    walltotalarea += walld['area']
-                    wall_const_type_ext_finish_areas[(const_type, ext_finish)] += walld['area']
-                const_type, ext_finish = max(list(wall_const_type_ext_finish_areas.keys()),
-                                             key=lambda x: wall_const_type_ext_finish_areas[x])
+                wallua += old_div(walld['area'], eff_rvalue)
+                walltotalarea += walld['area']
+                wall_const_type_ext_finish_areas[(const_type, ext_finish)] += walld['area']
+            const_type, ext_finish = max(list(wall_const_type_ext_finish_areas.keys()),
+                                         key=lambda x: wall_const_type_ext_finish_areas[x])
+            if any(k['assembly_eff_rvalue'] is not None for k in hpxmlwalls[side]):
+                rvalueavgeff = old_div(walltotalarea, wallua)
+                comb_wall_code, comb_rvalue = min(
+                    [(doe2code, code_rvalue)
+                     for doe2code, code_rvalue in self.wall_assembly_eff_rvalues.items()
+                     if doe2code[2:4] == const_type and doe2code[6:8] == ext_finish],
+                    key=lambda x: abs(x[1] - rvalueavgeff)
+                )
+            else:
                 try:
                     roffset = wall_eff_rvalues[const_type][ext_finish][0]
                 except KeyError:
@@ -1795,7 +1811,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 rvalueavgnom = rvalueavgeff - roffset
                 comb_rvalue = min(list(wall_eff_rvalues[const_type][ext_finish].keys()),
                                   key=lambda x: abs(rvalueavgnom - x))
-                heswall['wall_assembly_code'] = 'ew%s%02d%s' % (const_type, comb_rvalue, ext_finish)
+                comb_wall_code = 'ew%s%02d%s' % (const_type, comb_rvalue, ext_finish)
+            heswall['wall_assembly_code'] = comb_wall_code
             zone_wall.append(heswall)
 
         # building.zone.zone_wall.zone_window--------------------------------------
