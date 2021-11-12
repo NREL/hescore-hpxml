@@ -1637,7 +1637,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             if zone_floor['foundation_type'] != 'slab_on_grade':
                 ffua = 0
                 fftotalarea = 0
-                every_framefloor_has_nominal_rvalue = False
+                framefloor_has_nominal_rvalue = False
                 framefloors = self.get_foundation_frame_floors(foundation, b)
                 floor_eff_rvalues = dict(zip((0, 11, 13, 15, 19, 21, 25, 30, 38),
                                              (4.0, 15.8, 17.8, 19.8, 23.8, 25.8, 31.8, 37.8, 42.8)))
@@ -1656,17 +1656,16 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                 list(floor_eff_rvalues.keys()),
                                 key=lambda x: abs(ffrvalue - x)
                             )]
-                            every_framefloor_has_nominal_rvalue = True
+                            framefloor_has_nominal_rvalue = True
                         else:
-                            framefloor_assembly_rvalue = self.get_framefloor_assembly_rvalue(framefloor, framefloor)
-                            closest_floor_code, closest_code_rvalue = \
-                                min([(doe2code, code_rvalue)
-                                    for doe2code, code_rvalue in self.floor_assembly_eff_rvalues.items()],
-                                    key=lambda x: abs(x[1] - float(framefloor_assembly_rvalue)))
-                            ffeffrvalue = closest_code_rvalue
+                            framefloor_assembly_rvalue = convert_to_type(
+                                float,
+                                self.get_framefloor_assembly_rvalue(framefloor, framefloor)
+                            )
+                            ffeffrvalue = framefloor_assembly_rvalue
                         ffua += old_div(ffarea, ffeffrvalue)
                         fftotalarea += ffarea
-                    if every_framefloor_has_nominal_rvalue:
+                    if framefloor_has_nominal_rvalue:
                         ffrvalue = old_div(fftotalarea, ffua) - 4.0
                         comb_rvalue = min(list(floor_eff_rvalues.keys()), key=lambda x: abs(ffrvalue - x))
                         comb_ff_code = 'efwf%02dca' % comb_rvalue
