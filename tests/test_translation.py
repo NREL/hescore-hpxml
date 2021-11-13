@@ -3426,7 +3426,7 @@ class TestResStockHEScore(unittest.TestCase, ComparatorBase):
     def test_assembly_rvalues(self):
         tr = self._load_xmlfile('resstock_hescore')
         res = tr.hpxml_to_hescore()
-        self.assertEqual(res['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewwf13wo')
+        self.assertEqual(res['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewwf15wo')
         self.assertEqual(res['building']['zone']['zone_wall'][1]['wall_assembly_code'], 'ewwf13wo')
         self.assertEqual(res['building']['zone']['zone_wall'][2]['wall_assembly_code'], 'ewwf13wo')
         self.assertEqual(res['building']['zone']['zone_wall'][3]['wall_assembly_code'], 'ewwf13wo')

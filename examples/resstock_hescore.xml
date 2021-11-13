@@ -201,6 +201,25 @@
             </Insulation>
           </Wall>
           <Wall>
+            <SystemIdentifier id='Surface_20'/>
+            <ExteriorAdjacentTo>outside</ExteriorAdjacentTo>
+            <InteriorAdjacentTo>living space</InteriorAdjacentTo>
+            <WallType>
+              <WoodStud/>
+            </WallType>
+            <Area>150</Area>
+            <Orientation dataSource='software'>south</Orientation>
+            <Azimuth>180</Azimuth>
+            <Siding>wood siding</Siding>
+            <Color>light</Color>
+            <SolarAbsorptance dataSource='software'>0.5</SolarAbsorptance>
+            <Emittance dataSource='software'>0.9</Emittance>
+            <Insulation>
+              <SystemIdentifier id='Surface_20Insulation'/>
+              <AssemblyEffectiveRValue>19.6</AssemblyEffectiveRValue>
+            </Insulation>
+          </Wall>
+          <Wall>
             <SystemIdentifier id='Surface_2'/>
             <ExteriorAdjacentTo>outside</ExteriorAdjacentTo>
             <InteriorAdjacentTo>living space</InteriorAdjacentTo>
