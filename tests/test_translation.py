@@ -3421,7 +3421,6 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         el.getparent().remove(duct_ins_mat)
 
 
-# TODO: Add tests for resstock-hescore
 class TestResStockHEScore(unittest.TestCase, ComparatorBase):
 
     def test_assembly_rvalues(self):
@@ -3433,7 +3432,7 @@ class TestResStockHEScore(unittest.TestCase, ComparatorBase):
         self.assertEqual(res['building']['zone']['zone_wall'][3]['wall_assembly_code'], 'ewwf13wo')
 
         self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00wo')
-        self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf38')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf19')
 
         self.assertEqual(res['building']['zone']['zone_floor'][0]['floor_assembly_code'], 'efwf30ca')
 

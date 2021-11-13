@@ -87,6 +87,7 @@
             <AttachedToRoof idref='Surface_9'/>
             <AttachedToWall idref='Surface_10'/>
             <AttachedToWall idref='Surface_11'/>
+            <AttachedToWall idref='Surface_19'/>
             <AttachedToFrameFloor idref='Surface_6'/>
           </Attic>
         </Attics>
@@ -254,6 +255,19 @@
             <Insulation>
               <SystemIdentifier id='Surface_4Insulation'/>
               <AssemblyEffectiveRValue>12.7</AssemblyEffectiveRValue>
+            </Insulation>
+          </Wall>
+          <Wall>
+            <SystemIdentifier id='Surface_19'/>
+            <ExteriorAdjacentTo>attic - vented</ExteriorAdjacentTo>
+            <AtticWallType>knee wall</AtticWallType>
+            <WallType>
+              <WoodStud/>
+            </WallType>
+            <Area>500</Area>
+            <Insulation>
+              <SystemIdentifier id='Surface_19Insulation'/>
+              <AssemblyEffectiveRValue>5.0</AssemblyEffectiveRValue>
             </Insulation>
           </Wall>
         </Walls>
