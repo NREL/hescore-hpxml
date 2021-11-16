@@ -150,12 +150,10 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         frame_floors = self.get_attic_floors(attic, b)
         every_layer_has_nominal_rvalue = True  # Considered to have nominal R-value unless assembly R-value is used
         for frame_floor in frame_floors:
-            frame_floor_layers = self.xpath(frame_floor, 'h:Insulation/h:Layer', aslist=True)
-            if frame_floor_layers:
-                for layer in frame_floor_layers:
-                    if self.xpath(layer, 'h:NominalRValue') is None:
-                        every_layer_has_nominal_rvalue = False
-                        break
+            for layer in self.xpath(frame_floor, 'h:Insulation/h:Layer', aslist=True):
+                if self.xpath(layer, 'h:NominalRValue') is None:
+                    every_layer_has_nominal_rvalue = False
+                    break
             elif self.xpath(frame_floor, 'h:Insulation/h:AssemblyEffectiveRValue/text()') is not None:
                 every_layer_has_nominal_rvalue = False
                 break
