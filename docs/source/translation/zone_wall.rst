@@ -72,7 +72,8 @@ construction assembly.
 
 If assembly R-value is used, the discrete R-value nearest to assembly R-value
 from the lookup table for that wall type is used. The lookup table can be found
-at ``hescorehpxml\lookups\lu_wall_eff_rvalue.csv``.
+at `hescorehpxml\\lookups\\lu_wall_eff_rvalue.csv
+<https://github.com/NREL/hescore-hpxml/blob/assembly_eff_r_values/hescorehpxml/lookups/lu_wall_eff_rvalue.csv>`_.
 
 Wood Frame Walls
 ================

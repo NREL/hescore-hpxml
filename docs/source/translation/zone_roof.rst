@@ -218,9 +218,9 @@ according to the construction codes available in HEScore.
 Roof R-value
 ************
 
-The roof R-value can be described by using nominal R-value or assembly R-value.
-If a user wish to use a nominal R-value, nominal R-value for all layers needs to be provided.
-Otherwise, assembly R-value needs to be provided.
+The roof R-value can be described by using ``NominalRValue`` or ``AssemblyRValue``.
+If a user wishes to use a nominal R-value, ``NominalRValue`` elements for all layers need to be provided.
+Otherwise, ``AssemblyRValue`` elements for each layer need to be provided.
 
 If nominal R-value is used, R-values for the roof deck are added up by summing the values of the
 ``Layer/NominalRValue``. If the roof construction was determined to have
@@ -307,7 +307,8 @@ enumeration choices for the highest weighted roof construction type for the
 attic is included in the calculation.
 
 If assembly R-value is used, the discrete R-value nearest to assembly R-value
-from the lookup table is used. The lookup table can be found at ``hescorehpxml\lookups\lu_roof_eff_rvalue.csv``.
+from the lookup table is used. The lookup table can be found at `hescorehpxml\\lookups\\lu_roof_eff_rvalue.csv
+<https://github.com/NREL/hescore-hpxml/blob/assembly_eff_r_values/hescorehpxml/lookups/lu_roof_eff_rvalue.csv>`_.
 If the attic has more than one ``Roof`` element, a weighted average assembly R-value is determined
 by weighting the U-values by area.
 Then the discrete R-value nearest to the weighted average assembly R-value from the lookup table is used.
@@ -321,7 +322,9 @@ Determining the attic floor insulation levels uses the same procedure as
 If nominal R-value is used, the attic floor center-of-cavity R-values are each R-0.5 greater
 than the nominal R-values in the enumeration list.
 
-If assembly R-value is used, the lookup table at ``hescorehpxml\lookups\lu_ceiling_eff_rvalue.csv`` is used. 
+If assembly R-value is used, the lookup table at `hescorehpxml\\lookups\\lu_ceiling_eff_rvalue.csv
+<https://github.com/NREL/hescore-hpxml/blob/assembly_eff_r_values/hescorehpxml/lookups/lu_ceiling_eff_rvalue.csv>`_
+is used. 
 
 If the primary roof type is determined to be a cathedral ceiling, then an attic
 R-value is not calculated.
