@@ -146,7 +146,7 @@ If a user wish to use a nominal R-value, ``NominalRValue`` elements for all laye
 Otherwise, ``AssemblyRValue`` elements for each layer need to be provided.
 
 If nominal R-value is used, the R-value is the sum of the ``FrameFloor/Insulation/Layer/NominalRValue`` element values 
-for each frame floor. The effective R-value is looked up in the following table.
+for each frame floor. The "center of cavity" effective R-value is looked up in the following table.
 
 .. table:: Floor center-of-cavity effective R-value
 
