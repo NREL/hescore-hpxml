@@ -1682,7 +1682,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         ffua += old_div(ffarea, ffeffrvalue)
                         fftotalarea += ffarea
                     if framefloor_has_nominal_rvalue:
-                        ffrvalue = old_div(fftotalarea, ffua) - 4.0
+                        ffrvalue = fftotalarea / ffua - 4.0
                         comb_rvalue = min(list(floor_eff_rvalues.keys()), key=lambda x: abs(ffrvalue - x))
                         comb_ff_code = 'efwf%02dca' % comb_rvalue
                     else:
