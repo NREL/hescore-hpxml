@@ -154,7 +154,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                 if self.xpath(layer, 'h:NominalRValue') is None:
                     every_layer_has_nominal_rvalue = False
                     break
-            elif self.xpath(frame_floor, 'h:Insulation/h:AssemblyEffectiveRValue/text()') is not None:
+            if self.xpath(frame_floor, 'h:Insulation/h:AssemblyEffectiveRValue/text()') is not None:
                 every_layer_has_nominal_rvalue = False
                 break
 
