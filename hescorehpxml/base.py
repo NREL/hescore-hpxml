@@ -1268,7 +1268,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             # Calculate roof area weighted assembly R-value or center of cavity R-value for attic,
             # might be combined later by averaging again
-            if any('roof_assembly_rvalue' in k for k in attic_roof_ls):
+            if all('roof_assembly_rvalue' in k for k in attic_roof_ls):
                 atticd['roof_assembly_rvalue'] = \
                     attic_roof_area_sum / \
                     sum([old_div(attic_roofs_dict['roof_area'], attic_roofs_dict['roof_assembly_rvalue'])
@@ -1353,7 +1353,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 combined_atticd['_roofids'] = set().union(*[atticd['_roofid'] for atticd in atticds])
 
                 # Calculate roof area weighted assembly R-value or center of cavity R-value
-                if any('roof_assembly_rvalue' in k for k in atticds):
+                if all('roof_assembly_rvalue' in k for k in atticds):
                     combined_atticd['roof_assembly_rvalue'] = \
                         combined_atticd['roof_area'] / \
                         sum([old_div(atticd['roof_area'], atticd['roof_assembly_rvalue']) for atticd in atticds])
@@ -1363,7 +1363,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         sum([old_div(atticd['roof_area'], atticd['roof_coc_rvalue']) for atticd in atticds])
 
                 # Calculate attic floor weighted average center-of-cavity R-value
-                if any('attic_floor_assembly_rvalue' in k for k in atticds):
+                if all('attic_floor_assembly_rvalue' in k for k in atticds):
                     combined_atticd['attic_floor_assembly_rvalue'] = \
                         combined_atticd['roof_area'] / \
                         sum([old_div(atticd['roof_area'], atticd['attic_floor_assembly_rvalue']) for atticd in atticds])
@@ -1808,7 +1808,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 wall_const_type_ext_finish_areas[(const_type, ext_finish)] += walld['area']
             const_type, ext_finish = max(list(wall_const_type_ext_finish_areas.keys()),
                                          key=lambda x: wall_const_type_ext_finish_areas[x])
-            if any(k['assembly_eff_rvalue'] is not None for k in hpxmlwalls[side]):
+            if all(k['assembly_eff_rvalue'] is not None for k in hpxmlwalls[side]):
                 rvalueavgeff = old_div(walltotalarea, wallua)
                 comb_wall_code, comb_rvalue = min(
                     [(doe2code, code_rvalue)
