@@ -141,9 +141,9 @@ If the foundation type is a basement or crawlspace, for each frame floor above
 the foundation, a weighted average using the floor area and R-value are
 calculated. The area is obtained from the ``Area`` element.
 
-The floor R-value can be described by using nominal R-value or assembly R-value.
-If a user wish to use a nominal R-value, nominal R-value for all layers needs to be provided.
-Otherwise, assembly R-value needs to be provided.
+The floor R-value can be described by using ``NominalRValue`` or ``AssemblyRValue``.
+If a user wish to use a nominal R-value, ``NominalRValue`` elements for all layers needs to be provided.
+Otherwise, ``AssemblyRValue`` elements for each layer need to be provided.
 
 If nominal R-value is used, the R-value is the sum of the ``FrameFloor/Insulation/Layer/NominalRValue`` element values 
 for each frame floor. The effective R-value is looked up in the following table.
