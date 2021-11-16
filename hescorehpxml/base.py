@@ -1268,10 +1268,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             # Calculate roof area weighted assembly R-value or center of cavity R-value for attic,
             # might be combined later by averaging again
-            # Please review this, it is taking average of coc r values (already looked up with construction type of
-            # each roof) of roofs attached to the same attic.
-            # An alternative can be: averaging the roof nominal R value first then look up the table with dominated
-            # construction type for coc effective R value at attic level.
             if any('roof_assembly_rvalue' in k for k in attic_roof_ls):
                 atticd['roof_assembly_rvalue'] = \
                     attic_roof_area_sum / \
