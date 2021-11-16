@@ -62,7 +62,7 @@ inputs in HPXML to discrete inputs required for HEScore.
 
 The wall R-value can be described by using nominal R-value or assembly R-value.
 If a user wishes to use a nominal R-value, nominal R-value for all layers need to be provided.
-Otherwise, assembly R-value needs to be provided.
+Otherwise, assembly R-values for each layer need to be provided.
 
 If nominal R-value is used, the R-value is summed for all insulation layers and the
 nearest discrete R-value from the list of possible R-values for that wall type
