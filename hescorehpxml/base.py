@@ -1686,7 +1686,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         comb_rvalue = min(list(floor_eff_rvalues.keys()), key=lambda x: abs(ffrvalue - x))
                         comb_ff_code = 'efwf%02dca' % comb_rvalue
                     else:
-                        ffrvalue = old_div(fftotalarea, ffua)
+                        ffrvalue = fftotalarea / ffua
                         comb_ff_code, comb_rvalue = \
                             min([(doe2code, code_rvalue)
                                 for doe2code, code_rvalue in self.floor_assembly_eff_rvalues.items()],
