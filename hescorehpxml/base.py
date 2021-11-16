@@ -445,13 +445,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
         knee_wall_dict_ls = []
         for knee_wall in knee_walls:
             every_knee_wall_layer_has_nominal_rvalue = True
-            knee_wall_layers = self.xpath(knee_wall, 'h:Insulation/h:Layer', aslist=True)
-            if knee_wall_layers:
-                every_knee_wall_layer_has_nominal_rvalue = True
-                for layer in knee_wall_layers:
-                    if self.xpath(layer, 'h:NominalRValue') is None:
-                        every_knee_wall_layer_has_nominal_rvalue = False
-                        break
+            for layer in self.xpath(knee_wall, 'h:Insulation/h:Layer', aslist=True):
+                if self.xpath(layer, 'h:NominalRValue') is None:
+                    every_knee_wall_layer_has_nominal_rvalue = False
+                    break
             assembly_eff_rvalue = convert_to_type(
                 float,
                 self.xpath(knee_wall, 'h:Insulation/h:AssemblyEffectiveRValue/text()', raise_err=False)
