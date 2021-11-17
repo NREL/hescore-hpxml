@@ -1755,7 +1755,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             )
 
 
-class TesHPXMLVersion2Point3(unittest.TestCase, ComparatorBase):
+class TestHPXMLVersion2Point3(unittest.TestCase, ComparatorBase):
 
     def test_floor_furnace(self):
         tr = self._load_xmlfile('hescore_min')

@@ -136,6 +136,8 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
             floor_area = convert_to_type(float, self.xpath(frame_floor, 'h:Area/text()'))
             assembly_rvalue = convert_to_type(
                 float, self.xpath(frame_floor, 'h:Insulation/h:AssemblyEffectiveRValue/text()'))
+            if assembly_rvalue is None:
+                return
             frame_floor_dict_ls.append({'area': floor_area, 'rvalue': assembly_rvalue})
         # Average
         try:
