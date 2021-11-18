@@ -262,7 +262,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')):
                     wallconstype = 'ps'
                     # account for the rigid foam sheathing in the construction code
-                    wall_rvalue -= 5
+                    wall_rvalue = max(0, wall_rvalue - 5)
                     rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
                 elif tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:OptimumValueEngineering/text()')):
                     wallconstype = 'ov'
