@@ -281,7 +281,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 assert wall_type == 'StrawBale'
                 wallconstype = 'sb'
                 rvalue = 0
-            return f'ew{wallconstype}{rvalue:02d}{sidingtype}', assembly_eff_rvalue
+
+            wall_code = f'ew{wallconstype}{rvalue:02d}{sidingtype}'
+            assembly_eff_rvalue = self.wall_assembly_eff_rvalues[wall_code]
+            return wall_code, assembly_eff_rvalue
 
         else:
             raise TranslationError('Every wall insulation layer needs a NominalRValue or '
@@ -1798,35 +1801,19 @@ class HPXMLtoHEScoreTranslatorBase(object):
             for walld in hpxmlwalls[side]:
                 const_type = walld['assembly_code'][2:4]
                 ext_finish = walld['assembly_code'][6:8]
-                rvalue = int(walld['assembly_code'][4:6])
-                if walld['assembly_eff_rvalue'] is not None:
-                    eff_rvalue = walld['assembly_eff_rvalue']
-                else:
-                    eff_rvalue = wall_eff_rvalues[const_type][ext_finish][rvalue]
-                wallua += walld['area'] / eff_rvalue
+                assembly_eff_rvalue = walld['assembly_eff_rvalue']
+                wallua += walld['area'] / assembly_eff_rvalue
                 walltotalarea += walld['area']
                 wall_const_type_ext_finish_areas[(const_type, ext_finish)] += walld['area']
             const_type, ext_finish = max(list(wall_const_type_ext_finish_areas.keys()),
                                          key=lambda x: wall_const_type_ext_finish_areas[x])
-            if all(k['assembly_eff_rvalue'] is not None for k in hpxmlwalls[side]):
-                rvalueavgeff = walltotalarea / wallua
-                comb_wall_code, comb_rvalue = min(
-                    [(doe2code, code_rvalue)
-                     for doe2code, code_rvalue in self.wall_assembly_eff_rvalues.items()
-                     if doe2code[2:4] == const_type and doe2code[6:8] == ext_finish],
-                    key=lambda x: abs(x[1] - rvalueavgeff)
-                )
-            else:
-                try:
-                    roffset = wall_eff_rvalues[const_type][ext_finish][0]
-                except KeyError:
-                    rvalue, eff_rvalue = min(list(wall_eff_rvalues[const_type][ext_finish].items()), key=lambda x: x[0])
-                    roffset = eff_rvalue - rvalue
-                rvalueavgeff = walltotalarea / wallua
-                rvalueavgnom = rvalueavgeff - roffset
-                comb_rvalue = min(list(wall_eff_rvalues[const_type][ext_finish].keys()),
-                                  key=lambda x: abs(rvalueavgnom - x))
-                comb_wall_code = 'ew%s%02d%s' % (const_type, comb_rvalue, ext_finish)
+            rvalueavgeff = walltotalarea / wallua
+            comb_wall_code, comb_rvalue = min(
+                [(doe2code, code_rvalue)
+                    for doe2code, code_rvalue in self.wall_assembly_eff_rvalues.items()
+                    if doe2code[2:4] == const_type and doe2code[6:8] == ext_finish],
+                key=lambda x: abs(x[1] - rvalueavgeff)
+            )
             heswall['wall_assembly_code'] = comb_wall_code
             zone_wall.append(heswall)
 
