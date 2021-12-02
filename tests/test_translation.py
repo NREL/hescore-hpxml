@@ -1135,6 +1135,27 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.getparent().remove(el)
         self.assertRaises(ElementNotFoundError, tr.hpxml_to_hescore)
 
+    def test_assembly_rvalues(self):
+        tr = self._load_xmlfile('hescore_min_assembly_rvalue')
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewwf11br')
+        self.assertEqual(res['building']['zone']['zone_wall'][1]['wall_assembly_code'], 'ewwf11br')
+        self.assertEqual(res['building']['zone']['zone_wall'][2]['wall_assembly_code'], 'ewwf11br')
+        self.assertEqual(res['building']['zone']['zone_wall'][3]['wall_assembly_code'], 'ewwf11br')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00co')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf38')
+        self.assertEqual(res['building']['zone']['zone_floor'][0]['floor_assembly_code'], 'efwf15ca')
+
+        tr = self._load_xmlfile('house9')
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewwf15wo')
+        self.assertEqual(res['building']['zone']['zone_wall'][1]['wall_assembly_code'], 'ewwf13wo')
+        self.assertEqual(res['building']['zone']['zone_wall'][2]['wall_assembly_code'], 'ewwf13wo')
+        self.assertEqual(res['building']['zone']['zone_wall'][3]['wall_assembly_code'], 'ewwf13wo')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00wo')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf09')
+        self.assertEqual(res['building']['zone']['zone_floor'][0]['floor_assembly_code'], 'efwf30ca')
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 
@@ -3419,22 +3440,6 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         res = tr.hpxml_to_hescore()
         self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution'][0]['insulated'], True)
         el.getparent().remove(duct_ins_mat)
-
-
-class TestResStockHEScore(unittest.TestCase, ComparatorBase):
-
-    def test_assembly_rvalues(self):
-        tr = self._load_xmlfile('resstock_hescore')
-        res = tr.hpxml_to_hescore()
-        self.assertEqual(res['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewwf15wo')
-        self.assertEqual(res['building']['zone']['zone_wall'][1]['wall_assembly_code'], 'ewwf13wo')
-        self.assertEqual(res['building']['zone']['zone_wall'][2]['wall_assembly_code'], 'ewwf13wo')
-        self.assertEqual(res['building']['zone']['zone_wall'][3]['wall_assembly_code'], 'ewwf13wo')
-
-        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00wo')
-        self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf19')
-
-        self.assertEqual(res['building']['zone']['zone_floor'][0]['floor_assembly_code'], 'efwf30ca')
 
 
 if __name__ == "__main__":

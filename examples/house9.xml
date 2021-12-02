@@ -90,6 +90,38 @@
             <AttachedToWall idref='Surface_19'/>
             <AttachedToFrameFloor idref='Surface_6'/>
           </Attic>
+          <Attic>
+            <SystemIdentifier id='UnventedAttic'/>
+            <AtticType>
+              <Attic>
+                <Vented>false</Vented>
+              </Attic>
+            </AtticType>
+            <VentilationRate>
+              <UnitofMeasure>SLA</UnitofMeasure>
+              <Value dataSource='software'>0.003333</Value>
+            </VentilationRate>
+            <AttachedToRoof idref='Surface_21'/>
+            <AttachedToRoof idref='Surface_22'/>
+            <AttachedToWall idref='Surface_23'/>
+            <AttachedToFrameFloor idref='Surface_24'/>
+          </Attic>
+          <Attic>
+            <SystemIdentifier id='UnventedAttic2'/>
+            <AtticType>
+              <Attic>
+                <Vented>false</Vented>
+              </Attic>
+            </AtticType>
+            <VentilationRate>
+              <UnitofMeasure>SLA</UnitofMeasure>
+              <Value dataSource='software'>0.003333</Value>
+            </VentilationRate>
+            <AttachedToRoof idref='Surface_25'/>
+            <AttachedToRoof idref='Surface_26'/>
+            <AttachedToWall idref='Surface_27'/>
+            <AttachedToFrameFloor idref='Surface_28'/>
+          </Attic>
         </Attics>
         <Foundations>
           <Foundation>
@@ -108,7 +140,7 @@
           <Roof>
             <SystemIdentifier id='Surface_8'/>
             <InteriorAdjacentTo>attic - vented</InteriorAdjacentTo>
-            <Area>1216.42</Area>
+            <Area>608.21</Area>
             <Orientation dataSource='software'>south</Orientation>
             <Azimuth>180</Azimuth>
             <RoofType>wood shingles or shakes</RoofType>
@@ -125,7 +157,7 @@
           <Roof>
             <SystemIdentifier id='Surface_9'/>
             <InteriorAdjacentTo>attic - vented</InteriorAdjacentTo>
-            <Area>1216.42</Area>
+            <Area>608.21</Area>
             <Orientation dataSource='software'>north</Orientation>
             <Azimuth>0</Azimuth>
             <RoofType>wood shingles or shakes</RoofType>
@@ -137,6 +169,74 @@
             <Insulation>
               <SystemIdentifier id='Surface_9Insulation'/>
               <AssemblyEffectiveRValue>2.3</AssemblyEffectiveRValue>
+            </Insulation>
+          </Roof>
+          <Roof>
+            <SystemIdentifier id='Surface_21'/>
+            <InteriorAdjacentTo>attic - unvented</InteriorAdjacentTo>
+            <Area>608.21</Area>
+            <Orientation dataSource='software'>south</Orientation>
+            <Azimuth>180</Azimuth>
+            <RoofType>wood shingles or shakes</RoofType>
+            <RoofColor>medium</RoofColor>
+            <SolarAbsorptance dataSource='software'>0.85</SolarAbsorptance>
+            <Emittance dataSource='software'>0.9</Emittance>
+            <Pitch>6.0</Pitch>
+            <RadiantBarrier>false</RadiantBarrier>
+            <Insulation>
+              <SystemIdentifier id='Surface_21Insulation'/>
+              <AssemblyEffectiveRValue>10.2</AssemblyEffectiveRValue>
+            </Insulation>
+          </Roof>
+          <Roof>
+            <SystemIdentifier id='Surface_22'/>
+            <InteriorAdjacentTo>attic - unvented</InteriorAdjacentTo>
+            <Area>608.21</Area>
+            <Orientation dataSource='software'>north</Orientation>
+            <Azimuth>0</Azimuth>
+            <RoofType>wood shingles or shakes</RoofType>
+            <RoofColor>medium</RoofColor>
+            <SolarAbsorptance dataSource='software'>0.85</SolarAbsorptance>
+            <Emittance dataSource='software'>0.9</Emittance>
+            <Pitch>6.0</Pitch>
+            <RadiantBarrier>false</RadiantBarrier>
+            <Insulation>
+              <SystemIdentifier id='Surface_22Insulation'/>
+              <AssemblyEffectiveRValue>10.2</AssemblyEffectiveRValue>
+            </Insulation>
+          </Roof>
+          <Roof>
+            <SystemIdentifier id='Surface_25'/>
+            <InteriorAdjacentTo>attic - unvented</InteriorAdjacentTo>
+            <Area>608.21</Area>
+            <Orientation dataSource='software'>south</Orientation>
+            <Azimuth>180</Azimuth>
+            <RoofType>wood shingles or shakes</RoofType>
+            <RoofColor>medium</RoofColor>
+            <SolarAbsorptance dataSource='software'>0.85</SolarAbsorptance>
+            <Emittance dataSource='software'>0.9</Emittance>
+            <Pitch>6.0</Pitch>
+            <RadiantBarrier>false</RadiantBarrier>
+            <Insulation>
+              <SystemIdentifier id='Surface_25Insulation'/>
+              <AssemblyEffectiveRValue>10.2</AssemblyEffectiveRValue>
+            </Insulation>
+          </Roof>
+          <Roof>
+            <SystemIdentifier id='Surface_26'/>
+            <InteriorAdjacentTo>attic - unvented</InteriorAdjacentTo>
+            <Area>608.21</Area>
+            <Orientation dataSource='software'>north</Orientation>
+            <Azimuth>0</Azimuth>
+            <RoofType>wood shingles or shakes</RoofType>
+            <RoofColor>medium</RoofColor>
+            <SolarAbsorptance dataSource='software'>0.85</SolarAbsorptance>
+            <Emittance dataSource='software'>0.9</Emittance>
+            <Pitch>6.0</Pitch>
+            <RadiantBarrier>false</RadiantBarrier>
+            <Insulation>
+              <SystemIdentifier id='Surface_26Insulation'/>
+              <AssemblyEffectiveRValue>10.2</AssemblyEffectiveRValue>
             </Insulation>
           </Roof>
         </Roofs>
@@ -289,6 +389,32 @@
               <AssemblyEffectiveRValue>5.0</AssemblyEffectiveRValue>
             </Insulation>
           </Wall>
+          <Wall>
+            <SystemIdentifier id='Surface_23'/>
+            <ExteriorAdjacentTo>attic - unvented</ExteriorAdjacentTo>
+            <AtticWallType>knee wall</AtticWallType>
+            <WallType>
+              <WoodStud/>
+            </WallType>
+            <Area>500</Area>
+            <Insulation>
+              <SystemIdentifier id='Surface_23Insulation'/>
+              <AssemblyEffectiveRValue>5.0</AssemblyEffectiveRValue>
+            </Insulation>
+          </Wall>
+          <Wall>
+            <SystemIdentifier id='Surface_27'/>
+            <ExteriorAdjacentTo>attic - unvented</ExteriorAdjacentTo>
+            <AtticWallType>knee wall</AtticWallType>
+            <WallType>
+              <WoodStud/>
+            </WallType>
+            <Area>500</Area>
+            <Insulation>
+              <SystemIdentifier id='Surface_27Insulation'/>
+              <AssemblyEffectiveRValue>5.0</AssemblyEffectiveRValue>
+            </Insulation>
+          </Wall>
         </Walls>
         <FoundationWalls>
           <FoundationWall>
@@ -335,10 +461,30 @@
             <SystemIdentifier id='Surface_6'/>
             <ExteriorAdjacentTo>attic - vented</ExteriorAdjacentTo>
             <InteriorAdjacentTo>living space</InteriorAdjacentTo>
-            <Area>2176.0</Area>
+            <Area>725</Area>
             <Insulation>
               <SystemIdentifier id='Surface_6Insulation'/>
               <AssemblyEffectiveRValue>39.6</AssemblyEffectiveRValue>
+            </Insulation>
+          </FrameFloor>
+          <FrameFloor>
+            <SystemIdentifier id='Surface_24'/>
+            <ExteriorAdjacentTo>attic - unvented</ExteriorAdjacentTo>
+            <InteriorAdjacentTo>living space</InteriorAdjacentTo>
+            <Area>725</Area>
+            <Insulation>
+              <SystemIdentifier id='Surface_24Insulation'/>
+              <AssemblyEffectiveRValue>19.6</AssemblyEffectiveRValue>
+            </Insulation>
+          </FrameFloor>
+          <FrameFloor>
+            <SystemIdentifier id='Surface_28'/>
+            <ExteriorAdjacentTo>attic - unvented</ExteriorAdjacentTo>
+            <InteriorAdjacentTo>living space</InteriorAdjacentTo>
+            <Area>726</Area>
+            <Insulation>
+              <SystemIdentifier id='Surface_28Insulation'/>
+              <AssemblyEffectiveRValue>29.6</AssemblyEffectiveRValue>
             </Insulation>
           </FrameFloor>
         </FrameFloors>
