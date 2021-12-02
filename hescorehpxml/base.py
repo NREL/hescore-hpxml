@@ -430,10 +430,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                           'ground-to-air': 'gchp',
                           'ground-to-water': 'gchp'}
 
-    def get_attic_knee_wall_rvalue_and_area(self, attic, b):
-        knee_walls = self.get_attic_knee_walls(attic, b)
-        if len(knee_walls) == 0:
-            return 0, 0
+    def get_attic_knee_wall_rvalue_and_area(self, attic, b, knee_walls):
         knee_wall_dict_ls = []
         for knee_wall in knee_walls:
             every_knee_wall_layer_has_nominal_rvalue = True
@@ -1302,7 +1299,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             )
             if attic_floor_rvalue is not None:
                 if knee_walls:
-                    knee_wall_rvalue, knee_wall_area = self.get_attic_knee_wall_rvalue_and_area(attic, b)
+                    knee_wall_rvalue, knee_wall_area = self.get_attic_knee_wall_rvalue_and_area(attic, b, knee_walls)
                     knee_wall_ua = knee_wall_area / knee_wall_rvalue
 
                     attic_floor_adj_ua = knee_wall_ua + atticd['roof_area'] / attic_floor_rvalue
@@ -1314,7 +1311,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
                 if knee_walls:
                     # Assumes that every knee wall has nominal rvalue when every attic floor layer has nominal rvalue.
-                    knee_wall_rvalue, knee_wall_area = self.get_attic_knee_wall_rvalue_and_area(attic, b)
+                    knee_wall_rvalue, knee_wall_area = self.get_attic_knee_wall_rvalue_and_area(attic, b, knee_walls)
                     knee_wall_coc_rvalue = knee_wall_rvalue + 1.8
                     knee_wall_ua = knee_wall_area / knee_wall_coc_rvalue
 
