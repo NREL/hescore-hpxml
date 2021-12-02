@@ -1106,6 +1106,17 @@ class HPXMLtoHEScoreTranslatorBase(object):
         return self._floor_assembly_eff_rvalues
 
     def get_building_zone_roof(self, b, footprint_area):
+
+        def get_predominant_roof_property(atticd, attic_key):
+            roof_area_by_cat = {}
+            for atticd in atticds:
+                try:
+                    roof_area_by_cat[atticd[attic_key]] += atticd['roof_area']
+                except KeyError:
+                    roof_area_by_cat[atticd[attic_key]] = atticd['roof_area']
+
+            return max(roof_area_by_cat, key=lambda x: roof_area_by_cat[x])
+
         xpath = self.xpath
 
         # building.zone.zone_roof--------------------------------------------------
@@ -1343,13 +1354,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
                 # Roof type, roof color, exterior finish, construction type
                 for attic_key in ('roofconstype', 'extfinish', 'roofcolor', 'rooftype'):
-                    roof_area_by_cat = {}
-                    for atticd in atticds:
-                        try:
-                            roof_area_by_cat[atticd[attic_key]] += atticd['roof_area']
-                        except KeyError:
-                            roof_area_by_cat[atticd[attic_key]] = atticd['roof_area']
-                    combined_atticd[attic_key] = max(roof_area_by_cat, key=lambda x: roof_area_by_cat[x])
+                    combined_atticd[attic_key] = get_predominant_roof_property(atticd, attic_key)
+                if combined_atticd['roofcolor'] == 'cool_color':
+                    combined_atticd['roof_absorptance'] = get_predominant_roof_property(atticd, 'roof_absorptance')
 
                 # ids of hpxml roofs along for the ride
                 combined_atticd['_roofids'] = set().union(*[atticd['_roofid'] for atticd in atticds])
