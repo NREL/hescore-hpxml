@@ -229,16 +229,6 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
         return every_layer_has_nominal_rvalue
 
-    def get_hescore_frame_floors(self, attic, b):
-        floor_idref = self.xpath(attic, 'h:AttachedToFrameFloor/@idref')
-        # No frame floor attached
-        if floor_idref is None:
-            return []
-        frame_floors = self.xpath(b, '//h:FrameFloor[contains("{}",h:SystemIdentifier/@id)]'.format(floor_idref),
-                                  aslist=True, raise_err=True)
-
-        return frame_floors
-
     def get_solarscreen(self, wndw_skylight):
         return bool(self.xpath(wndw_skylight, 'h:ExteriorShading/h:Type/text()') == 'solar screens')
 
