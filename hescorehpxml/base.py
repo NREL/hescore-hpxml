@@ -262,7 +262,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')):
                     wallconstype = 'ps'
                     # account for the rigid foam sheathing in the construction code
-                    wall_rvalue -= 5
+                    wall_rvalue = max(0, wall_rvalue - 5)
                     rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
                 elif tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:OptimumValueEngineering/text()')):
                     wallconstype = 'ov'
@@ -873,7 +873,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             raise ElementNotFoundError(hpxmladdress, 'h:Address1/text() | h:Address2/text()', {})
         bldgaddr['city'] = xpath(b, 'h:Site/h:Address/h:CityMunicipality/text()', raise_err=True)
         bldgaddr['state'] = xpath(b, 'h:Site/h:Address/h:StateCode/text()', raise_err=True)
-        bldgaddr['zip_code'] = xpath(b, 'h:Site/h:Address/h:ZipCode/text()', raise_err=True)
+        hpxml_zipcode = xpath(b, 'h:Site/h:Address/h:ZipCode/text()', raise_err=True)
+        bldgaddr['zip_code'] = re.match(r"([0-9]{5})(-[0-9]{4})?", hpxml_zipcode).group(1)
         transaction_type = xpath(self.hpxmldoc, 'h:XMLTransactionHeaderInformation/h:Transaction/text()')
         is_mentor = xpath(b, 'boolean(h:ProjectStatus/h:extension/h:HEScoreMentorAssessment)')
         if is_mentor:
