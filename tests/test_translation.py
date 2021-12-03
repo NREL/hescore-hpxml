@@ -559,6 +559,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         clgsystype = self.xpath('//h:CoolingSystem[1]/h:CoolingSystemType')
         clgsystype.text = 'evaporative cooler'
+        clgsystype.getparent().remove(
+            self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]/h:DistributionSystem'))
         for el in self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency', aslist=True):
             el.getparent().remove(el)
         res = tr.hpxml_to_hescore()
@@ -569,6 +571,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         tr_v3 = self._load_xmlfile('hescore_min')
         clgsystype = self.xpath('//h:CoolingSystem[1]/h:CoolingSystemType')
         clgsystype.text = 'evaporative cooler'
+        clgsystype.getparent().remove(
+            self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]/h:DistributionSystem'))
         for el in self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency', aslist=True):
             el.getparent().remove(el)
         res_v3 = tr_v3.hpxml_to_hescore()
@@ -1020,6 +1024,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         htgsys_fuel.text = 'wood'
         htgsys_type = self.xpath('//h:HeatingSystem[1]/h:HeatingSystemType')
         htgsys_type.clear()
+        htgsys_type.getparent().remove(
+            self.xpath('//h:HeatingSystem[1]/h:DistributionSystem'))
         etree.SubElement(htgsys_type, tr.addns('h:Stove'))
         d = tr.hpxml_to_hescore()
         self.assertNotIn(
@@ -1338,8 +1344,10 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
     def test_evap_cooler_missing_efficiency(self):
         tr = self._load_xmlfile('hescore_min')
         eff_el = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency')
-        eff_el.getparent().remove(eff_el)
         self.xpath('//h:CoolingSystem/h:CoolingSystemType').text = 'evaporative cooler'
+        eff_el.getparent().remove(
+            self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]/h:DistributionSystem'))
+        eff_el.getparent().remove(eff_el)
         res = tr.hpxml_to_hescore()
         clg_sys = res['building']['systems']['hvac'][0]['cooling']
         self.assertEqual(clg_sys['type'], 'dec')
@@ -1758,6 +1766,8 @@ class TesHPXMLVersion2Point3(unittest.TestCase, ComparatorBase):
         tr = self._load_xmlfile('hescore_min')
         htg_sys_type = self.xpath('//h:HeatingSystemType')
         htg_sys_type.clear()
+        htg_sys_type.getparent().remove(
+            self.xpath('//h:HeatingSystem[h:SystemIdentifier/@id="furnace1"]/h:DistributionSystem'))
         etree.SubElement(htg_sys_type, tr.addns('h:FloorFurnace'))
         d = tr.hpxml_to_hescore()
         self.assertEqual(
@@ -2866,6 +2876,8 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
 
         # cooling system type: mini-split + heating system
         clg_type = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]/h:CoolingSystemType')
+        clg_type.getparent().remove(
+            self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]/h:DistributionSystem'))
         clg_type.text = 'mini-split'
 
         d_1 = tr.hpxml_to_hescore()
@@ -2942,6 +2954,8 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
 
         # cooling system type: mini-split + heating system
         clg_type = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]/h:CoolingSystemType')
+        clg_type.getparent().remove(
+            self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]/h:DistributionSystem'))
         clg_type.text = 'mini-split'
 
         d_1_v3 = tr_v3.hpxml_to_hescore()
@@ -3117,6 +3131,8 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
 
         # cooling system type: mini-split + heating system
         clg_type = self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]/h:CoolingSystemType')
+        clg_type.getparent().remove(
+            self.xpath('//h:CoolingSystem[h:SystemIdentifier/@id="centralair1"]/h:DistributionSystem'))
         clg_type.text = 'mini-split'
 
         d = tr.hpxml_to_hescore()
