@@ -3072,6 +3072,17 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
         self.assertEqual(res3['building']['zone']['zone_roof'][1]['zone_skylight']['skylight_code'], 'dtab')
         self.assertFalse(res3['building']['zone']['zone_roof'][1]['zone_skylight']['solar_screen'])
 
+    def test_xps_negative(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+        wall = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall1"]')
+        tr.xpath(wall, 'h:Insulation/h:Layer/h:NominalRValue').text = "0"
+        wood_stud = tr.xpath(wall, 'descendant::h:WoodStud')
+        xps_el = etree.Element(tr.addns('h:ExpandedPolystyreneSheathing'))
+        xps_el.text = 'true'
+        wood_stud.append(xps_el)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewps00br')
+
 
 class TestHEScoreV3(unittest.TestCase, ComparatorBase):
 
