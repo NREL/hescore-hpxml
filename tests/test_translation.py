@@ -3083,7 +3083,7 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
         res = tr.hpxml_to_hescore()
         self.assertEqual(res['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewps00br')
 
-   def test_zip_plus4(self):
+    def test_zip_plus4(self):
         tr = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:ZipCode')
         orig_zipcode = str(el.text)
