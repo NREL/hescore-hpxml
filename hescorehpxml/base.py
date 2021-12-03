@@ -2297,7 +2297,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             wtavg_azimuth = old_div(sum(
                 [az * area for az, area in zip(azimuths, collector_areas)]
             ), total_area)
-            wtavg_tilt =sum(t * area for t, area in zip(tilts, collector_areas)) / total_area
+            wtavg_tilt = sum(t * area for t, area in zip(tilts, collector_areas)) / total_area
         else:
             raise TranslationError(
                 'Either a MaxPowerOutput must be specified for every PVSystem '
