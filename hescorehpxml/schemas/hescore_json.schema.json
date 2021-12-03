@@ -2018,6 +2018,12 @@
                                             "type": "string",
                                             "enum": ["north", "north_east", "east", "south_east", "south", "south_west", "west", "north_west"],
                                             "description": "Direction panels face"
+                                        },
+                                        "array_tilt": {
+                                            "$id": "#/properties/building/properties/systems/properties/generation/items/properties/solar_electric/array_tilt",
+                                            "type": "string",
+                                            "enum": ["flat", "low_slope", "medium_slope", "steep_slope"],
+                                            "description": "Tilt of panels"
                                         }
                                     },
                                     "allOf": [
@@ -2090,7 +2096,7 @@
                                                 ]
                                             },
                                             "then": {
-                                                "required": ["array_azimuth"]
+                                                "required": ["array_azimuth", "array_tilt"]
                                             }
                                         }
                                     ]

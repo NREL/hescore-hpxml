@@ -656,6 +656,7 @@ def test_invalid_solar_electric(hpxml_filebase):
     assert "'num_panels' is a required property" in errors
     assert "'year' is a required property" in errors
     assert "'array_azimuth' is a required property" in errors
+    assert "'array_tilt' is a required property" in errors
     assert ("{'required': ['system_capacity']} is not allowed for {'capacity_known': False, "
             "'system_capacity': 50}") in errors
 
@@ -665,6 +666,7 @@ def test_invalid_solar_electric(hpxml_filebase):
     assert "'system_capacity' is a required property" in errors
     assert "'year' is a required property" in errors
     assert "'array_azimuth' is a required property" in errors
+    assert "'array_tilt' is a required property" in errors
     assert ("{'required': ['num_panels']} is not allowed for {'capacity_known': True, 'num_panels': 5}") in errors
 
     js3 = copy.deepcopy(js)
@@ -672,5 +674,6 @@ def test_invalid_solar_electric(hpxml_filebase):
     errors = get_error_messages(js3, js_schema)
     assert "'capacity_known' is a required property" in errors
     assert "'array_azimuth' is a required property" in errors
+    assert "'array_tilt' is a required property" in errors
     assert "'num_panels' is a required property" not in errors
     assert "'system_capacity' is a required property" not in errors
