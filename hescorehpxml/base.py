@@ -700,6 +700,16 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 raise TranslationError('Either an orientation or azimuth is required.')
             return self.hpxml_orientation_to_azimuth[orientation]
 
+    def get_nearest_tilt(self, tilt):
+        if tilt <= 7:
+            return 'flat'
+        elif tilt <= 22:
+            return 'low_slope'
+        elif tilt <= 37:
+            return 'medium_slope'
+        else:
+            return 'steep_slope'
+
     def hpxml_to_hescore_json(self, outfile, *args, **kwargs):
         hescore_bldg = self.hpxml_to_hescore(*args, **kwargs)
         json.dump(hescore_bldg, outfile, indent=2)
@@ -828,7 +838,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             raise ElementNotFoundError(hpxmladdress, 'h:Address1/text() | h:Address2/text()', {})
         bldgaddr['city'] = xpath(b, 'h:Site/h:Address/h:CityMunicipality/text()', raise_err=True)
         bldgaddr['state'] = xpath(b, 'h:Site/h:Address/h:StateCode/text()', raise_err=True)
-        bldgaddr['zip_code'] = xpath(b, 'h:Site/h:Address/h:ZipCode/text()', raise_err=True)
+        hpxml_zipcode = xpath(b, 'h:Site/h:Address/h:ZipCode/text()', raise_err=True)
+        bldgaddr['zip_code'] = re.match(r"([0-9]{5})(-[0-9]{4})?", hpxml_zipcode).group(1)
         transaction_type = xpath(self.hpxmldoc, 'h:XMLTransactionHeaderInformation/h:Transaction/text()')
         is_mentor = xpath(b, 'boolean(h:ProjectStatus/h:extension/h:HEScoreMentorAssessment)')
         if is_mentor:
@@ -2238,6 +2249,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         collector_areas = []
         years = []
         azimuths = []
+        tilts = []
         for pvsystem in pvsystems:
 
             max_power_output = self.xpath(pvsystem, 'h:MaxPowerOutput/text()')
@@ -2275,6 +2287,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
             else:
                 raise TranslationError('ArrayAzimuth or ArrayOrientation is required for every PVSystem.')
 
+            tilt = self.xpath(pvsystem, 'h:ArrayTilt/text()')
+            if tilt:
+                tilts.append(int(tilt))
+            else:
+                raise TranslationError('ArrayTilt is required for every PVSystem.')
+
         if None not in capacities:
             solar_electric['capacity_known'] = True
             total_capacity = sum(capacities)
@@ -2283,6 +2301,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 old_div(sum([year * capacity for year, capacity in zip(years, capacities)]), total_capacity))
             wtavg_azimuth = old_div(sum(
                 [az * capacity for az, capacity in zip(azimuths, capacities)]), total_capacity)
+            wtavg_tilt = sum(t * capacity for t, capacity in zip(tilts, capacities)) / total_capacity
         elif None not in collector_areas:
             solar_electric['capacity_known'] = False
             total_area = sum(collector_areas)
@@ -2291,6 +2310,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             wtavg_azimuth = old_div(sum(
                 [az * area for az, area in zip(azimuths, collector_areas)]
             ), total_area)
+            wtavg_tilt = sum(t * area for t, area in zip(tilts, collector_areas)) / total_area
         else:
             raise TranslationError(
                 'Either a MaxPowerOutput must be specified for every PVSystem '
@@ -2299,6 +2319,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         nearest_azimuth = self.get_nearest_azimuth(azimuth=wtavg_azimuth)
         solar_electric['array_azimuth'] = self.azimuth_to_hescore_orientation[nearest_azimuth]
+        solar_electric['array_tilt'] = self.get_nearest_tilt(wtavg_tilt)
 
         return generation
 

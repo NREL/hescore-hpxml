@@ -1638,6 +1638,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             sysid='pv1',
             orientation='south',
             azimuth=180,
+            tilt=30,
             capacity=5,
             inverter_year=2015,
             module_year=2013,
@@ -1646,7 +1647,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
 
         def add_elem(parent, subname, text=None):
             el = etree.SubElement(parent, addns('h:' + subname))
-            if text:
+            if text is not None:
                 el.text = str(text)
             return el
 
@@ -1661,6 +1662,8 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             add_elem(pv_system, 'ArrayOrientation', orientation)
         if azimuth is not None:
             add_elem(pv_system, 'ArrayAzimuth', azimuth)
+        if tilt is not None:
+            add_elem(pv_system, 'ArrayTilt', tilt)
         if capacity is not None:
             add_elem(pv_system, 'MaxPowerOutput', capacity * 1000)
         if collector_area is not None:
@@ -1672,7 +1675,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
 
     def test_pv(self):
         tr = self._load_xmlfile('hescore_min')
-        self._add_pv(orientation='southeast', azimuth=None)
+        self._add_pv(orientation='southeast', azimuth=None, tilt=50)
         hesd = tr.hpxml_to_hescore()
         pv = hesd['building']['systems']['generation']['solar_electric']
         self.assertTrue(pv['capacity_known'])
@@ -1680,6 +1683,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
         self.assertEqual(pv['system_capacity'], 5)
         self.assertEqual(pv['year'], 2015)
         self.assertEqual(pv['array_azimuth'], 'south_east')
+        self.assertEqual(pv['array_tilt'], 'steep_slope')
 
     def test_capacity_missing(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1715,6 +1719,15 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             tr.hpxml_to_hescore
             )
 
+    def test_tilt_missing(self):
+        tr = self._load_xmlfile('hescore_min')
+        self._add_pv(tilt=None)
+        self.assertRaisesRegex(
+            TranslationError,
+            r'ArrayTilt is required for every PVSystem',
+            tr.hpxml_to_hescore
+            )
+
     def test_years_missing(self):
         tr = self._load_xmlfile('hescore_min')
         self._add_pv(module_year=None, inverter_year=None)
@@ -1726,12 +1739,13 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
 
     def test_two_sys_avg(self):
         tr = self._load_xmlfile('hescore_min')
-        self._add_pv('pv1', azimuth=None, orientation='south', inverter_year=None, module_year=2015)
-        self._add_pv('pv2', azimuth=None, orientation='west', inverter_year=None, module_year=2013)
+        self._add_pv('pv1', azimuth=None, orientation='south', tilt=0, inverter_year=None, module_year=2015)
+        self._add_pv('pv2', azimuth=None, orientation='west', tilt=20, inverter_year=None, module_year=2013)
         hesd = tr.hpxml_to_hescore()
         pv = hesd['building']['systems']['generation']['solar_electric']
         self.assertEqual(pv['system_capacity'], 10)
         self.assertEqual(pv['array_azimuth'], 'south_west')
+        self.assertEqual(pv['array_tilt'], 'low_slope')
         self.assertEqual(pv['year'], 2014)
 
     def test_two_sys_different_capacity_error(self):
@@ -3047,6 +3061,14 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
         self.assertEqual(res3['building']['zone']['zone_roof'][1]['zone_skylight']['skylight_area'], 22.0)
         self.assertEqual(res3['building']['zone']['zone_roof'][1]['zone_skylight']['skylight_code'], 'dtab')
         self.assertFalse(res3['building']['zone']['zone_roof'][1]['zone_skylight']['solar_screen'])
+
+    def test_zip_plus4(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+        el = self.xpath('//h:ZipCode')
+        orig_zipcode = str(el.text)
+        el.text = el.text + '-1234'
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building_address']['zip_code'], orig_zipcode)
 
 
 class TestHEScoreV3(unittest.TestCase, ComparatorBase):

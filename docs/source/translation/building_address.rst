@@ -33,8 +33,10 @@ format for HEScore.
 
 HPXML allows for two lines of address elements. If both are used, the lines will
 be concatenated with a space between for submission to the HEScore
-``building_address.address`` field. All of the HPXML elements shown in the
-above code snippet are required with the exception of ``Address2``
+``building_address.address`` field. All of the HPXML elements shown in the above
+code snippet are required with the exception of ``Address2``. Additionally, if a
+zip plus 4 code is entered in HPXML, it will be trimmed to just the 5 digit zip
+code before being passed to HEScore.
 
 .. _assessment-type-mapping:
 
