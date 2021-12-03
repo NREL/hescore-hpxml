@@ -2288,8 +2288,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 old_div(sum([year * capacity for year, capacity in zip(years, capacities)]), total_capacity))
             wtavg_azimuth = old_div(sum(
                 [az * capacity for az, capacity in zip(azimuths, capacities)]), total_capacity)
-            wtavg_tilt = old_div(sum(
-                [t * capacity for t, capacity in zip(tilts, capacities)]), total_capacity)
+            wtavg_tilt = sum(t * capacity for t, capacity in zip(tilts, capacities)) / total_capacity
         elif None not in collector_areas:
             solar_electric['capacity_known'] = False
             total_area = sum(collector_areas)
@@ -2298,9 +2297,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             wtavg_azimuth = old_div(sum(
                 [az * area for az, area in zip(azimuths, collector_areas)]
             ), total_area)
-            wtavg_tilt = old_div(sum(
-                [t * area for t, area in zip(tilts, collector_areas)]
-            ), total_area)
+            wtavg_tilt =sum(t * area for t, area in zip(tilts, collector_areas)) / total_area
         else:
             raise TranslationError(
                 'Either a MaxPowerOutput must be specified for every PVSystem '

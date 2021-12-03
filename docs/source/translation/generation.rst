@@ -57,11 +57,11 @@ The tilt is mapped to HEScore as follows:
 
 .. table:: Tilt mapping
 
-   ========================  ================
-   HPXML                     HEScore 
-   ========================  ================
-   0 - 7 deg                 flat
-   8 - 22 deg                low_slope
-   23 - 37 deg               medium_slope
-   38 - 90 deg               steep_slope
-   ========================  ================  
+   =====================  ================
+   HPXML                  HEScore 
+   =====================  ================
+   0 - 7°                 flat
+   8 - 22°                low_slope
+   23 - 37°               medium_slope
+   38 - 90°               steep_slope
+   =====================  ================  
