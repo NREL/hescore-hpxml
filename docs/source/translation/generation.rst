@@ -47,3 +47,21 @@ If ``ArrayAzimuth`` is not available, ``ArrayOrientation`` (north, northwest, et
 A capacity or area-weighted average azimuth is calculated and converted into the nearest cardinal direction
 (north, northwest, etc) for submission into the ``array_azimuth`` HEScore input (which expects a direction,
 not a numeric azimuth).
+
+Panel Tilt
+==========
+For each ``PVSystem`` the ``ArrayTilt`` (in degrees from horizontal) is retrieved.
+A capacity or area-weighted average tilt is calculated and submitted to the ``array_tilt`` HEScore input
+(which expects an enumeration, not a numeric tilt).
+The tilt is mapped to HEScore as follows:
+
+.. table:: Tilt mapping
+
+   =====================  ================
+   HPXML                  HEScore 
+   =====================  ================
+   0 - 7°                 flat
+   8 - 22°                low_slope
+   23 - 37°               medium_slope
+   38 - 90°               steep_slope
+   =====================  ================  
