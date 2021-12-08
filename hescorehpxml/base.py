@@ -1125,28 +1125,18 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             return max(roof_area_by_cat, key=lambda x: roof_area_by_cat[x])
 
+        def roof_round_to_nearest(roofid, *args):
+            try:
+                return round_to_nearest(*args, tails_tolerance=3)
+            except RoundOutOfBounds:
+                raise TranslationError('Roof R-value outside HEScore bounds, roof id: %s' % roofid)
+
         xpath = self.xpath
 
         # building.zone.zone_roof--------------------------------------------------
         attics = xpath(b, 'descendant::h:Attics/h:Attic', aslist=True, raise_err=True)
         roofs = xpath(b, 'descendant::h:Roof', aslist=True, raise_err=True)
         attic_floor_rvalues = (0, 3, 6, 9, 11, 19, 21, 25, 30, 38, 44, 49, 60)
-        roof_center_of_cavity_rvalues = \
-            {'wf': {'co': dict(zip((0, 11, 13, 15, 19, 21, 27, 30), (2.7, 13.6, 15.6, 17.6, 21.6, 23.6, 29.6, 32.6))),
-                    'wo': dict(zip((0, 11, 13, 15, 19, 21, 27, 30), (3.2, 14.1, 16.1, 18.1, 22.1, 24.1, 30.1, 33.1))),
-                    'rc': dict(zip((0, 11, 13, 15, 19, 21, 27, 30), (2.2, 13.2, 15.2, 17.2, 21.2, 23.2, 29.2, 32.2))),
-                    'lc': dict(zip((0, 11, 13, 15, 19, 21, 27, 30), (2.3, 13.2, 15.2, 17.2, 21.2, 23.2, 29.2, 32.2))),
-                    'tg': dict(zip((0, 11, 13, 15, 19, 21, 27, 30), (2.3, 13.2, 15.2, 17.2, 21.2, 23.2, 29.2, 32.2)))},
-             'rb': {'co': {0: 5},
-                    'wo': {0: 5.5},
-                    'rc': {0: 4.5},
-                    'lc': {0: 4.6},
-                    'tg': {0: 4.6}},
-             'ps': {'co': dict(zip((0, 11, 13, 15, 19, 21), (6.8, 17.8, 19.8, 21.8, 25.8, 27.8))),
-                    'wo': dict(zip((0, 11, 13, 15, 19, 21), (7.3, 18.3, 20.3, 22.3, 26.3, 28.3))),
-                    'rc': dict(zip((0, 11, 13, 15, 19, 21), (6.4, 17.4, 19.4, 21.4, 25.4, 27.4))),
-                    'lc': dict(zip((0, 11, 13, 15, 19, 21), (6.4, 17.4, 19.4, 21.4, 25.4, 27.4))),
-                    'tg': dict(zip((0, 11, 13, 15, 19, 21), (6.4, 17.4, 19.4, 21.4, 25.4, 27.4)))}}
 
         atticds = []
         for attic in attics:
@@ -1179,7 +1169,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
             for roof in attic_roofs:
                 attic_roofs_d = {}
                 attic_roof_ls.append(attic_roofs_d)
-                attic_roofs_d['roof_id'] = xpath(roof, 'h:SystemIdentifier/@id', raise_err=True)
+                roofid = xpath(roof, 'h:SystemIdentifier/@id', raise_err=True)
+                attic_roofs_d['roof_id'] = roofid
                 # Roof area
                 attic_roofs_d['roof_area'] = self.get_attic_roof_area(roof)
                 if attic_roofs_d['roof_area'] is None:
@@ -1255,13 +1246,21 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 elif self.every_attic_roof_layer_has_nominal_rvalue(attic, roof):
                     # roof center of cavity R-value
                     roof_rvalue = self.get_attic_roof_rvalue(attic, roof)
-                    # subtract the R-value of the rigid sheating in the HEScore construction.
-                    if attic_roofs_d['roofconstype'] == 'ps':
-                        roof_rvalue = max(roof_rvalue - 5, 0)
-                    roof_rvalue, attic_roofs_d['roof_coc_rvalue'] = \
-                        min(list(roof_center_of_cavity_rvalues[attic_roofs_d['roofconstype']][
-                                    attic_roofs_d['extfinish']].items()),
-                            key=lambda x: abs(x[0] - roof_rvalue))
+                    # For wood frame with radiant barrier roof, use wood frame roof effective R-value.
+                    # Radiant barrier will be handled by the actual radiant barrier model in OS.
+                    if attic_roofs_d['roofconstype'] == 'rb':
+                        roof_rvalue = 0
+                        roof_code = f"rfwf{roof_rvalue:02d}{attic_roofs_d['extfinish']}"
+                    elif attic_roofs_d['roofconstype'] == 'wf':
+                        roof_rvalue = roof_round_to_nearest(roofid, roof_rvalue, (0, 11, 13, 15, 19, 21, 27, 30))
+                        roof_code = f"rf{attic_roofs_d['roofconstype']}{roof_rvalue:02d}{attic_roofs_d['extfinish']}"
+                    elif attic_roofs_d['roofconstype'] == 'ps':
+                        # subtract the R-value of the rigid sheating in the HEScore construction.
+                        if attic_roofs_d['roofconstype'] == 'ps':
+                            roof_rvalue = max(roof_rvalue - 5, 0)
+                        roof_rvalue = roof_round_to_nearest(roofid, roof_rvalue, (0, 11, 13, 15, 19, 21))
+                        roof_code = f"rf{attic_roofs_d['roofconstype']}{roof_rvalue:02d}{attic_roofs_d['extfinish']}"
+                    attic_roofs_d['roof_assembly_rvalue'] = self.roof_assembly_eff_rvalues[roof_code]
                 else:
                     raise TranslationError(
                         'Every roof insulation layer needs a NominalRValue or '
@@ -1288,14 +1287,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             # Calculate roof area weighted assembly R-value or center of cavity R-value for attic,
             # might be combined later by averaging again
-            if all('roof_assembly_rvalue' in k for k in attic_roof_ls):
-                atticd['roof_assembly_rvalue'] = attic_roof_area_sum / \
-                    sum([attic_roofs_dict['roof_area'] / attic_roofs_dict['roof_assembly_rvalue']
-                        for attic_roofs_dict in attic_roof_ls])
-            else:
-                atticd['roof_coc_rvalue'] = attic_roof_area_sum / \
-                    sum([attic_roofs_dict['roof_area'] / attic_roofs_dict['roof_coc_rvalue']
-                         for attic_roofs_dict in attic_roof_ls])
+            atticd['roof_assembly_rvalue'] = attic_roof_area_sum / \
+                sum([attic_roofs_dict['roof_area'] / attic_roofs_dict['roof_assembly_rvalue']
+                    for attic_roofs_dict in attic_roof_ls])
 
             # knee walls
             knee_walls = self.get_attic_knee_walls(attic, b)
@@ -1370,12 +1364,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 combined_atticd['_roofids'] = set().union(*[atticd['_roofid'] for atticd in atticds])
 
                 # Calculate roof area weighted assembly R-value or center of cavity R-value
-                if all('roof_assembly_rvalue' in k for k in atticds):
-                    combined_atticd['roof_assembly_rvalue'] = combined_atticd['roof_area'] / \
-                        sum([atticd['roof_area'] / atticd['roof_assembly_rvalue'] for atticd in atticds])
-                else:
-                    combined_atticd['roof_coc_rvalue'] = combined_atticd['roof_area'] / \
-                        sum([atticd['roof_area'] / atticd['roof_coc_rvalue'] for atticd in atticds])
+                combined_atticd['roof_assembly_rvalue'] = combined_atticd['roof_area'] / \
+                    sum([atticd['roof_area'] / atticd['roof_assembly_rvalue'] for atticd in atticds])
 
                 # Calculate attic floor weighted average center-of-cavity R-value
                 if all('attic_floor_assembly_rvalue' in k for k in atticds):
@@ -1399,19 +1389,15 @@ class HPXMLtoHEScoreTranslatorBase(object):
         for i, atticd in enumerate(atticds[0:2], 1):
 
             # Get Roof Code
-            if 'roof_assembly_rvalue' in atticd:
+            if atticd['roofconstype'] == 'rb':
+                roof_code = f"rfrb00{atticd['extfinish']}"
+            else:
                 closest_roof_code, closest_code_rvalue = \
                     min([(doe2code, code_rvalue)
                         for doe2code, code_rvalue in self.roof_assembly_eff_rvalues.items()
-                        if doe2code[2:4] in attic_roofs_d['roofconstype'] and
-                        doe2code[6:8] == attic_roofs_d['extfinish']],
+                        if doe2code[2:4] in atticd['roofconstype'] and doe2code[6:8] == atticd['extfinish']],
                         key=lambda x: abs(x[1] - atticd['roof_assembly_rvalue']))
                 roof_code = closest_roof_code
-            else:
-                roffset = roof_center_of_cavity_rvalues[atticd['roofconstype']][atticd['extfinish']][0]
-                roof_rvalue = min(list(roof_center_of_cavity_rvalues[atticd['roofconstype']][
-                    atticd['extfinish']].keys()), key=lambda x: abs(atticd['roof_coc_rvalue'] - roffset - x))
-                roof_code = 'rf%s%02d%s' % (atticd['roofconstype'], roof_rvalue, atticd['extfinish'])
 
             # Get Attic Floor R-value
             if 'attic_floor_assembly_rvalue' in atticd:

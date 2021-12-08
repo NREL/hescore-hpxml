@@ -64,8 +64,10 @@ The wall R-value can be described by using nominal R-value or assembly R-value.
 If a user wishes to use a nominal R-value, nominal R-value for all layers need to be provided.
 Otherwise, assembly R-values for each layer need to be provided.
 
-If nominal R-value is used, the R-value is summed for all insulation layers and the
-nearest discrete R-value from the list of possible R-values for that wall type
+If nominal R-value is used, the R-value is summed for all insulation layers. If the wall construction 
+was determined to have :ref:`rigid-sheathing`, an R-value of 5 is subtracted from the wall R-value sum
+to account for the R-value of the sheathing in the HEScore construction. 
+The nearest discrete R-value from the list of possible R-values for that wall type
 is used to determine an assembly code. Then, the assembly R-value of the corresponding 
 assembly code from the lookup table is used. The lookup table can be found 
 at `hescorehpxml\\lookups\\lu_wall_eff_rvalue.csv
