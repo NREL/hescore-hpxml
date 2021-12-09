@@ -364,7 +364,7 @@
                                             "solar_screen": {
                                                 "$id": "#/properties/building/properties/zone/properties/zone_roof/items/properties/zone_skylight/properties/solar_screen",
                                                 "type": "boolean",
-                                                "description": "Does this window have a solar screen?"
+                                                "description": "Does this skylight have a solar screen?"
                                             },
                                             "storm_type": {
                                                 "type": "string",
