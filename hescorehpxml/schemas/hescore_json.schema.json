@@ -696,10 +696,10 @@
                                                 "type": "boolean",
                                                 "description": "Does this window have a solar screen?"
                                             },
-                                            "storm_window_type": {
+                                            "storm_type": {
                                                 "type": "string",
                                                 "enum": ["clear", "low-e"],
-                                                "description": "Type of storm window"
+                                                "description": "Type of storm for this window"
                                             }
                                         }
                                     }
