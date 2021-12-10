@@ -73,10 +73,10 @@ def main(argv=sys.argv[1:]):
         logging.error('%s:%s', exclass, str(ex))
         remove_scrubbed_hpxml_file()
         sys.exit(1)
-    # except Exception:
-    #     logging.error('Unknown HPXML Translation Error: Please contact HEScore support')
-    #     remove_scrubbed_hpxml_file()
-    #     sys.exit(2)
+    except Exception:
+        logging.error('Unknown HPXML Translation Error: Please contact HEScore support')
+        remove_scrubbed_hpxml_file()
+        sys.exit(2)
 
     try:
         t.hpxml_to_hescore_json(
@@ -90,9 +90,9 @@ def main(argv=sys.argv[1:]):
         exclass = type(ex).__name__
         logging.error('%s:%s', exclass, str(ex))
         sys.exit(1)
-    # except Exception:
-    #     logging.error('Unknown HPXML Translation Error: Please contact HEScore support')
-    #     sys.exit(2)
+    except Exception:
+        logging.error('Unknown HPXML Translation Error: Please contact HEScore support')
+        sys.exit(2)
     finally:
         if args.scrubbed_hpxml:
             t.export_scrubbed_hpxml(args.scrubbed_hpxml)
