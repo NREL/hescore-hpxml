@@ -900,6 +900,39 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         resp_v3 = tr_v3.hpxml_to_hescore()
         self.assertEqual(resp['building']['zone']['zone_roof'], resp_v3['building']['zone']['zone_roof'])
 
+    def test_radiant_barrier(self):
+        tr_v3 = self._load_xmlfile('house2_v3')
+        # run translation
+        resp_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(resp_v3['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfrb00co')
+        # roof with radiant barrier (Nominal R-value > 0)
+        roof = self.xpath('//h:Roof[1]')
+        E = self.element_maker()
+        roof_ins = E.Insulation(
+            E.SystemIdentifier(id='roof_ins'),
+            E.Layer(
+                E.InstallationType('cavity'),
+                E.NominalRValue('11')
+            )
+        )
+        roof.append(roof_ins)
+        # run translation
+        resp_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(resp_v3['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf11co')
+
+        tr_v3 = self._load_xmlfile('house2_v3')
+        # roof with radiant barrier (Assembly R-value > 0)
+        roof = self.xpath('//h:Roof[1]')
+        E = self.element_maker()
+        roof_ins = E.Insulation(
+            E.SystemIdentifier(id='roof_ins'),
+            E.AssemblyEffectiveRValue('11')
+        )
+        roof.append(roof_ins)
+        # run translation
+        resp_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(resp_v3['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf11co')
+
     def test_attic_knee_wall_zero_rvalue(self):
         tr = self._load_xmlfile('hescore_min')
         # make a copy of the first wall

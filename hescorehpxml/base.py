@@ -1236,10 +1236,16 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     self.get_attic_roof_assembly_rvalue(attic, roof)
                 )
                 if roof_assembly_rvalue is not None:
+                    if has_radiant_barrier:
+                        # Use effective R-value for wood frame roof without radiant barrier.
+                        # The actual radiant barrier model in OS will handle the radiant barrier.
+                        constype_for_lookup = 'wf'  
+                    else:
+                        constype_for_lookup = attic_roofs_d['roofconstype']
                     closest_roof_code, closest_code_rvalue = \
                         min([(doe2code, code_rvalue)
                              for doe2code, code_rvalue in self.roof_assembly_eff_rvalues.items()
-                             if doe2code[2:4] in attic_roofs_d['roofconstype'] and
+                             if doe2code[2:4] in constype_for_lookup and
                              doe2code[6:8] == attic_roofs_d['extfinish']],
                             key=lambda x: abs(x[1] - float(roof_assembly_rvalue)))
                     attic_roofs_d['roof_assembly_rvalue'] = closest_code_rvalue
@@ -1251,8 +1257,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     # roof center of cavity R-value
                     roof_rvalue = self.get_attic_roof_rvalue(attic, roof)
                     if attic_roofs_d['roofconstype'] == 'rb':
-                        # For wood frame with radiant barrier roof, use wood frame roof effective R-value.
-                        # Radiant barrier will be handled by the actual radiant barrier model in OS.
+                        # Use effective R-value for wood frame roof without radiant barrier.
+                        # The actual radiant barrier model in OS will handle the radiant barrier.
                         roof_rvalue = roof_round_to_nearest(roofid, roof_rvalue, (0, 11, 13, 15, 19, 21, 27, 30))
                         lookup_code = f"rfwf{roof_rvalue:02d}{attic_roofs_d['extfinish']}"
                         # Model as a roof without radiant barrier if R-value is > 0 and the radiant barrier is present
