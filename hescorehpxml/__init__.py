@@ -6,13 +6,16 @@ from jsonschema import ValidationError, SchemaError
 from .base import HPXMLtoHEScoreTranslatorBase
 from .hpxml2 import HPXML2toHEScoreTranslator
 from .hpxml3 import HPXML3toHEScoreTranslator
+from .hpxml4 import HPXML4toHEScoreTranslator
 from .exceptions import HPXMLtoHEScoreError
 
 
 def HPXMLtoHEScoreTranslator(hpxmlfilename):
     schema_version = HPXMLtoHEScoreTranslatorBase.detect_hpxml_version(hpxmlfilename)
     major_version = schema_version[0]
-    if major_version == 3:
+    if major_version == 4:
+        return HPXML4toHEScoreTranslator(hpxmlfilename)
+    elif major_version == 3:
         return HPXML3toHEScoreTranslator(hpxmlfilename)
     elif major_version == 2:
         return HPXML2toHEScoreTranslator(hpxmlfilename)
