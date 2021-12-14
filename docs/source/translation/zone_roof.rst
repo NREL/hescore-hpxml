@@ -209,9 +209,10 @@ HPXML v3
 Radiant Barrier
 ***************
 
-If the ``Roof/RadiantBarrier`` element exists and has a "true" value, the attic
-is assumed to have a radiant barrier and no roof deck insulation is assumed
-according to the construction codes available in HEScore.
+If the ``Roof/RadiantBarrier`` element exists and has a "true" value and roof deck insulation R-value is 0,
+the attic is assumed to have a radiant barrier according to the construction codes available in HEScore.
+If the ``Roof/RadiantBarrier`` element exists and has a "true" value but roof deck insulation R-value greater than 0,
+the roof will be modeled as a roof with no radiant barrier.
 
 .. _roof-rvalues:
 
