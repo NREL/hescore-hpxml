@@ -1243,7 +1243,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     if has_radiant_barrier:
                         # Use effective R-value for wood frame roof without radiant barrier.
                         # The actual radiant barrier model in OS will handle the radiant barrier.
-                        constype_for_lookup = 'wf'  
+                        constype_for_lookup = 'wf'
                     else:
                         constype_for_lookup = attic_roofs_d['roofconstype']
                     closest_roof_code, closest_code_rvalue = \
