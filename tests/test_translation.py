@@ -1812,6 +1812,13 @@ class TestDuctLocations(unittest.TestCase, ComparatorBase):
         duct = hesd['building']['systems']['hvac'][0]['hvac_distribution'][0]
         self.assertEqual(duct['location'], 'outside')
 
+    def test_outside_v2(self):
+        tr = self._load_xmlfile('house3')
+        self._set_duct_location('outside')
+        hesd = tr.hpxml_to_hescore()
+        duct = hesd['building']['systems']['hvac'][0]['hvac_distribution'][0]
+        self.assertEqual(duct['location'], 'outside')
+
     def test_roof_deck(self):
         tr = self._load_xmlfile('house3_v3')
         self._set_duct_location('roof deck')
