@@ -307,6 +307,12 @@ def test_invalid_wall(hpxml_filebase):
         assert '\"wall_assembly_code\" is not allowed for zone_wall/side[\"back\"]' in errors
         assert '\"wall_assembly_code\" is not allowed for zone_wall/side[\"right\"]' in errors
 
+    if hpxml_filebase == 'townhouse_walls':
+        js3 = copy.deepcopy(js)
+        js3['building']['zone']['zone_wall'].append({'side': 'right'})
+        errors = get_error_messages(js3, js_schema)
+        assert 'zone_wall/side[\"right\"] not allowed' in errors
+
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_window(hpxml_filebase):
@@ -656,6 +662,7 @@ def test_invalid_solar_electric(hpxml_filebase):
     assert "'num_panels' is a required property" in errors
     assert "'year' is a required property" in errors
     assert "'array_azimuth' is a required property" in errors
+    assert "'array_tilt' is a required property" in errors
     assert ("{'required': ['system_capacity']} is not allowed for {'capacity_known': False, "
             "'system_capacity': 50}") in errors
 
@@ -665,6 +672,7 @@ def test_invalid_solar_electric(hpxml_filebase):
     assert "'system_capacity' is a required property" in errors
     assert "'year' is a required property" in errors
     assert "'array_azimuth' is a required property" in errors
+    assert "'array_tilt' is a required property" in errors
     assert ("{'required': ['num_panels']} is not allowed for {'capacity_known': True, 'num_panels': 5}") in errors
 
     js3 = copy.deepcopy(js)
@@ -672,5 +680,6 @@ def test_invalid_solar_electric(hpxml_filebase):
     errors = get_error_messages(js3, js_schema)
     assert "'capacity_known' is a required property" in errors
     assert "'array_azimuth' is a required property" in errors
+    assert "'array_tilt' is a required property" in errors
     assert "'num_panels' is a required property" not in errors
     assert "'system_capacity' is a required property" not in errors
