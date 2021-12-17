@@ -104,4 +104,6 @@ the translator expects to find the following element:
 * ``DuctLeakageMeasurement/DuctLeakage[TotalOrToOutside="to outside"]/Value`` element 
   with the numeric value
 
+If both elements are specified, the preference will be given to the duct blaster measurement.
+
 If neither of elements above is specified, it will result in an "unsealed" designation.
