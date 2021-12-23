@@ -870,8 +870,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         attic_type.addprevious(etree.Element(tr.addns('h:AtticKneeWall'), {'idref': 'wall2'}))
         # run translation
         resp = tr.hpxml_to_hescore()
-        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf38')
-        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
+        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf49')
+        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1200.0)
 
         # HPXML v3
         tr_v3 = self._load_xmlfile('hescore_min_v3')
@@ -966,8 +966,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         kneewall_rvalue_el.text = '0'
         # run translation
         resp = tr.hpxml_to_hescore()
-        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf09')
-        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
+        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf49')
+        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1200.0)
         # Set kneewall R-value to 11 and attic floor R-value to zero
         kneewall_rvalue_el.text = '11'
         attic_floor_rvalue_el = self.xpath('//h:Attic/h:AtticFloorInsulation/h:Layer/h:NominalRValue')
@@ -975,7 +975,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         # run translation
         resp = tr.hpxml_to_hescore()
         self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf00')
-        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
+        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1200.0)
 
     def test_gable_wall_ignore(self):
         tr = self._load_xmlfile('hescore_min_v3')
@@ -1186,7 +1186,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertEqual(res['building']['zone']['zone_wall'][2]['wall_assembly_code'], 'ewwf13wo')
         self.assertEqual(res['building']['zone']['zone_wall'][3]['wall_assembly_code'], 'ewwf13wo')
         self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00wo')
-        self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf11')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf25')
         self.assertEqual(res['building']['zone']['zone_floor'][0]['floor_assembly_code'], 'efwf30ca')
 
 
