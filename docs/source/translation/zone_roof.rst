@@ -244,8 +244,7 @@ Starting from HPXML v3, multiple roofs are allowed to be attached to the same at
 If the attic has more than one ``Roof`` element with roof insulation,
 a weighted average R-value is calculated using assembly R-value for each ``Roof``, 
 whether nominal R-value or assembly R-value is used. 
-The weighted average is calculated by weighting the U-values 
-(i.e., the multiplicative inverse of assembly R-values) by area.
+The weighted average is calculated by weighting the U-values by area.
 
 .. math::
    :nowrap:
@@ -337,3 +336,4 @@ the area weighted assembly effective R-value of the attic floor.
 The averaged center-of-cavity or assembly effective R value is combined from all knee walls 
 and attic floors attached to the same attic. The highest weighted attic floor 
 construction type is selected.
+

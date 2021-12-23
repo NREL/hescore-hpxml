@@ -223,8 +223,8 @@ and exterior finish that represent the largest combined area are used to
 represent the side of the house. 
 
 Whether nominal R-value or assembly R-value is used, a weighted average R-value is calculated
-using assembly R-value for each ``Wall``. The weighted average is calculated by weighting 
-the U-values (i.e., the multiplicative inverse of assembly R-values) by area.
+using assembly R-value for each ``Wall``. 
+The weighted average is calculated by weighting the U-values by area.
 
 .. math::
    :nowrap:
