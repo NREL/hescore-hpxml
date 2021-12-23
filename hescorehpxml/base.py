@@ -434,6 +434,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                           'ground-to-air': 'gchp',
                           'ground-to-water': 'gchp'}
 
+    # FIXME: Not sure if you need it @nmerket
     def get_attic_knee_wall_rvalue_and_area(self, attic, b, knee_walls):
         knee_wall_dict_ls = []
         for knee_wall in knee_walls:
@@ -1140,7 +1141,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         # building.zone.zone_roof--------------------------------------------------
         attics = xpath(b, 'descendant::h:Attics/h:Attic', aslist=True, raise_err=True)
         roofs = xpath(b, 'descendant::h:Roof', aslist=True, raise_err=True)
-        attic_floor_rvalues = (0, 3, 6, 9, 11, 19, 21, 25, 30, 38, 44, 49, 60)
 
         atticds = []
         for attic in attics:
@@ -1309,9 +1309,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 sum([attic_roofs_dict['roof_area'] / attic_roofs_dict['roof_assembly_rvalue']
                     for attic_roofs_dict in attic_roof_ls])
 
-            # knee walls
-            knee_walls = self.get_attic_knee_walls(attic, b)
-
             # Questions: here we didn't have any input validation of floor attachment based on attic type, should we
             # enhance it? Currently, a building with attic can skip specifying attic floors (0 rvalue passed) while
             # one with cathedral ceiling can have floor specified (though it will be silently ignored in output).
@@ -1321,34 +1318,21 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 self.get_attic_floor_assembly_rvalue(attic, b)
             )
             if attic_floor_rvalue is not None:
-                if knee_walls:
-                    knee_wall_rvalue, knee_wall_area = self.get_attic_knee_wall_rvalue_and_area(attic, b, knee_walls)
-                    knee_wall_ua = knee_wall_area / knee_wall_rvalue
-
-                    attic_floor_adj_ua = knee_wall_ua + atticd['roof_area'] / attic_floor_rvalue
-                    attic_floor_adj_area = knee_wall_area + atticd['roof_area']
-                    attic_floor_rvalue = (attic_floor_adj_area / attic_floor_adj_ua)
-                    atticd['roof_area'] = attic_floor_adj_area
-                atticd['attic_floor_assembly_rvalue'] = attic_floor_rvalue
+                closest_attic_floor_code, closest_code_rvalue = \
+                    min([(doe2code, code_rvalue)
+                         for doe2code, code_rvalue in self.ceiling_assembly_eff_rvalues.items()],
+                        key=lambda x: abs(x[1] - attic_floor_rvalue))
+                atticd['attic_floor_assembly_rvalue'] = closest_code_rvalue
             elif self.every_attic_floor_layer_has_nominal_rvalue(attic, b):
                 attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
-                if knee_walls:
-                    # Assumes that every knee wall has nominal rvalue when every attic floor layer has nominal rvalue.
-                    knee_wall_rvalue, knee_wall_area = self.get_attic_knee_wall_rvalue_and_area(attic, b, knee_walls)
-                    knee_wall_coc_rvalue = knee_wall_rvalue + 1.8
-                    knee_wall_ua = knee_wall_area / knee_wall_coc_rvalue
-
-                    attic_floor_coc_rvalue = attic_floor_rvalue + 0.5
-                    attic_floor_adj_ua = knee_wall_ua + atticd['roof_area'] / attic_floor_coc_rvalue
-                    attic_floor_adj_area = knee_wall_area + atticd['roof_area']
-                    attic_floor_rvalue = (attic_floor_adj_area / attic_floor_adj_ua) - 0.5
-                    atticd['roof_area'] = attic_floor_adj_area
-                atticd['attic_floor_coc_rvalue'] = attic_floor_rvalue + 0.5
+                closest_attic_floor_rvalue = roof_round_to_nearest(
+                    roofid, attic_floor_rvalue, (0, 3, 6, 9, 11, 19, 21, 25, 30, 38, 44, 49, 60))
+                lookup_code = f"ecwf{closest_attic_floor_rvalue:02d}"
+                atticd['attic_floor_assembly_rvalue'] = self.ceiling_assembly_eff_rvalues[lookup_code]
             else:
                 raise TranslationError(
                     'Every attic floor insulation layer needs a NominalRValue or '
                     f"AssemblyEffectiveRValue needs to be defined, (attic_id = {atticid})")
-
         if len(atticds) == 0:
             raise TranslationError('There are no Attic elements in this building.')
         elif len(atticds) <= 2:
@@ -1386,12 +1370,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     sum([atticd['roof_area'] / atticd['roof_assembly_rvalue'] for atticd in atticds])
 
                 # Calculate attic floor weighted average center-of-cavity R-value
-                if all('attic_floor_assembly_rvalue' in k for k in atticds):
-                    combined_atticd['attic_floor_assembly_rvalue'] = combined_atticd['roof_area'] / \
-                        sum([atticd['roof_area'] / atticd['attic_floor_assembly_rvalue'] for atticd in atticds])
-                else:
-                    combined_atticd['attic_floor_coc_rvalue'] = combined_atticd['roof_area'] / \
-                        sum([atticd['roof_area'] / atticd['attic_floor_coc_rvalue'] for atticd in atticds])
+                combined_atticd['attic_floor_assembly_rvalue'] = combined_atticd['roof_area'] / \
+                    sum([atticd['roof_area'] / atticd['attic_floor_assembly_rvalue'] for atticd in atticds])
 
                 combined_atticds.append(combined_atticd)
 
@@ -1419,16 +1399,11 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 roof_code = closest_roof_code
 
             # Get Attic Floor R-value
-            if 'attic_floor_assembly_rvalue' in atticd:
-                closest_floor_code, closest_code_rvalue = \
-                    min([(doe2code, code_rvalue)
-                         for doe2code, code_rvalue in self.ceiling_assembly_eff_rvalues.items()],
-                        key=lambda x: abs(x[1] - atticd['attic_floor_assembly_rvalue']))
-                attic_floor_code = closest_floor_code
-            else:
-                attic_floor_rvalue = min(attic_floor_rvalues,
-                                         key=lambda x: abs(atticd['attic_floor_coc_rvalue'] - 0.5 - x))
-                attic_floor_code = 'ecwf%02d' % attic_floor_rvalue
+            closest_floor_code, closest_code_rvalue = \
+                min([(doe2code, code_rvalue)
+                     for doe2code, code_rvalue in self.ceiling_assembly_eff_rvalues.items()],
+                    key=lambda x: abs(x[1] - atticd['attic_floor_assembly_rvalue']))
+            attic_floor_code = closest_floor_code
 
             # store it all
             zone_roof_item = OrderedDict()
@@ -1546,6 +1521,13 @@ class HPXMLtoHEScoreTranslatorBase(object):
         return zone_skylight
 
     def get_building_zone_floor(self, b, bldg_about):
+
+        def floor_round_to_nearest(floorid, *args):
+            try:
+                return round_to_nearest(*args, tails_tolerance=3)
+            except RoundOutOfBounds:
+                raise TranslationError('Floor R-value outside HEScore bounds, floor id: %s' % floorid)
+
         ns = self.ns
         xpath = self.xpath
         smallnum = 0.01
@@ -1671,12 +1653,11 @@ class HPXMLtoHEScoreTranslatorBase(object):
             if zone_floor['foundation_type'] != 'slab_on_grade':
                 ffua = 0
                 fftotalarea = 0
-                framefloor_has_assembly_rvalue = False
                 framefloors = self.get_foundation_frame_floors(foundation, b)
-                floor_eff_rvalues = dict(zip((0, 11, 13, 15, 19, 21, 25, 30, 38),
-                                             (4.0, 15.8, 17.8, 19.8, 23.8, 25.8, 31.8, 37.8, 42.8)))
+                doe2_floor_rvalues = (0, 11, 13, 15, 19, 21, 25, 30, 38)
                 if len(framefloors) > 0:
                     for framefloor in framefloors:
+                        ffid = xpath(framefloor, 'h:SystemIdentifier/@id', raise_err=True)
                         ffarea = convert_to_type(float, xpath(framefloor, 'h:Area/text()'))
                         if ffarea is None:
                             if len(framefloors) == 1:
@@ -1690,13 +1671,11 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         )
                         if framefloor_assembly_rvalue is not None:
                             ffeffrvalue = framefloor_assembly_rvalue
-                            framefloor_has_assembly_rvalue = True
                         elif self.every_framefloor_layer_has_nominal_rvalue(framefloor, framefloor):
                             ffrvalue = xpath(framefloor, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-                            ffeffrvalue = floor_eff_rvalues[min(
-                                list(floor_eff_rvalues.keys()),
-                                key=lambda x: abs(ffrvalue - x)
-                            )]
+                            closest_floor_rvalue = floor_round_to_nearest(ffid, ffrvalue, doe2_floor_rvalues)
+                            lookup_code = f"efwf{closest_floor_rvalue:02d}ca"
+                            ffeffrvalue = self.floor_assembly_eff_rvalues[lookup_code]
                         else:
                             ffid = xpath(framefloor, 'h:SystemIdentifier/@id', raise_err=True)
                             raise TranslationError(
@@ -1704,20 +1683,14 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                 f"needs to be defined, (framefloor_id = {ffid})")
                         ffua += ffarea / ffeffrvalue
                         fftotalarea += ffarea
-                    if framefloor_has_assembly_rvalue:
-                        ffrvalue = fftotalarea / ffua
-                        comb_ff_code, comb_rvalue = \
-                            min([(doe2code, code_rvalue)
-                                for doe2code, code_rvalue in self.floor_assembly_eff_rvalues.items()],
-                                key=lambda x: abs(x[1] - float(ffrvalue)))
-                    else:
-                        ffrvalue = fftotalarea / ffua - 4.0
-                        comb_rvalue = min(list(floor_eff_rvalues.keys()), key=lambda x: abs(ffrvalue - x))
-                        comb_ff_code = 'efwf%02dca' % comb_rvalue
+                    ffrvalue = fftotalarea / ffua
+                    comb_ff_code, comb_rvalue = \
+                        min([(doe2code, code_rvalue)
+                            for doe2code, code_rvalue in self.floor_assembly_eff_rvalues.items()],
+                            key=lambda x: abs(x[1] - float(ffrvalue)))
                     zone_floor['floor_assembly_code'] = comb_ff_code
                 else:
                     zone_floor['floor_assembly_code'] = 'efwf00ca'
-
             zone_floors.append(zone_floor)
 
         return zone_floors
