@@ -625,8 +625,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         # Duct leakage to outside
         leakage_to_outside = \
             self.xpath(airdist_el,
-                       'h:DuctLeakageMeasurement/h:DuctLeakage[h:TotalOrToOutside="to outside" and Units="CFM25"]' +
-                       '/h:Value/text()')
+                       'sum(h:DuctLeakageMeasurement/h:DuctLeakage[h:TotalOrToOutside="to outside" ' +
+                       'and h:Units="CFM25"]/h:Value/text())')
 
         if leakage_to_outside:
             hvac_distribution['leakage_method'] = 'quantitative'
