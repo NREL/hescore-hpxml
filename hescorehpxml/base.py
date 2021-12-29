@@ -2006,17 +2006,32 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     )
                 )
 
-        # Check to make sure heating and cooling systems that need a distribution system have them.
+        # Check to make sure heating and cooling systems that need a distribution system have them
+        # and heating and cooling systems that are not allowed to have a distribution system don't have them.
         heating_sys_types_requiring_ducts = ('gchp', 'heat_pump', 'central_furnace')
         for htg_sys_id, htg_sys in list(heating_systems.items()):
             if htg_sys['type'] in heating_sys_types_requiring_ducts and htg_sys_id not in dist_heating_map.values():
-                raise TranslationError('Heating system %s is not associated with an air distribution system.' %
-                                       htg_sys_id)
+                raise TranslationError(
+                    f'Heating system {htg_sys_id} is not associated with an air distribution system.')
+            try:
+                htg_sys_dist_id = [key if value == htg_sys_id else None for key, value in dist_heating_map.items()][0]
+            except IndexError:
+                continue
+            if htg_sys['type'] not in heating_sys_types_requiring_ducts and htg_sys_dist_id is not None and\
+                    distribution_systems[htg_sys_dist_id] is not None:
+                raise TranslationError(f'Ducts are not allowed for heating system {htg_sys_id}.')
         cooling_sys_types_requiring_ducts = ('split_dx', 'heat_pump', 'gchp')
         for clg_sys_id, clg_sys in list(cooling_systems.items()):
             if clg_sys['type'] in cooling_sys_types_requiring_ducts and clg_sys_id not in dist_cooling_map.values():
-                raise TranslationError('Cooling system %s is not associated with an air distribution system.' %
-                                       clg_sys_id)
+                raise TranslationError(
+                    f'Cooling system {clg_sys_id} is not associated with an air distribution system.')
+            try:
+                clg_sys_dist_id = [key if value == clg_sys_id else None for key, value in dist_cooling_map.items()][0]
+            except IndexError:
+                continue
+            if clg_sys['type'] not in cooling_sys_types_requiring_ducts and clg_sys_dist_id is not None and\
+                    distribution_systems[clg_sys_dist_id] is not None:
+                raise TranslationError(f'Ducts are not allowed for cooling system {clg_sys_id}.')
 
         # Determine a total weighting factor for each combined heating/cooling/distribution system
         # Create a list of systems including the weights that we can sort
