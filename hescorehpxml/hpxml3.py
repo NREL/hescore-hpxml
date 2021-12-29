@@ -216,6 +216,12 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_framefloor_assembly_rvalue(self, v2_framefloor, framefloor):
         return self.xpath(framefloor, 'h:Insulation/h:AssemblyEffectiveRValue/text()')
 
+    def get_foundation_wall_assembly_rvalue(self, v2_fwall, fwall):
+        return self.xpath(fwall, 'h:Insulation/h:AssemblyEffectiveRValue/text()')
+
+    def get_slab_assembly_rvalue(self, v2_slab, slab):
+        return self.xpath(slab, 'h:PerimeterInsulation/h:AssemblyEffectiveRValue/text()')
+
     def every_framefloor_layer_has_nominal_rvalue(self, v2_framefloor, framefloor):
         framefloor_layers = self.xpath(framefloor, 'h:Insulation/h:Layer', aslist=True)
         every_layer_has_nominal_rvalue = True  # Considered to have nominal R-value unless assembly R-value is used

@@ -1189,6 +1189,35 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf25')
         self.assertEqual(res['building']['zone']['zone_floor'][0]['floor_assembly_code'], 'efwf30ca')
 
+        tr = self._load_xmlfile('house9')
+        E = self.element_maker()
+        fwall_ins_layers = self.xpath('//h:FoundationWalls/h:FoundationWall/h:Insulation/h:Layer')
+        fwall_ins = fwall_ins_layers[0].getparent()
+        for fwall_ins_layer in fwall_ins_layers:
+            fwall_ins_layer.getparent().remove(fwall_ins_layer)
+        fwall_ins.append(
+            E.AssemblyEffectiveRValue('7.6')
+        )
+        self.assertRaisesRegex(
+            TranslationError,
+            'Every foundation wall insulation layer needs a NominalRValue, fwall_id = Surface_13',
+            tr.hpxml_to_hescore
+        )
+
+        tr = self._load_xmlfile('house3')
+        E = self.element_maker()
+        slab_perim_ins_layer = self.xpath('//h:Slab/h:PerimeterInsulation/h:Layer')
+        slab_perim_ins = slab_perim_ins_layer.getparent()
+        slab_perim_ins_layer.getparent().remove(slab_perim_ins_layer)
+        slab_perim_ins.append(
+            E.AssemblyEffectiveRValue('7.6')
+        )
+        self.assertRaisesRegex(
+            TranslationError,
+            'Every slab insulation layer needs a NominalRValue, slab_id = slab1',
+            tr.hpxml_to_hescore
+        )
+
     def test_duct_leakage_to_outside(self):
         tr = self._load_xmlfile('house9')
         duct_leakage_values = self.xpath('//h:DuctLeakage/h:Value')

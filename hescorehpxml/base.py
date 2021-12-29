@@ -1305,7 +1305,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 else:
                     raise TranslationError(
                         'Every roof insulation layer needs a NominalRValue or '
-                        f"AssemblyEffectiveRValue needs to be defined, (roof_id = {attic_roofs_d['roof_id']})")
+                        f"AssemblyEffectiveRValue needs to be defined, roof_id = {attic_roofs_d['roof_id']}")
 
             # Sum of Roof Areas in the same Attic
             attic_roof_area_sum = sum([attic_roofs_dict['roof_area'] for attic_roofs_dict in attic_roof_ls])
@@ -1355,7 +1355,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             else:
                 raise TranslationError(
                     'Every attic floor insulation layer needs a NominalRValue or '
-                    f"AssemblyEffectiveRValue needs to be defined, (attic_id = {atticid})")
+                    f"AssemblyEffectiveRValue needs to be defined, attic_id = {atticid}")
         if len(atticds) == 0:
             raise TranslationError('There are no Attic elements in this building.')
         elif len(atticds) <= 2:
@@ -1632,6 +1632,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     raise TranslationError('The house is a slab on grade foundation, but has foundation walls.')
                 del fw_eff_rvalues[5]  # remove the value for slab insulation
                 for fwall in foundationwalls:
+                    fwallid = xpath(fwall, 'h:SystemIdentifier/@id', raise_err=True)
                     fwarea, fwlength, fwheight = \
                         [convert_to_type(float, xpath(fwall, 'h:%s/text()' % x)) for x in ('Area', 'Length', 'Height')]
                     if fwarea is None:
@@ -1643,10 +1644,18 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             else:
                                 raise TranslationError(
                                     'If there is more than one FoundationWall, an Area is required for each.')
-                    fwrvalue = xpath(fwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
-                    fweffrvalue = fw_eff_rvalues[min(list(fw_eff_rvalues.keys()), key=lambda x: abs(fwrvalue - x))]
-                    fwua += fwarea / fweffrvalue
-                    fwtotalarea += fwarea
+                    fwall_assembly_rvalue = convert_to_type(
+                        float,
+                        self.get_foundation_wall_assembly_rvalue(fwall, fwall)
+                    )
+                    if fwall_assembly_rvalue is not None:  # TODO: Allow for AssemblyEffectiveRValue
+                        raise TranslationError(
+                            f'Every foundation wall insulation layer needs a NominalRValue, fwall_id = {fwallid}')
+                    else:
+                        fwrvalue = xpath(fwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
+                        fweffrvalue = fw_eff_rvalues[min(list(fw_eff_rvalues.keys()), key=lambda x: abs(fwrvalue - x))]
+                        fwua += fwarea / fweffrvalue
+                        fwtotalarea += fwarea
                 zone_floor['foundation_insulation_level'] = (fwtotalarea / fwua) - 4.0
             elif zone_floor['foundation_type'] == 'slab_on_grade':
                 del fw_eff_rvalues[11]  # remove unused values
@@ -1655,6 +1664,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 slabua = 0
                 slabtotalperimeter = 0
                 for slab in slabs:
+                    slabid = xpath(slab, 'h:SystemIdentifier/@id', raise_err=True)
                     exp_perimeter = convert_to_type(float, xpath(slab, 'h:ExposedPerimeter/text()'))
                     if exp_perimeter is None:
                         if len(slabs) == 1:
@@ -1662,10 +1672,19 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         else:
                             raise TranslationError(
                                 'If there is more than one Slab, an ExposedPerimeter is required for each.')
-                    slabrvalue = xpath(slab, 'sum(h:PerimeterInsulation/h:Layer/h:NominalRValue)')
-                    slabeffrvalue = fw_eff_rvalues[min(list(fw_eff_rvalues.keys()), key=lambda x: abs(slabrvalue - x))]
-                    slabua += exp_perimeter / slabeffrvalue
-                    slabtotalperimeter += exp_perimeter
+                    slab_assembly_rvalue = convert_to_type(
+                        float,
+                        self.get_slab_assembly_rvalue(slab, slab)
+                    )
+                    if slab_assembly_rvalue is not None:  # TODO: Allow for AssemblyEffectiveRValue
+                        raise TranslationError(
+                            f"Every slab insulation layer needs a NominalRValue, slab_id = {slabid}")
+                    else:
+                        slabrvalue = xpath(slab, 'sum(h:PerimeterInsulation/h:Layer/h:NominalRValue)')
+                        slabeffrvalue = fw_eff_rvalues[
+                            min(list(fw_eff_rvalues.keys()), key=lambda x: abs(slabrvalue - x))]
+                        slabua += exp_perimeter / slabeffrvalue
+                        slabtotalperimeter += exp_perimeter
                 zone_floor['foundation_insulation_level'] = (slabtotalperimeter / slabua) - 4.0
             else:
                 zone_floor['foundation_insulation_level'] = 0
@@ -1703,7 +1722,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             ffid = xpath(framefloor, 'h:SystemIdentifier/@id', raise_err=True)
                             raise TranslationError(
                                 'Every frame floor insulation layer needs a NominalRValue or AssemblyEffectiveRValue '
-                                f"needs to be defined, (framefloor_id = {ffid})")
+                                f"needs to be defined, framefloor_id = {ffid}")
                         ffua += ffarea / ffeffrvalue
                         fftotalarea += ffarea
                     ffrvalue = fftotalarea / ffua
