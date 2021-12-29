@@ -1189,6 +1189,31 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf25')
         self.assertEqual(res['building']['zone']['zone_floor'][0]['floor_assembly_code'], 'efwf30ca')
 
+    def test_duct_leakage_to_outside(self):
+        tr = self._load_xmlfile('house9')
+        duct_leakage_values = self.xpath('//h:DuctLeakage/h:Value')
+        for duct_leakage_value in duct_leakage_values:
+            duct_leakage_value.text = '0'
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['leakage_method'], 'quantitative')
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['leakage_to_outside'], 0)
+
+        tr = self._load_xmlfile('house9')
+        duct_type = self.xpath('//h:DuctLeakageMeasurement/h:DuctType[text()="supply"]')
+        duct_type.getparent().remove(duct_type)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['leakage_method'], 'quantitative')
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['leakage_to_outside'], 224.77)
+
+        tr = self._load_xmlfile('house9')
+        duct_leakage_measurements = self.xpath('//h:DuctLeakageMeasurement')
+        for duct_leakage_measurement in duct_leakage_measurements:
+            duct_leakage_measurement.getparent().remove(duct_leakage_measurement)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['leakage_method'], 'qualitative')
+        self.assertNotIn('leakage_to_outside', res['building']['systems']['hvac'][0]['hvac_distribution'])
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['sealed'], False)
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 

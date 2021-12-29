@@ -617,20 +617,30 @@ class HPXMLtoHEScoreTranslatorBase(object):
             return
 
         # Determine if the entire system is sealed (best we can do, not available duct by duct)
-        is_sealed = \
-            self.xpath(airdist_el,
-                       '(h:DuctLeakageMeasurement/h:LeakinessObservedVisualInspection="connections sealed w mastic") ' +
-                       'or (ancestor::h:HVACDistribution/h:HVACDistributionImprovement/h:DuctSystemSealed="true")')
+        is_sealed = self.xpath(
+            airdist_el,
+            '(h:DuctLeakageMeasurement/h:LeakinessObservedVisualInspection="connections sealed w mastic") ' +
+            'or (ancestor::h:HVACDistribution/h:HVACDistributionImprovement/h:DuctSystemSealed="true")')
 
-        # Duct leakage to outside
-        leakage_to_outside = \
-            self.xpath(airdist_el,
-                       'sum(h:DuctLeakageMeasurement/h:DuctLeakage[h:TotalOrToOutside="to outside" ' +
-                       'and h:Units="CFM25"]/h:Value/text())')
+        # Distinguish between the two cases for duct leakage measurements:
+        # (a) the sum of duct leakage measurements (i.e., without DuctType specified) and
+        # (b) duct leakage measurements for supply and return ducts (i.e., with DuctType specified)
+        leakage_to_outside = self.xpath(
+            airdist_el,
+            'h:DuctLeakageMeasurement[not(h:DuctType)]/h:DuctLeakage[h:TotalOrToOutside="to outside" ' +
+            'and h:Units="CFM25"]/h:Value/text()')
+        if leakage_to_outside is None:
+            supply_return_duct_leakage_measurements = self.xpath(
+                airdist_el, '//h:DuctLeakageMeasurement[h:DuctType[text()="supply" or text()="return"]]')
+            if supply_return_duct_leakage_measurements is not None:
+                leakage_to_outside = self.xpath(
+                    airdist_el,
+                    'sum(h:DuctLeakageMeasurement[h:DuctType[text()="supply" or text()="return"]]/h:DuctLeakage' +
+                    '[h:TotalOrToOutside="to outside" and h:Units="CFM25"]/h:Value/text())')
 
-        if leakage_to_outside:
+        if leakage_to_outside is not None:
             hvac_distribution['leakage_method'] = 'quantitative'
-            hvac_distribution['leakage_to_outside'] = leakage_to_outside
+            hvac_distribution['leakage_to_outside'] = float(leakage_to_outside)
         else:
             hvac_distribution['leakage_method'] = 'qualitative'
             hvac_distribution['sealed'] = is_sealed
