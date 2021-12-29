@@ -1411,6 +1411,29 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
                                'domestic_hot_water_year is out of bounds',
                                tr.hpxml_to_hescore)
 
+    def test_heating_system_not_requiring_ducts(self):
+        tr = self._load_xmlfile('hescore_min')
+        E = self.element_maker()
+        el = self.xpath('//h:HeatingSystemType')
+        el.remove(el.getchildren()[0])
+        wallfurnace_el = E.WallFurnace()
+        el.append(wallfurnace_el)
+        self.assertRaisesRegex(
+            TranslationError,
+            r'Ducts are not allowed for heating system furnace1.',
+            tr.hpxml_to_hescore
+        )
+
+    def test_cooling_system_not_requiring_ducts(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:CoolingSystemType')
+        el.text = 'mini-split'
+        self.assertRaisesRegex(
+            TranslationError,
+            r'Ducts are not allowed for cooling system centralair1.',
+            tr.hpxml_to_hescore
+        )
+
 
 class TestHVACFractions(unittest.TestCase, ComparatorBase):
     '''
