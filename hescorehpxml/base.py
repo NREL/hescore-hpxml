@@ -565,7 +565,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             'or (ancestor::h:HVACDistribution/h:HVACDistributionImprovement/h:DuctSystemSealed="true")')
 
         # Distinguish between the two cases for duct leakage measurements:
-        # (a) the sum of duct leakage measurements (i.e., without DuctType specified) and
+        # (a) duct leakage measurement without DuctType specified and
         # (b) duct leakage measurements for supply and return ducts (i.e., with DuctType specified)
         leakage_to_outside = self.xpath(
             airdist_el,
