@@ -1215,6 +1215,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
                 )
             )
         )
+        el.getparent().remove(el)
         res = tr.hpxml_to_hescore()
         self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['leakage_method'], 'qualitative')
         self.assertNotIn('leakage_to_outside', res['building']['systems']['hvac'][0]['hvac_distribution'])
