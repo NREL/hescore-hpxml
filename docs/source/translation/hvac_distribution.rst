@@ -98,23 +98,12 @@ translator expects to find either of the following elements:
 * ``HVACDistribution/HVACDistributionImprovement/DuctSystemSealed`` element
   with the value of "true".
 
-To quantitatively specify the duct leakage to outside in CFM25 of an ``AirDistribution`` system 
-(e.g., duct blaster measurement), the translator expects to find the following element:
+To quantitatively specify the duct leakage to outside in CFM25 of an ``AirDistribution`` system, 
+the translator expects to find the following element:
 
 * ``DuctLeakageMeasurement/DuctLeakage[TotalOrToOutside="to outside"]/Value`` element 
   with the numeric value
 
-If the duct leakage to outside for supply and return ducts are separately provided
-by specifying ``DuctType`` of ``DuctLeakageMeasurement`` elements,
-the sum of them will be used.
-
-If ``DuctType`` elements are not specified, ``DuctLeakageMeasurement`` will be considered
-the sum of leakage measurements for all ducts. 
-
-If ``DuctLeakageMeasurement`` elements with and without ``DuctType`` are provided together,
-the preference will be given to the ``DuctLeakageMeasurement`` without ``DuctType``.
-
-If both qualitative and quantitative elements are specified,
-the preference will be given to the duct blaster measurement.
+If both elements are specified, the preference will be given to the duct blaster measurement.
 
 If neither of elements above is specified, it will result in an "unsealed" designation.
