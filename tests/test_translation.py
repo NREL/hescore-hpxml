@@ -1138,6 +1138,96 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.getparent().remove(el)
         self.assertRaises(ElementNotFoundError, tr.hpxml_to_hescore)
 
+    def test_duct_leakage_to_outside(self):
+        tr = self._load_xmlfile('house1')
+        E = self.element_maker()
+        el = self.xpath('//h:DuctLeakageMeasurement')
+        el.addprevious(
+            E.DuctLeakageMeasurement(
+                E.DuctLeakage(
+                    E.Units('CFM25'),
+                    E.Value('400.0'),
+                    E.TotalOrToOutside('to outside')
+                )
+            )
+        )
+        el.addprevious(
+            E.DuctLeakageMeasurement(
+                E.DuctType('supply'),
+                E.DuctLeakage(
+                    E.Units('CFM25'),
+                    E.Value('224.77'),
+                    E.TotalOrToOutside('to outside')
+                )
+            )
+        )
+        el.addprevious(
+            E.DuctLeakageMeasurement(
+                E.DuctType('return'),
+                E.DuctLeakage(
+                    E.Units('CFM25'),
+                    E.Value('113.23'),
+                    E.TotalOrToOutside('to outside')
+                )
+            )
+        )
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['leakage_method'], 'quantitative')
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['leakage_to_outside'], 400.0)
+
+        tr = self._load_xmlfile('house1')
+        E = self.element_maker()
+        el = self.xpath('//h:DuctLeakageMeasurement')
+        el.addprevious(
+            E.DuctLeakageMeasurement(
+                E.DuctType('supply'),
+                E.DuctLeakage(
+                    E.Units('CFM25'),
+                    E.Value('224.77'),
+                    E.TotalOrToOutside('to outside')
+                )
+            )
+        )
+        el.addprevious(
+            E.DuctLeakageMeasurement(
+                E.DuctType('return'),
+                E.DuctLeakage(
+                    E.Units('CFM25'),
+                    E.Value('113.23'),
+                    E.TotalOrToOutside('to outside')
+                )
+            )
+        )
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['leakage_method'], 'quantitative')
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['leakage_to_outside'], 338.0)
+
+        tr = self._load_xmlfile('house1')
+        E = self.element_maker()
+        el = self.xpath('//h:DuctLeakageMeasurement')
+        el.addprevious(
+            E.DuctLeakageMeasurement(
+                E.DuctType('supply'),
+                E.DuctLeakage(
+                    E.Units('CFM25'),
+                    E.Value('224.77'),
+                    E.TotalOrToOutside('to outside')
+                )
+            )
+        )
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['leakage_method'], 'qualitative')
+        self.assertNotIn('leakage_to_outside', res['building']['systems']['hvac'][0]['hvac_distribution'])
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['sealed'], False)
+
+        tr = self._load_xmlfile('house1')
+        el = self.xpath('//h:DuctLeakageMeasurement')
+        el.getparent().remove(el)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['leakage_method'], 'qualitative')
+        self.assertNotIn('leakage_to_outside', res['building']['systems']['hvac'][0]['hvac_distribution'])
+        self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['sealed'], False)
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 
