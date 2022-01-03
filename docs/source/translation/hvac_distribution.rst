@@ -101,7 +101,7 @@ To quantitatively specify the duct leakage to outside in CFM25 of an ``AirDistri
   with the numeric values (Note that the sum of two elements will be used)
 
 If quantitative duct leakage measurement is not specified, the
-translator expects to find either of the following qualitatively duct leakage measurement elements:
+translator expects to find either of the following qualitatively specified duct leakage measurement elements:
 
 * ``DuctLeakageMeasurement/LeakinessObservedVisualInspection`` element with
   the value of "connections sealed w mastic".
