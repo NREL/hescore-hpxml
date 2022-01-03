@@ -184,22 +184,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         wall_type = xpath(hpxmlwall, 'name(h:WallType/*)', raise_err=True)
         assembly_eff_rvalue = None
 
-        # This variable will be true if every wall layer has a NominalRValue *or*
-        # if there are no insulation layers
-        every_wall_layer_has_nominal_rvalue = True
-        wall_layers = xpath(hpxmlwall, 'h:Insulation/h:Layer', aslist=True)
-        if wall_layers:
-            every_wall_layer_has_nominal_rvalue = True
-            for layer in wall_layers:
-                if xpath(layer, 'h:NominalRValue') is None:
-                    every_wall_layer_has_nominal_rvalue = False
-                    break
-
         # Assembly effective R-value or None if element not present
-        assembly_eff_rvalue = convert_to_type(
-            float,
-            xpath(hpxmlwall, 'h:Insulation/h:AssemblyEffectiveRValue/text()', raise_err=False)
-        )
+        assembly_eff_rvalue = self.get_wall_assembly_rvalue(hpxmlwall, hpxmlwall)
 
         # Siding
         if wall_type == 'WoodStud':
@@ -252,7 +238,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             )
             return closest_wall_code, assembly_eff_rvalue
 
-        elif every_wall_layer_has_nominal_rvalue:
+        elif self.every_wall_layer_has_nominal_rvalue(hpxmlwall, hpxmlwall):
             # If the wall as a NominalRValue element for every layer (or there are no layers)
             # and there isn't an AssemblyEffectiveRValue element
             wall_rvalue = xpath(hpxmlwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)', raise_err=True)
@@ -437,18 +423,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
     def get_attic_knee_wall_rvalue_and_area(self, attic, b, knee_walls):
         knee_wall_dict_ls = []
         for knee_wall in knee_walls:
-            every_knee_wall_layer_has_nominal_rvalue = True
-            for layer in self.xpath(knee_wall, 'h:Insulation/h:Layer', aslist=True):
-                if self.xpath(layer, 'h:NominalRValue') is None:
-                    every_knee_wall_layer_has_nominal_rvalue = False
-                    break
-            assembly_eff_rvalue = convert_to_type(
-                float,
-                self.xpath(knee_wall, 'h:Insulation/h:AssemblyEffectiveRValue/text()', raise_err=False)
-            )
+            assembly_eff_rvalue = self.get_wall_assembly_rvalue(knee_wall, knee_wall)
             if assembly_eff_rvalue is not None:
                 rvalue = assembly_eff_rvalue
-            elif every_knee_wall_layer_has_nominal_rvalue:
+            elif self.every_wall_layer_has_nominal_rvalue(knee_wall, knee_wall):
                 rvalue = self.xpath(knee_wall, 'sum(h:Insulation/h:Layer/h:NominalRValue)')
             wall_area = convert_to_type(float, self.xpath(knee_wall, 'h:Area/text()'))
             if wall_area is None:
@@ -1095,15 +1073,13 @@ class HPXMLtoHEScoreTranslatorBase(object):
         return bldg_about
 
     def get_assembly_eff_rvalues_dict(self, construction):
-        if construction in ['wall', 'roof', 'ceiling', 'floor']:
-            with open(os.path.join(thisdir, 'lookups', f'lu_{construction}_eff_rvalue.csv'), newline='') as f:
-                reader = csv.DictReader(f)
-                assembly_eff_rvalues = {}
-                for row in reader:
-                    assembly_eff_rvalues[row['doe2code']] = float(row['Eff-R-value'])
-            return assembly_eff_rvalues
-        else:
-            raise TranslationError(f'{construction}: Invalid building envelope construction.')
+        assert construction in ['wall', 'roof', 'ceiling', 'floor']
+        with open(os.path.join(thisdir, 'lookups', f'lu_{construction}_eff_rvalue.csv'), newline='') as f:
+            reader = csv.DictReader(f)
+            assembly_eff_rvalues = {}
+            for row in reader:
+                assembly_eff_rvalues[row['doe2code']] = float(row['Eff-R-value'])
+        return assembly_eff_rvalues
 
     @property
     def wall_assembly_eff_rvalues(self):
@@ -1246,10 +1222,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 else:
                     attic_roofs_d['roofconstype'] = 'wf'
 
-                roof_assembly_rvalue = convert_to_type(
-                    float,
-                    self.get_attic_roof_assembly_rvalue(attic, roof)
-                )
+                roof_assembly_rvalue = self.get_attic_roof_assembly_rvalue(attic, roof)
                 if roof_assembly_rvalue is not None:
                     if has_radiant_barrier:
                         # Use effective R-value for wood frame roof without radiant barrier.
@@ -1324,10 +1297,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # enhance it? Currently, a building with attic can skip specifying attic floors (0 rvalue passed) while
             # one with cathedral ceiling can have floor specified (though it will be silently ignored in output).
             # attic floor center of cavity R-value or assembly R-value
-            attic_floor_rvalue = convert_to_type(
-                float,
-                self.get_attic_floor_assembly_rvalue(attic, b)
-            )
+            attic_floor_rvalue = self.get_attic_floor_assembly_rvalue(attic, b)
             if attic_floor_rvalue is not None:
                 closest_attic_floor_code, closest_code_rvalue = \
                     min([(doe2code, code_rvalue)
@@ -1632,10 +1602,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             else:
                                 raise TranslationError(
                                     'If there is more than one FoundationWall, an Area is required for each.')
-                    fwall_assembly_rvalue = convert_to_type(
-                        float,
-                        self.get_foundation_wall_assembly_rvalue(fwall, fwall)
-                    )
+                    fwall_assembly_rvalue = self.get_foundation_wall_assembly_rvalue(fwall, fwall)
                     if fwall_assembly_rvalue is not None:  # TODO: Allow for AssemblyEffectiveRValue
                         raise TranslationError(
                             f'Every foundation wall insulation layer needs a NominalRValue, fwall_id = {fwallid}')
@@ -1660,10 +1627,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         else:
                             raise TranslationError(
                                 'If there is more than one Slab, an ExposedPerimeter is required for each.')
-                    slab_assembly_rvalue = convert_to_type(
-                        float,
-                        self.get_slab_assembly_rvalue(slab, slab)
-                    )
+                    slab_assembly_rvalue = self.get_slab_assembly_rvalue(slab, slab)
                     if slab_assembly_rvalue is not None:  # TODO: Allow for AssemblyEffectiveRValue
                         raise TranslationError(
                             f"Every slab insulation layer needs a NominalRValue, slab_id = {slabid}")
@@ -1695,10 +1659,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             else:
                                 raise TranslationError(
                                     'If there is more than one FrameFloor, an Area is required for each.')
-                        framefloor_assembly_rvalue = convert_to_type(
-                            float,
-                            self.get_framefloor_assembly_rvalue(framefloor, framefloor)
-                        )
+                        framefloor_assembly_rvalue = self.get_framefloor_assembly_rvalue(framefloor, framefloor)
                         if framefloor_assembly_rvalue is not None:
                             ffeffrvalue = framefloor_assembly_rvalue
                         elif self.every_framefloor_layer_has_nominal_rvalue(framefloor, framefloor):
