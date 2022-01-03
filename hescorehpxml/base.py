@@ -434,7 +434,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                           'ground-to-air': 'gchp',
                           'ground-to-water': 'gchp'}
 
-    # FIXME: Not sure if you need it @nmerket
     def get_attic_knee_wall_rvalue_and_area(self, attic, b, knee_walls):
         knee_wall_dict_ls = []
         for knee_wall in knee_walls:
