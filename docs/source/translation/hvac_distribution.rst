@@ -88,7 +88,7 @@ Duct Leakage Measurements
 *************************
 
 Duct leakage measurements are associated with an ``AirDistribution`` element.
-It can be specified quantatatively or qualitatively.
+It can be specified quantitatively or qualitatively.
 
 To quantitatively specify the duct leakage to outside in CFM25 of an ``AirDistribution`` system
 (e.g., duct blaster measurement), the translator expects to find the following elements:
