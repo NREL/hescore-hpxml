@@ -594,19 +594,33 @@ class HPXMLtoHEScoreTranslatorBase(object):
             return
 
         # Determine if the entire system is sealed (best we can do, not available duct by duct)
-        is_sealed = \
-            self.xpath(airdist_el,
-                       '(h:DuctLeakageMeasurement/h:LeakinessObservedVisualInspection="connections sealed w mastic") ' +
-                       'or (ancestor::h:HVACDistribution/h:HVACDistributionImprovement/h:DuctSystemSealed="true")')
+        is_sealed = self.xpath(
+            airdist_el,
+            '(h:DuctLeakageMeasurement/h:LeakinessObservedVisualInspection="connections sealed w mastic") ' +
+            'or (ancestor::h:HVACDistribution/h:HVACDistributionImprovement/h:DuctSystemSealed="true")')
 
-        # Duct leakage to outside
-        leakage_to_outside = \
-            self.xpath(airdist_el,
-                       'h:DuctLeakageMeasurement/h:DuctLeakage[h:TotalOrToOutside="to outside"]/h:Value/text()')
+        # Distinguish between the two cases for duct leakage measurements:
+        # (a) duct leakage measurement without DuctType specified and
+        # (b) duct leakage measurements for supply and return ducts (i.e., with DuctType specified)
+        leakage_to_outside = self.xpath(
+            airdist_el,
+            'h:DuctLeakageMeasurement[not(h:DuctType)]/h:DuctLeakage[h:TotalOrToOutside="to outside" ' +
+            'and h:Units="CFM25"]/h:Value/text()')
+        if leakage_to_outside is None:
+            supply_duct_leakage = self.xpath(
+                airdist_el,
+                'h:DuctLeakageMeasurement[h:DuctType="supply"]/h:DuctLeakage' +
+                '[h:TotalOrToOutside="to outside" and h:Units="CFM25"]/h:Value/text()')
+            return_duct_leakage = self.xpath(
+                airdist_el,
+                'h:DuctLeakageMeasurement[h:DuctType="return"]/h:DuctLeakage' +
+                '[h:TotalOrToOutside="to outside" and h:Units="CFM25"]/h:Value/text()')
+            if supply_duct_leakage is not None and return_duct_leakage is not None:
+                leakage_to_outside = float(supply_duct_leakage) + float(return_duct_leakage)
 
-        if leakage_to_outside:
+        if leakage_to_outside is not None:
             hvac_distribution['leakage_method'] = 'quantitative'
-            hvac_distribution['leakage_to_outside'] = leakage_to_outside
+            hvac_distribution['leakage_to_outside'] = float(leakage_to_outside)
         else:
             hvac_distribution['leakage_method'] = 'qualitative'
             hvac_distribution['sealed'] = is_sealed
@@ -2096,17 +2110,32 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     )
                 )
 
-        # Check to make sure heating and cooling systems that need a distribution system have them.
+        # Check to make sure heating and cooling systems that need a distribution system have them
+        # and heating and cooling systems that are not allowed to have a distribution system don't have them.
         heating_sys_types_requiring_ducts = ('gchp', 'heat_pump', 'central_furnace')
         for htg_sys_id, htg_sys in list(heating_systems.items()):
             if htg_sys['type'] in heating_sys_types_requiring_ducts and htg_sys_id not in dist_heating_map.values():
-                raise TranslationError('Heating system %s is not associated with an air distribution system.' %
-                                       htg_sys_id)
+                raise TranslationError(
+                    f'Heating system {htg_sys_id} is not associated with an air distribution system.')
+            try:
+                htg_sys_dist_id = [key if value == htg_sys_id else None for key, value in dist_heating_map.items()][0]
+            except IndexError:
+                continue
+            if htg_sys['type'] not in heating_sys_types_requiring_ducts and htg_sys_dist_id is not None and\
+                    distribution_systems[htg_sys_dist_id] is not None:
+                raise TranslationError(f'Ducts are not allowed for heating system {htg_sys_id}.')
         cooling_sys_types_requiring_ducts = ('split_dx', 'heat_pump', 'gchp')
         for clg_sys_id, clg_sys in list(cooling_systems.items()):
             if clg_sys['type'] in cooling_sys_types_requiring_ducts and clg_sys_id not in dist_cooling_map.values():
-                raise TranslationError('Cooling system %s is not associated with an air distribution system.' %
-                                       clg_sys_id)
+                raise TranslationError(
+                    f'Cooling system {clg_sys_id} is not associated with an air distribution system.')
+            try:
+                clg_sys_dist_id = [key if value == clg_sys_id else None for key, value in dist_cooling_map.items()][0]
+            except IndexError:
+                continue
+            if clg_sys['type'] not in cooling_sys_types_requiring_ducts and clg_sys_dist_id is not None and\
+                    distribution_systems[clg_sys_dist_id] is not None:
+                raise TranslationError(f'Ducts are not allowed for cooling system {clg_sys_id}.')
 
         # Determine a total weighting factor for each combined heating/cooling/distribution system
         # Create a list of systems including the weights that we can sort
