@@ -106,6 +106,9 @@ class TestAPIHouses(unittest.TestCase, ComparatorBase):
     def test_house8(self):
         self._do_full_compare('house8')
 
+    def test_assembly_rvalue(self):
+        self._do_full_compare('hescore_min_assembly_rvalue')
+
 
 class TestCLI(unittest.TestCase, ComparatorBase):
 
@@ -871,8 +874,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         attic_type.addprevious(etree.Element(tr.addns('h:AtticKneeWall'), {'idref': 'wall2'}))
         # run translation
         resp = tr.hpxml_to_hescore()
-        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf38')
-        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
+        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf49')
+        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1200.0)
 
         # HPXML v3
         tr_v3 = self._load_xmlfile('hescore_min_v3')
@@ -900,6 +903,39 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         # run translation
         resp_v3 = tr_v3.hpxml_to_hescore()
         self.assertEqual(resp['building']['zone']['zone_roof'], resp_v3['building']['zone']['zone_roof'])
+
+    def test_radiant_barrier(self):
+        tr_v3 = self._load_xmlfile('house2_v3')
+        # run translation
+        resp_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(resp_v3['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfrb00co')
+        # roof with radiant barrier (Nominal R-value > 0)
+        roof = self.xpath('//h:Roof[1]')
+        E = self.element_maker()
+        roof_ins = E.Insulation(
+            E.SystemIdentifier(id='roof_ins'),
+            E.Layer(
+                E.InstallationType('cavity'),
+                E.NominalRValue('11')
+            )
+        )
+        roof.append(roof_ins)
+        # run translation
+        resp_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(resp_v3['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf11co')
+
+        tr_v3 = self._load_xmlfile('house2_v3')
+        # roof with radiant barrier (Assembly R-value > 0)
+        roof = self.xpath('//h:Roof[1]')
+        E = self.element_maker()
+        roof_ins = E.Insulation(
+            E.SystemIdentifier(id='roof_ins'),
+            E.AssemblyEffectiveRValue('11')
+        )
+        roof.append(roof_ins)
+        # run translation
+        resp_v3 = tr_v3.hpxml_to_hescore()
+        self.assertEqual(resp_v3['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf11co')
 
     def test_attic_knee_wall_zero_rvalue(self):
         tr = self._load_xmlfile('hescore_min')
@@ -934,8 +970,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         kneewall_rvalue_el.text = '0'
         # run translation
         resp = tr.hpxml_to_hescore()
-        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf09')
-        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
+        self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf49')
+        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1200.0)
         # Set kneewall R-value to 11 and attic floor R-value to zero
         kneewall_rvalue_el.text = '11'
         attic_floor_rvalue_el = self.xpath('//h:Attic/h:AtticFloorInsulation/h:Layer/h:NominalRValue')
@@ -943,7 +979,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         # run translation
         resp = tr.hpxml_to_hescore()
         self.assertEqual(resp['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf00')
-        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1400.0)
+        self.assertAlmostEqual(resp['building']['zone']['zone_roof'][0]['roof_area'], 1200.0)
 
     def test_gable_wall_ignore(self):
         tr = self._load_xmlfile('hescore_min_v3')
@@ -1137,6 +1173,56 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:Ducts/h:FractionDuctArea')
         el.getparent().remove(el)
         self.assertRaises(ElementNotFoundError, tr.hpxml_to_hescore)
+
+    def test_assembly_rvalues(self):
+        tr = self._load_xmlfile('hescore_min_assembly_rvalue')
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewwf11br')
+        self.assertEqual(res['building']['zone']['zone_wall'][1]['wall_assembly_code'], 'ewwf11br')
+        self.assertEqual(res['building']['zone']['zone_wall'][2]['wall_assembly_code'], 'ewwf11br')
+        self.assertEqual(res['building']['zone']['zone_wall'][3]['wall_assembly_code'], 'ewwf11br')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00co')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf38')
+        self.assertEqual(res['building']['zone']['zone_floor'][0]['floor_assembly_code'], 'efwf15ca')
+
+        tr = self._load_xmlfile('house9')
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewwf15wo')
+        self.assertEqual(res['building']['zone']['zone_wall'][1]['wall_assembly_code'], 'ewwf13wo')
+        self.assertEqual(res['building']['zone']['zone_wall'][2]['wall_assembly_code'], 'ewwf13wo')
+        self.assertEqual(res['building']['zone']['zone_wall'][3]['wall_assembly_code'], 'ewwf13wo')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00wo')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf25')
+        self.assertEqual(res['building']['zone']['zone_floor'][0]['floor_assembly_code'], 'efwf30ca')
+
+        tr = self._load_xmlfile('house9')
+        E = self.element_maker()
+        fwall_ins_layers = self.xpath('//h:FoundationWalls/h:FoundationWall/h:Insulation/h:Layer')
+        fwall_ins = fwall_ins_layers[0].getparent()
+        for fwall_ins_layer in fwall_ins_layers:
+            fwall_ins_layer.getparent().remove(fwall_ins_layer)
+        fwall_ins.append(
+            E.AssemblyEffectiveRValue('7.6')
+        )
+        self.assertRaisesRegex(
+            TranslationError,
+            'Every foundation wall insulation layer needs a NominalRValue, fwall_id = Surface_13',
+            tr.hpxml_to_hescore
+        )
+
+        tr = self._load_xmlfile('house3')
+        E = self.element_maker()
+        slab_perim_ins_layer = self.xpath('//h:Slab/h:PerimeterInsulation/h:Layer')
+        slab_perim_ins = slab_perim_ins_layer.getparent()
+        slab_perim_ins_layer.getparent().remove(slab_perim_ins_layer)
+        slab_perim_ins.append(
+            E.AssemblyEffectiveRValue('7.6')
+        )
+        self.assertRaisesRegex(
+            TranslationError,
+            'Every slab insulation layer needs a NominalRValue, slab_id = slab1',
+            tr.hpxml_to_hescore
+        )
 
     def test_duct_leakage_to_outside(self):
         tr = self._load_xmlfile('house1')
@@ -3250,6 +3336,17 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
         self.assertEqual(res3['building']['zone']['zone_roof'][1]['zone_skylight']['skylight_area'], 22.0)
         self.assertEqual(res3['building']['zone']['zone_roof'][1]['zone_skylight']['skylight_code'], 'dtab')
         self.assertFalse(res3['building']['zone']['zone_roof'][1]['zone_skylight']['solar_screen'])
+
+    def test_xps_negative(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+        wall = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall1"]')
+        tr.xpath(wall, 'h:Insulation/h:Layer/h:NominalRValue').text = "0"
+        wood_stud = tr.xpath(wall, 'descendant::h:WoodStud')
+        xps_el = etree.Element(tr.addns('h:ExpandedPolystyreneSheathing'))
+        xps_el.text = 'true'
+        wood_stud.append(xps_el)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['zone']['zone_wall'][0]['wall_assembly_code'], 'ewps00br')
 
     def test_zip_plus4(self):
         tr = self._load_xmlfile('hescore_min_v3')
