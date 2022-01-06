@@ -708,7 +708,6 @@
                                             },
                                             "efficiency_level": {
                                                 "type": "string",
-                                                "enum": ["energy_star", "cee_tier1", "cee_tier2", "cee_tier3"],
                                                 "description": "Efficiency level upgrade of the heating system (Optional)"
                                             }
                                         },
@@ -739,6 +738,11 @@
                                                             }
                                                         }
                                                     }
+                                                    "properties": {
+                                                        "efficiency_level": {
+                                                            "enum": ["energy_star"]
+                                                        }
+                                                    }
                                                 }
                                             },
                                             {
@@ -752,6 +756,23 @@
                                                             "minimum": 6,
                                                             "maximum": 20,
                                                             "description": "HSPF of heating equipment (only used if efficiency_method is user)"
+                                                        }
+                                                    }
+                                                    "if":{
+                                                        "properties": {"type": {"enum": ["heat_pump"]}},
+                                                    },
+                                                    "then": {
+                                                        "properties": {
+                                                            "efficiency_level": {
+                                                                "enum": ["energy_star", "cee_tier1", "cee_tier2", "cee_tier3"]
+                                                            }
+                                                        }
+                                                    },
+                                                    "else": {
+                                                        "properties": {
+                                                            "efficiency_level": {
+                                                                "enum": ["energy_star", "cee_tier1"]
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -812,7 +833,6 @@
                                             },
                                             "efficiency_level": {
                                                 "type": "string",
-                                                "enum": ["energy_star", "cee_tier1", "cee_tier2", "cee_tier3"],
                                                 "description": "Efficiency level upgrade of the cooling system (Optional)"
                                             }
                                         },
@@ -830,6 +850,23 @@
                                                             "description": "SEER of cooling equipment (only used if efficiency_method is user)"
                                                         }
                                                     }
+                                                    "if":{
+                                                        "properties": {"type": {"enum": ["heat_pump"]}},
+                                                    },
+                                                    "then": {
+                                                        "properties": {
+                                                            "efficiency_level": {
+                                                                "enum": ["energy_star", "cee_tier1", "cee_tier2", "cee_tier3"]
+                                                            }
+                                                        }
+                                                    },
+                                                    "else": {
+                                                        "properties": {
+                                                            "efficiency_level": {
+                                                                "enum": ["energy_star", "cee_tier1", "cee_tier2"]
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             },
                                             {
@@ -843,6 +880,23 @@
                                                             "minimum": 8,
                                                             "maximum": 40,
                                                             "description": "EER of cooling equipment (only used if efficiency_method is user)"
+                                                        }
+                                                    }
+                                                    "if":{
+                                                        "properties": {"type": {"enum": ["mini_split"]}},
+                                                    },
+                                                    "then": {
+                                                        "properties": {
+                                                            "efficiency_level": {
+                                                                "enum": ["energy_star", "cee_tier1"]
+                                                            }
+                                                        }
+                                                    },
+                                                    "else": {
+                                                        "properties": {
+                                                            "efficiency_level": {
+                                                                "enum": ["energy_star"]
+                                                            }
                                                         }
                                                     }
                                                 }
