@@ -708,7 +708,7 @@
                                             },
                                             "efficiency_level": {
                                                 "type": "string",
-                                                "enum": ["energy_star"],
+                                                "enum": ["energy_star", "cee_tier1", "cee_tier2", "cee_tier3"],
                                                 "description": "Efficiency level upgrade of the heating system (Optional)"
                                             }
                                         },
@@ -812,7 +812,7 @@
                                             },
                                             "efficiency_level": {
                                                 "type": "string",
-                                                "enum": ["energy_star"],
+                                                "enum": ["energy_star", "cee_tier1", "cee_tier2", "cee_tier3"],
                                                 "description": "Efficiency level upgrade of the cooling system (Optional)"
                                             }
                                         },
