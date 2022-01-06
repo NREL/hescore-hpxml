@@ -737,7 +737,7 @@
                                                                 "description": "AFUE of heating equipment (only used if efficiency_method is user)"
                                                             }
                                                         }
-                                                    }
+                                                    },
                                                     "properties": {
                                                         "efficiency_level": {
                                                             "enum": ["energy_star"]
@@ -757,9 +757,9 @@
                                                             "maximum": 20,
                                                             "description": "HSPF of heating equipment (only used if efficiency_method is user)"
                                                         }
-                                                    }
+                                                    },
                                                     "if":{
-                                                        "properties": {"type": {"enum": ["heat_pump"]}},
+                                                        "properties": {"type": {"const": "heat_pump"}}
                                                     },
                                                     "then": {
                                                         "properties": {
@@ -849,9 +849,9 @@
                                                             "maximum": 40,
                                                             "description": "SEER of cooling equipment (only used if efficiency_method is user)"
                                                         }
-                                                    }
+                                                    },
                                                     "if":{
-                                                        "properties": {"type": {"enum": ["heat_pump"]}},
+                                                        "properties": {"type": {"const": "heat_pump"}}
                                                     },
                                                     "then": {
                                                         "properties": {
@@ -881,9 +881,9 @@
                                                             "maximum": 40,
                                                             "description": "EER of cooling equipment (only used if efficiency_method is user)"
                                                         }
-                                                    }
+                                                    },
                                                     "if":{
-                                                        "properties": {"type": {"enum": ["mini_split"]}},
+                                                        "properties": {"type": {"const": "mini_split"}}
                                                     },
                                                     "then": {
                                                         "properties": {
