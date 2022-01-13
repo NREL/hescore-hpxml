@@ -13,7 +13,6 @@ from collections import OrderedDict
 import os
 import re
 from jsonschema import validate, FormatChecker
-from scipy import interpolate
 import numpy as np
 
 from .exceptions import (
