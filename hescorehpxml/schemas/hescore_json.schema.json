@@ -242,21 +242,7 @@
                                     },
                                     "roof_assembly_code": {
                                         "type": "string",
-                                        "enum": ["rfwf00co", "rfwf00wo", "rfwf00rc", "rfwf00lc", "rfwf00tg",
-                                                 "rfwf11co", "rfwf11wo", "rfwf11rc", "rfwf11lc", "rfwf11tg",
-                                                 "rfwf13co", "rfwf13wo", "rfwf13rc", "rfwf13lc", "rfwf13tg",
-                                                 "rfwf15co", "rfwf15wo", "rfwf15rc", "rfwf15lc", "rfwf15tg",
-                                                 "rfwf19co", "rfwf19wo", "rfwf19rc", "rfwf19lc", "rfwf19tg",
-                                                 "rfwf21co", "rfwf21wo", "rfwf21rc", "rfwf21lc", "rfwf21tg",
-                                                 "rfwf27co", "rfwf27wo", "rfwf27rc", "rfwf27lc", "rfwf27tg",
-                                                 "rfwf30co", "rfwf30wo", "rfwf30rc", "rfwf30lc", "rfwf30tg",
-                                                 "rfrb00co", "rfrb00wo", "rfrb00rc", "rfrb00lc", "rfrb00tg",
-                                                 "rfps00co", "rfps00wo", "rfps00rc", "rfps00lc", "rfps00tg",
-                                                 "rfps11co", "rfps11wo", "rfps11rc", "rfps11lc", "rfps11tg",
-                                                 "rfps13co", "rfps13wo", "rfps13rc", "rfps13lc", "rfps13tg",
-                                                 "rfps15co", "rfps15wo", "rfps15rc", "rfps15lc", "rfps15tg",
-                                                 "rfps19co", "rfps19wo", "rfps19rc", "rfps19lc", "rfps19tg",
-                                                 "rfps21co", "rfps21wo", "rfps21rc", "rfps21lc", "rfps21tg"],
+                                        "pattern": "rf(wf|rb|ps)[0-9]{2}(co|wo|rc|lc|tg)",
                                         "description": "Roof construction assembly code"
                                     },
                                     "roof_color": {
