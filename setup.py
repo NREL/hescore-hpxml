@@ -38,7 +38,8 @@ setup(
     install_requires=[
         'lxml',
         'future',
-        'jsonschema==3.1.1'
+        'jsonschema==3.1.1',
+        'numpy'
     ],
     extras_require={
         'dev': [
