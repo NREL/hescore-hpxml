@@ -935,7 +935,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         roof.append(roof_ins)
         # run translation
         resp_v3 = tr_v3.hpxml_to_hescore()
-        self.assertEqual(resp_v3['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf11co')
+        self.assertEqual(resp_v3['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf10co')
 
     def test_attic_knee_wall_zero_rvalue(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1191,7 +1191,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertEqual(res['building']['zone']['zone_wall'][1]['wall_assembly_code'], 'ewwf13wo')
         self.assertEqual(res['building']['zone']['zone_wall'][2]['wall_assembly_code'], 'ewwf13wo')
         self.assertEqual(res['building']['zone']['zone_wall'][3]['wall_assembly_code'], 'ewwf13wo')
-        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00wo')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf01wo')
         self.assertEqual(res['building']['zone']['zone_roof'][0]['ceiling_assembly_code'], 'ecwf25')
         self.assertEqual(res['building']['zone']['zone_floor'][0]['floor_assembly_code'], 'efwf30ca')
 
@@ -3377,11 +3377,11 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         el.addnext(el_2)
         res = tr.hpxml_to_hescore()
         # Currently, roofs attached to the same attic are combined.
-        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf00co')
+        self.assertEqual(res['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf04co')
         self.xpath('//h:Roof[1]/h:Insulation/h:Layer/h:NominalRValue').text = '19'
         self.xpath('//h:Roof[2]/h:Insulation/h:Layer/h:NominalRValue').text = '27'
         res2 = tr.hpxml_to_hescore()
-        self.assertEqual(res2['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf21co')
+        self.assertEqual(res2['building']['zone']['zone_roof'][0]['roof_assembly_code'], 'rfwf23co')
 
     def test_attic_with_multiple_frame_floors(self):
         tr = self._load_xmlfile('hescore_min_v3')
