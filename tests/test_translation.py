@@ -3736,7 +3736,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
 
 class TestIrrelevantSurfaces(unittest.TestCase, ComparatorBase):
     def test_crawlspace_slab_rvalue_ignore(self):
-        tr = self._load_xmlfile('42-workflow-baseline-in')
+        tr = self._load_xmlfile('house_vented_cs')
         orig_json = tr.hpxml_to_hescore(resstock_file=True)
         underslab_ins_rvalue = self.xpath('//h:Slabs/h:Slab[h:InteriorAdjacentTo="crawlspace - vented"]/\
                                           h:UnderSlabInsulation/h:Layer/h:NominalRValue')
@@ -3745,7 +3745,8 @@ class TestIrrelevantSurfaces(unittest.TestCase, ComparatorBase):
         self.assertEqual(orig_json, new_json)
 
     def test_basement_slab_rvalue_ignore(self):
-        tr = self._load_xmlfile('124-workflow-baseline-in')
+        tr = self._load_xmlfile('house_cond_basement')
+
         orig_json = tr.hpxml_to_hescore(resstock_file=True)
         underslab_ins_rvalue = self.xpath('//h:Slabs/h:Slab[h:InteriorAdjacentTo="basement - conditioned"]/\
                                           h:UnderSlabInsulation/h:Layer/h:NominalRValue')
@@ -3754,7 +3755,7 @@ class TestIrrelevantSurfaces(unittest.TestCase, ComparatorBase):
         self.assertEqual(orig_json, new_json)
 
     def test_ceiling_over_basement_conditioned_ignore(self):
-        tr = self._load_xmlfile('124-workflow-baseline-in')
+        tr = self._load_xmlfile('house_cond_basement')
         orig_json = tr.hpxml_to_hescore(resstock_file=True)
         E = self.element_maker()
         framefloors = self.xpath('//h:FrameFloors')
@@ -3776,7 +3777,7 @@ class TestIrrelevantSurfaces(unittest.TestCase, ComparatorBase):
         self.assertEqual(orig_json, new_json)
 
     def test_garage_walls_ignore(self):
-        tr = self._load_xmlfile('17-workflow-baseline-in')
+        tr = self._load_xmlfile('house_garage_vented_attic')
         orig_json = tr.hpxml_to_hescore(resstock_file=True)
         garage_walls = self.xpath('//h:Walls/h:Wall[h:ExteriorAdjacentTo="garage"]')
         for garage_wall in garage_walls:
@@ -3785,7 +3786,7 @@ class TestIrrelevantSurfaces(unittest.TestCase, ComparatorBase):
         self.assertEqual(orig_json, new_json)
 
     def test_gable_walls_ignore(self):
-        tr = self._load_xmlfile('17-workflow-baseline-in')
+        tr = self._load_xmlfile('house_garage_vented_attic')
         orig_json = tr.hpxml_to_hescore(resstock_file=True)
         gable_walls = self.xpath('//h:Walls/h:Wall[h:InteriorAdjacentTo="attic - vented"]')
         for gable_wall in gable_walls:
@@ -3794,7 +3795,7 @@ class TestIrrelevantSurfaces(unittest.TestCase, ComparatorBase):
         self.assertEqual(orig_json, new_json)
 
     def test_framefloor_over_garage_ignore(self):
-        tr = self._load_xmlfile('17-workflow-baseline-in')
+        tr = self._load_xmlfile('house_garage_vented_attic')
         orig_json = tr.hpxml_to_hescore(resstock_file=True)
         garage_framefloor = self.xpath('//h:FrameFloors/h:FrameFloor[h:ExteriorAdjacentTo="garage"]')
         garage_framefloor.getparent().remove(garage_framefloor)
