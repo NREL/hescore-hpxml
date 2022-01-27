@@ -13,7 +13,6 @@ from collections import OrderedDict
 import os
 import re
 from jsonschema import validate, FormatChecker
-import numpy as np
 
 from .exceptions import (
     TranslationError,
@@ -94,7 +93,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         self.ns['h'] = schematree.xpath('//xs:schema/@targetNamespace', namespaces=self.ns)[0]
         self._wall_assembly_eff_rvalues = None
         self._roof_assembly_eff_rvalues = None
-        self._roof_assembly_uvalues = None
         self._ceiling_assembly_eff_rvalues = None
         self._floor_assembly_eff_rvalues = None
 
@@ -1097,31 +1095,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 assembly_eff_rvalues[row['doe2code']] = float(row['Eff-R-value'])
         return assembly_eff_rvalues
 
-    def get_assembly_uvalues_dict(self, construction):
-        assert construction in ['wall', 'roof', 'ceiling', 'floor']
-        with open(os.path.join(thisdir, 'lookups', f'lu_{construction}_eff_rvalue.csv'), newline='') as f:
-            reader = csv.DictReader(f)
-            assembly_eff_rvalues = {}
-            for row in reader:
-                assembly_eff_rvalues[row['doe2code']] = float(row['U-value'])
-        return assembly_eff_rvalues
-
-    def get_roof_doe2code_rvalues_and_uvalues(self, roof_assembly_uvalues, atticd, has_radiant_barrier):
-        if has_radiant_barrier:
-            # Use effective R-value for wood frame roof without radiant barrier.
-            # The actual radiant barrier model in OS will handle the radiant barrier.
-            lookup_constype = 'wf'
-        else:
-            lookup_constype = atticd['roofconstype']
-        doe2codes = [
-            float(key[4:6]) for key, val in roof_assembly_uvalues.items()
-            if lookup_constype in key[2:4] and key[6:8] == atticd['extfinish']]
-        uvalues = [
-            float(val) for key, val in roof_assembly_uvalues.items()
-            if lookup_constype in key[2:4] and key[6:8] == atticd['extfinish']]
-
-        return doe2codes, uvalues
-
     @property
     def wall_assembly_eff_rvalues(self):
         if self._wall_assembly_eff_rvalues is None:
@@ -1129,10 +1102,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
         return self._wall_assembly_eff_rvalues
 
     @property
-    def roof_assembly_uvalues(self):
-        if self._roof_assembly_uvalues is None:
-            self._roof_assembly_uvalues = self.get_assembly_uvalues_dict('roof')
-        return self._roof_assembly_uvalues
+    def roof_assembly_eff_rvalues(self):
+        if self._roof_assembly_eff_rvalues is None:
+            self._roof_assembly_eff_rvalues = self.get_assembly_eff_rvalues_dict('roof')
+        return self._roof_assembly_eff_rvalues
 
     @property
     def ceiling_assembly_eff_rvalues(self):
@@ -1265,20 +1238,44 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
                 roof_assembly_rvalue = self.get_attic_roof_assembly_rvalue(attic, roof)
                 if roof_assembly_rvalue is not None:
-                    doe2code_rvalues, uvalues = self.get_roof_doe2code_rvalues_and_uvalues(
-                        self.roof_assembly_uvalues, attic_roofs_d, has_radiant_barrier)
-                    uvalue_to_find = 1 / roof_assembly_rvalue
-                    attic_roofs_d['roof_assembly_rvalue'] = roof_assembly_rvalue
+                    if has_radiant_barrier:
+                        # Use effective R-value for wood frame roof without radiant barrier.
+                        # The actual radiant barrier model in OS will handle the radiant barrier.
+                        constype_for_lookup = 'wf'
+                    else:
+                        constype_for_lookup = attic_roofs_d['roofconstype']
+                    closest_roof_code, closest_code_rvalue = \
+                        min([(doe2code, code_rvalue)
+                             for doe2code, code_rvalue in self.roof_assembly_eff_rvalues.items()
+                             if doe2code[2:4] in constype_for_lookup and
+                             doe2code[6:8] == attic_roofs_d['extfinish']],
+                            key=lambda x: abs(x[1] - float(roof_assembly_rvalue)))
+                    attic_roofs_d['roof_assembly_rvalue'] = closest_code_rvalue
                     # Model as a roof without radiant barrier if R-value is > 0 and the radiant barrier is present
-                    if has_radiant_barrier and uvalue_to_find < max(uvalues):
-                        attic_roofs_d['roofconstype'] = 'wf'
+                    if attic_roofs_d['roofconstype'] == 'rb' and int(closest_roof_code[4:6]) > 0:
+                        attic_roofs_d['roofconstype'] = 'wf'  # overwrite the roofconstype
                 elif self.every_attic_roof_layer_has_nominal_rvalue(attic, roof):
                     # roof center of cavity R-value
-                    roof_rvalue = round(self.get_attic_roof_rvalue(attic, roof))
-                    doe2code_rvalues, uvalues = self.get_roof_doe2code_rvalues_and_uvalues(
-                        self.roof_assembly_uvalues, attic_roofs_d, has_radiant_barrier)
-                    doe2code_uvalue = np.interp(roof_rvalue, doe2code_rvalues, uvalues)
-                    attic_roofs_d['roof_assembly_rvalue'] = 1 / doe2code_uvalue
+                    roof_rvalue = self.get_attic_roof_rvalue(attic, roof)
+                    if attic_roofs_d['roofconstype'] == 'rb':
+                        # Use effective R-value for wood frame roof without radiant barrier.
+                        # The actual radiant barrier model in OS will handle the radiant barrier.
+                        roof_rvalue = roof_round_to_nearest(roofid, roof_rvalue, (0, 11, 13, 15, 19, 21, 27, 30))
+                        lookup_code = f"rfwf{roof_rvalue:02d}{attic_roofs_d['extfinish']}"
+                        # Model as a roof without radiant barrier if R-value is > 0 and the radiant barrier is present
+                        # in the HPXML. Only model with radiant barrier code if R-value = 0 and radiant barrier.
+                        if roof_rvalue > 0:
+                            attic_roofs_d['roofconstype'] = 'wf'  # overwrite the roofconstype
+                    elif attic_roofs_d['roofconstype'] == 'wf':
+                        roof_rvalue = roof_round_to_nearest(roofid, roof_rvalue, (0, 11, 13, 15, 19, 21, 27, 30))
+                        lookup_code = f"rf{attic_roofs_d['roofconstype']}{roof_rvalue:02d}{attic_roofs_d['extfinish']}"
+                    elif attic_roofs_d['roofconstype'] == 'ps':
+                        # subtract the R-value of the rigid sheating in the HEScore construction.
+                        if attic_roofs_d['roofconstype'] == 'ps':
+                            roof_rvalue = max(roof_rvalue - 5, 0)
+                        roof_rvalue = roof_round_to_nearest(roofid, roof_rvalue, (0, 11, 13, 15, 19, 21))
+                        lookup_code = f"rf{attic_roofs_d['roofconstype']}{roof_rvalue:02d}{attic_roofs_d['extfinish']}"
+                    attic_roofs_d['roof_assembly_rvalue'] = self.roof_assembly_eff_rvalues[lookup_code]
                     # Model as a roof without radiant barrier if R-value is > 0 and the radiant barrier is present
                     if has_radiant_barrier and roof_rvalue > 0:
                         attic_roofs_d['roofconstype'] = 'wf'
@@ -1391,11 +1388,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 # Since there is no lookup key for roof_code "rfrb**", this step is required separately
                 roof_code = f"rfrb00{atticd['extfinish']}"
             else:
-                doe2code_rvalues, uvalues = self.get_roof_doe2code_rvalues_and_uvalues(
-                    self.roof_assembly_uvalues, attic_roofs_d, has_radiant_barrier)
-                uvalue_to_find = 1 / atticd['roof_assembly_rvalue']
-                doe2code_uvalue = str(round(np.interp(uvalue_to_find, uvalues[::-1], doe2code_rvalues[::-1]))).zfill(2)
-                roof_code = f"rf{atticd['roofconstype']}{doe2code_uvalue}{atticd['extfinish']}"
+                closest_roof_code, closest_code_rvalue = \
+                    min([(doe2code, code_rvalue)
+                        for doe2code, code_rvalue in self.roof_assembly_eff_rvalues.items()
+                        if doe2code[2:4] in atticd['roofconstype'] and doe2code[6:8] == atticd['extfinish']],
+                        key=lambda x: abs(x[1] - atticd['roof_assembly_rvalue']))
+                roof_code = closest_roof_code
 
             # Get Attic Floor R-value
             closest_floor_code, closest_code_rvalue = \
