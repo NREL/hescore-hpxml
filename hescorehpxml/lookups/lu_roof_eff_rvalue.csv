@@ -2,7 +2,7 @@ doe2code,U-value,Eff-R-value
 rfps00co,0.115,8.7
 rfps00lc,0.114,8.8
 rfps00rc,0.113,8.8
-rfps00tg,0.11,9.1
+rfps00tg,0.110,9.1
 rfps00wo,0.106,9.4
 rfps03co,0.098,10.2
 rfps03lc,0.097,10.3
@@ -55,15 +55,15 @@ rfwf07wo,0.126,7.9
 rfwf11co,0.072,13.9
 rfwf11lc,0.072,13.9
 rfwf11rc,0.071,14.1
-rfwf11tg,0.07,14.3
+rfwf11tg,0.070,14.3
 rfwf11wo,0.068,14.7
 rfwf13co,0.065,15.4
 rfwf13lc,0.065,15.4
 rfwf13rc,0.065,15.4
 rfwf13tg,0.064,15.6
 rfwf13wo,0.062,16.1
-rfwf15co,0.06,16.7
-rfwf15lc,0.06,16.7
+rfwf15co,0.060,16.7
+rfwf15lc,0.060,16.7
 rfwf15rc,0.059,16.9
 rfwf15tg,0.058,17.2
 rfwf15wo,0.057,17.5
