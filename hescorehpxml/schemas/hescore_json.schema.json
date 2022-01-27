@@ -281,9 +281,9 @@
                                     },
                                     "ceiling_assembly_code": {
                                         "type": "string",
-                                        "enum": ["ecwf00", "ecwf03", "ecwf06", "ecwf09", "ecwf11", "ecwf15", "ecwf19",
-                                                 "ecwf21", "ecwf25", "ecwf30", "ecwf35", "ecwf38", "ecwf44", "ecwf49",
-                                                 "ecwf55", "ecwf60"],
+                                        "enum": ["ecwf00", "ecwf03", "ecwf06", "ecwf09", "ecwf11", "ecwf13", "ecwf15",
+                                                 "ecwf19", "ecwf21", "ecwf25", "ecwf30", "ecwf35", "ecwf38", "ecwf44",
+                                                 "ecwf49", "ecwf55", "ecwf60"],
                                         "description": "Ceiling construction assembly code (required unless roof_type is cath_ceiling)"
                                     },
                                     "zone_skylight": {
