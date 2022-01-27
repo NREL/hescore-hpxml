@@ -3366,7 +3366,7 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
 class TestHEScoreV3(unittest.TestCase, ComparatorBase):
 
     def test_hescore_min_v3(self):
-        tr = self._do_full_compare('hescore_min_v3', 'hescore_min')
+        self._do_full_compare('hescore_min_v3', 'hescore_min')
 
     def test_attic_with_multiple_roofs(self):
         tr = self._load_xmlfile('hescore_min_v3')
