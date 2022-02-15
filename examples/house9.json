@@ -8,7 +8,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2021-12-28",
+      "assessment_date": "2022-02-15",
       "shape": "rectangle",
       "year_built": 1950,
       "number_bedrooms": 4,
@@ -16,8 +16,8 @@
       "floor_to_ceiling_height": 8,
       "conditioned_floor_area": 2600,
       "orientation": "south",
-      "blower_door_test": false,
-      "air_sealing_present": false
+      "blower_door_test": true,
+      "envelope_leakage": 2600
     },
     "zone": {
       "zone_roof": [

@@ -1048,13 +1048,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
         for air_infilt_meas in b.xpath('h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirInfiltrationMeasurement',
                                        namespaces=ns):
             # Take the last blower door test that is in CFM50, or if that's not available, ACH50
-            if xpath(air_infilt_meas, 'h:TypeOfInfiltrationMeasurement/text()') == 'blower door':
-                house_pressure = convert_to_type(int, xpath(air_infilt_meas, 'h:HousePressure/text()'))
-                blower_door_test_units = xpath(air_infilt_meas, 'h:BuildingAirLeakage/h:UnitofMeasure/text()')
-                if house_pressure == 50 and (blower_door_test_units == 'CFM' or
-                                             (blower_door_test_units == 'ACH' and blower_door_test is None)):
-                    blower_door_test = air_infilt_meas
-            elif xpath(air_infilt_meas, 'h:TypeOfInfiltrationMeasurement/text()') == 'estimate':
+            house_pressure = convert_to_type(float, xpath(air_infilt_meas, 'h:HousePressure/text()'))
+            blower_door_test_units = xpath(air_infilt_meas, 'h:BuildingAirLeakage/h:UnitofMeasure/text()')
+            if house_pressure == 50 and (blower_door_test_units == 'CFM' or
+                                         (blower_door_test_units == 'ACH' and blower_door_test is None)):
+                blower_door_test = air_infilt_meas
+            else:
                 air_infilt_est = air_infilt_meas
         if blower_door_test is not None:
             bldg_about['blower_door_test'] = True
