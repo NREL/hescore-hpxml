@@ -249,7 +249,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 wall_rvalue = max(0, wall_rvalue - 5)
                 rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
             elif wallconstype == 'ov':
-                rvalue = wall_round_to_nearest(wall_rvalue, (19, 21, 25, 27, 33, 38))
+                rvalue = wall_round_to_nearest(wall_rvalue, (19, 21, 25, 27, 33, 35, 38))
             elif wallconstype == 'wf':
                 rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
             elif wallconstype == 'br':
@@ -1247,20 +1247,23 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     if attic_roofs_d['roofconstype'] == 'rb':
                         # Use effective R-value for wood frame roof without radiant barrier.
                         # The actual radiant barrier model in OS will handle the radiant barrier.
-                        roof_rvalue = roof_round_to_nearest(roofid, roof_rvalue, (0, 11, 13, 15, 19, 21, 27, 30))
+                        roof_rvalue = roof_round_to_nearest(
+                            roofid, roof_rvalue, (0, 3, 7, 11, 13, 15, 19, 21, 25, 27, 30))
                         lookup_code = f"rfwf{roof_rvalue:02d}{attic_roofs_d['extfinish']}"
                         # Model as a roof without radiant barrier if R-value is > 0 and the radiant barrier is present
                         # in the HPXML. Only model with radiant barrier code if R-value = 0 and radiant barrier.
                         if roof_rvalue > 0:
                             attic_roofs_d['roofconstype'] = 'wf'  # overwrite the roofconstype
                     elif attic_roofs_d['roofconstype'] == 'wf':
-                        roof_rvalue = roof_round_to_nearest(roofid, roof_rvalue, (0, 11, 13, 15, 19, 21, 27, 30))
+                        roof_rvalue = roof_round_to_nearest(
+                            roofid, roof_rvalue, (0, 3, 7, 11, 13, 15, 19, 21, 25, 27, 30))
                         lookup_code = f"rf{attic_roofs_d['roofconstype']}{roof_rvalue:02d}{attic_roofs_d['extfinish']}"
                     elif attic_roofs_d['roofconstype'] == 'ps':
                         # subtract the R-value of the rigid sheating in the HEScore construction.
                         if attic_roofs_d['roofconstype'] == 'ps':
                             roof_rvalue = max(roof_rvalue - 5, 0)
-                        roof_rvalue = roof_round_to_nearest(roofid, roof_rvalue, (0, 11, 13, 15, 19, 21))
+                        roof_rvalue = roof_round_to_nearest(
+                            roofid, roof_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
                         lookup_code = f"rf{attic_roofs_d['roofconstype']}{roof_rvalue:02d}{attic_roofs_d['extfinish']}"
                     attic_roofs_d['roof_assembly_rvalue'] = self.roof_assembly_eff_rvalues[lookup_code]
                 else:
@@ -1307,7 +1310,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             elif self.every_attic_floor_layer_has_nominal_rvalue(attic, b):
                 attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
                 closest_attic_floor_rvalue = roof_round_to_nearest(
-                    roofid, attic_floor_rvalue, (0, 3, 6, 9, 11, 19, 21, 25, 30, 38, 44, 49, 60))
+                    roofid, attic_floor_rvalue, (0, 3, 6, 9, 11, 13, 15, 19, 21, 25, 30, 35, 38, 44, 49, 55, 60))
                 lookup_code = f"ecwf{closest_attic_floor_rvalue:02d}"
                 atticd['attic_floor_assembly_rvalue'] = self.ceiling_assembly_eff_rvalues[lookup_code]
             else:
