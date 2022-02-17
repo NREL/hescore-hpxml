@@ -421,7 +421,7 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "roof_type": {"enum": ["vented_attic"]}
+                                                "roof_type": {"const": "vented_attic"}
                                             },
                                             "required": ["roof_type"]
                                         },
