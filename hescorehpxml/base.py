@@ -1297,7 +1297,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     if attic_roofs_dict['roofcolor'] == 'cool_color':
                         cool_color_roof_absorptance_sum += attic_roofs_dict['roof_absorptance'] * attic_roofs_dict['roof_area']
                         cool_color_roof_area_sum += attic_roofs_dict['roof_area']
-                atticd['roof_absorptance'] = cool_color_roof_absorptance_sum / cool_color_roof_area_sum
+                atticd['roof_absorptance'] = round(cool_color_roof_absorptance_sum / cool_color_roof_area_sum, 2)
 
             # ids of hpxml roofs along for the ride
             atticd['_roofid'] = set([attic_roofs_dict['roof_id'] for attic_roofs_dict in attic_roof_ls])
