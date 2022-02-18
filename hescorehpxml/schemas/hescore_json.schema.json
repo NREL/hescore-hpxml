@@ -1957,11 +1957,28 @@
                                         "required": ["type", "efficiency_method"]
                                     },
                                     "then": {
-                                        "properties": {
-                                            "energy_factor": {
-                                                "type": "number",
-                                                "minimum": 0.45,
-                                                "maximum": 1.0
+                                        "if": {
+                                            "properties": {
+                                                "fuel_primary": {"const": "electric"}
+                                            },
+                                            "required": ["fuel_primary"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "energy_factor": {
+                                                    "type": "number",
+                                                    "minimum": 0.45,
+                                                    "maximum": 1.0
+                                                }
+                                            }
+                                        },
+                                        "else": {
+                                            "properties": {
+                                                "energy_factor": {
+                                                    "type": "number",
+                                                    "minimum": 0.45,
+                                                    "maximum": 0.9
+                                                }
                                             }
                                         }
                                     }
@@ -1975,11 +1992,28 @@
                                         "required": ["type", "efficiency_method"]
                                     },
                                     "then": {
-                                        "properties": {
-                                            "energy_factor": {
-                                                "type": "number",
-                                                "minimum": 0.45,
-                                                "maximum": 1.0
+                                        "if": {
+                                            "properties": {
+                                                "fuel_primary": {"const": "electric"}
+                                            },
+                                            "required": ["fuel_primary"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "energy_factor": {
+                                                    "type": "number",
+                                                    "minimum": 0.45,
+                                                    "maximum": 1.0
+                                                }
+                                            }
+                                        },
+                                        "else": {
+                                            "properties": {
+                                                "energy_factor": {
+                                                    "type": "number",
+                                                    "minimum": 0.45,
+                                                    "maximum": 0.95
+                                                }
                                             }
                                         }
                                     }
