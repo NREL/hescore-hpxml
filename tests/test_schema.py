@@ -686,16 +686,16 @@ def test_invalid_domestic_hot_water(hpxml_filebase):
 
     js5 = copy.deepcopy(js)
     js5['building']['systems']['domestic_hot_water']['fuel_primary'] = 'natural_gas'
-    js5['building']['systems']['domestic_hot_water']['energy_factor'] = 0.91
-    errors = get_error_messages(js5, js_schema)
-    assert "0.91 is greater than the maximum of 0.9" in errors
-    js5['building']['systems']['domestic_hot_water']['type'] = 'tankless'
     js5['building']['systems']['domestic_hot_water']['energy_factor'] = 0.96
+    errors = get_error_messages(js5, js_schema)
+    assert "0.96 is greater than the maximum of 0.95" in errors
+    js5['building']['systems']['domestic_hot_water']['type'] = 'tankless'
+    js5['building']['systems']['domestic_hot_water']['energy_factor'] = 1.0
     if hpxml_filebase == 'townhouse_walls':
         js5['building']['systems']['domestic_hot_water']['efficiency_method'] = 'user'
         del js5['building']['systems']['domestic_hot_water']['year']
     errors = get_error_messages(js5, js_schema)
-    assert "0.96 is greater than the maximum of 0.95" in errors
+    assert "1.0 is greater than the maximum of 0.99" in errors
 
     js6 = copy.deepcopy(js)
     if hpxml_filebase == 'townhouse_walls':
