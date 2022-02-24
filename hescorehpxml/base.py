@@ -1243,14 +1243,22 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     if attic_roof_d['roofconstype'] == 'rb':
                         # Use effective R-value for wood frame roof without radiant barrier.
                         # The actual radiant barrier model in OS will handle the radiant barrier.
-                        roof_rvalue = roof_round_to_nearest(roofid, roof_rvalue, (0, 3, 7, 11, 13, 15, 19, 21, 25, 27, 30))
+                        roof_rvalue = roof_round_to_nearest(
+                            roofid,
+                            roof_rvalue,
+                            (0, 3, 7, 11, 13, 15, 19, 21, 25, 27, 30)
+                        )
                         lookup_code = f"rfwf{roof_rvalue:02d}{attic_roof_d['extfinish']}"
                         # Model as a roof without radiant barrier if R-value is > 0 and the radiant barrier is present
                         # in the HPXML. Only model with radiant barrier code if R-value = 0 and radiant barrier.
                         if roof_rvalue > 0:
                             attic_roof_d['roofconstype'] = 'wf'  # overwrite the roofconstype
                     elif attic_roof_d['roofconstype'] == 'wf':
-                        roof_rvalue = roof_round_to_nearest(roofid, roof_rvalue, (0, 3, 7, 11, 13, 15, 19, 21, 25, 27, 30))
+                        roof_rvalue = roof_round_to_nearest(
+                            roofid,
+                            roof_rvalue,
+                            (0, 3, 7, 11, 13, 15, 19, 21, 25, 27, 30)
+                        )
                         lookup_code = f"rf{attic_roof_d['roofconstype']}{roof_rvalue:02d}{attic_roof_d['extfinish']}"
                     elif attic_roof_d['roofconstype'] == 'ps':
                         # subtract the R-value of the rigid sheating in the HEScore construction.
@@ -1280,7 +1288,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 cool_color_roof_area_sum = 0.0
                 for attic_roofs_dict in attic_roof_ls:
                     if attic_roofs_dict['roofcolor'] == 'cool_color':
-                        cool_color_roof_absorptance_sum += attic_roofs_dict['roof_absorptance'] * attic_roofs_dict['roof_area']
+                        cool_color_roof_absorptance_sum += (
+                            attic_roofs_dict['roof_absorptance'] * attic_roofs_dict['roof_area']
+                        )
                         cool_color_roof_area_sum += attic_roofs_dict['roof_area']
                 atticd['roof_absorptance'] = round(cool_color_roof_absorptance_sum / cool_color_roof_area_sum, 2)
 
@@ -1359,7 +1369,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
                 # Roof or Ceiling Area
                 ceiling_or_roof_area_key = 'roof_area' if rooftype == 'cath_ceiling' else 'ceiling_area'
-                combined_atticd[ceiling_or_roof_area_key] = sum([atticd[ceiling_or_roof_area_key] for atticd in atticds])
+                combined_atticd[ceiling_or_roof_area_key] = (
+                    sum([atticd[ceiling_or_roof_area_key] for atticd in atticds])
+                )
 
                 # Roof type, roof color, exterior finish, construction type
                 for attic_key in ('roofconstype', 'extfinish', 'roofcolor', 'rooftype'):
@@ -1375,8 +1387,14 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     sum([atticd[ceiling_or_roof_area_key] / atticd['roof_assembly_rvalue'] for atticd in atticds])
 
                 # Calculate attic floor weighted average center-of-cavity R-value
-                combined_atticd['attic_floor_assembly_rvalue'] = combined_atticd[ceiling_or_roof_area_key] / \
-                    sum([atticd[ceiling_or_roof_area_key] / atticd['attic_floor_assembly_rvalue'] for atticd in atticds])
+                combined_atticd['attic_floor_assembly_rvalue'] = (
+                    combined_atticd[ceiling_or_roof_area_key] /
+                    sum([
+                        atticd[ceiling_or_roof_area_key] /
+                        atticd['attic_floor_assembly_rvalue']
+                        for atticd in atticds
+                    ])
+                )
 
                 # Knee Walls
                 combined_atticd['knee_walls'] = []
