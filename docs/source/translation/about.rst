@@ -146,7 +146,6 @@ An example of the minimum expected elements in HPXML follows:
 
    <AirInfiltrationMeasurement>
       <SystemIdentifier id="infilt1"/>
-      <TypeOfInfiltrationMeasurement>blower door</TypeOfInfiltrationMeasurement>
       <HousePressure>50</HousePressure><!-- Must be 50 -->
       <BuildingAirLeakage>
          <UnitofMeasure>CFM<!-- or ACH --></UnitofMeasure>
@@ -165,7 +164,6 @@ example of the minimum expected elements in that case looks like:
 
    <AirInfiltrationMeasurement>
       <SystemIdentifier id="infilt2"/>
-      <TypeOfInfiltrationMeasurement>estimate</TypeOfInfiltrationMeasurement>
       <LeakinessDescription>tight</LeakinessDescription>
    </AirInfiltrationMeasurement>
 
