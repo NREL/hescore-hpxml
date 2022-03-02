@@ -319,6 +319,14 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
                                r'BuildingAirLeakage/UnitofMeasure must be either "CFM" or "ACH" and HousePressure must be 50',
                                tr.hpxml_to_hescore)
 
+    def test_missing_infiltration(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:BuildingAirLeakage')
+        el.getparent().remove(el)
+        self.assertRaisesRegex(TranslationError,
+                               r'AirInfiltrationMeasurement must have either "BuildingAirLeakage/AirLeakage" or "LeakinessDescription"',
+                               tr.hpxml_to_hescore)
+
     def test_missing_surroundings(self):
         tr = self._load_xmlfile('townhouse_walls')
         el = self.xpath('//h:Surroundings')
