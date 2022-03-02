@@ -1022,12 +1022,15 @@ class HPXMLtoHEScoreTranslatorBase(object):
             if house_pressure == 50 and (blower_door_test_units == 'CFM' or
                                          (blower_door_test_units == 'ACH' and blower_door_test is None)):
                 blower_door_test = air_infilt_meas
-            else:
+            elif air_infilt_meas.xpath('count(h:LeakinessDescription)', namespaces=ns) > 0:
                 air_infilt_est = air_infilt_meas
         if b.xpath('count(h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirInfiltrationMeasurement\
                 /h:BuildingAirLeakage)', namespaces=ns) > 0 and blower_door_test is None:
             raise TranslationError(
                 'BuildingAirLeakage/UnitofMeasure must be either "CFM" or "ACH" and HousePressure must be 50')
+        if blower_door_test is None and air_infilt_est is None:
+            raise TranslationError(
+                'AirInfiltrationMeasurement must have either "BuildingAirLeakage/AirLeakage" or "LeakinessDescription"')
         if blower_door_test is not None:
             bldg_about['blower_door_test'] = True
             if xpath(blower_door_test, 'h:BuildingAirLeakage/h:UnitofMeasure/text()') == 'CFM':
