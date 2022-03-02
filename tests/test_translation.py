@@ -316,7 +316,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:BuildingAirLeakage/h:UnitofMeasure')
         el.text = 'CFMnatural'
         self.assertRaisesRegex(TranslationError,
-                               r'BuildingAirLeakage/UnitofMeasure must be either "CFM50" or "ACH50"',
+                               r'BuildingAirLeakage/UnitofMeasure must be either "CFM" or "ACH" and HousePressure must be 50',
                                tr.hpxml_to_hescore)
 
     def test_missing_surroundings(self):
