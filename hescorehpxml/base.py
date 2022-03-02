@@ -1014,6 +1014,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         blower_door_test = None
         air_infilt_est = None
+        is_enclosure_air_sealed = False
         for air_infilt_meas in b.xpath('h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirInfiltrationMeasurement',
                                        namespaces=ns):
             # Take the last blower door test that is in CFM50, or if that's not available, ACH50
@@ -1024,13 +1025,17 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 blower_door_test = air_infilt_meas
             elif air_infilt_meas.xpath('count(h:LeakinessDescription)', namespaces=ns) > 0:
                 air_infilt_est = air_infilt_meas
+        if b.xpath('count(h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirSealing)', namespaces=ns) > 0:
+            is_enclosure_air_sealed = True
         if b.xpath('count(h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirInfiltrationMeasurement\
                 /h:BuildingAirLeakage)', namespaces=ns) > 0 and blower_door_test is None:
             raise TranslationError(
                 'BuildingAirLeakage/UnitofMeasure must be either "CFM" or "ACH" and HousePressure must be 50')
-        if blower_door_test is None and air_infilt_est is None:
+        if blower_door_test is None and air_infilt_est is None and not is_enclosure_air_sealed:
             raise TranslationError(
-                'AirInfiltrationMeasurement must have either "BuildingAirLeakage/AirLeakage" or "LeakinessDescription"')
+                'AirInfiltration must have "AirInfiltrationMeasurement/BuildingAirLeakage/AirLeakage" or '
+                '"AirInfiltrationMeasurement/LeakinessDescription" or "AirSealing"')
+        bldg_about['blower_door_test'] = False
         if blower_door_test is not None:
             bldg_about['blower_door_test'] = True
             if xpath(blower_door_test, 'h:BuildingAirLeakage/h:UnitofMeasure/text()') == 'CFM':
@@ -1043,14 +1048,13 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                                              'h:BuildingAirLeakage/h:AirLeakage/text()',
                                                              raise_err=True)) / 60.
             bldg_about['envelope_leakage'] = int(python2round(bldg_about['envelope_leakage']))
-        else:
-            bldg_about['blower_door_test'] = False
-            if b.xpath('count(h:BuildingDetails/h:Enclosure/h:AirInfiltration/h:AirSealing)', namespaces=ns) > 0 or \
-                    (air_infilt_est is not None and
-                     xpath(air_infilt_est, 'h:LeakinessDescription/text()') in ('tight', 'very tight')):
+        elif air_infilt_est is not None:
+            if xpath(air_infilt_est, 'h:LeakinessDescription/text()') in ('tight', 'very tight'):
                 bldg_about['air_sealing_present'] = True
             else:
                 bldg_about['air_sealing_present'] = False
+        elif is_enclosure_air_sealed:
+            bldg_about['air_sealing_present'] = True
         # Get comments
         extension_comment = xpath(b, 'h:extension/h:Comments/text()')
         if extension_comment is not None:
