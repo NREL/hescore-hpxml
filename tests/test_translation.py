@@ -1477,6 +1477,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['duct'][2]['fraction'], 0.2)
         self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['duct'][2]['insulated'], False)
 
+
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 
     def test_assessment_date1(self):
