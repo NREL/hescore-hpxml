@@ -316,7 +316,15 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:BuildingAirLeakage/h:UnitofMeasure')
         el.text = 'CFMnatural'
         self.assertRaisesRegex(TranslationError,
-                               r'BuildingAirLeakage/UnitofMeasure must be either "CFM50" or "ACH50"',
+                               r'BuildingAirLeakage/UnitofMeasure must be either "CFM" or "ACH" and HousePressure must be 50',  # noqa: E501
+                               tr.hpxml_to_hescore)
+
+    def test_missing_infiltration(self):
+        tr = self._load_xmlfile('hescore_min')
+        el = self.xpath('//h:BuildingAirLeakage')
+        el.getparent().remove(el)
+        self.assertRaisesRegex(TranslationError,
+                               r'AirInfiltration must have "AirInfiltrationMeasurement/BuildingAirLeakage/AirLeakage" or "AirInfiltrationMeasurement/LeakinessDescription" or "AirSealing"',  # noqa: E501
                                tr.hpxml_to_hescore)
 
     def test_missing_surroundings(self):
@@ -3912,6 +3920,22 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         res = tr.hpxml_to_hescore()
         self.assertEqual(res['building']['systems']['hvac'][0]['hvac_distribution']['duct'][0]['insulated'], True)
         el.getparent().remove(duct_ins_mat)
+
+    def test_air_sealed_enclosure(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['about']['blower_door_test'], True)
+
+        E = self.element_maker()
+        el = self.xpath('//h:AirInfiltration/h:AirInfiltrationMeasurement')
+        air_sealing = E.AirSealing(
+            E.SystemIdentifier(id='AirSealing1')
+        )
+        el.addnext(air_sealing)
+        el.getparent().remove(el)
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['building']['about']['blower_door_test'], False)
+        self.assertEqual(res['building']['about']['air_sealing_present'], True)
 
 
 if __name__ == "__main__":
