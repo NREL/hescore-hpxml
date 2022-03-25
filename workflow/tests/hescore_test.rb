@@ -184,9 +184,7 @@ class HEScoreTest < MiniTest::Test
       next if log_line.start_with? 'Executing command'
 
       next if log_line.include? 'Warning: Could not load nokogiri, no HPXML validation performed.'
-
-      # FIXME: Remove this warning when https://github.com/NREL/OpenStudio-HPXML/issues/638 is resolved
-      next if log_line.include?('Glazing U-factor') && log_line.include?('above maximum expected value. U-factor decreased')
+      next if log_line.include?('WindSpeed value') and log_line.include?('not within the expected limits')
 
       # Files w/o cooling systems
       no_spc_clg = false
