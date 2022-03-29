@@ -110,7 +110,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     outputs.each do |hes_key, values|
       hes_end_use, hes_resource_type = hes_key
       to_units = units_map[hes_resource_type]
-      annual_value = values.inject(0, :+)
+      annual_value = values.sum
       next if annual_value <= 0.01
 
       values.each_with_index do |value, idx|
