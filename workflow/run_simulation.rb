@@ -5,10 +5,8 @@ start_time = Time.now
 require 'fileutils'
 require 'optparse'
 require 'pathname'
-require 'csv'
 require_relative '../hpxml-measures/HPXMLtoOpenStudio/resources/meta_measure'
 require_relative '../hpxml-measures/HPXMLtoOpenStudio/resources/version'
-require_relative 'hescore_lib'
 
 basedir = File.expand_path(File.dirname(__FILE__))
 
@@ -45,7 +43,7 @@ def run_design(basedir, rundir, design, resultsdir, json, hourly_output, debug, 
   update_args_hash(measures, measure_subdir, args)
 
   if not skip_simulation
-    # Add HPXML translator measure to workflow
+    # Add OS-HPXML translator measure to workflow
     measure_subdir = 'hpxml-measures/HPXMLtoOpenStudio'
     args = {}
     args['hpxml_path'] = output_hpxml_path
@@ -55,7 +53,7 @@ def run_design(basedir, rundir, design, resultsdir, json, hourly_output, debug, 
     args['skip_validation'] = !debug
     update_args_hash(measures, measure_subdir, args)
 
-    # Add reporting measure to workflow
+    # Add OS-HPXML reporting measure to workflow
     measure_subdir = 'hpxml-measures/ReportSimulationOutput'
     args = {}
     args['timeseries_frequency'] = 'monthly'
@@ -69,6 +67,12 @@ def run_design(basedir, rundir, design, resultsdir, json, hourly_output, debug, 
     args['include_timeseries_airflows'] = false
     args['include_timeseries_weather'] = false
     args['timeseries_output_file_name'] = 'results_monthly.csv'
+    update_args_hash(measures, measure_subdir, args)
+
+    # Add HEScore reporting measure to workflow
+    measure_subdir = 'rulesets/ReportHEScoreOutput'
+    args = {}
+    args['results_dir'] = resultsdir
     update_args_hash(measures, measure_subdir, args)
 
     if hourly_output
@@ -92,75 +96,6 @@ def run_design(basedir, rundir, design, resultsdir, json, hourly_output, debug, 
 
   results = run_hpxml_workflow(rundir, measures, measures_dir,
                                debug: debug, run_measures_only: skip_simulation)
-
-  return results[:success] if skip_simulation
-  return results[:success] unless results[:success]
-
-  # Gather monthly outputs for results JSON
-  monthly_csv_path = File.join(rundir, 'results_monthly.csv')
-  return false unless File.exist? monthly_csv_path
-
-  units_map = get_units_map()
-  output_map = get_output_map()
-  outputs = {}
-  output_map.each do |ep_output, hes_output|
-    outputs[hes_output] = []
-  end
-  row_index = {}
-  units = nil
-  CSV.foreach(monthly_csv_path).with_index do |row, row_num|
-    if row_num == 0 # Header
-      output_map.each do |ep_output, hes_output|
-        row_index[ep_output] = row.index(ep_output)
-      end
-    elsif row_num == 1 # Units
-      units = row
-    else # Data
-      # Init for month
-      outputs.keys.each do |k|
-        outputs[k] << 0.0
-      end
-      # Add values
-      output_map.each do |ep_output, hes_output|
-        col = row_index[ep_output]
-        next if col.nil?
-
-        outputs[hes_output][-1] += UnitConversions.convert(Float(row[col]), units[col], units_map[hes_output[1]].gsub('gallons', 'gal')).abs
-      end
-      # Make sure there aren't any end uses with positive values that aren't mapped to HES
-      row.each_with_index do |val, col|
-        next if col.nil?
-        next if col == 0 # Skip time column
-        next if row_index.values.include? col
-
-        fail "Missed value (#{val}) in row=#{row_num}, col=#{col}." if Float(val) > 0
-      end
-    end
-  end
-
-  # Write results to JSON
-  data = { 'end_use' => [] }
-  outputs.each do |hes_key, values|
-    hes_end_use, hes_resource_type = hes_key
-    to_units = units_map[hes_resource_type]
-    annual_value = values.inject(0, :+)
-    next if annual_value <= 0.01
-
-    values.each_with_index do |value, idx|
-      end_use = { 'quantity' => value,
-                  'period_type' => 'month',
-                  'period_number' => (idx + 1).to_s,
-                  'end_use' => hes_end_use,
-                  'resource_type' => hes_resource_type,
-                  'units' => to_units }
-      data['end_use'] << end_use
-    end
-  end
-
-  require 'json'
-  File.open(File.join(resultsdir, 'results.json'), 'w') do |f|
-    f.write(JSON.pretty_generate(data))
-  end
 
   return results[:success]
 end

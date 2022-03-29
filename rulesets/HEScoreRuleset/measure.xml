@@ -3,8 +3,8 @@
   <schema_version>3.0</schema_version>
   <name>he_score_measure</name>
   <uid>013ca589-73ab-451f-afae-dbeb5304dea8</uid>
-  <version_id>401c7082-1dc6-4525-90ee-5847a1afc3ee</version_id>
-  <version_modified>20220201T181605Z</version_modified>
+  <version_id>60a5de5e-a446-42c9-b779-47520c9146c8</version_id>
+  <version_modified>20220329T230312Z</version_modified>
   <xml_checksum>2AF3A68E</xml_checksum>
   <class_name>HEScoreMeasure</class_name>
   <display_name>Apply Home Energy Score Ruleset</display_name>
@@ -63,30 +63,6 @@
       <checksum>F98E711A</checksum>
     </file>
     <file>
-      <filename>lu_wall_eff_rvalue.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>A662085D</checksum>
-    </file>
-    <file>
-      <filename>lu_roof_eff_rvalue.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>DB516BAF</checksum>
-    </file>
-    <file>
-      <filename>lu_ceiling_eff_rvalue.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>49109C7F</checksum>
-    </file>
-    <file>
-      <filename>lu_floor_eff_rvalue.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>686AC884</checksum>
-    </file>
-    <file>
       <filename>zipcodes_wx.csv</filename>
       <filetype>csv</filetype>
       <usage_type>resource</usage_type>
@@ -116,28 +92,16 @@
       <checksum>56E99952</checksum>
     </file>
     <file>
-      <filename>HESruleset.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>B716040A</checksum>
-    </file>
-    <file>
       <filename>test_hescore_ruleset.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
       <checksum>4C4C1489</checksum>
     </file>
     <file>
-      <filename>lu_knee_wall_eff_rvalue.csv</filename>
-      <filetype>csv</filetype>
+      <filename>HESruleset.rb</filename>
+      <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>46451585</checksum>
-    </file>
-    <file>
-      <filename>make_lu_knee_wall_eff_rvalue.py</filename>
-      <filetype>py</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>5EBA0F47</checksum>
+      <checksum>B90FC9B2</checksum>
     </file>
   </files>
 </measure>
