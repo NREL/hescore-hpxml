@@ -35,6 +35,10 @@
     <Site>
       <SiteID id='SiteID'/>
       <Address>
+        <AddressType>street</AddressType>
+        <Address1>resstock test house</Address1>
+        <CityMunicipality>resstock test city</CityMunicipality>
+        <StateCode>WA</StateCode>
         <ZipCode>98052</ZipCode>
     </Address>
     </Site>
