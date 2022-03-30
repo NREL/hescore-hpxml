@@ -46,7 +46,6 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       return false
     end
     model = model.get
-    @model = model
 
     # use the built-in error checking
     if !runner.validateUserArguments(arguments(model), user_arguments)
