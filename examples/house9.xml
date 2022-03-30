@@ -6,8 +6,6 @@
     <Transaction>create</Transaction>
   </XMLTransactionHeaderInformation>
   <SoftwareInfo>
-    <SoftwareProgramUsed>ResStock</SoftwareProgramUsed>
-    <SoftwareProgramVersion>2.4.0</SoftwareProgramVersion>
     <extension>
       <SimulationControl>
         <Timestep>60</Timestep>
