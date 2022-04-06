@@ -3,14 +3,30 @@
   <schema_version>3.0</schema_version>
   <name>report_he_score_output</name>
   <uid>785ca026-0050-41cd-9b8c-b2d64c832987</uid>
-  <version_id>e5f48d3a-7cb9-4498-b4ef-b120a7a6829c</version_id>
-  <version_modified>20220330T002724Z</version_modified>
+  <version_id>4fe2256b-14e4-47f3-a537-4d8ea685fca2</version_id>
+  <version_modified>20220406T174816Z</version_modified>
   <xml_checksum>9BF1E6AC</xml_checksum>
   <class_name>ReportHEScoreOutput</class_name>
   <display_name>Report HEScore Output</display_name>
   <description>Reports simulation-based outputs for HEScore runs.</description>
   <modeler_description>Processes EnergyPlus simulation outputs in order to generate an annual output file and an optional timeseries output file.</modeler_description>
   <arguments>
+    <argument>
+      <name>json_path</name>
+      <display_name>JSON File Path</display_name>
+      <description>Absolute (or relative) path of the JSON file.</description>
+      <type>String</type>
+      <required>true</required>
+      <model_dependent>false</model_dependent>
+    </argument>
+    <argument>
+      <name>hpxml_path</name>
+      <display_name>HPXML File Path</display_name>
+      <description>Absolute/relative path of the HPXML file.</description>
+      <type>String</type>
+      <required>true</required>
+      <model_dependent>false</model_dependent>
+    </argument>
     <argument>
       <name>results_dir</name>
       <display_name>Results Directory</display_name>
@@ -44,6 +60,12 @@
   </attributes>
   <files>
     <file>
+      <filename>bins.csv</filename>
+      <filetype>csv</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>E7FC9F4B</checksum>
+    </file>
+    <file>
       <version>
         <software_program>OpenStudio</software_program>
         <identifier>2.9.1</identifier>
@@ -52,7 +74,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>54A9CC1C</checksum>
+      <checksum>E69AEFF1</checksum>
     </file>
   </files>
 </measure>
