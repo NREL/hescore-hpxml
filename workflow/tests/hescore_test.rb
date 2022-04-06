@@ -415,9 +415,14 @@ class HEScoreTest < MiniTest::Test
     assert_equal(7, tested_end_uses.uniq.size)
 
     # Check we have additional results without end uses (e.g., source energy, base score)
-    assert(results.keys.map { |k| k[0] }.include? 'total_source_energy')
-    assert(results.keys.map { |k| k[0] }.include? 'asset_source_energy')
-    assert(results.keys.map { |k| k[0] }.include? 'base_score')
+    total_source_energy = results[['total_source_energy', nil, 'MBtu']]
+    asset_source_energy = results[['asset_source_energy', nil, 'MBtu']]
+    base_score = results[['base_score', nil, nil]]
+    assert_operator(total_source_energy, :>, 0)
+    assert_operator(asset_source_energy, :>, 0)
+    assert_operator(asset_source_energy, :<, total_source_energy)
+    assert_operator(base_score, :>=, 1)
+    assert_operator(base_score, :<=, 10)
   end
 
   def _write_summary_results(results, results_csv_path)
