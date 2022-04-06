@@ -155,13 +155,17 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     asset_source_energy = 0.0
     outputs.each do |hes_key, values|
       hes_end_use, hes_resource_type = hes_key
-      site_to_source_factor = site_to_source_map[hes_resource_type]
+      if hes_end_use == 'generation' # PV generation gets a _site_ energy credit
+        site_to_source_factor = -1.0
+      else
+        site_to_source_factor = site_to_source_map[hes_resource_type]
+      end
       next if site_to_source_factor.nil?
 
       units = units_map[hes_resource_type]
       total_source_energy += UnitConversions.convert(values.sum, units, 'MBtu') * site_to_source_factor
 
-      next unless ['heating', 'cooling', 'hot_water'].include? hes_end_use
+      next unless ['heating', 'cooling', 'hot_water', 'generation'].include? hes_end_use
 
       asset_source_energy += UnitConversions.convert(values.sum, units, 'MBtu') * site_to_source_factor
     end
