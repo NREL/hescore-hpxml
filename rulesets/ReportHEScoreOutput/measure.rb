@@ -46,9 +46,9 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     arg.setDescription('Absolute/relative path of the HPXML file.')
     args << arg
 
-    arg = OpenStudio::Measure::OSArgument::makeStringArgument('results_dir', true)
-    arg.setDisplayName('Results Directory')
-    arg.setDescription('Path to the directory where any output files (e.g., results.json) will be written.')
+    arg = OpenStudio::Measure::OSArgument::makeStringArgument('json_output_path', false)
+    arg.setDisplayName('JSON Output File Path')
+    arg.setDescription('Absolute (or relative) path of the output HPXML file.')
     args << arg
 
     return args
@@ -72,7 +72,12 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
 
     json_path = runner.getStringArgumentValue('json_path', user_arguments)
     hpxml_path = runner.getStringArgumentValue('hpxml_path', user_arguments)
-    resultsdir = runner.getStringArgumentValue('results_dir', user_arguments)
+    json_output_path = runner.getOptionalStringArgumentValue('json_output_path', user_arguments)
+    if json_output_path.is_initialized
+      json_output_path = json_output_path.get
+    else
+      json_output_path = nil
+    end
 
     sqlFile = runner.lastEnergyPlusSqlFile
     if sqlFile.empty?
@@ -197,8 +202,10 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     runner.registerInfo("Registering #{base_score} for #{resource_type}.")
 
     # Write results to JSON
-    File.open(File.join(resultsdir, 'results.json'), 'w') do |f|
-      f.write(JSON.pretty_generate(json_data))
+    if not json_output_path.nil?
+      File.open(json_output_path, 'w') do |f|
+        f.write(JSON.pretty_generate(json_data))
+      end
     end
 
     # Register the HEScore inputs as outputs

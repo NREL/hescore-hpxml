@@ -74,7 +74,7 @@ def run_design(basedir, rundir, design, resultsdir, json, hourly_output, debug, 
     args = {}
     args['json_path'] = json
     args['hpxml_path'] = output_hpxml_path
-    args['results_dir'] = resultsdir
+    args['json_output_path'] = File.join(resultsdir, 'results.json')
     update_args_hash(measures, measure_subdir, args)
 
     if hourly_output

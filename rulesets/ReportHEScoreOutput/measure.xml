@@ -3,8 +3,8 @@
   <schema_version>3.0</schema_version>
   <name>report_he_score_output</name>
   <uid>785ca026-0050-41cd-9b8c-b2d64c832987</uid>
-  <version_id>b43d9f74-c916-4e94-82af-9ffa94c19299</version_id>
-  <version_modified>20220406T175925Z</version_modified>
+  <version_id>57fc608a-263d-48a7-84b6-11693de86f04</version_id>
+  <version_modified>20220407T232440Z</version_modified>
   <xml_checksum>9BF1E6AC</xml_checksum>
   <class_name>ReportHEScoreOutput</class_name>
   <display_name>Report HEScore Output</display_name>
@@ -28,11 +28,11 @@
       <model_dependent>false</model_dependent>
     </argument>
     <argument>
-      <name>results_dir</name>
-      <display_name>Results Directory</display_name>
-      <description>Path to the directory where any output files (e.g., results.json) will be written.</description>
+      <name>json_output_path</name>
+      <display_name>JSON Output File Path</display_name>
+      <description>Absolute (or relative) path of the output HPXML file.</description>
       <type>String</type>
-      <required>true</required>
+      <required>false</required>
       <model_dependent>false</model_dependent>
     </argument>
   </arguments>
@@ -74,7 +74,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>FB42D261</checksum>
+      <checksum>3622CFC5</checksum>
     </file>
   </files>
 </measure>
