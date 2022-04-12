@@ -31,7 +31,7 @@ following mapping.
    crawlspace              *not translated*
    unconditioned attic     uncond_attic
    interstitial space      *not translated*
-   garage                  vented_crawl
+   garage                  unvented_crawl
    outside                 outside
    ======================  ================
 
@@ -58,9 +58,9 @@ following mapping.
    attic - unvented             uncond_attic
    attic - vented               uncond_attic
    interstitial space           *not translated*
-   garage                       vented_crawl
+   garage                       unvented_crawl
    garage - conditioned         cond_space
-   garage - unconditioned       vented_crawl
+   garage - unconditioned       unvented_crawl
    roof deck                    outside
    outside                      outside
    ===========================  ================
@@ -73,8 +73,8 @@ following mapping.
 Duct Fractions
 **************
 
-For each ``Ducts`` element in an air distribution system the ``FracDuctArea`` is summed by
-HEScore :ref:`duct location <ductlocationmapping>`.
+For each ``Ducts`` element with the same insulation level in an air distribution system 
+the ``FracDuctArea`` is summed by HEScore :ref:`duct location <ductlocationmapping>`.
 
 Duct Insulation
 ***************
