@@ -91,7 +91,10 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
 
     # Gather monthly outputs for results JSON
     monthly_csv_path = File.join(rundir, 'results_monthly.csv')
-    return false unless File.exist? monthly_csv_path
+    if not File.exist? monthly_csv_path
+      runner.registerError('Cannot find results_monthly.csv file.')
+      return false
+    end
 
     units_map = get_units_map()
     output_map = get_output_map()
@@ -192,7 +195,10 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     runner.registerValue('weather_station', weather_station)
     runner.registerInfo("Registering #{weather_station} for weather_station.")
     base_score = calc_score(runner, weather_station, asset_source_energy)
-    return false if base_score.nil?
+    if base_score.nil?
+      runner.registerError('Cannot calculate base score.')
+      return false
+    end
 
     resource_type = 'base_score'
     end_use = { 'quantity' => base_score,
