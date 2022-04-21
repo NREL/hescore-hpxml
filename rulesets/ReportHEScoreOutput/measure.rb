@@ -194,18 +194,18 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     weather_station = hpxml.climate_and_risk_zones.weather_station_wmo.to_i
     runner.registerValue('weather_station', weather_station)
     runner.registerInfo("Registering #{weather_station} for weather_station.")
-    base_score = calc_score(runner, weather_station, asset_source_energy)
-    if base_score.nil?
-      runner.registerError('Cannot calculate base score.')
+    score = calc_score(runner, weather_station, asset_source_energy)
+    if score.nil?
+      runner.registerError('Cannot calculate score.')
       return false
     end
 
-    resource_type = 'base_score'
-    end_use = { 'quantity' => base_score,
+    resource_type = 'score'
+    end_use = { 'quantity' => score,
                 'resource_type' => resource_type }
     json_data['end_use'] << end_use
-    runner.registerValue(resource_type, base_score)
-    runner.registerInfo("Registering #{base_score} for #{resource_type}.")
+    runner.registerValue(resource_type, score)
+    runner.registerInfo("Registering #{score} for #{resource_type}.")
 
     # Write results to JSON
     if not json_output_path.nil?

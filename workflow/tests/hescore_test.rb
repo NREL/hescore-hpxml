@@ -417,12 +417,12 @@ class HEScoreTest < MiniTest::Test
     # Check we have additional results without end uses (e.g., source energy, base score)
     total_source_energy = results[['total_source_energy', nil, 'MBtu']]
     asset_source_energy = results[['asset_source_energy', nil, 'MBtu']]
-    base_score = results[['base_score', nil, nil]]
+    score = results[['score', nil, nil]]
     assert_operator(total_source_energy, :>, 0)
     assert_operator(asset_source_energy, :>, 0)
     assert_operator(asset_source_energy, :<, total_source_energy)
-    assert_operator(base_score, :>=, 1)
-    assert_operator(base_score, :<=, 10)
+    assert_operator(score, :>=, 1)
+    assert_operator(score, :<=, 10)
   end
 
   def _write_summary_results(results, results_csv_path)
