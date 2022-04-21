@@ -76,6 +76,8 @@ Duct Fractions
 For each ``Ducts`` element with the same insulation level in an air distribution system 
 the ``FracDuctArea`` is summed by HEScore :ref:`duct location <ductlocationmapping>`.
 
+.. _duct-insulation:
+
 Duct Insulation
 ***************
 
@@ -83,6 +85,8 @@ If the any of the ``Ducts`` elements in a particular
 :ref:`location <ductlocationmapping>` have a ``DuctInsulationRValue`` or
 ``DuctInsulationThickness`` that is greater than zero or have a ``DuctInsulationMaterial`` that is not ``None``, 
 all of the ducts in that location are considered insulated.
+
+.. _duct-leakage-measurements:
 
 Duct Leakage Measurements
 *************************

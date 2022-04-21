@@ -134,6 +134,8 @@ The effective R-value of the R-0 insulation level is then subtracted.
    
 Finally, the nearest insulation level is selected from the enumeration list.
 
+.. _floor-insulation:
+
 Floor insulation above basement or crawlspace
 *********************************************
 
