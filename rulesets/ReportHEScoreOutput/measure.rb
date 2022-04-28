@@ -79,13 +79,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       json_output_path = nil
     end
 
-    sqlFile = runner.lastEnergyPlusSqlFile
-    if sqlFile.empty?
-      runner.registerError('Cannot find EnergyPlus sql file.')
-      return false
-    end
-
-    rundir = File.dirname(sqlFile.get.path.to_s)
+    rundir = File.dirname(runner.lastEpwFilePath.get.to_s)
 
     json_data = { 'end_use' => [] }
 
