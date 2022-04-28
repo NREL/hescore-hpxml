@@ -41,7 +41,8 @@ Water Heating
 -------------
 
 -  The maximum allowed EF for a tank type water heater is now 0.95, and the
-   maximum allowed EF for a tankless water heater is 0.99.
+   maximum allowed EF for a tankless water heater is 0.99. Electric heat pump
+   water heaters will continue to allow EFs between 1.0 and 4.0 inclusive.
 
 PV
 --

@@ -99,10 +99,10 @@ To quantitatively specify the duct leakage to outside in CFM25 of an ``AirDistri
 
 * ``DuctLeakageMeasurement[not(DuctType)]/DuctLeakage[TotalOrToOutside="to outside" and Units="CFM25"]/Value`` element 
   with the numeric value
-* If the above element is not found, 
+* If the above element is not found, the values of the elements
   ``DuctLeakageMeasurement[DuctType="supply"]/DuctLeakage[TotalOrToOutside="to outside" and Units="CFM25"]/Value`` and
-  ``DuctLeakageMeasurement[DuctType="return"]/DuctLeakage[TotalOrToOutside="to outside" and Units="CFM25"]/Value`` elements
-  with the numeric values (Note that the sum of two elements will be used)
+  ``DuctLeakageMeasurement[DuctType="return"]/DuctLeakage[TotalOrToOutside="to outside" and Units="CFM25"]/Value``
+  will be summed and used.
 
 If quantitative duct leakage measurement is not specified, the
 translator expects to find either of the following qualitatively specified duct leakage measurement elements:
