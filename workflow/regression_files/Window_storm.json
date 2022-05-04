@@ -29,7 +29,6 @@
             "window_method": "code",
             "window_code": "scnw",
             "solar_screen": false,
-            "solar_screen": false,
             "storm_type": "clear"
           }
         },
@@ -39,7 +38,6 @@
             "window_area": 50,
             "window_method": "code",
             "window_code": "stnw",
-            "solar_screen": false,
             "solar_screen": false,
             "storm_type": "low-e"
           }
@@ -51,7 +49,6 @@
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false,
-            "solar_screen": false,
             "storm_type": "clear"
           }
         },
@@ -61,7 +58,6 @@
             "window_area": 30,
             "window_method": "code",
             "window_code": "dtaw",
-            "solar_screen": false,
             "solar_screen": false,
             "storm_type": "low-e"
           }

@@ -28,39 +28,31 @@
             "window_area": 60,
             "window_method": "code",
             "window_code": "dcaw",
-            "solar_screen": false
+            "solar_screen": true,
+            "storm_type": "clear"
           }
         },
         {
           "side": "back",
           "zone_window": {
-            "window_area": 50,
-            "window_method": "code",
-            "window_code": "dcaw",
-            "solar_screen": false
+            "window_area": 50
           }
         },
         {
           "side": "right",
           "zone_window": {
-            "window_area": 40,
-            "window_method": "code",
-            "window_code": "dcaw",
-            "solar_screen": false
+            "window_area": 40
           }
         },
         {
           "side": "left",
           "zone_window": {
-            "window_area": 30,
-            "window_method": "code",
-            "window_code": "dcaw",
-            "solar_screen": false
+            "window_area": 30
           }
         }
       ],
       "wall_construction_same": true,
-      "window_construction_same": false,
+      "window_construction_same": true,
       "zone_roof": [
         {
           "roof_name": "roof1",
