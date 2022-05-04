@@ -629,7 +629,7 @@ class HEScoreRulesetTest < MiniTest::Test
       wall_code_by_id[knee_wall_id] = knee_wall_code
     end
 
-    XMLHelper.get_elements(out_doc, 'HPXML/Building/BuildingDetails/Enclosure/Walls/Wall') do |wall|
+    XMLHelper.get_elements(out_doc, 'HPXML/Building/BuildingDetails/Enclosure/Walls/Wall').each do |wall|
       eff_rvalue = XMLHelper.get_value(wall, 'Insulation/AssemblyEffectiveRValue', :float)
       wallid = XMLHelper.get_attribute_value(XMLHelper.get_element(wall, 'SystemIdentifier'), 'id')
       next if wall_code_by_id[wallid].nil?
@@ -642,16 +642,53 @@ class HEScoreRulesetTest < MiniTest::Test
     end
 
     roof_code_by_id = {}
-    in_doc['building']['zone']['zone_roof'].each_with_index do |roof, idx|
+    in_doc['building']['zone']['zone_roof'].each do |roof|
       roof_code = roof['roof_assembly_code']
-      roofid = "#{roof['roof_name']}_#{idx}"
+      roofid = "#{roof['roof_name']}"
       roof_code_by_id[roofid] = roof_code
     end
 
-    XMLHelper.get_elements(out_doc, 'HPXML/Building/BuildingDetails/Enclosure/Roofs/Roof') do |roof|
+    XMLHelper.get_elements(out_doc, 'HPXML/Building/BuildingDetails/Enclosure/Roofs/Roof').each do |roof|
       roofid = XMLHelper.get_attribute_value(XMLHelper.get_element(roof, 'SystemIdentifier'), 'id')
       eff_rvalue = XMLHelper.get_value(roof, 'Insulation/AssemblyEffectiveRValue', :float)
       assert_in_epsilon(eff_rvalue, get_roof_effective_r_from_doe2code(roof_code_by_id[roofid.split('_')[0]]), 0.01)
+    end
+
+    window_code_by_id = {}
+    storm_type_by_id = {}
+    in_doc['building']['zone']['zone_wall'].each do |wall|
+      next if wall['zone_window'].nil?
+
+      window_code = wall['zone_window']['window_code']
+      storm_type = wall['zone_window']['storm_type']
+      windowid = "#{wall['side']}_window"
+      if in_doc['building']['zone']['window_construction_same'] == true
+        in_doc['building']['zone']['zone_wall'].each do |wall|
+          if wall['side'] == 'front'
+            window_code = wall['zone_window']['window_code']
+            storm_type = wall['zone_window']['storm_type']
+          end
+        end
+        window_code_by_id[windowid] = window_code
+        storm_type_by_id[windowid] = storm_type
+      else
+        window_code_by_id[windowid] = window_code
+        storm_type_by_id[windowid] = storm_type
+      end
+    end
+
+    XMLHelper.get_elements(out_doc, 'HPXML/Building/BuildingDetails/Enclosure/Windows/Window').each do |window|
+      windowid = XMLHelper.get_attribute_value(XMLHelper.get_element(window, 'SystemIdentifier'), 'id')
+      next if window_code_by_id[windowid].nil?
+
+      hpxml_ufactor = XMLHelper.get_value(window, 'UFactor', :float)
+      json_ufactor, json_shgc = get_window_ufactor_shgc_from_doe2code(window_code_by_id[windowid])
+      if not storm_type_by_id[windowid].nil?
+        json_ufactor, json_shgc = get_ufactor_shgc_adjusted_by_storms(storm_type_by_id[windowid], json_ufactor, json_shgc)
+      end
+      windowid = XMLHelper.get_attribute_value(XMLHelper.get_element(window, 'SystemIdentifier'), 'id')
+
+      assert_in_epsilon(hpxml_ufactor, json_ufactor, 0.01)
     end
   end
 
