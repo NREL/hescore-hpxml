@@ -676,7 +676,7 @@ class HEScoreRulesetTest < MiniTest::Test
         storm_type_by_id[windowid] = storm_type
       end
     end
-    
+
     XMLHelper.get_elements(out_doc, 'HPXML/Building/BuildingDetails/Enclosure/Windows/Window').each do |window|
       windowid = XMLHelper.get_attribute_value(XMLHelper.get_element(window, 'SystemIdentifier'), 'id')
       next if window_code_by_id[windowid].nil?
