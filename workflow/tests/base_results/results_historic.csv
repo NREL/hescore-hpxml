@@ -1,6 +1,6 @@
 HPXML,electric: heating [kWh],natural_gas: heating [kBtu],lpg: heating [kBtu],fuel_oil: heating [kBtu],cord_wood: heating [kBtu],pellet_wood: heating [kBtu],electric: cooling [kWh],electric: hot_water [kWh],natural_gas: hot_water [kBtu],lpg: hot_water [kBtu],fuel_oil: hot_water [kBtu],electric: large_appliance [kWh],electric: small_appliance [kWh],electric: lighting [kWh],electric: generation [kWh],hot_water: hot_water [gallons],total_source_energy [MBtu],asset_source_energy [MBtu],score
 328661.json,9546.46,0.0,0.0,0.0,0.0,0.0,0.0,2718.01,0.0,0.0,0.0,1488.71,2099.37,1620.72,0.0,14700.91,164.55,115.5,1.0
-328662.json,2554.38,0.0,0.0,0.0,0.0,0.0,331.51,973.99,0.0,0.0,0.0,1658.34,2289.16,1697.22,0.0,17782.46,89.51,36.35,9.0
+328662.json,2554.38,0.0,0.0,0.0,0.0,0.0,331.51,973.9,0.0,0.0,0.0,1658.34,2289.16,1697.22,0.0,17784.01,89.51,36.35,9.0
 328663.json,479.91,73110.42,0.0,0.0,0.0,0.0,1119.04,0.0,19202.86,0.0,0.0,1658.34,2885.47,2254.77,0.0,18386.45,176.01,111.99,1.0
 328664.json,680.62,93499.22,0.0,0.0,0.0,0.0,0.0,0.0,20926.63,0.0,0.0,1828.12,4754.13,3901.12,0.0,21959.49,225.28,126.56,1.0
 328665.json,4629.38,21800.05,0.0,0.0,0.0,0.0,0.0,0.0,15341.32,0.0,0.0,1488.71,1548.54,1105.65,0.0,14701.3,121.61,82.6,3.0
