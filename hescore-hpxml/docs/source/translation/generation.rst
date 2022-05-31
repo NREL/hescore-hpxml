@@ -25,6 +25,8 @@ If each ``PVSystem`` has a ``MaxPowerOutput``, the system capacity is known. The
 ``system_capacity`` in HEScore is calculated by summing all the
 ``MaxPowerOutput`` elements in HPXML.
 
+.. _number-of-panels:
+
 Number of Panels
 ================
 
@@ -66,6 +68,8 @@ northwest, etc) is converted into an azimuth. A weighted average azimuth is
 calculated and converted into the nearest cardinal direction (north, northwest,
 etc) for submission into the ``array_azimuth`` HEScore input (which expects a
 direction, not a numeric azimuth).
+
+.. _panel-tilt:
 
 Panel Tilt
 ==========
