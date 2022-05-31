@@ -1699,7 +1699,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                 raise TranslationError(
                                     'If there is more than one FoundationWall, an Area is required for each.')
                     fwall_assembly_rvalue = self.get_foundation_wall_assembly_rvalue(fwall, fwall)
-                    if fwall_assembly_rvalue is not None:  # TODO: Allow for AssemblyEffectiveRValue
+                    if fwall_assembly_rvalue is not None and\
+                            xpath(fwall, 'count(h:Insulation/h:Layer/h:NominalRValue)') == 0:
+                        # TODO: Allow for AssemblyEffectiveRValue
                         raise TranslationError(
                             f'Every foundation wall insulation layer needs a NominalRValue, fwall_id = {fwallid}')
                     else:
@@ -1724,7 +1726,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             raise TranslationError(
                                 'If there is more than one Slab, an ExposedPerimeter is required for each.')
                     slab_assembly_rvalue = self.get_slab_assembly_rvalue(slab, slab)
-                    if slab_assembly_rvalue is not None:  # TODO: Allow for AssemblyEffectiveRValue
+                    if slab_assembly_rvalue is not None and\
+                            xpath(slab, 'count(h:PerimeterInsulation/h:Layer/h:NominalRValue)') == 0:
+                        # TODO: Allow for AssemblyEffectiveRValue
                         raise TranslationError(
                             f"Every slab insulation layer needs a NominalRValue, slab_id = {slabid}")
                     else:
