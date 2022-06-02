@@ -449,6 +449,25 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             tr.hpxml_to_hescore
         )
 
+    def test_missing_nominal_rvalue(self):
+        tr = self._load_xmlfile('house7')
+        slab_perim_ins_nominal_rvalue = self.xpath('//h:Slab/h:PerimeterInsulation/h:Layer/h:NominalRValue')
+        slab_perim_ins_nominal_rvalue.getparent().remove(slab_perim_ins_nominal_rvalue)
+        self.assertRaisesRegex(
+            TranslationError,
+            'Every slab insulation layer needs a NominalRValue, slab_id = slab1',
+            tr.hpxml_to_hescore
+        )
+
+        tr = self._load_xmlfile('house9')
+        fwall_ins_nominal_rvalue = self.xpath('//h:FoundationWall/h:Insulation/h:Layer[2]/h:NominalRValue')
+        fwall_ins_nominal_rvalue.getparent().remove(fwall_ins_nominal_rvalue)
+        self.assertRaisesRegex(
+            TranslationError,
+            'Every foundation wall insulation layer needs a NominalRValue, fwall_id = Surface_13',
+            tr.hpxml_to_hescore
+        )
+
     def test_missing_window_area(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Window[1]/h:Area')
