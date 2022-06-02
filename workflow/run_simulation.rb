@@ -203,7 +203,7 @@ end
 
 options = {}
 OptionParser.new do |opts|
-  opts.banner = "Usage: #{File.basename(__FILE__)} -j building.xml\n e.g., #{File.basename(__FILE__)} -j regression_files/Base.json\n"
+  opts.banner = "Usage: #{File.basename(__FILE__)} -j building.json\n e.g., #{File.basename(__FILE__)} -j regression_files/Base.json\n"
 
   opts.on('-j', '--json <FILE>', 'JSON file') do |t|
     options[:json] = t
