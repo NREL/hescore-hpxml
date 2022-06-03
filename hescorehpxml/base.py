@@ -1698,7 +1698,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             else:
                                 raise TranslationError(
                                     'If there is more than one FoundationWall, an Area is required for each.')
-                    if not self.every_foundation_wall_layer_has_nominal_rvalue(fwall):
+                    if not self.every_surface_layer_has_nominal_rvalue(fwall):
                         raise TranslationError(
                             f'Every foundation wall insulation layer needs a NominalRValue, fwall_id = {fwallid}')
                     else:
@@ -1722,7 +1722,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         else:
                             raise TranslationError(
                                 'If there is more than one Slab, an ExposedPerimeter is required for each.')
-                    if not self.every_slab_layer_has_nominal_rvalue(slab):
+                    if not self.every_surface_layer_has_nominal_rvalue(slab):
                         raise TranslationError(
                             f"Every slab insulation layer needs a NominalRValue, slab_id = {slabid}")
                     else:
@@ -2516,6 +2516,23 @@ class HPXMLtoHEScoreTranslatorBase(object):
         solar_electric['array_tilt'] = self.get_nearest_tilt(weighted_average(tilts, weights))
 
         return generation
+
+    def every_surface_layer_has_nominal_rvalue(self, surf_el):
+        # This variable will be true only if every wall layer has a NominalRValue
+        if surf_el.tag.endswith('Slab'):
+            surf_ins_layers = self.xpath(surf_el, 'h:PerimeterInsulation/h:Layer', aslist=True)
+        elif surf_el.tag.endswith('FoundationWall'):
+            surf_ins_layers = self.xpath(surf_el, 'h:Insulation/h:Layer', aslist=True)
+        every_layer_has_nominal_rvalue = True
+        if surf_ins_layers:
+            for layer in surf_ins_layers:
+                if self.xpath(layer, 'h:NominalRValue') is None:
+                    every_layer_has_nominal_rvalue = False
+                    break
+        else:
+            every_layer_has_nominal_rvalue = False
+
+        return every_layer_has_nominal_rvalue
 
     def validate_hescore_inputs(self, hescore_inputs):
 
