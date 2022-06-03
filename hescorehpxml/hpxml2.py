@@ -138,8 +138,36 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_foundation_wall_assembly_rvalue(self, fwall, v3_fwall):
         return convert_to_type(float, self.xpath(fwall, 'h:Insulation/h:AssemblyEffectiveRValue/text()'))
 
+    def every_foundation_wall_layer_has_nominal_rvalue(self, fwall):
+        # This variable will be true only if every wall layer has a NominalRValue
+        fwall_layers = self.xpath(fwall, 'h:Insulation/h:Layer', aslist=True)
+        every_layer_has_nominal_rvalue = True
+        if fwall_layers:
+            for layer in fwall_layers:
+                if self.xpath(layer, 'h:NominalRValue') is None:
+                    every_layer_has_nominal_rvalue = False
+                    break
+        else:
+            every_layer_has_nominal_rvalue = False
+
+        return every_layer_has_nominal_rvalue
+
     def get_slab_assembly_rvalue(self, slab, v3_slab):
         return convert_to_type(float, self.xpath(slab, 'h:PerimeterInsulation/h:AssemblyEffectiveRValue/text()'))
+
+    def every_slab_layer_has_nominal_rvalue(self, slab):
+        # This variable will be true only if every wall layer has a NominalRValue
+        slab_layers = self.xpath(slab, 'h:PerimeterInsulation/h:Layer', aslist=True)
+        every_layer_has_nominal_rvalue = True
+        if slab_layers:
+            for layer in slab_layers:
+                if self.xpath(layer, 'h:NominalRValue') is None:
+                    every_layer_has_nominal_rvalue = False
+                    break
+        else:
+            every_layer_has_nominal_rvalue = False
+
+        return every_layer_has_nominal_rvalue
 
     def every_framefloor_layer_has_nominal_rvalue(self, framefloor, v3_framefloor):
         framefloor_layers = self.xpath(framefloor, 'h:Insulation/h:Layer', aslist=True)

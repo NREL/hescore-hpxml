@@ -1698,9 +1698,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             else:
                                 raise TranslationError(
                                     'If there is more than one FoundationWall, an Area is required for each.')
-                    if xpath(fwall, 'count(h:Insulation/h:Layer/h:NominalRValue)') == 0 or\
-                        xpath(fwall, 'count(h:Insulation/h:Layer/h:NominalRValue)') !=\
-                            xpath(fwall, 'count(h:Insulation/h:Layer)'):
+                    if not self.every_foundation_wall_layer_has_nominal_rvalue(fwall):
                         raise TranslationError(
                             f'Every foundation wall insulation layer needs a NominalRValue, fwall_id = {fwallid}')
                     else:
@@ -1724,9 +1722,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         else:
                             raise TranslationError(
                                 'If there is more than one Slab, an ExposedPerimeter is required for each.')
-                    if xpath(slab, 'count(h:PerimeterInsulation/h:Layer/h:NominalRValue)') == 0 or\
-                        xpath(slab, 'count(h:PerimeterInsulation/h:Layer/h:NominalRValue)') !=\
-                            xpath(slab, 'count(h:PerimeterInsulation/h:Layer)'):
+                    if not self.every_slab_layer_has_nominal_rvalue(slab):
                         raise TranslationError(
                             f"Every slab insulation layer needs a NominalRValue, slab_id = {slabid}")
                     else:
