@@ -449,6 +449,25 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             tr.hpxml_to_hescore
         )
 
+    def test_missing_nominal_rvalue(self):
+        tr = self._load_xmlfile('house7')
+        slab_perim_ins_nominal_rvalue = self.xpath('//h:Slab/h:PerimeterInsulation/h:Layer/h:NominalRValue')
+        slab_perim_ins_nominal_rvalue.getparent().remove(slab_perim_ins_nominal_rvalue)
+        self.assertRaisesRegex(
+            TranslationError,
+            'Every slab insulation layer needs a NominalRValue, slab_id = slab1',
+            tr.hpxml_to_hescore
+        )
+
+        tr = self._load_xmlfile('house9')
+        fwall_ins_nominal_rvalue = self.xpath('//h:FoundationWall/h:Insulation/h:Layer[2]/h:NominalRValue')
+        fwall_ins_nominal_rvalue.getparent().remove(fwall_ins_nominal_rvalue)
+        self.assertRaisesRegex(
+            TranslationError,
+            'Every foundation wall insulation layer needs a NominalRValue, fwall_id = Surface_13',
+            tr.hpxml_to_hescore
+        )
+
     def test_missing_window_area(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Window[1]/h:Area')
@@ -1329,6 +1348,23 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             'Every slab insulation layer needs a NominalRValue, slab_id = slab1',
             tr.hpxml_to_hescore
         )
+
+        # ignore assembly effective R-value when both assembly effective R-value and nominal R-value present
+        tr = self._load_xmlfile('house9')
+        E = self.element_maker()
+        fwall_ins = self.xpath('//h:FoundationWall[1]/h:Insulation')
+        sysid = fwall_ins.find(tr.addns('h:SystemIdentifier'))
+        sysid.addnext(E.AssemblyEffectiveRValue('6.0'))
+        hesinp = tr.hpxml_to_hescore()
+        self.assertEqual(hesinp['building']['zone']['zone_floor'][0]['foundation_insulation_level'], 0)
+
+        tr = self._load_xmlfile('house3')
+        E = self.element_maker()
+        slab_perim_ins = self.xpath('//h:Slab/h:PerimeterInsulation')
+        sysid = slab_perim_ins.find(tr.addns('h:SystemIdentifier'))
+        sysid.addnext(E.AssemblyEffectiveRValue('6.0'))
+        hesinp = tr.hpxml_to_hescore()
+        self.assertEqual(hesinp['building']['zone']['zone_floor'][0]['foundation_insulation_level'], 5)
 
     def test_duct_leakage_to_outside(self):
         tr = self._load_xmlfile('house1')
