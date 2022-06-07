@@ -38,6 +38,7 @@ def scrub_hpxml_doc(doc):
     tr.export_scrubbed_hpxml(f_out)
     f_out.seek(0)
     scrubbed_doc = objectify.parse(f_out)
+    tr.schema.assertValid(scrubbed_doc)
     return scrubbed_doc
 
 
@@ -75,8 +76,11 @@ def test_remove_customer(hpxml_filebase):
     assert len(hpxml2.Customer) == 1
     assert len(hpxml2.Customer.getchildren()) == 1
     assert len(hpxml2.Customer.CustomerDetails.getchildren()) == 1
-    assert len(hpxml2.Customer.CustomerDetails.Person.getchildren()) == 1
+    assert len(hpxml2.Customer.CustomerDetails.Person.getchildren()) == 2
     assert hpxml2.Customer.CustomerDetails.Person.SystemIdentifier.attrib['id'] == 'customer1'
+    assert len(hpxml2.Customer.CustomerDetails.Person.Name.getchildren()) == 2
+    assert hpxml2.Customer.CustomerDetails.Person.Name.FirstName == ''
+    assert hpxml2.Customer.CustomerDetails.Person.Name.LastName == ''
 
 
 @pytest.mark.parametrize('hpxml_filebase', both_hescore_min)

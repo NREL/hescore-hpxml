@@ -449,6 +449,25 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             tr.hpxml_to_hescore
         )
 
+    def test_missing_nominal_rvalue(self):
+        tr = self._load_xmlfile('house7')
+        slab_perim_ins_nominal_rvalue = self.xpath('//h:Slab/h:PerimeterInsulation/h:Layer/h:NominalRValue')
+        slab_perim_ins_nominal_rvalue.getparent().remove(slab_perim_ins_nominal_rvalue)
+        self.assertRaisesRegex(
+            TranslationError,
+            'Every slab insulation layer needs a NominalRValue, slab_id = slab1',
+            tr.hpxml_to_hescore
+        )
+
+        tr = self._load_xmlfile('house9')
+        fwall_ins_nominal_rvalue = self.xpath('//h:FoundationWall/h:Insulation/h:Layer[2]/h:NominalRValue')
+        fwall_ins_nominal_rvalue.getparent().remove(fwall_ins_nominal_rvalue)
+        self.assertRaisesRegex(
+            TranslationError,
+            'Every foundation wall insulation layer needs a NominalRValue, fwall_id = Surface_13',
+            tr.hpxml_to_hescore
+        )
+
     def test_missing_window_area(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Window[1]/h:Area')
@@ -3562,6 +3581,26 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
         self.assertEqual(
             d['building']['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location'],
             'unvented_crawl'
+        )
+
+    def test_boiler_no_cooling_sys_v2(self):
+        tr = self._load_xmlfile('house7')
+        el = self.xpath('//h:CoolingSystem[1]')
+        el.getparent().remove(el)
+        d = tr.hpxml_to_hescore()
+        self.assertNotIn(
+            'hvac_distribution',
+            d['building']['systems']['hvac'][0]
+        )
+
+    def test_boiler_no_cooling_sys_v3(self):
+        tr = self._load_xmlfile('house7')
+        el = self.xpath('//h:CoolingSystem[1]')
+        el.getparent().remove(el)
+        d = tr.hpxml_to_hescore()
+        self.assertNotIn(
+            'hvac_distribution',
+            d['building']['systems']['hvac'][0]
         )
 
 
