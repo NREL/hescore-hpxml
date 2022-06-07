@@ -89,7 +89,12 @@
                     <Slab>
                         <SystemIdentifier id="slab1"/>
                         <Area>900</Area>
-                        <!-- omitting insulation to see if it comes out at zero -->
+                        <PerimeterInsulation>
+                            <SystemIdentifier id='slab1perimeterins'/>
+                            <Layer>
+                                <NominalRValue>0.0</NominalRValue>
+                            </Layer>
+                        </PerimeterInsulation>
                     </Slab>
                 </Slabs>
                 <Windows>
@@ -120,6 +125,7 @@
                     <HVACPlant>
                         <HeatingSystem>
                             <SystemIdentifier id="boiler"/>
+                            <DistributionSystem idref="hydronicdist1"/>
                             <HeatingSystemType>
                                 <Boiler/>
                             </HeatingSystemType>
@@ -139,6 +145,12 @@
                             </AnnualCoolingEfficiency>
                         </CoolingSystem>
                     </HVACPlant>
+                    <HVACDistribution>
+                        <SystemIdentifier id="hydronicdist1"/>
+                        <DistributionSystemType>
+                            <HydronicDistribution/>
+                        </DistributionSystemType>
+                    </HVACDistribution>
                 </HVAC>
                 <WaterHeating>
                     <WaterHeatingSystem>
