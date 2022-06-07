@@ -138,7 +138,11 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 E.Customer(
                     E.CustomerDetails(
                         E.Person(
-                            E.SystemIdentifier(id=customer_id)
+                            E.SystemIdentifier(id=customer_id),
+                            E.Name(
+                                E.FirstName(),
+                                E.LastName(),
+                            ),
                         )
                     )
                 )
