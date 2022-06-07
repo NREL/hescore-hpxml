@@ -3583,6 +3583,26 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
             'unvented_crawl'
         )
 
+    def test_boiler_no_cooling_sys_v2(self):
+        tr = self._load_xmlfile('house7')
+        el = self.xpath('//h:CoolingSystem[1]')
+        el.getparent().remove(el)
+        d = tr.hpxml_to_hescore()
+        self.assertNotIn(
+            'hvac_distribution',
+            d['building']['systems']['hvac'][0]
+        )
+
+    def test_boiler_no_cooling_sys_v3(self):
+        tr = self._load_xmlfile('house7')
+        el = self.xpath('//h:CoolingSystem[1]')
+        el.getparent().remove(el)
+        d = tr.hpxml_to_hescore()
+        self.assertNotIn(
+            'hvac_distribution',
+            d['building']['systems']['hvac'][0]
+        )
+
 
 class TestHEScoreV3(unittest.TestCase, ComparatorBase):
 

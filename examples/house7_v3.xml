@@ -125,6 +125,7 @@
                     <HVACPlant>
                         <HeatingSystem>
                             <SystemIdentifier id="boiler"/>
+                            <DistributionSystem idref="hydronicdist1"/>
                             <HeatingSystemType>
                                 <Boiler/>
                             </HeatingSystemType>
@@ -144,6 +145,12 @@
                             </AnnualCoolingEfficiency>
                         </CoolingSystem>
                     </HVACPlant>
+                    <HVACDistribution>
+                        <SystemIdentifier id="hydronicdist1"/>
+                        <DistributionSystemType>
+                            <HydronicDistribution/>
+                        </DistributionSystemType>
+                    </HVACDistribution>
                 </HVAC>
                 <WaterHeating>
                     <WaterHeatingSystem>
