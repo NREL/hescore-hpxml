@@ -2354,7 +2354,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 hvac_sys['cooling'] = cooling_systems[hvac_ids.clg_id]
             else:
                 hvac_sys['cooling'] = {'type': 'none'}
-            if hvac_ids.dist_id is not None:
+            if hvac_ids.dist_id is not None and distribution_systems[hvac_ids.dist_id] is not None:
                 hvac_sys['hvac_distribution'] = distribution_systems[hvac_ids.dist_id]
 
             # Added a error check for separate cooling and heating heat pump system
