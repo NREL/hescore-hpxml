@@ -14,7 +14,7 @@ class HEScoreRuleset
     set_summary(json, new_hpxml)
 
     # ClimateAndRiskZones
-    set_climate(json, new_hpxml, zipcode_row)
+    set_climate(new_hpxml, zipcode_row)
 
     # Enclosure
     set_enclosure_air_infiltration(json, new_hpxml)
@@ -33,23 +33,22 @@ class HEScoreRuleset
     set_systems_hvac(json, new_hpxml)
     set_systems_mechanical_ventilation(json, new_hpxml)
     set_systems_water_heater(json, new_hpxml)
-    set_systems_water_heating_use(json, new_hpxml)
+    set_systems_water_heating_use(new_hpxml)
     set_systems_photovoltaics(json, new_hpxml)
 
     # Appliances
-    set_appliances_clothes_washer(json, new_hpxml)
-    set_appliances_clothes_dryer(json, new_hpxml)
-    set_appliances_dishwasher(json, new_hpxml)
-    set_appliances_refrigerator(json, new_hpxml)
-    set_appliances_cooking_range_oven(json, new_hpxml)
+    set_appliances_clothes_washer(new_hpxml)
+    set_appliances_clothes_dryer(new_hpxml)
+    set_appliances_dishwasher(new_hpxml)
+    set_appliances_refrigerator(new_hpxml)
+    set_appliances_cooking_range_oven(new_hpxml)
 
     # Lighting
-    set_lighting(json, new_hpxml)
-    set_ceiling_fans(json, new_hpxml)
+    set_lighting(new_hpxml)
 
     # MiscLoads
-    set_misc_plug_loads(json, new_hpxml)
-    set_misc_television(json, new_hpxml)
+    set_misc_plug_loads(new_hpxml)
+    set_misc_television(new_hpxml)
 
     # Prevent downstream errors in OS-HPXML
     adjust_floor_areas(new_hpxml)
@@ -115,7 +114,7 @@ class HEScoreRuleset
     new_hpxml.building_construction.has_flue_or_chimney = false
   end
 
-  def self.set_climate(json, new_hpxml, zipcode_row)
+  def self.set_climate(new_hpxml, zipcode_row)
     zipcode_city = zipcode_row['city'].gsub(/\s/, '_')
     zipcode_state = zipcode_row['state_zipcode']
     station_name = zipcode_row['name']
@@ -833,8 +832,8 @@ class HEScoreRuleset
 
     # HVACControl
     control_type = HPXML::HVACControlTypeManual
-    htg_sp, htg_setback_sp, htg_setback_hrs_per_week, htg_setback_start_hr = HVAC.get_default_heating_setpoint(control_type)
-    clg_sp, clg_setup_sp, clg_setup_hrs_per_week, clg_setup_start_hr = HVAC.get_default_cooling_setpoint(control_type)
+    htg_sp, _htg_setback_sp, _htg_setback_hrs_per_week, _htg_setback_start_hr = HVAC.get_default_heating_setpoint(control_type)
+    clg_sp, _clg_setup_sp, _clg_setup_hrs_per_week, _clg_setup_start_hr = HVAC.get_default_cooling_setpoint(control_type)
     new_hpxml.hvac_controls.add(id: 'hvac_control',
                                 control_type: control_type,
                                 heating_setpoint_temp: htg_sp,
@@ -926,7 +925,7 @@ class HEScoreRuleset
                                         related_hvac_idref: related_hvac_idref)
   end
 
-  def self.set_systems_water_heating_use(json, new_hpxml)
+  def self.set_systems_water_heating_use(new_hpxml)
     new_hpxml.hot_water_distributions.add(id: 'HotWaterDistribution',
                                           system_type: HPXML::DHWDistTypeStandard,
                                           pipe_r_value: 0)
@@ -972,33 +971,33 @@ class HEScoreRuleset
                              year_modules_manufactured: orig_pv_system['year'])
   end
 
-  def self.set_appliances_clothes_washer(json, new_hpxml)
+  def self.set_appliances_clothes_washer(new_hpxml)
     new_hpxml.clothes_washers.add(id: 'ClothesWasher')
   end
 
-  def self.set_appliances_clothes_dryer(json, new_hpxml)
+  def self.set_appliances_clothes_dryer(new_hpxml)
     new_hpxml.clothes_dryers.add(id: 'ClothesDryer',
                                  fuel_type: HPXML::FuelTypeElectricity,
                                  is_vented: true,
                                  vented_flow_rate: 0.0)
   end
 
-  def self.set_appliances_dishwasher(json, new_hpxml)
+  def self.set_appliances_dishwasher(new_hpxml)
     new_hpxml.dishwashers.add(id: 'Dishwasher')
   end
 
-  def self.set_appliances_refrigerator(json, new_hpxml)
+  def self.set_appliances_refrigerator(new_hpxml)
     new_hpxml.refrigerators.add(id: 'Refrigerator')
   end
 
-  def self.set_appliances_cooking_range_oven(json, new_hpxml)
+  def self.set_appliances_cooking_range_oven(new_hpxml)
     new_hpxml.cooking_ranges.add(id: 'CookingRange',
                                  fuel_type: HPXML::FuelTypeElectricity)
 
     new_hpxml.ovens.add(id: 'Oven')
   end
 
-  def self.set_lighting(json, new_hpxml)
+  def self.set_lighting(new_hpxml)
     ltg_fracs = Lighting.get_default_fractions()
     ltg_fracs.each_with_index do |(key, fraction), i|
       location, lighting_type = key
@@ -1009,16 +1008,12 @@ class HEScoreRuleset
     end
   end
 
-  def self.set_ceiling_fans(json, new_hpxml)
-    # No ceiling fans
-  end
-
-  def self.set_misc_plug_loads(json, new_hpxml)
+  def self.set_misc_plug_loads(new_hpxml)
     new_hpxml.plug_loads.add(id: 'PlugLoadOther',
                              plug_load_type: HPXML::PlugLoadTypeOther)
   end
 
-  def self.set_misc_television(json, new_hpxml)
+  def self.set_misc_television(new_hpxml)
     new_hpxml.plug_loads.add(id: 'PlugLoadTV',
                              plug_load_type: HPXML::PlugLoadTypeTelevision)
   end
@@ -1475,7 +1470,7 @@ def calc_ach50(ncfl_ag, cfa, ceil_height, cvolume, desc, year_built, iecc_cz, fn
 
   # Ducts (weighted by duct fraction and hvac fraction)
   sum_duct_hvac_frac = 0.0
-  ducts.each do |hvac_frac, duct_frac, duct_location|
+  ducts.each do |hvac_frac, duct_frac, _duct_location|
     sum_duct_hvac_frac += (duct_frac * hvac_frac)
   end
   if sum_duct_hvac_frac > 1.0001 # Using 1.0001 to allow small tolerance on sum

@@ -33,7 +33,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
   end
 
   # define the arguments that the user will input
-  def arguments(model)
+  def arguments(model) # rubocop:disable Lint/UnusedMethodArgument
     args = OpenStudio::Measure::OSArgumentVector.new
 
     arg = OpenStudio::Measure::OSArgument.makeStringArgument('json_path', true)
@@ -93,14 +93,14 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     units_map = get_units_map()
     output_map = get_output_map()
     outputs = {}
-    output_map.each do |ep_output, hes_output|
+    output_map.values.each do |hes_output|
       outputs[hes_output] = []
     end
     row_index = {}
     units = nil
     CSV.foreach(monthly_csv_path).with_index do |row, row_num|
       if row_num == 0 # Header
-        output_map.each do |ep_output, hes_output|
+        output_map.keys.each do |ep_output|
           row_index[ep_output] = row.index(ep_output)
         end
       elsif row_num == 1 # Units
@@ -221,7 +221,6 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
 
   def calc_score(runner, weather_station, asset_source_energy)
     bins_file = File.join(File.dirname(__FILE__), 'resources', 'bins.csv')
-    score = nil
     CSV.foreach(bins_file, headers: true) do |row|
       if row['weather_station_id'].to_i == weather_station
         (2..10).each do |i|

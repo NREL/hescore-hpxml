@@ -3,8 +3,8 @@
   <schema_version>3.0</schema_version>
   <name>he_score_measure</name>
   <uid>013ca589-73ab-451f-afae-dbeb5304dea8</uid>
-  <version_id>80db5655-4be8-4344-bcac-a74153eb7d18</version_id>
-  <version_modified>20220408T163527Z</version_modified>
+  <version_id>069648ad-5113-475d-8c04-2755c52e5db0</version_id>
+  <version_modified>20220613T220904Z</version_modified>
   <xml_checksum>2AF3A68E</xml_checksum>
   <class_name>HEScoreMeasure</class_name>
   <display_name>Apply Home Energy Score Ruleset</display_name>
@@ -69,17 +69,6 @@
       <checksum>1154F211</checksum>
     </file>
     <file>
-      <version>
-        <software_program>OpenStudio</software_program>
-        <identifier>2.7.0</identifier>
-        <min_compatible>2.7.0</min_compatible>
-      </version>
-      <filename>measure.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>script</usage_type>
-      <checksum>43B5C359</checksum>
-    </file>
-    <file>
       <filename>lu_water_heater_efficiency.csv</filename>
       <filetype>csv</filetype>
       <usage_type>resource</usage_type>
@@ -92,16 +81,27 @@
       <checksum>56E99952</checksum>
     </file>
     <file>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>2.7.0</identifier>
+        <min_compatible>2.7.0</min_compatible>
+      </version>
+      <filename>measure.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>script</usage_type>
+      <checksum>6B310272</checksum>
+    </file>
+    <file>
       <filename>test_hescore_ruleset.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
-      <checksum>4C4C1489</checksum>
+      <checksum>22AD2637</checksum>
     </file>
     <file>
       <filename>HESruleset.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>B90FC9B2</checksum>
+      <checksum>BD25A371</checksum>
     </file>
   </files>
 </measure>

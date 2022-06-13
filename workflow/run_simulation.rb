@@ -29,7 +29,7 @@ def get_output_hpxml_path(resultsdir, rundir)
   return File.join(resultsdir, File.basename(rundir) + '.xml')
 end
 
-def run_design(basedir, rundir, design, resultsdir, json, hourly_output, debug, skip_simulation)
+def run_design(basedir, rundir, resultsdir, json, hourly_output, debug, skip_simulation)
   measures_dir = File.join(basedir, '..')
   output_hpxml_path = get_output_hpxml_path(resultsdir, rundir)
 
@@ -151,7 +151,7 @@ OptionParser.new do |opts|
   end
 
   options[:hourly_output] = false
-  opts.on('--hourly', 'Request hourly output CSV') do |t|
+  opts.on('--hourly', 'Request hourly output CSV') do |_t|
     options[:hourly_output] = true
   end
 
@@ -160,12 +160,12 @@ OptionParser.new do |opts|
   end
 
   options[:skip_simulation] = false
-  opts.on('--skip-simulation', 'Skip the EnergyPlus simulation') do |t|
+  opts.on('--skip-simulation', 'Skip the EnergyPlus simulation') do |_t|
     options[:skip_simulation] = true
   end
 
   options[:debug] = false
-  opts.on('-d', '--debug') do |t|
+  opts.on('-d', '--debug') do |_t|
     options[:debug] = true
   end
 
@@ -212,7 +212,7 @@ puts "JSON: #{options[:json]}"
 design = 'HEScoreDesign'
 rundir = get_rundir(options[:output_dir], design)
 
-success = run_design(basedir, rundir, design, resultsdir, options[:json], options[:hourly_output],
+success = run_design(basedir, rundir, resultsdir, options[:json], options[:hourly_output],
                      options[:debug], options[:skip_simulation])
 
 if not success
