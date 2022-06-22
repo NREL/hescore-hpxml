@@ -57,15 +57,8 @@ def run_design(basedir, rundir, resultsdir, json, hourly_output, debug, skip_sim
     measure_subdir = 'hpxml-measures/ReportSimulationOutput'
     args = {}
     args['timeseries_frequency'] = 'monthly'
-    args['include_timeseries_fuel_consumptions'] = false
     args['include_timeseries_end_use_consumptions'] = true
-    args['include_timeseries_emissions'] = false
     args['include_timeseries_hot_water_uses'] = true
-    args['include_timeseries_total_loads'] = false
-    args['include_timeseries_component_loads'] = false
-    args['include_timeseries_zone_temperatures'] = false
-    args['include_timeseries_airflows'] = false
-    args['include_timeseries_weather'] = false
     args['timeseries_output_file_name'] = 'results_monthly.csv'
     update_args_hash(measures, measure_subdir, args)
 
@@ -82,15 +75,8 @@ def run_design(basedir, rundir, resultsdir, json, hourly_output, debug, skip_sim
       measure_subdir = 'hpxml-measures/ReportSimulationOutput'
       args = {}
       args['timeseries_frequency'] = 'hourly'
-      args['include_timeseries_fuel_consumptions'] = false
       args['include_timeseries_end_use_consumptions'] = true
-      args['include_timeseries_emissions'] = false
       args['include_timeseries_hot_water_uses'] = true
-      args['include_timeseries_total_loads'] = false
-      args['include_timeseries_component_loads'] = false
-      args['include_timeseries_zone_temperatures'] = false
-      args['include_timeseries_airflows'] = false
-      args['include_timeseries_weather'] = false
       args['timeseries_output_file_name'] = 'results_hourly.csv'
       update_args_hash(measures, measure_subdir, args)
     end
