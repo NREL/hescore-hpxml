@@ -2102,6 +2102,12 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
         self.assertEqual(pv['array_azimuth'], 'south_east')
         self.assertEqual(pv['array_tilt'], 'steep_slope')
 
+        tr = self._load_xmlfile('hescore_min')
+        self._add_pv(orientation='southeast', azimuth=None, tilt=37.37)
+        hesd = tr.hpxml_to_hescore()
+        pv = hesd['building']['systems']['generation']['solar_electric']
+        self.assertEqual(pv['array_tilt'], 'medium_slope')
+
     def test_capacity_missing(self):
         tr = self._load_xmlfile('hescore_min')
         self._add_pv(capacity=None)

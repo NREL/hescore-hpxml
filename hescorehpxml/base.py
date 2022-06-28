@@ -2493,7 +2493,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
             tilt = self.xpath(pvsystem, 'h:ArrayTilt/text()')
             if tilt:
-                tilts.append(int(tilt))
+                tilts.append(int(float(tilt)))
             else:
                 raise TranslationError('ArrayTilt is required for every PVSystem.')
 
