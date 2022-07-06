@@ -703,11 +703,6 @@
                                         "maximum": 1,
                                         "description": "Faction of conditioned floor area served by this system"
                                     },
-                                    "dependencies": {
-                                        "hvac_name":{
-                                            "required":["hvac_fraction"]
-                                        }
-                                    },
                                     "heating": {
                                         "type": "object",
                                         "description": "Inputs about the heating system",
