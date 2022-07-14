@@ -383,12 +383,24 @@ class HEScoreRuleset
           ufactor = front_window['window_u_value']
           shgc = front_window['window_shgc']
         end
+        if not front_window['storm_type'].nil?
+          storm_type = front_window['storm_type']
+        end
+        if front_window['solar_screen'] == true
+          has_solar_screen = true
+        end
       else
         if orig_window['window_method'] == 'code'
           window_code = orig_window['window_code']
         elsif orig_window['window_method'] == 'custom'
           ufactor = orig_window['window_u_value']
           shgc = orig_window['window_shgc']
+        end
+        if not orig_window['storm_type'].nil?
+          storm_type = orig_window['storm_type']
+        end
+        if orig_window['solar_screen'] == true
+          has_solar_screen = true
         end
       end
       if ufactor.nil?
@@ -397,12 +409,12 @@ class HEScoreRuleset
       interior_shading_factor_summer, interior_shading_factor_winter = Constructions.get_default_interior_shading_factors()
       exterior_shading_factor_summer = 1.0
       exterior_shading_factor_winter = 1.0
-      if orig_window['solar_screen'] == true
+      if has_solar_screen
         # Summer only, total shading factor reduced to 0.29
         exterior_shading_factor_summer = 0.29 / interior_shading_factor_summer # Overall shading factor is interior multiplied by exterior
       end
-      if not orig_window['storm_type'].nil?
-        ufactor, shgc = get_ufactor_shgc_adjusted_by_storms(orig_window['storm_type'], ufactor, shgc)
+      if not storm_type.nil?
+        ufactor, shgc = get_ufactor_shgc_adjusted_by_storms(storm_type, ufactor, shgc)
       end
 
       # Add one HPXML window per side of the house with only the overhangs from the roof.

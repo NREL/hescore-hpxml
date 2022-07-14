@@ -703,11 +703,6 @@
                                         "maximum": 1,
                                         "description": "Faction of conditioned floor area served by this system"
                                     },
-                                    "dependencies": {
-                                        "hvac_name":{
-                                            "required":["hvac_fraction"]
-                                        }
-                                    },
                                     "heating": {
                                         "type": "object",
                                         "description": "Inputs about the heating system",
@@ -2593,6 +2588,55 @@
                                         "zone_wall": {
                                             "$ref": "#/definitions/def_sf_mf_has_same_walls_and_windows"
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "zone_roof": {
+                                        "not": {
+                                            "contains": {
+                                                "properties": {
+                                                    "roof_type": {"enum": ["vented_attic", "cond_attic"]}
+                                                },
+                                                "required": ["roof_type"]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "systems": {
+                                "properties": {
+                                    "hvac": {
+                                        "contains": {
+                                            "properties": {
+                                                "hvac_distribution": {
+                                                    "properties": {
+                                                        "duct": {
+                                                            "not": {
+                                                                "contains": {
+                                                                    "properties": {
+                                                                        "location": {"const": "uncond_attic"}
+                                                                    },
+                                                                    "required": ["location"]
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "error_msg": "duct/location[\"uncond_attic\"] is not allowed as there is no attic."
                                     }
                                 }
                             }
