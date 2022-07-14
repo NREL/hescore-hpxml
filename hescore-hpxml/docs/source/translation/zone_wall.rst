@@ -78,6 +78,8 @@ from the lookup table for that wall type is used. The lookup table can be found
 at `hescorehpxml\\lookups\\lu_wall_eff_rvalue.csv
 <https://github.com/NREL/hescore-hpxml/blob/master/hescorehpxml/lookups/lu_wall_eff_rvalue.csv>`_.
 
+.. _wood-frame-walls:
+
 Wood Frame Walls
 ================
 
