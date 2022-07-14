@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class HEScoreRuleset
-  def self.apply_ruleset(json, weather, zipcode_row)
+  def self.apply_ruleset(runner, json, weather, zipcode_row)
     # Create new HPXML object
     new_hpxml = HPXML.new
     new_hpxml.header.xml_type = nil
@@ -53,7 +53,7 @@ class HEScoreRuleset
     # Prevent downstream errors in OS-HPXML
     adjust_floor_areas(new_hpxml)
 
-    HPXMLDefaults.apply(new_hpxml, Constants.ERIVersions[-1], weather)
+    HPXMLDefaults.apply(runner, new_hpxml, Constants.ERIVersions[-1], weather)
 
     return new_hpxml
   end

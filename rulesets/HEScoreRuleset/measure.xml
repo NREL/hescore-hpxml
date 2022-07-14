@@ -3,8 +3,8 @@
   <schema_version>3.0</schema_version>
   <name>he_score_measure</name>
   <uid>013ca589-73ab-451f-afae-dbeb5304dea8</uid>
-  <version_id>069648ad-5113-475d-8c04-2755c52e5db0</version_id>
-  <version_modified>20220613T220904Z</version_modified>
+  <version_id>6e186b2a-15fe-4cdd-902e-49f4b863f36b</version_id>
+  <version_modified>20220714T184503Z</version_modified>
   <xml_checksum>2AF3A68E</xml_checksum>
   <class_name>HEScoreMeasure</class_name>
   <display_name>Apply Home Energy Score Ruleset</display_name>
@@ -81,6 +81,12 @@
       <checksum>56E99952</checksum>
     </file>
     <file>
+      <filename>test_hescore_ruleset.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>test</usage_type>
+      <checksum>22AD2637</checksum>
+    </file>
+    <file>
       <version>
         <software_program>OpenStudio</software_program>
         <identifier>2.7.0</identifier>
@@ -89,19 +95,13 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>6B310272</checksum>
-    </file>
-    <file>
-      <filename>test_hescore_ruleset.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>test</usage_type>
-      <checksum>22AD2637</checksum>
+      <checksum>295E8BAE</checksum>
     </file>
     <file>
       <filename>HESruleset.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>BD25A371</checksum>
+      <checksum>BB15F491</checksum>
     </file>
   </files>
 </measure>

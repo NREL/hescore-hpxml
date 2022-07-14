@@ -136,7 +136,7 @@ class HEScoreMeasure < OpenStudio::Measure::ModelMeasure
     weather = WeatherProcess.new(nil, nil, cache_path)
 
     begin
-      new_hpxml = HEScoreRuleset.apply_ruleset(json, weather, zipcode_row)
+      new_hpxml = HEScoreRuleset.apply_ruleset(runner, json, weather, zipcode_row)
     rescue Exception => e
       runner.registerError("#{e.message}\n#{e.backtrace.join("\n")}")
       return false
