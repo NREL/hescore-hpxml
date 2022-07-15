@@ -23,7 +23,7 @@ class HEScoreRuleset
     set_enclosure_rim_joists(json, new_hpxml)
     set_enclosure_walls(json, new_hpxml)
     set_enclosure_foundation_walls(json, new_hpxml)
-    set_enclosure_framefloors(json, new_hpxml)
+    set_enclosure_floors(json, new_hpxml)
     set_enclosure_slabs(json, new_hpxml)
     set_enclosure_windows(json, new_hpxml)
     set_enclosure_skylights(json, new_hpxml)
@@ -282,7 +282,7 @@ class HEScoreRuleset
     end
   end
 
-  def self.set_enclosure_framefloors(json, new_hpxml)
+  def self.set_enclosure_floors(json, new_hpxml)
     # Floors above foundation
     json['building']['zone']['zone_floor'].each_with_index do |orig_foundation, i|
       fnd_location = { 'uncond_basement' => HPXML::LocationBasementUnconditioned,
@@ -292,13 +292,13 @@ class HEScoreRuleset
                        'slab_on_grade' => HPXML::LocationLivingSpace }[orig_foundation['foundation_type']]
       next unless [HPXML::LocationBasementUnconditioned, HPXML::LocationCrawlspaceVented, HPXML::LocationCrawlspaceUnvented].include? fnd_location
 
-      framefloor_r = get_floor_effective_r_from_doe2code(orig_foundation['floor_assembly_code'])
+      floor_r = get_floor_effective_r_from_doe2code(orig_foundation['floor_assembly_code'])
 
-      new_hpxml.frame_floors.add(id: "#{orig_foundation['floor_name']}_floor_#{i}",
-                                 exterior_adjacent_to: fnd_location,
-                                 interior_adjacent_to: HPXML::LocationLivingSpace,
-                                 area: orig_foundation['floor_area'],
-                                 insulation_assembly_r_value: framefloor_r)
+      new_hpxml.floors.add(id: "#{orig_foundation['floor_name']}_floor_#{i}",
+                           exterior_adjacent_to: fnd_location,
+                           interior_adjacent_to: HPXML::LocationLivingSpace,
+                           area: orig_foundation['floor_area'],
+                           insulation_assembly_r_value: floor_r)
     end
 
     # Floors below attic
@@ -307,14 +307,14 @@ class HEScoreRuleset
                          'cath_ceiling' => HPXML::LocationLivingSpace }[orig_attic['roof_type']]
       next unless attic_location == HPXML::LocationAtticVented
 
-      framefloor_r = get_ceiling_effective_r_from_doe2code(orig_attic['ceiling_assembly_code'])
-      framefloor_area = orig_attic['ceiling_area']
+      floor_r = get_ceiling_effective_r_from_doe2code(orig_attic['ceiling_assembly_code'])
+      floor_area = orig_attic['ceiling_area']
 
-      new_hpxml.frame_floors.add(id: "#{orig_attic['roof_name']}_floor_#{i}",
-                                 exterior_adjacent_to: attic_location,
-                                 interior_adjacent_to: HPXML::LocationLivingSpace,
-                                 area: framefloor_area,
-                                 insulation_assembly_r_value: framefloor_r)
+      new_hpxml.floors.add(id: "#{orig_attic['roof_name']}_floor_#{i}",
+                           exterior_adjacent_to: attic_location,
+                           interior_adjacent_to: HPXML::LocationLivingSpace,
+                           area: floor_area,
+                           insulation_assembly_r_value: floor_r)
     end
   end
 
@@ -1021,12 +1021,12 @@ class HEScoreRuleset
   def self.adjust_floor_areas(new_hpxml)
     # Gather floors/slabs adjacent to conditioned space
     conditioned_floors = []
-    new_hpxml.frame_floors.each do |frame_floor|
-      next unless frame_floor.is_floor
-      next unless [HPXML::LocationLivingSpace, HPXML::LocationBasementConditioned].include?(frame_floor.interior_adjacent_to) ||
-                  [HPXML::LocationLivingSpace, HPXML::LocationBasementConditioned].include?(frame_floor.exterior_adjacent_to)
+    new_hpxml.floors.each do |floor|
+      next unless floor.is_floor
+      next unless [HPXML::LocationLivingSpace, HPXML::LocationBasementConditioned].include?(floor.interior_adjacent_to) ||
+                  [HPXML::LocationLivingSpace, HPXML::LocationBasementConditioned].include?(floor.exterior_adjacent_to)
 
-      conditioned_floors << frame_floor
+      conditioned_floors << floor
     end
     new_hpxml.slabs.each do |slab|
       next unless [HPXML::LocationLivingSpace, HPXML::LocationBasementConditioned].include? slab.interior_adjacent_to
