@@ -9,7 +9,7 @@ require_relative '../../workflow/hescore_lib'
 
 # start the measure
 class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
-  ELECTRIC_SITE_TO_SOURCE = 2.76
+  ELECTRIC_SITE_TO_SOURCE = 2.58
   NATURAL_GAS_SITE_TO_SOURCE = 1.05
   FUEL_OIL_SITE_TO_SOURCE = 1.01
   LPG_SITE_TO_SOURCE = 1.01
@@ -157,19 +157,22 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     asset_source_energy = 0.0
     outputs.each do |hes_key, values|
       hes_end_use, hes_resource_type = hes_key
-      if hes_end_use == 'generation' # PV generation gets a _site_ energy credit
-        site_to_source_factor = -1.0
+      if hes_end_use == 'generation'
+        # PV generation gets a site energy credit for _asset_ source energy (and score)
+        asset_site_to_source_factor = -1.0
+        total_site_to_source_factor = -1.0 * site_to_source_map[hes_resource_type]
       else
-        site_to_source_factor = site_to_source_map[hes_resource_type]
+        asset_site_to_source_factor = site_to_source_map[hes_resource_type]
+        total_site_to_source_factor = site_to_source_map[hes_resource_type]
       end
-      next if site_to_source_factor.nil?
+      next if total_site_to_source_factor.nil?
 
       units = units_map[hes_resource_type]
-      total_source_energy += UnitConversions.convert(values.sum, units, 'MBtu') * site_to_source_factor
+      total_source_energy += UnitConversions.convert(values.sum, units, 'MBtu') * total_site_to_source_factor
 
       next unless ['heating', 'cooling', 'hot_water', 'generation'].include? hes_end_use
 
-      asset_source_energy += UnitConversions.convert(values.sum, units, 'MBtu') * site_to_source_factor
+      asset_source_energy += UnitConversions.convert(values.sum, units, 'MBtu') * asset_site_to_source_factor
     end
     { 'total_source_energy' => total_source_energy,
       'asset_source_energy' => asset_source_energy }.each do |resource_type, quantity|

@@ -413,9 +413,9 @@ class HEScoreTest < MiniTest::Test
     total_source_energy = results[['total_source_energy', nil, 'MBtu']]
     asset_source_energy = results[['asset_source_energy', nil, 'MBtu']]
     score = results[['score', nil, nil]]
-    assert_operator(total_source_energy, :>, 0)
-    assert_operator(asset_source_energy, :>, 0)
-    assert_operator(asset_source_energy, :<, total_source_energy)
+    refute_nil(total_source_energy)
+    refute_nil(asset_source_energy)
+    refute_equal(asset_source_energy, total_source_energy)
     assert_operator(score, :>=, 1)
     assert_operator(score, :<=, 10)
   end
