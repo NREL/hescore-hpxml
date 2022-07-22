@@ -409,7 +409,7 @@ class HEScoreTest < MiniTest::Test
   def _write_summary_results(results, results_csv_path)
     # Writes summary end use results to CSV file.
 
-    column_headers = ['HPXML']
+    column_headers = ['JSON']
     results[results.keys[0]].keys.each do |key|
       column_headers << "#{key[0]}: #{key[1]} [#{key[2]}]"
     end
