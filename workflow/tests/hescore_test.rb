@@ -230,7 +230,8 @@ class HEScoreTest < MiniTest::Test
 
     results = {}
 
-    # Fill in missing results with zeros
+    # Retrieve annual values for results with end_use
+    # Missing results are filled in with zeros
     get_output_map.values.uniq.each do |hes_key|
       end_use = hes_key[0]
       resource_type = hes_key[1]
@@ -248,13 +249,21 @@ class HEScoreTest < MiniTest::Test
         if results[key].nil?
           results[key] = 0.0
         end
-        results[key] += Float(result['quantity']) # Just store annual results
+        results[key] += result['quantity'] # Just store annual results
         found_in_results = true
       end
 
       if not found_in_results
         results[key] = 0.0
       end
+    end
+
+    # Retrieve values of results without end_use (e.g., source energy, base score)
+    data['end_use'].each do |result|
+      next unless result['end_use'].nil?
+
+      key = [result['resource_type'], result['end_use'], result['units']]
+      results[key] = result['quantity']
     end
 
     return results
@@ -404,6 +413,16 @@ class HEScoreTest < MiniTest::Test
 
     # Check we actually tested the right number of categories
     assert_equal(7, tested_end_uses.uniq.size)
+
+    # Check we have additional results without end uses (e.g., source energy, base score)
+    total_source_energy = results[['total_source_energy', nil, 'MBtu']]
+    asset_source_energy = results[['asset_source_energy', nil, 'MBtu']]
+    score = results[['score', nil, nil]]
+    refute_nil(total_source_energy)
+    refute_nil(asset_source_energy)
+    refute_equal(asset_source_energy, total_source_energy)
+    assert_operator(score, :>=, 1)
+    assert_operator(score, :<=, 10)
   end
 
   def _write_summary_results(results, results_csv_path)
@@ -411,7 +430,18 @@ class HEScoreTest < MiniTest::Test
 
     column_headers = ['JSON']
     results[results.keys[0]].keys.each do |key|
-      column_headers << "#{key[0]}: #{key[1]} [#{key[2]}]"
+      resource_type, end_use, units = key
+      column_header = ''
+      if not resource_type.nil?
+        column_header += "#{resource_type}"
+      end
+      if not end_use.nil?
+        column_header += ": #{end_use}"
+      end
+      if not units.nil?
+        column_header += " [#{units}]"
+      end
+      column_headers << column_header
     end
 
     require 'csv'
