@@ -244,7 +244,7 @@ class HEScoreTest < MiniTest::Test
         if results[key].nil?
           results[key] = 0.0
         end
-        results[key] += Float(result['quantity']) # Just store annual results
+        results[key] += result['quantity'] # Just store annual results
         found_in_results = true
       end
 
@@ -258,7 +258,7 @@ class HEScoreTest < MiniTest::Test
       next unless result['end_use'].nil?
 
       key = [result['resource_type'], result['end_use'], result['units']]
-      results[key] = Float(result['quantity'])
+      results[key] = result['quantity']
     end
 
     return results
