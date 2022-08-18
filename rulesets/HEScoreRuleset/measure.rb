@@ -15,6 +15,7 @@ require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hotwater_appl
 require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hvac'
 require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hvac_sizing'
 require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/lighting'
+require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/location'
 require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/materials'
 require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/misc_loads'
 require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/psychrometrics'
