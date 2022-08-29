@@ -9,6 +9,8 @@ class HEScoreRuleset
     new_hpxml.header.transaction = 'create'
     new_hpxml.header.building_id = 'bldg'
     new_hpxml.header.event_type = 'construction-period testing/daily test out'
+    new_hpxml.header.zip_code = json['building_address']['zip_code']
+    new_hpxml.header.state_code = json['building_address']['state']
 
     # BuildingSummary
     set_summary(json, new_hpxml)

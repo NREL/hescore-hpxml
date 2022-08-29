@@ -79,6 +79,8 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       json_output_path = nil
     end
 
+    hpxml = HPXML.new(hpxml_path: hpxml_path)
+
     sqlFile = runner.lastEnergyPlusSqlFile
     if sqlFile.empty?
       runner.registerError('Cannot find EnergyPlus sql file.')
@@ -192,8 +194,42 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       runner.registerInfo("Registering #{quantity} for #{resource_type}.")
     end
 
+    # Calculate utility cost
+    resource_prices = get_resource_prices_by_state(runner, hpxml.header.state_code)
+    utility_cost = 0.0
+    outputs.each do |hes_key, values|
+      hes_end_use, hes_resource_type = hes_key
+      if hes_resource_type == 'electric'
+        utility_cost += (values.sum * Float(resource_prices['electric ($/kWh)']))
+      elsif hes_resource_type == 'natural_gas'
+        kbtu_to_therm = UnitConversions.convert(1.0, 'kbtu', 'therm')
+        utility_cost += (values.sum * Float(resource_prices['natural_gas ($/therm)']) * kbtu_to_therm)
+      elsif hes_resource_type == 'lpg'
+        kbtu_to_gal = 1.0 / (91600.0 / 1000000.0) / 1000.0
+        utility_cost += (values.sum * Float(resource_prices['lpg ($/gallon)']) * kbtu_to_gal)
+      elsif hes_resource_type == 'fuel_oil'
+        kbtu_to_gal = 1.0 / (138500.0 / 1000000.0) / 1000.0
+        utility_cost += (values.sum * Float(resource_prices['fuel_oil ($/gallon)']) * kbtu_to_gal)
+      elsif hes_resource_type == 'cord_wood'
+        kbtu_to_cord = 1.0 / 20.0 / 1000.0 # 20 MMBtu/cord
+        utility_cost += (values.sum * Float(resource_prices['cord_wood ($/cord)']) * kbtu_to_cord)
+      elsif hes_resource_type == 'pellet_wood'
+        kbtu_to_lb = 1.0 / (16.4 / 2000.0) / 1000.0 # 16.4 MMBtu/ton
+        utility_cost += (values.sum * Float(resource_prices['pellet_wood ($/lb)']) * kbtu_to_lb)
+      end
+    end
+    utility_cost = utility_cost.round(2)
+
+    resource_type = 'utility_cost'
+    end_use = { 'quantity' => utility_cost,
+                'period_type' => 'year',
+                'resource_type' => resource_type,
+                'units' => 'USD' }
+    json_data['end_use'] << end_use
+    runner.registerValue(resource_type, utility_cost)
+    runner.registerInfo("Registering #{utility_cost} for #{resource_type}.")
+
     # Calculate the score
-    hpxml = HPXML.new(hpxml_path: hpxml_path)
     weather_station = hpxml.climate_and_risk_zones.weather_station_wmo.to_i
     runner.registerValue('weather_station', weather_station)
     runner.registerInfo("Registering #{weather_station} for weather_station.")
@@ -241,7 +277,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
         return 10
       end
     end
-    runner.registerError("Unable to find weather station #{weather_station} in bins.")
+    runner.registerError("Unable to find weather station '#{weather_station}' in bins.csv.")
   end
 
   def flatten(obj, prefix = [])
@@ -264,6 +300,16 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       new_obj[prefix.join('-')] = obj
     end
     return new_obj
+  end
+
+  def get_resource_prices_by_state(runner, state_code)
+    prices_file = File.join(File.dirname(__FILE__), 'resources', 'lu_resource_price_by_state.csv')
+    CSV.foreach(prices_file, headers: true) do |row|
+      if row['abbreviation'] == state_code
+        return row.to_h
+      end
+    end
+    runner.registerError("Unable to find state '#{state_code}' in lu_resource_price_by_state.csv.")
   end
 end
 
