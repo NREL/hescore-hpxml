@@ -200,10 +200,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     outputs.each do |hes_key, values|
       hes_end_use, hes_resource_type = hes_key
       if hes_resource_type == 'electric'
-        unit_conv = 1.0
-        if hes_end_use == 'generation'
-          unit_conv *= -1
-        end
+        unit_conv = (hes_end_use == 'generation' ? -1.0 : 1.0)
         utility_cost += (values.sum * Float(resource_prices['electric ($/kWh)']) * unit_conv)
       elsif hes_resource_type == 'natural_gas'
         unit_conv = UnitConversions.convert(1.0, 'kbtu', 'therm') # kBtu -> therm
