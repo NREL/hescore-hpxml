@@ -196,29 +196,23 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
 
     # Calculate utility cost
     resource_prices = get_resource_prices_by_state(runner, hpxml.header.state_code)
-    utility_cost = 0.0
+    fuel_uses = {}
     outputs.each do |hes_key, values|
       hes_end_use, hes_resource_type = hes_key
-      if hes_resource_type == 'electric'
-        unit_conv = (hes_end_use == 'generation' ? -1.0 : 1.0)
-        utility_cost += (values.sum * Float(resource_prices['electric ($/kWh)']) * unit_conv)
-      elsif hes_resource_type == 'natural_gas'
-        unit_conv = UnitConversions.convert(1.0, 'kbtu', 'therm') # kBtu -> therm
-        utility_cost += (values.sum * Float(resource_prices['natural_gas ($/therm)']) * unit_conv)
-      elsif hes_resource_type == 'lpg'
-        unit_conv = 1.0 / (91600.0 / 1000000.0) / 1000.0 # kBtu -> gal
-        utility_cost += (values.sum * Float(resource_prices['lpg ($/gallon)']) * unit_conv)
-      elsif hes_resource_type == 'fuel_oil'
-        unit_conv = 1.0 / (138500.0 / 1000000.0) / 1000.0 # kBtu -> gal
-        utility_cost += (values.sum * Float(resource_prices['fuel_oil ($/gallon)']) * unit_conv)
-      elsif hes_resource_type == 'cord_wood'
-        unit_conv = 1.0 / 20.0 / 1000.0 # kBtu -> cord
-        utility_cost += (values.sum * Float(resource_prices['cord_wood ($/cord)']) * unit_conv)
-      elsif hes_resource_type == 'pellet_wood'
-        unit_conv = 1.0 / (16.4 / 2000.0) / 1000.0 # kBtu -> lb
-        utility_cost += (values.sum * Float(resource_prices['pellet_wood ($/lb)']) * unit_conv)
+      fuel_uses[hes_resource_type] = 0.0 if fuel_uses[hes_resource_type].nil?
+      if hes_end_use == 'generation'
+        fuel_uses[hes_resource_type] -= values.sum
+      else
+        fuel_uses[hes_resource_type] += values.sum
       end
     end
+    utility_cost = 0.0
+    utility_cost += ([fuel_uses['electric'], 0.0].max * Float(resource_prices['electric ($/kWh)']))
+    utility_cost += (fuel_uses['natural_gas'] * Float(resource_prices['natural_gas ($/therm)']) * 1.0 / 100.0)
+    utility_cost += (fuel_uses['lpg'] * Float(resource_prices['lpg ($/gallon)']) * 10000.0 / 916000.0)
+    utility_cost += (fuel_uses['fuel_oil'] * Float(resource_prices['fuel_oil ($/gallon)']) * 10000.0 / 138500.0)
+    utility_cost += (fuel_uses['cord_wood'] * Float(resource_prices['cord_wood ($/cord)']) * 1.0 / 20000.0)
+    utility_cost += (fuel_uses['pellet_wood'] * Float(resource_prices['pellet_wood ($/lb)']) * 2.0 / 16.4)
     utility_cost = utility_cost.round(2)
 
     resource_type = 'utility_cost'
