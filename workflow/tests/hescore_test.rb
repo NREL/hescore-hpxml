@@ -427,8 +427,8 @@ class HEScoreTest < MiniTest::Test
     # Check for reasonable utility cost values
     utility_cost = results[['utility_cost', nil, 'USD']]
     refute_nil(utility_cost)
-    assert_operator(utility_cost, :>, 100)
-    assert_operator(utility_cost, :<, 10000)
+    assert_operator(utility_cost, :>, 600)
+    assert_operator(utility_cost, :<, 6000)
   end
 
   def _write_summary_results(results, results_csv_path)

@@ -200,22 +200,26 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     outputs.each do |hes_key, values|
       hes_end_use, hes_resource_type = hes_key
       if hes_resource_type == 'electric'
-        utility_cost += (values.sum * Float(resource_prices['electric ($/kWh)']))
+        unit_conv = 1.0
+        if hes_end_use == 'generation'
+          unit_conv *= -1
+        end
+        utility_cost += (values.sum * Float(resource_prices['electric ($/kWh)']) * unit_conv)
       elsif hes_resource_type == 'natural_gas'
-        kbtu_to_therm = UnitConversions.convert(1.0, 'kbtu', 'therm')
-        utility_cost += (values.sum * Float(resource_prices['natural_gas ($/therm)']) * kbtu_to_therm)
+        unit_conv = UnitConversions.convert(1.0, 'kbtu', 'therm') # kBtu -> therm
+        utility_cost += (values.sum * Float(resource_prices['natural_gas ($/therm)']) * unit_conv)
       elsif hes_resource_type == 'lpg'
-        kbtu_to_gal = 1.0 / (91600.0 / 1000000.0) / 1000.0
-        utility_cost += (values.sum * Float(resource_prices['lpg ($/gallon)']) * kbtu_to_gal)
+        unit_conv = 1.0 / (91600.0 / 1000000.0) / 1000.0 # kBtu -> gal
+        utility_cost += (values.sum * Float(resource_prices['lpg ($/gallon)']) * unit_conv)
       elsif hes_resource_type == 'fuel_oil'
-        kbtu_to_gal = 1.0 / (138500.0 / 1000000.0) / 1000.0
-        utility_cost += (values.sum * Float(resource_prices['fuel_oil ($/gallon)']) * kbtu_to_gal)
+        unit_conv = 1.0 / (138500.0 / 1000000.0) / 1000.0 # kBtu -> gal
+        utility_cost += (values.sum * Float(resource_prices['fuel_oil ($/gallon)']) * unit_conv)
       elsif hes_resource_type == 'cord_wood'
-        kbtu_to_cord = 1.0 / 20.0 / 1000.0 # 20 MMBtu/cord
-        utility_cost += (values.sum * Float(resource_prices['cord_wood ($/cord)']) * kbtu_to_cord)
+        unit_conv = 1.0 / 20.0 / 1000.0 # kBtu -> cord
+        utility_cost += (values.sum * Float(resource_prices['cord_wood ($/cord)']) * unit_conv)
       elsif hes_resource_type == 'pellet_wood'
-        kbtu_to_lb = 1.0 / (16.4 / 2000.0) / 1000.0 # 16.4 MMBtu/ton
-        utility_cost += (values.sum * Float(resource_prices['pellet_wood ($/lb)']) * kbtu_to_lb)
+        unit_conv = 1.0 / (16.4 / 2000.0) / 1000.0 # kBtu -> lb
+        utility_cost += (values.sum * Float(resource_prices['pellet_wood ($/lb)']) * unit_conv)
       end
     end
     utility_cost = utility_cost.round(2)
