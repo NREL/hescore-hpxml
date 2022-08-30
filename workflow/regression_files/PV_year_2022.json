@@ -1,6 +1,6 @@
 {
   "building_address": {
-    "address": "Regression run 9.142",
+    "address": "Regression run 9.171",
     "city": "St Louis",
     "state": "MO",
     "zip_code": "63101",
@@ -84,8 +84,8 @@
           },
           "cooling": {
             "type": "split_dx",
-            "efficiency_method": "shipment_weighted",
-            "year": 2021
+            "efficiency_method": "user",
+            "efficiency": 13
           },
           "hvac_distribution": {
             "leakage_method": "qualitative",
@@ -115,6 +115,15 @@
         "fuel_primary": "natural_gas",
         "efficiency_method": "user",
         "energy_factor": 0.6
+      },
+      "generation": {
+        "solar_electric": {
+          "capacity_known": true,
+          "system_capacity": 4,
+          "year": 2022,
+          "array_azimuth": "south",
+          "array_tilt": "medium_slope"
+        }
       }
     }
   }
