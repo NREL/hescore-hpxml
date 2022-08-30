@@ -210,7 +210,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     utility_cost += ([fuel_uses['electric'], 0.0].max * Float(resource_prices['electric ($/kWh)']))
     utility_cost += (fuel_uses['natural_gas'] * Float(resource_prices['natural_gas ($/therm)']) * 1.0 / 100.0)
     utility_cost += (fuel_uses['lpg'] * Float(resource_prices['lpg ($/gallon)']) * 10000.0 / 916000.0)
-    utility_cost += (fuel_uses['fuel_oil'] * Float(resource_prices['fuel_oil ($/gallon)']) * 10000.0 / 138500.0)
+    utility_cost += (fuel_uses['fuel_oil'] * Float(resource_prices['fuel_oil ($/gallon)']) * 10000.0 / 1385000.0)
     utility_cost += (fuel_uses['cord_wood'] * Float(resource_prices['cord_wood ($/cord)']) * 1.0 / 20000.0)
     utility_cost += (fuel_uses['pellet_wood'] * Float(resource_prices['pellet_wood ($/lb)']) * 2.0 / 16.4)
     utility_cost = utility_cost.round(2)
