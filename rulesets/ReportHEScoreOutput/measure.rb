@@ -195,24 +195,32 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     end
 
     # Calculate utility cost
+    fuel_conv = { 'electric' => 1.0, # kWh -> kWh
+                  'natural_gas' => 1.0 / 100.0, # kBtu -> therm
+                  'lpg' => 10000.0 / 916000.0, # kBtu -> gal, assuming 0.0916 MMBtu/gal
+                  'fuel_oil' => 10000.0 / 1385000.0, # kBtu -> gal, assuming 0.1385 MMBtu/gal
+                  'cord_wood' => 1.0 / 20000.0, # kBtu -> cord, assuming 20 MMBtu/cord
+                  'pellet_wood' => 2.0 / 16.4 } # kBtu -> lb, assuming 16.4 MMBtu/ton and 2000 lb/ton
     resource_prices = get_resource_prices_by_state(runner, hpxml.header.state_code)
     fuel_uses = {}
     outputs.each do |hes_key, values|
       hes_end_use, hes_resource_type = hes_key
+      next if fuel_conv[hes_resource_type].nil?
+
       fuel_uses[hes_resource_type] = 0.0 if fuel_uses[hes_resource_type].nil?
       if hes_end_use == 'generation'
-        fuel_uses[hes_resource_type] -= values.sum
+        fuel_uses[hes_resource_type] -= values.sum * fuel_conv[hes_resource_type]
       else
-        fuel_uses[hes_resource_type] += values.sum
+        fuel_uses[hes_resource_type] += values.sum * fuel_conv[hes_resource_type]
       end
     end
     utility_cost = 0.0
-    utility_cost += ([fuel_uses['electric'], 0.0].max * Float(resource_prices['electric ($/kWh)']))
-    utility_cost += (fuel_uses['natural_gas'] * Float(resource_prices['natural_gas ($/therm)']) * 1.0 / 100.0)
-    utility_cost += (fuel_uses['lpg'] * Float(resource_prices['lpg ($/gallon)']) * 10000.0 / 916000.0)
-    utility_cost += (fuel_uses['fuel_oil'] * Float(resource_prices['fuel_oil ($/gallon)']) * 10000.0 / 1385000.0)
-    utility_cost += (fuel_uses['cord_wood'] * Float(resource_prices['cord_wood ($/cord)']) * 1.0 / 20000.0)
-    utility_cost += (fuel_uses['pellet_wood'] * Float(resource_prices['pellet_wood ($/lb)']) * 2.0 / 16.4)
+    utility_cost += ([fuel_uses['electric'], 0.0].max * Float(resource_prices['electric ($/kWh)'])) # max used to zero out PV annual excess
+    utility_cost += (fuel_uses['natural_gas'] * Float(resource_prices['natural_gas ($/therm)']))
+    utility_cost += (fuel_uses['lpg'] * Float(resource_prices['lpg ($/gallon)']))
+    utility_cost += (fuel_uses['fuel_oil'] * Float(resource_prices['fuel_oil ($/gallon)']))
+    utility_cost += (fuel_uses['cord_wood'] * Float(resource_prices['cord_wood ($/cord)']))
+    utility_cost += (fuel_uses['pellet_wood'] * Float(resource_prices['pellet_wood ($/lb)']))
     utility_cost = utility_cost.round(2)
 
     resource_type = 'utility_cost'
