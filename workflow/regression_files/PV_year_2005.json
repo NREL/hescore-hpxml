@@ -1,6 +1,6 @@
 {
   "building_address": {
-    "address": "Regression run 9.165",
+    "address": "Regression run 9.170",
     "city": "St Louis",
     "state": "MO",
     "zip_code": "63101",
@@ -120,9 +120,9 @@
         "solar_electric": {
           "capacity_known": true,
           "system_capacity": 4,
-          "year": 2011,
+          "year": 2005,
           "array_azimuth": "south",
-          "array_tilt": "steep_slope"
+          "array_tilt": "medium_slope"
         }
       }
     }

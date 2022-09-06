@@ -120,7 +120,7 @@
         "solar_electric": {
           "capacity_known": true,
           "system_capacity": 1,
-          "year": 2011,
+          "year": 2012,
           "array_azimuth": "south",
           "array_tilt": "medium_slope"
         }

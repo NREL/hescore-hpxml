@@ -1,6 +1,6 @@
 {
   "building_address": {
-    "address": "Regression run 9.171",
+    "address": "Regression run 9.24",
     "city": "St Louis",
     "state": "MO",
     "zip_code": "63101",
@@ -10,7 +10,7 @@
     "about": {
       "assessment_date": "2021-06-07",
       "shape": "rectangle",
-      "year_built": 1970,
+      "year_built": 2022,
       "number_bedrooms": 4,
       "num_floor_above_grade": 2,
       "floor_to_ceiling_height": 8,
@@ -115,15 +115,6 @@
         "fuel_primary": "natural_gas",
         "efficiency_method": "user",
         "energy_factor": 0.6
-      },
-      "generation": {
-        "solar_electric": {
-          "capacity_known": true,
-          "system_capacity": 4,
-          "year": 2021,
-          "array_azimuth": "south",
-          "array_tilt": "medium_slope"
-        }
       }
     }
   }

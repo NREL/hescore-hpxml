@@ -1,6 +1,6 @@
 {
   "building_address": {
-    "address": "Regression run 9.170",
+    "address": "Regression run 9.160",
     "city": "St Louis",
     "state": "MO",
     "zip_code": "63101",
@@ -113,17 +113,8 @@
         "category": "unit",
         "type": "storage",
         "fuel_primary": "natural_gas",
-        "efficiency_method": "user",
-        "energy_factor": 0.6
-      },
-      "generation": {
-        "solar_electric": {
-          "capacity_known": true,
-          "system_capacity": 4,
-          "year": 2004,
-          "array_azimuth": "south",
-          "array_tilt": "medium_slope"
-        }
+        "efficiency_method": "shipment_weighted",
+        "year": 2022
       }
     }
   }
