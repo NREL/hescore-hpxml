@@ -418,11 +418,31 @@
                                 },
                                 "required": [
                                     "roof_name",
-                                    "roof_type",
-                                    "roof_assembly_code",
-                                    "roof_color"
+                                    "roof_type"
                                 ],
                                 "allOf": [
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "roof_type": {"enum": ["vented_attic", "cath_ceiling", "flat_roof", "bowstring_roof"]}
+                                            },
+                                            "required": ["roof_type"]
+                                        },
+                                        "then": {
+                                            "required": ["roof_assembly_code", "roof_color"]
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "roof_type": {"enum": ["below_other_unit"]}
+                                            },
+                                            "required": ["roof_type"]
+                                        },
+                                        "then": {
+                                            "not": {"required": ["roof_type"]}
+                                        }
+                                    },
                                     {
                                         "if": {
                                             "properties": {
