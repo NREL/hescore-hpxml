@@ -9,12 +9,19 @@ require_relative '../../workflow/hescore_lib'
 
 # start the measure
 class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
+  # kBtu/kBtu
   ELECTRIC_SITE_TO_SOURCE = 2.58
   NATURAL_GAS_SITE_TO_SOURCE = 1.05
   FUEL_OIL_SITE_TO_SOURCE = 1.01
   LPG_SITE_TO_SOURCE = 1.01
-  KEROSENE_SITE_TO_SOURCE = 1.01
   WOOD_SITE_TO_SOURCE = 1.0
+
+  # lb/kBtu
+  ELECTRIC_CARBON_FACTOR = 1.587 / 3.413 # FIXME: Hard-coded value for MO
+  NATURAL_GAS_CARBON_FACTOR = 0.117
+  FUEL_OIL_CARBON_FACTOR = 0.161
+  LPG_CARBON_FACTOR = 0.139
+  WOOD_CARBON_FACTOR = 0.002
 
   # human readable name
   def name
@@ -193,6 +200,38 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       runner.registerValue(resource_type, quantity)
       runner.registerInfo("Registering #{quantity} for #{resource_type}.")
     end
+
+    # Calculate the carbon emissions
+    carbon_emissions_map = { 'electric' => ELECTRIC_CARBON_FACTOR,
+                             'natural_gas' => NATURAL_GAS_CARBON_FACTOR,
+                             'lpg' => LPG_CARBON_FACTOR,
+                             'fuel_oil' => FUEL_OIL_CARBON_FACTOR,
+                             'cord_wood' => WOOD_CARBON_FACTOR,
+                             'pellet_wood' => WOOD_CARBON_FACTOR }
+    carbon_emissions = 0.0
+    outputs.each do |hes_key, values|
+      hes_end_use, hes_resource_type = hes_key
+      units = units_map[hes_resource_type]
+
+      if hes_end_use == 'generation'
+        carbon_factor = -1000 * carbon_emissions_map[hes_resource_type].to_f # lb/MBtu
+      else
+        carbon_factor = 1000 * carbon_emissions_map[hes_resource_type].to_f # lb/MBtu
+      end
+      next if carbon_factor <= 0
+
+      carbon_emissions += UnitConversions.convert(values.sum, units, 'MBtu') * carbon_factor
+      puts "#{hes_end_use} #{hes_resource_type} #{UnitConversions.convert(values.sum, units, 'MBtu')}"
+    end
+    carbon_emissions = carbon_emissions.round(2)
+    resource_type = 'carbon_emissions'
+    end_use = { 'quantity' => carbon_emissions,
+                'period_type' => 'year',
+                'resource_type' => resource_type,
+                'units' => 'lb' }
+    json_data['end_use'] << end_use
+    runner.registerValue(resource_type, carbon_emissions)
+    runner.registerInfo("Registering #{carbon_emissions} for #{resource_type}.")
 
     # Calculate utility cost
     fuel_conv = { 'electric' => 1.0, # kWh -> kWh
