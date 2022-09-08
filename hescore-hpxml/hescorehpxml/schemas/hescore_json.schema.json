@@ -92,15 +92,15 @@
                             "type": "string",
                             "description": "Pass through field for use by api users"
                         },
-                        "shape": {
+                        "dwelling_unit_type": {
                             "type": "string",
-                            "enum": ["rectangle", "town_house"],
-                            "description": "House shape"
+                            "enum": ["single_family_detached", "single_family_attached", "apartment_unit", "manufactured_home"],
+                            "description": "The type of dwelling unit"
                         },
-                        "town_house_walls": {
+                        "manufactured_home_width": {
                             "type": "string",
-                            "enum": ["back_front", "back_right_front", "back_front_left"],
-                            "description": "Which townhouse walls are exposed (only used if shape is town_house)"
+                            "enum": ["single", "double", "triple"],
+                            "description": "The width if a manufactured home"
                         },
                         "year_built": {
                             "type": "integer",
@@ -155,15 +155,15 @@
                         {
                             "if": {
                                 "properties": {
-                                    "shape": {"const": "town_house"}
+                                    "dwelling_unit_type": {"const": "manufactured_home"}
                                 }
                             },
                             "then": {
-                                "required": ["town_house_walls"]
+                                "required": ["manufactured_home_width"]
                             },
                             "else": {
                                 "not": {
-                                    "required": ["town_house_walls"]
+                                    "required": ["manufactured_home_width"]
                                 }
                             }
                         },
@@ -280,7 +280,7 @@
                                     },
                                     "roof_type": {
                                         "type": "string",
-                                        "enum": ["vented_attic", "cath_ceiling"],
+                                        "enum": ["vented_attic", "cath_ceiling", "below_other_unit", "flat_roof", "bowstring_roof"],
                                         "description": "Type of roof"
                                     },
                                     "ceiling_assembly_code": {
@@ -506,7 +506,7 @@
                                     },
                                     "foundation_type": {
                                         "type": "string",
-                                        "enum": ["uncond_basement", "cond_basement", "vented_crawl", "unvented_crawl", "slab_on_grade"],
+                                        "enum": ["uncond_basement", "cond_basement", "vented_crawl", "unvented_crawl", "slab_on_grade", "above_other_unit", "belly_and_wing"],
                                         "description": "Type of foundation"
                                     },
                                     "foundation_insulation_level": {
@@ -624,6 +624,11 @@
                                                  "ewcb06st", "ewcb06br", "ewcb06nn",
                                                  "ewsb00st"],
                                         "description": "Wall construction assembly code"
+                                    },
+                                    "adjacent_to": {
+                                        "type": "string",
+                                        "enum": ["other_unit", "common_area", "outside"],
+                                        "description": "What is on the other side of the wall"
                                     },
                                     "zone_window": {
                                         "type": "object",
