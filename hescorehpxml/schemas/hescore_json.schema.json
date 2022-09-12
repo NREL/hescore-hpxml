@@ -3,7 +3,7 @@
     "$id": "https://github.com/NREL/hescore-hpxml/blob/master/hescorehpxml/schemas/hescore_json.schema.json",
     "type": "object",
     "title": "HEScore JSON Schema",
-    "additionalProperties": false,
+    "additionalProperties": true,
     "properties": {
         "building_address": {
             "type": "object",
