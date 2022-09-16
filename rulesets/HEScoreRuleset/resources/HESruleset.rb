@@ -9,6 +9,7 @@ class HEScoreRuleset
     new_hpxml.header.transaction = 'create'
     new_hpxml.header.building_id = 'bldg'
     new_hpxml.header.event_type = 'construction-period testing/daily test out'
+    new_hpxml.header.natvent_days_per_week = 7
 
     # BuildingSummary
     set_summary(json, new_hpxml)
