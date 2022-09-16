@@ -79,6 +79,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       json_output_path = nil
     end
 
+    hpxml = HPXML.new(hpxml_path: hpxml_path)
     rundir = File.dirname(runner.lastEpwFilePath.get.to_s)
 
     json_data = { 'end_use' => [] }
@@ -186,8 +187,45 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       runner.registerInfo("Registering #{quantity} for #{resource_type}.")
     end
 
+    # Calculate utility cost
+    fuel_conv = { 'electric' => 1.0, # kWh -> kWh
+                  'natural_gas' => 1.0 / 100.0, # kBtu -> therm
+                  'lpg' => 10000.0 / 916000.0, # kBtu -> gal, assuming 0.0916 MMBtu/gal
+                  'fuel_oil' => 10000.0 / 1385000.0, # kBtu -> gal, assuming 0.1385 MMBtu/gal
+                  'cord_wood' => 1.0 / 20000.0, # kBtu -> cord, assuming 20 MMBtu/cord
+                  'pellet_wood' => 2.0 / 16.4 } # kBtu -> lb, assuming 16.4 MMBtu/ton and 2000 lb/ton
+    resource_prices = get_resource_prices_by_state(runner, hpxml.header.state_code)
+    fuel_uses = {}
+    outputs.each do |hes_key, values|
+      hes_end_use, hes_resource_type = hes_key
+      next if fuel_conv[hes_resource_type].nil?
+
+      fuel_uses[hes_resource_type] = 0.0 if fuel_uses[hes_resource_type].nil?
+      if hes_end_use == 'generation'
+        fuel_uses[hes_resource_type] -= values.sum * fuel_conv[hes_resource_type]
+      else
+        fuel_uses[hes_resource_type] += values.sum * fuel_conv[hes_resource_type]
+      end
+    end
+    utility_cost = 0.0
+    utility_cost += ([fuel_uses['electric'], 0.0].max * Float(resource_prices['electric ($/kWh)'])) # max used to zero out PV annual excess
+    utility_cost += (fuel_uses['natural_gas'] * Float(resource_prices['natural_gas ($/therm)']))
+    utility_cost += (fuel_uses['lpg'] * Float(resource_prices['lpg ($/gallon)']))
+    utility_cost += (fuel_uses['fuel_oil'] * Float(resource_prices['fuel_oil ($/gallon)']))
+    utility_cost += (fuel_uses['cord_wood'] * Float(resource_prices['cord_wood ($/cord)']))
+    utility_cost += (fuel_uses['pellet_wood'] * Float(resource_prices['pellet_wood ($/lb)']))
+    utility_cost = utility_cost.round(2)
+
+    resource_type = 'utility_cost'
+    end_use = { 'quantity' => utility_cost,
+                'period_type' => 'year',
+                'resource_type' => resource_type,
+                'units' => 'USD' }
+    json_data['end_use'] << end_use
+    runner.registerValue(resource_type, utility_cost)
+    runner.registerInfo("Registering #{utility_cost} for #{resource_type}.")
+
     # Calculate the score
-    hpxml = HPXML.new(hpxml_path: hpxml_path)
     weather_station = hpxml.climate_and_risk_zones.weather_station_wmo.to_i
     runner.registerValue('weather_station', weather_station)
     runner.registerInfo("Registering #{weather_station} for weather_station.")
@@ -234,7 +272,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
         return 10
       end
     end
-    runner.registerError("Unable to find weather station #{weather_station} in bins.")
+    runner.registerError("Unable to find weather station '#{weather_station}' in bins.csv.")
   end
 
   def flatten(obj, prefix = [])
@@ -257,6 +295,16 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       new_obj[prefix.join('-')] = obj
     end
     return new_obj
+  end
+
+  def get_resource_prices_by_state(runner, state_code)
+    prices_file = File.join(File.dirname(__FILE__), 'resources', 'lu_resource_price_by_state.csv')
+    CSV.foreach(prices_file, headers: true) do |row|
+      if row['abbreviation'] == state_code
+        return row.to_h
+      end
+    end
+    runner.registerError("Unable to find state '#{state_code}' in lu_resource_price_by_state.csv.")
   end
 end
 

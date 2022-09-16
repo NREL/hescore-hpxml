@@ -418,6 +418,12 @@ class HEScoreTest < MiniTest::Test
     refute_equal(asset_source_energy, total_source_energy)
     assert_operator(score, :>=, 1)
     assert_operator(score, :<=, 10)
+
+    # Check for reasonable utility cost values
+    utility_cost = results[['utility_cost', nil, 'USD']]
+    refute_nil(utility_cost)
+    assert_operator(utility_cost, :>, 600)
+    assert_operator(utility_cost, :<, 6000)
   end
 
   def _write_summary_results(results, results_csv_path)
