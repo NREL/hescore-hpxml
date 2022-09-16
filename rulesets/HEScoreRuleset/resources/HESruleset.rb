@@ -835,8 +835,8 @@ class HEScoreRuleset
 
     # HVACControl
     control_type = HPXML::HVACControlTypeManual
-    htg_sp, _htg_setback_sp, _htg_setback_hrs_per_week, _htg_setback_start_hr = HVAC.get_default_heating_setpoint(control_type)
-    clg_sp, _clg_setup_sp, _clg_setup_hrs_per_week, _clg_setup_start_hr = HVAC.get_default_cooling_setpoint(control_type)
+    htg_sp = HVAC.get_default_heating_setpoint(control_type)[0]
+    clg_sp = HVAC.get_default_cooling_setpoint(control_type)[0]
     new_hpxml.hvac_controls.add(id: 'hvac_control',
                                 control_type: control_type,
                                 heating_setpoint_temp: htg_sp,
