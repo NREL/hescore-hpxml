@@ -68,7 +68,6 @@
                     "type": "object",
                     "required": [
                         "assessment_date",
-                        "shape",
                         "year_built",
                         "number_bedrooms",
                         "num_floor_above_grade",
@@ -2209,92 +2208,11 @@
                         }
                     },
                     "then": {
-                        "if": {
-                            "properties": {
-                                "about": {
-                                    "properties": {
-                                        "shape": {"const": "town_house"}
-                                    }
-                                }
-                            }
-                        },
-                        "then": {
-                            "allOf": [
-                                {
-                                    "if": {
-                                        "properties": {
-                                            "about": {
-                                                "properties": {
-                                                    "town_house_walls": {"const": "back_right_front"}
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "zone": {
-                                                "properties": {
-                                                    "zone_wall": {
-                                                        "$ref": "#/definitions/def_mf_back_right_front"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "if": {
-                                        "properties": {
-                                            "about": {
-                                                "properties": {
-                                                    "town_house_walls": {"const": "back_front_left"}
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "zone": {
-                                                "properties": {
-                                                    "zone_wall": {
-                                                        "$ref": "#/definitions/def_mf_back_front_left"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "if": {
-                                        "properties": {
-                                            "about": {
-                                                "properties": {
-                                                    "town_house_walls": {"const": "back_front"}
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "zone": {
-                                                "properties": {
-                                                    "zone_wall": {
-                                                        "$ref": "#/definitions/def_mf_back_front"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        "else": {
-                            "properties": {
-                                "zone": {
-                                    "properties": {
-                                        "zone_wall": {
-                                            "$ref": "#/definitions/def_sf"
-                                        }
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "zone_wall": {
+                                        "$ref": "#/definitions/def_sf"
                                     }
                                 }
                             }
@@ -2313,98 +2231,11 @@
                         }
                     },
                     "then": {
-                        "if": {
-                            "properties": {
-                                "about": {
-                                    "properties": {
-                                        "shape": {"const": "town_house"}
-                                    }
-                                }
-                            }
-                        },
-                        "then": {
-                            "allOf": [
-                                {
-                                    "if": {
-                                        "properties": {
-                                            "about": {
-                                                "properties": {
-                                                    "town_house_walls": {"const": "back_right_front"}
-                                                },
-                                                "required": ["town_house_walls"]
-                                            }
-                                        },
-                                        "required": ["about"]
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "zone": {
-                                                "properties": {
-                                                    "zone_wall": {
-                                                        "$ref": "#/definitions/def_mf_back_right_front_has_same_walls"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "if": {
-                                        "properties": {
-                                            "about": {
-                                                "properties": {
-                                                    "town_house_walls": {"const": "back_front_left"}
-                                                },
-                                                "required": ["town_house_walls"]
-                                            }
-                                        },
-                                        "required": ["about"]
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "zone": {
-                                                "properties": {
-                                                    "zone_wall": {
-                                                        "$ref": "#/definitions/def_mf_back_front_left_has_same_walls"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "if": {
-                                        "properties": {
-                                            "about": {
-                                                "properties": {
-                                                    "town_house_walls": {"const": "back_front"}
-                                                },
-                                                "required": ["town_house_walls"]
-                                            }
-                                        },
-                                        "required": ["about"]
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "zone": {
-                                                "properties": {
-                                                    "zone_wall": {
-                                                        "$ref": "#/definitions/def_mf_back_front_has_same_walls"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        "else": {
-                            "properties": {
-                                "zone": {
-                                    "properties": {
-                                        "zone_wall": {
-                                            "$ref": "#/definitions/def_sf_has_same_walls"
-                                        }
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "zone_wall": {
+                                        "$ref": "#/definitions/def_sf_has_same_walls"
                                     }
                                 }
                             }
@@ -2423,92 +2254,11 @@
                         }
                     },
                     "then": {
-                        "if": {
-                            "properties": {
-                                "about": {
-                                    "properties": {
-                                        "shape": {"const": "town_house"}
-                                    }
-                                }
-                            }
-                        },
-                        "then": {
-                            "allOf": [
-                                {
-                                    "if": {
-                                        "properties": {
-                                            "about": {
-                                                "properties": {
-                                                    "town_house_walls": {"const": "back_right_front"}
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "zone": {
-                                                "properties": {
-                                                    "zone_wall": {
-                                                        "$ref": "#/definitions/def_mf_back_right_front_has_same_windows"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "if": {
-                                        "properties": {
-                                            "about": {
-                                                "properties": {
-                                                    "town_house_walls": {"const": "back_front_left"}
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "zone": {
-                                                "properties": {
-                                                    "zone_wall": {
-                                                        "$ref": "#/definitions/def_mf_back_front_left_has_same_windows"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "if": {
-                                        "properties": {
-                                            "about": {
-                                                "properties": {
-                                                    "town_house_walls": {"const": "back_front"}
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "zone": {
-                                                "properties": {
-                                                    "zone_wall": {
-                                                        "$ref": "#/definitions/def_mf_back_front_has_same_windows"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        "else": {
-                            "properties": {
-                                "zone": {
-                                    "properties": {
-                                        "zone_wall": {
-                                            "$ref": "#/definitions/def_sf_has_same_windows"
-                                        }
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "zone_wall": {
+                                        "$ref": "#/definitions/def_sf_has_same_windows"
                                     }
                                 }
                             }
@@ -2527,92 +2277,11 @@
                         }
                     },
                     "then": {
-                        "if": {
-                            "properties": {
-                                "about": {
-                                    "properties": {
-                                        "shape": {"const": "town_house"}
-                                    }
-                                }
-                            }
-                        },
-                        "then": {
-                            "allOf": [
-                                {
-                                    "if": {
-                                        "properties": {
-                                            "about": {
-                                                "properties": {
-                                                    "town_house_walls": {"const": "back_right_front"}
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "zone": {
-                                                "properties": {
-                                                    "zone_wall": {
-                                                        "$ref": "#/definitions/def_mf_back_right_front_has_same_walls_and_windows"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "if": {
-                                        "properties": {
-                                            "about": {
-                                                "properties": {
-                                                    "town_house_walls": {"const": "back_front_left"}
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "zone": {
-                                                "properties": {
-                                                    "zone_wall": {
-                                                        "$ref": "#/definitions/def_mf_back_front_left_has_same_walls_and_windows"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                {
-                                    "if": {
-                                        "properties": {
-                                            "about": {
-                                                "properties": {
-                                                    "town_house_walls": {"const": "back_front"}
-                                                }
-                                            }
-                                        }
-                                    },
-                                    "then": {
-                                        "properties": {
-                                            "zone": {
-                                                "properties": {
-                                                    "zone_wall": {
-                                                        "$ref": "#/definitions/def_mf_back_front_has_same_walls_and_windows"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        },
-                        "else": {
-                            "properties": {
-                                "zone": {
-                                    "properties": {
-                                        "zone_wall": {
-                                            "$ref": "#/definitions/def_sf_mf_has_same_walls_and_windows"
-                                        }
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "zone_wall": {
+                                        "$ref": "#/definitions/def_sf_mf_has_same_walls_and_windows"
                                     }
                                 }
                             }
