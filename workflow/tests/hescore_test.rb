@@ -181,8 +181,6 @@ class HEScoreTest < MiniTest::Test
       next if log_line.start_with? 'Info: '
       next if log_line.start_with? 'Executing command'
 
-      next if log_line.include? 'Warning: Could not load nokogiri, no HPXML validation performed.'
-
       # Files w/o cooling systems
       no_spc_clg = false
       json['building']['systems']['hvac'].each do |hvac|
