@@ -23,7 +23,6 @@ class HEScoreRulesetTest < MiniTest::Test
       args_hash['hpxml_output_path'] = File.absolute_path(json).gsub('.json', '.xml.out')
 
       _test_measure(args_hash)
-      _test_schema_validation(this_dir, json.gsub('.json', '.xml.out'))
       _test_assembly_effective_rvalues(args_hash)
       _test_conditioned_building_volume(args_hash)
 
@@ -43,7 +42,6 @@ class HEScoreRulesetTest < MiniTest::Test
       args_hash['hpxml_output_path'] = File.absolute_path(json).gsub('.json', '.xml.out')
 
       _test_measure(args_hash)
-      _test_schema_validation(this_dir, json.gsub('.json', '.xml.out'))
       _test_assembly_effective_rvalues(args_hash)
       _test_conditioned_building_volume(args_hash)
 
@@ -596,17 +594,6 @@ class HEScoreRulesetTest < MiniTest::Test
 
     # assert that it ran correctly
     assert_equal('Success', result.value.valueName)
-  end
-
-  def _test_schema_validation(parent_dir, xml)
-    # TODO: Remove this when schema validation is included with CLI calls
-    schemas_dir = File.absolute_path(File.join(parent_dir, '..', '..', '..', 'hpxml-measures', 'HPXMLtoOpenStudio', 'resources', 'hpxml_schema'))
-    hpxml_doc = XMLHelper.parse_file(xml)
-    errors = XMLHelper.validate(hpxml_doc.to_xml, File.join(schemas_dir, 'HPXML.xsd'), nil)
-    if errors.size > 0
-      puts "#{xml}: #{errors}"
-    end
-    assert_equal(0, errors.size)
   end
 
   def _test_assembly_effective_rvalues(args_hash)

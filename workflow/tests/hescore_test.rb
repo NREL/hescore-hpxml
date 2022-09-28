@@ -171,10 +171,6 @@ class HEScoreTest < MiniTest::Test
     assert(File.exist?(hes_hpxml))
     assert(File.exist?(results_json))
 
-    # Check HPXMLs are valid
-    schemas_dir = File.absolute_path(File.join(parent_dir, '..', '..', 'hpxml-measures', 'HPXMLtoOpenStudio', 'resources', 'hpxml_schema'))
-    _test_schema_validation(hes_hpxml, schemas_dir)
-
     # Check run.log for messages
     File.readlines(File.join(parent_dir, 'HEScoreDesign', 'run.log')).each do |log_line|
       next if log_line.strip.empty?
@@ -452,16 +448,6 @@ class HEScoreTest < MiniTest::Test
     end
 
     puts "Wrote results to #{results_csv_path}."
-  end
-
-  def _test_schema_validation(xml, schemas_dir)
-    # TODO: Remove this when schema validation is included with CLI calls
-    hpxml_doc = XMLHelper.parse_file(xml)
-    errors = XMLHelper.validate(hpxml_doc.to_xml, File.join(schemas_dir, 'HPXML.xsd'), nil)
-    if errors.size > 0
-      puts "#{xml}: #{errors}"
-    end
-    assert_equal(0, errors.size)
   end
 
   def _rm_path(path)
