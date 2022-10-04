@@ -68,6 +68,7 @@
                     "type": "object",
                     "required": [
                         "assessment_date",
+                        "dwelling_unit_type",
                         "year_built",
                         "number_bedrooms",
                         "num_floor_above_grade",
@@ -210,8 +211,9 @@
                 "zone": {
                     "type": "object",
                     "required": [
-                        "wall_construction_same",
-                        "window_construction_same"
+                        "zone_roof",
+                        "zone_floor",
+                        "zone_wall"
                     ],
                     "additionalProperties": false,
                     "properties": {
@@ -588,24 +590,20 @@
                                 ]
                             }
                         },
-                        "wall_construction_same": {
-                            "type": "boolean",
-                            "description": "Do all the walls have the same construction?"
-                        },
-                        "window_construction_same": {
-                            "type": "boolean",
-                            "description": "Do all the windows have the same construction?"
-                        },
                         "zone_wall": {
                             "type": "array",
                             "description": "Inputs about the construction of the walls",
                             "additionalItems": false,
-                            "minItems": 0,
+                            "minItems": 4,
                             "maxItems": 4,
                             "uniqueItems": true,
                             "items": { 
                                 "type": "object",
                                 "additionalProperties": false,
+                                "required": [
+                                    "side",
+                                    "adjacent_to"
+                                ],
                                 "properties": {
                                     "side": {
                                         "type": "string",
@@ -695,7 +693,22 @@
                                             }
                                         }
                                     }
-                                }
+                                },
+                                "allOf": [
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "adjacent_to": {"enum": ["outside", "common_area"]}
+                                            },
+                                            "required": ["adjacent_to"]
+                                        },
+                                        "then": {
+                                            "required": [
+                                                "wall_assembly_code"
+                                            ]
+                                        }
+                                    }
+                                ]
                             }
                         }
                     }
@@ -2196,98 +2209,6 @@
                 }
             },
             "allOf": [
-                {
-                    "if": {
-                        "properties": {
-                            "zone": {
-                                "properties": {
-                                    "wall_construction_same": {"const": false},
-                                    "window_construction_same": {"const": false}
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "zone": {
-                                "properties": {
-                                    "zone_wall": {
-                                        "$ref": "#/definitions/def_sf"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "zone": {
-                                "properties": {
-                                    "wall_construction_same": {"const": true},
-                                    "window_construction_same": {"const": false}
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "zone": {
-                                "properties": {
-                                    "zone_wall": {
-                                        "$ref": "#/definitions/def_sf_has_same_walls"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "zone": {
-                                "properties": {
-                                    "wall_construction_same": {"const": false},
-                                    "window_construction_same": {"const": true}
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "zone": {
-                                "properties": {
-                                    "zone_wall": {
-                                        "$ref": "#/definitions/def_sf_has_same_windows"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "if": {
-                        "properties": {
-                            "zone": {
-                                "properties": {
-                                    "wall_construction_same": {"const": true},
-                                    "window_construction_same": {"const": true}
-                                }
-                            }
-                        }
-                    },
-                    "then": {
-                        "properties": {
-                            "zone": {
-                                "properties": {
-                                    "zone_wall": {
-                                        "$ref": "#/definitions/def_sf_mf_has_same_walls_and_windows"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
                 {
                     "if": {
                         "properties": {
