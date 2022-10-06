@@ -79,8 +79,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       json_output_path = nil
     end
 
-    # TODO: Check whether collapse_enclosure arg matters
-    hpxml = HPXML.new(hpxml_path: hpxml_path)
+    hpxml = HPXML.new(hpxml_path: hpxml_path, collapse_enclosure: false)
 
     sqlFile = runner.lastEnergyPlusSqlFile
     if sqlFile.empty?
@@ -385,7 +384,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
      hpxml.skylights +
      hpxml.foundation_walls).each do |surface|
       instance_id = surface.id.split('_')[0]
-      if surface.is_a? HPXML::Wall
+      if surface.is_a?(HPXML::Wall) || surface.is_a?(HPXML::FoundationWall)
         if surface.exterior_adjacent_to == HPXML::LocationAtticVented
           instance_id += '_kneewall'
         else
@@ -398,7 +397,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       values[key] = values[key].to_f + surface.area.round(0)
     end
 
-    # HVAC heating/cooling capacities
+    # HVAC heating/cooling capacities & duct areas
     hpxml.hvac_systems.each do |hvac_system|
       instance_id = hvac_system.id.split('_')[0]
       if hvac_system.respond_to? :heating_capacity
@@ -409,11 +408,6 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
         key = ["#{instance_id}_cooling_capacity", 'Btuh'] # end_use, units
         values[key] = values[key].to_f + hvac_system.cooling_capacity.round(0)
       end
-    end
-
-    # Duct areas
-    hpxml.hvac_systems.each do |hvac_system|
-      instance_id = hvac_system.id.split('_')[0]
       next if hvac_system.distribution_system.nil?
 
       hvac_system.distribution_system.ducts.each_with_index do |duct, i|
