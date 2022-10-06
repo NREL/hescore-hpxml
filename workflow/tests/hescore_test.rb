@@ -266,6 +266,14 @@ class HEScoreTest < MiniTest::Test
       results[key] = result['quantity']
     end
 
+    # Retrieve cost multipliers
+    data['end_use'].each do |result|
+      next if result['resource_type'] != 'cost_multiplier'
+
+      key = [result['resource_type'], result['end_use'], result['units']]
+      results[key] = result['quantity']
+    end
+
     return results
   end
 
@@ -436,27 +444,44 @@ class HEScoreTest < MiniTest::Test
   def _write_summary_results(results, results_csv_path)
     # Writes summary end use results to CSV file.
 
-    column_headers = ['JSON']
-    results[results.keys[0]].keys.each do |key|
-      resource_type, end_use, units = key
-      column_header = ''
-      if not resource_type.nil?
-        column_header += "#{resource_type}"
+    # Get unique column headers/keys across all simulations
+    # (Simulations may have different cost multipliers, for example.)
+    column_headers = []
+    column_keys = []
+    results.values.each do |json_results|
+      json_results.keys.each do |key|
+        resource_type, end_use, units = key
+        column_header = ''
+        if not resource_type.nil?
+          column_header += "#{resource_type}"
+        end
+        if not end_use.nil?
+          column_header += ": #{end_use}"
+        end
+        if not units.nil?
+          column_header += " [#{units}]"
+        end
+        next if column_headers.include? column_header
+
+        column_headers << column_header
+        column_keys << key
       end
-      if not end_use.nil?
-        column_header += ": #{end_use}"
-      end
-      if not units.nil?
-        column_header += " [#{units}]"
-      end
-      column_headers << column_header
     end
 
+    # Write to CSV
     require 'csv'
     CSV.open(results_csv_path, 'w') do |csv|
-      csv << column_headers
+      csv << ['JSON'] + column_headers
       results.sort.each do |json, json_results|
-        csv << [json] + json_results.values.map { |v| v.round(2) }
+        csv_row = [json]
+        column_keys.each do |column_key|
+          if json_results[column_key].nil?
+            csv_row << 0
+          else
+            csv_row << json_results[column_key].round(2)
+          end
+        end
+        csv << csv_row
       end
     end
 

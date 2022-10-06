@@ -114,6 +114,7 @@ class HEScoreRuleset
     new_hpxml.building_construction.number_of_bedrooms = @nbeds
     new_hpxml.building_construction.conditioned_floor_area = @cfa
     new_hpxml.building_construction.conditioned_building_volume = @cvolume
+    new_hpxml.building_construction.building_footprint_area = @bldg_footprint
     new_hpxml.building_construction.has_flue_or_chimney = false
   end
 

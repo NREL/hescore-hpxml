@@ -79,6 +79,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       json_output_path = nil
     end
 
+    # TODO: Check whether collapse_enclosure arg matters
     hpxml = HPXML.new(hpxml_path: hpxml_path)
 
     sqlFile = runner.lastEnergyPlusSqlFile
@@ -160,6 +161,16 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
                               'resource_type' => resource_type }
     runner.registerValue(resource_type, score)
     runner.registerInfo("Registering #{score} for #{resource_type}.")
+
+    # Calculate cost metrics (e.g., sqft, capacity)
+    cost_multipliers = calc_cost_multipliers(hpxml)
+    cost_multipliers.each do |key, value|
+      end_use, units = key
+      json_data['end_use'] << { 'quantity' => value,
+                                'resource_type' => 'cost_multiplier',
+                                'end_use' => end_use,
+                                'units' => units }
+    end
 
     # Write results to JSON
     if not json_output_path.nil?
@@ -357,6 +368,65 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       end
     end
     fail "Unable to find state '#{state_code}' in #{csv_file_name}."
+  end
+
+  def calc_cost_multipliers(hpxml)
+    values = {}
+
+    # Footprint area
+    key = ['footprint_area', 'sqft'] # end_use, units
+    values[key] = hpxml.building_construction.building_footprint_area
+
+    # Enclosure surface areas
+    (hpxml.frame_floors +
+     hpxml.roofs +
+     hpxml.walls +
+     hpxml.windows +
+     hpxml.skylights +
+     hpxml.foundation_walls).each do |surface|
+      instance_id = surface.id.split('_')[0]
+      if surface.is_a? HPXML::Wall
+        if surface.exterior_adjacent_to == HPXML::LocationAtticVented
+          instance_id += '_kneewall'
+        else
+          instance_id += '_wall'
+        end
+      elsif surface.is_a? HPXML::Window
+        instance_id += '_window'
+      end
+      key = ["#{instance_id}_area", 'sqft'] # end_use, units
+      values[key] = values[key].to_f + surface.area.round(0)
+    end
+
+    # HVAC heating/cooling capacities
+    hpxml.hvac_systems.each do |hvac_system|
+      instance_id = hvac_system.id.split('_')[0]
+      if hvac_system.respond_to? :heating_capacity
+        key = ["#{instance_id}_heating_capacity", 'Btuh'] # end_use, units
+        values[key] = values[key].to_f + hvac_system.heating_capacity.round(0)
+      end
+      if hvac_system.respond_to? :cooling_capacity
+        key = ["#{instance_id}_cooling_capacity", 'Btuh'] # end_use, units
+        values[key] = values[key].to_f + hvac_system.cooling_capacity.round(0)
+      end
+    end
+
+    # Duct areas
+    hpxml.hvac_systems.each do |hvac_system|
+      instance_id = hvac_system.id.split('_')[0]
+      next if hvac_system.distribution_system.nil?
+
+      hvac_system.distribution_system.ducts.each_with_index do |duct, i|
+        key = ["#{instance_id}_duct#{i + 1}_area", 'sqft'] # end_use, units
+        values[key] = values[key].to_f + duct.duct_surface_area.round(0)
+      end
+    end
+
+    # Water heater capacity
+    key = ['water_heater_capacity', 'gal'] # end_use, units
+    values[key] = hpxml.water_heating_systems[0].tank_volume
+
+    return values
   end
 end
 
