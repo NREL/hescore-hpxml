@@ -63,10 +63,17 @@ class HEScoreRuleset
 
   def self.set_summary(json, new_hpxml)
     # Get JSON values
-    if json['building']['about']['town_house_walls']
-      @bldg_type = HPXML::ResidentialTypeSFA
-    else
+    case json['building']['about']['dwelling_unit_type']
+    when 'single_family_detached'
       @bldg_type = HPXML::ResidentialTypeSFD
+    when 'single_family_attached'
+      @bldg_type = HPXML::ResidentialTypeSFA
+    when 'apartment_unit'
+      @bldg_type = HPXML::ResidentialTypeApartment
+    when 'manufactured_home'
+      @bldg_type = HPXML::ResidentialTypeManufactured
+    else
+      raise "Unexpected dwelling_unit_type."
     end
     @bldg_orient = json['building']['about']['orientation']
     @bldg_azimuth = orientation_to_azimuth(@bldg_orient)
@@ -74,15 +81,12 @@ class HEScoreRuleset
     @year_built = Integer(json['building']['about']['year_built'])
     @nbeds = Float(json['building']['about']['number_bedrooms'])
     @cfa = json['building']['about']['conditioned_floor_area'].to_f # ft^2
-    @is_townhouse = (@bldg_type == HPXML::ResidentialTypeSFA)
     @fnd_areas = get_foundation_areas(json)
     @ducts = get_ducts_details(json)
     @cfa_basement = @fnd_areas['cond_basement']
     @cfa_basement = 0 if @cfa_basement.nil?
     @ncfl_ag = json['building']['about']['num_floor_above_grade'].to_f
     @ceil_height = json['building']['about']['floor_to_ceiling_height'].to_f # ft
-    @has_same_wall_const = json['building']['zone']['wall_construction_same']
-    @has_same_window_const = json['building']['zone']['window_construction_same']
 
     # Calculate geometry
     @has_cond_bsmnt = @fnd_areas.key?('cond_basement')
@@ -90,10 +94,29 @@ class HEScoreRuleset
     @ncfl = @ncfl_ag + (@has_cond_bsmnt ? 1 : 0)
     @nfl = @ncfl + (@has_uncond_bsmnt ? 1 : 0)
     @bldg_footprint = (@cfa - @cfa_basement) / @ncfl_ag # ft^2
-    @bldg_length_side = (3.0 * @bldg_footprint / 5.0)**0.5 # ft
-    @bldg_length_front = (5.0 / 3.0) * @bldg_length_side # ft
-    if @is_townhouse
-      @bldg_length_front, @bldg_length_side = @bldg_length_side, @bldg_length_front
+    case @bldg_type
+    when HPXML::ResidentialTypeSFD
+      # 5:3 ratio, long side on front
+      @bldg_length_side = (3.0 / 5.0 * @bldg_footprint)**0.5 # ft
+      @bldg_length_front = (5.0 / 3.0) * @bldg_length_side # ft
+    when HPXML::ResidentialTypeSFA
+      # 5:3 ratio, short side on front
+      @bldg_length_side = (5.0 / 3.0) * @bldg_length_side # ft
+      @bldg_length_front = (3.0 / 5.0 * @bldg_footprint)**0.5 # ft
+    when HPXML::ResidentialTypeApartment
+      # Square
+      @bldg_length_side = @bldg_footprint**0.5 # ft
+      @bldg_length_front = @bldg_length_side # ft
+    when HPXML::ResidentialTypeManufactured
+      # 12' x the "width"
+      mh_widths = {
+        "single" => 12.0,
+        "double" => 24.0,
+        "triple" => 36.0
+      }
+      @bldg_length_side = mh_widths[json['building']['about']['manufactured_home_width']]
+      # FIXME: What to do with addition?
+      @bldg_length_front = @bldg_footprint / @bldg_length_side
     end
     @bldg_perimeter = 2.0 * @bldg_length_front + 2.0 * @bldg_length_side # ft
     @roof_angle = 30.0 # deg
@@ -178,9 +201,10 @@ class HEScoreRuleset
         roof_solar_abs = get_roof_solar_absorptance($roof_color_map[orig_roof['roof_color']])
       end
       roof_r = get_roof_effective_r_from_doe2code(orig_roof['roof_assembly_code'])
-      if @is_townhouse
+      if @bldg_type == HPXML::ResidentialTypeSFA
         roof_azimuths = [@bldg_azimuth + 90, @bldg_azimuth + 270]
       else
+        # FIXME: What to do with apartment roofs azimuths?
         roof_azimuths = [@bldg_azimuth, @bldg_azimuth + 180]
       end
       has_radiant_barrier = false
@@ -227,6 +251,12 @@ class HEScoreRuleset
 
   def self.set_enclosure_walls(json, new_hpxml)
     # Above-grade walls
+    # TODO: Review this map and add/remove/rename as necessary
+    wall_adjacent_map = {
+      "other_unit" => HPXML::LocationOtherHousingUnit,
+      "common_area" => HPXML::LocationOtherHeatedSpace,
+      "outside" => HPXML::LocationOutside
+    }
     json['building']['zone']['zone_wall'].each do |orig_wall|
       wall_area = nil
       if ['front', 'back'].include? orig_wall['side']
@@ -234,16 +264,18 @@ class HEScoreRuleset
       else
         wall_area = @ceil_height * @bldg_length_side * @ncfl_ag
       end
-      wall_assembly_code = nil
-      if @has_same_wall_const
-        front_wall = json['building']['zone']['zone_wall'].find { |wall| wall['side'] == 'front' }
-        wall_assembly_code = front_wall['wall_assembly_code']
+      wall_assembly_code = orig_wall['wall_assembly_code']
+      wall_r = nil
+      if wall_assembly_code.nil?
+        # This is when the wall is adjacent to another conditioned space
+        # FIXME: Come up with a better assumption for R-value here
+        wall_r = get_knee_wall_effective_r_from_doe2code("kwwf00")
       else
-        wall_assembly_code = orig_wall['wall_assembly_code']
+        # TODO: Make new assembly codes for walls adjacent to "other" spaces
+        wall_r = get_wall_effective_r_from_doe2code(wall_assembly_code)
       end
-      wall_r = get_wall_effective_r_from_doe2code(wall_assembly_code)
       new_hpxml.walls.add(id: "#{orig_wall['side']}_wall",
-                          exterior_adjacent_to: HPXML::LocationOutside,
+                          exterior_adjacent_to: wall_adjacent_map[orig_wall['adjacent_to']],
                           interior_adjacent_to: HPXML::LocationLivingSpace,
                           wall_type: $wall_type_map[wall_assembly_code[2, 2]],
                           area: wall_area,
@@ -376,34 +408,17 @@ class HEScoreRuleset
       next if orig_wall['zone_window']['window_area'] == 0
 
       orig_window = orig_wall['zone_window']
-      if @has_same_window_const
-        front_wall = json['building']['zone']['zone_wall'].find { |wall| wall['side'] == 'front' }
-        front_window = front_wall['zone_window']
-        if front_window['window_method'] == 'code'
-          window_code = front_window['window_code']
-        elsif front_window['window_method'] == 'custom'
-          ufactor = front_window['window_u_value']
-          shgc = front_window['window_shgc']
-        end
-        if not front_window['storm_type'].nil?
-          storm_type = front_window['storm_type']
-        end
-        if front_window['solar_screen'] == true
-          has_solar_screen = true
-        end
-      else
-        if orig_window['window_method'] == 'code'
-          window_code = orig_window['window_code']
-        elsif orig_window['window_method'] == 'custom'
-          ufactor = orig_window['window_u_value']
-          shgc = orig_window['window_shgc']
-        end
-        if not orig_window['storm_type'].nil?
-          storm_type = orig_window['storm_type']
-        end
-        if orig_window['solar_screen'] == true
-          has_solar_screen = true
-        end
+      if orig_window['window_method'] == 'code'
+        window_code = orig_window['window_code']
+      elsif orig_window['window_method'] == 'custom'
+        ufactor = orig_window['window_u_value']
+        shgc = orig_window['window_shgc']
+      end
+      if not orig_window['storm_type'].nil?
+        storm_type = orig_window['storm_type']
+      end
+      if orig_window['solar_screen'] == true
+        has_solar_screen = true
       end
       if ufactor.nil?
         ufactor, shgc = get_window_ufactor_shgc_from_doe2code(window_code)
@@ -461,9 +476,10 @@ class HEScoreRuleset
         ufactor, shgc = get_ufactor_shgc_adjusted_by_storms(orig_skylight['storm_type'], ufactor, shgc)
       end
 
-      if @is_townhouse
+      if @bldg_type == HPXML::ResidentialTypeSFA
         roof_azimuths = [@bldg_azimuth + 90, @bldg_azimuth + 270]
       else
+        # FIXME: What to do with apartment roofs azimuths?
         roof_azimuths = [@bldg_azimuth, @bldg_azimuth + 180]
       end
       roof_azimuths.each_with_index do |roof_azimuth, i|
