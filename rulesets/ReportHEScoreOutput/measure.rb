@@ -468,7 +468,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
 
     # Water heater capacity
     key = ['water_heater_capacity', 'gal']
-    values[key] = hpxml.water_heating_systems[0].tank_volume
+    values[key] = hpxml.water_heating_systems[0].tank_volume.to_f
 
     return values
   end
