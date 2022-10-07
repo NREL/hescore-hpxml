@@ -370,10 +370,44 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
   end
 
   def calc_cost_multipliers(hpxml)
-    values = {}
+    # Initialize all possible cost multipliers so that we throw an
+    # error if we encounter an unexpected key below.
+    #          [end_use, units] => cost_multiplier_value
+    values = { ['footprint_area', 'sqft'] => 0.0,
+               ['floor1_floor_area', 'sqft'] => 0.0,
+               ['floor2_floor_area', 'sqft'] => 0.0,
+               ['floor1_wall_area', 'sqft'] => 0.0,
+               ['floor2_wall_area', 'sqft'] => 0.0,
+               ['roof1_ceiling_area', 'sqft'] => 0.0,
+               ['roof2_ceiling_area', 'sqft'] => 0.0,
+               ['roof1_kneewall_area', 'sqft'] => 0.0,
+               ['roof2_kneewall_area', 'sqft'] => 0.0,
+               ['roof1_roof_area', 'sqft'] => 0.0,
+               ['roof2_roof_area', 'sqft'] => 0.0,
+               ['roof1_skylight_area', 'sqft'] => 0.0,
+               ['roof2_skylight_area', 'sqft'] => 0.0,
+               ['front_wall_area', 'sqft'] => 0.0,
+               ['back_wall_area', 'sqft'] => 0.0,
+               ['left_wall_area', 'sqft'] => 0.0,
+               ['right_wall_area', 'sqft'] => 0.0,
+               ['front_window_area', 'sqft'] => 0.0,
+               ['back_window_area', 'sqft'] => 0.0,
+               ['left_window_area', 'sqft'] => 0.0,
+               ['right_window_area', 'sqft'] => 0.0,
+               ['hvac1_duct1_area', 'sqft'] => 0.0,
+               ['hvac1_duct2_area', 'sqft'] => 0.0,
+               ['hvac1_duct3_area', 'sqft'] => 0.0,
+               ['hvac2_duct1_area', 'sqft'] => 0.0,
+               ['hvac2_duct2_area', 'sqft'] => 0.0,
+               ['hvac2_duct3_area', 'sqft'] => 0.0,
+               ['hvac1_cooling_capacity', 'Btuh'] => 0.0,
+               ['hvac1_heating_capacity', 'Btuh'] => 0.0,
+               ['hvac2_cooling_capacity', 'Btuh'] => 0.0,
+               ['hvac2_heating_capacity', 'Btuh'] => 0.0,
+               ['water_heater_capacity', 'gal'] => 0.0 }
 
     # Footprint area
-    key = ['footprint_area', 'sqft'] # end_use, units
+    key = ['footprint_area', 'sqft']
     values[key] = hpxml.building_construction.building_footprint_area
 
     # Enclosure surface areas
@@ -384,40 +418,56 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
      hpxml.skylights +
      hpxml.foundation_walls).each do |surface|
       instance_id = surface.id.split('_')[0]
-      if surface.is_a?(HPXML::Wall) || surface.is_a?(HPXML::FoundationWall)
+      if surface.is_a? HPXML::Wall
         if surface.exterior_adjacent_to == HPXML::LocationAtticVented
           instance_id += '_kneewall'
         else
           instance_id += '_wall'
         end
+      elsif surface.is_a? HPXML::FoundationWall
+        instance_id += '_wall'
       elsif surface.is_a? HPXML::Window
         instance_id += '_window'
+      elsif surface.is_a? HPXML::Skylight
+        instance_id += '_skylight'
+      elsif surface.is_a? HPXML::FrameFloor
+        if surface.is_floor
+          instance_id += '_floor'
+        else
+          instance_id += '_ceiling'
+        end
+      elsif surface.is_a? HPXML::Roof
+        instance_id += '_roof'
+      else
+        fail "Unexpected surface type: #{surface.class}"
       end
-      key = ["#{instance_id}_area", 'sqft'] # end_use, units
-      values[key] = values[key].to_f + surface.area.round(0)
+      key = ["#{instance_id}_area", 'sqft']
+      values[key] += surface.area.round(0)
     end
 
     # HVAC heating/cooling capacities & duct areas
     hpxml.hvac_systems.each do |hvac_system|
       instance_id = hvac_system.id.split('_')[0]
       if hvac_system.respond_to? :heating_capacity
-        key = ["#{instance_id}_heating_capacity", 'Btuh'] # end_use, units
-        values[key] = values[key].to_f + hvac_system.heating_capacity.round(0)
+        key = ["#{instance_id}_heating_capacity", 'Btuh']
+        values[key] += hvac_system.heating_capacity.round(0)
       end
       if hvac_system.respond_to? :cooling_capacity
-        key = ["#{instance_id}_cooling_capacity", 'Btuh'] # end_use, units
-        values[key] = values[key].to_f + hvac_system.cooling_capacity.round(0)
+        key = ["#{instance_id}_cooling_capacity", 'Btuh']
+        values[key] += hvac_system.cooling_capacity.round(0)
       end
       next if hvac_system.distribution_system.nil?
 
-      hvac_system.distribution_system.ducts.each_with_index do |duct, i|
-        key = ["#{instance_id}_duct#{i + 1}_area", 'sqft'] # end_use, units
-        values[key] = values[key].to_f + duct.duct_surface_area.round(0)
+      # Each HEScore duct maps to two HPXML ducts (supply and return)
+      hvac_system.distribution_system.ducts.each do |duct|
+        duct_instance_id = duct.id.split('_')[0]
+        key = ["#{instance_id}_#{duct_instance_id}_area", 'sqft']
+        values[key] += duct.duct_surface_area.round(0)
       end
     end
 
     # Water heater capacity
-    key = ['water_heater_capacity', 'gal'] # end_use, units
+    key = ['water_heater_capacity', 'gal']
     values[key] = hpxml.water_heating_systems[0].tank_volume
 
     return values
