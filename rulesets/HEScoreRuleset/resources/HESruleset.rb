@@ -821,14 +821,14 @@ class HEScoreRuleset
         return_duct_surface_area = uncond_area_r * orig_duct['fraction'].to_f / (1.0 - frac_inside)
 
         # Supply duct
-        new_hpxml.hvac_distributions[-1].ducts.add(id: "#{orig_duct['name']}_supply",
+        new_hpxml.hvac_distributions[-1].ducts.add(id: "#{orig_duct['name']}_#{orig_hvac['hvac_name']}_supply",
                                                    duct_type: HPXML::DuctTypeSupply,
                                                    duct_insulation_r_value: duct_rvalue,
                                                    duct_location: duct_location,
                                                    duct_surface_area: supply_duct_surface_area)
 
         # Return duct
-        new_hpxml.hvac_distributions[-1].ducts.add(id: "#{orig_duct['name']}_return",
+        new_hpxml.hvac_distributions[-1].ducts.add(id: "#{orig_duct['name']}_#{orig_hvac['hvac_name']}_return",
                                                    duct_type: HPXML::DuctTypeReturn,
                                                    duct_insulation_r_value: duct_rvalue,
                                                    duct_location: duct_location,
