@@ -231,7 +231,7 @@ class HEScoreRuleset
     total_window_area = json['building']['zone']['zone_wall'].sum { |wall| wall['zone_window'].fetch('window_area', 0.0) }
     net_wall_area = total_wall_area - total_window_area
     json['building']['zone']['zone_wall'].each do |orig_wall|
-      wall_area = net_wall_area / 4.0 + orig_wall['zone_window'].fech('window_area', 0.0)
+      wall_area = net_wall_area / 4.0 + orig_wall['zone_window'].fetch('window_area', 0.0)
       wall_assembly_code = nil
       if @has_same_wall_const
         front_wall = json['building']['zone']['zone_wall'].find { |wall| wall['side'] == 'front' }
