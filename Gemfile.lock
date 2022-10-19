@@ -5,20 +5,20 @@ GEM
     ast (2.4.2)
     builder (3.2.4)
     docile (1.4.0)
-    mini_portile2 (2.7.1)
-    minitest (5.15.0)
+    mini_portile2 (2.8.0)
+    minitest (5.16.3)
     minitest-reporters (1.5.0)
       ansi
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    nokogiri (1.13.1)
-      mini_portile2 (~> 2.7.0)
+    nokogiri (1.13.9)
+      mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
-    oga (3.3)
+    oga (3.4)
       ast
       ruby-ll (~> 2.1)
-    parallel (1.21.0)
+    parallel (1.22.1)
     racc (1.6.0)
     rake (13.0.6)
     ruby-ll (2.1.2)
@@ -30,7 +30,7 @@ GEM
       simplecov-html (~> 0.11)
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.12.3)
-    simplecov_json_formatter (0.1.3)
+    simplecov_json_formatter (0.1.4)
 
 PLATFORMS
   ruby
