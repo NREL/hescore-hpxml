@@ -19,7 +19,7 @@
             "name": "Debug HEScore tests",
             "type": "Ruby",
             "request": "launch",
-            "program": "${workspaceRoot}/measures/HEScoreRuleset/tests/test_hescore_ruleset.rb",
+            "program": "${workspaceRoot}/rulesets/HEScoreRuleset/tests/test_hescore_ruleset.rb",
             "args": [
                 "-n", "test_regression_files"
             ]
