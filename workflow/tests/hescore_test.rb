@@ -406,9 +406,11 @@ class HEScoreTest < MiniTest::Test
     # Check we have additional results without end uses (e.g., source energy, base score)
     total_source_energy = results[['total_source_energy', nil, 'MBtu']]
     asset_source_energy = results[['asset_source_energy', nil, 'MBtu']]
+    carbon_emissions = results[['carbon_emissions', nil, 'lb']]
     score = results[['score', nil, nil]]
     refute_nil(total_source_energy)
     refute_nil(asset_source_energy)
+    refute_nil(carbon_emissions)
     refute_equal(asset_source_energy, total_source_energy)
     assert_operator(score, :>=, 1)
     assert_operator(score, :<=, 10)
