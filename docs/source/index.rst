@@ -13,11 +13,4 @@ HPXML to Home Energy Score Documentation
    usage
    translation/index
    glossary
-
-
-Indices and tables
-##################
-
-* :ref:`genindex`
-* :ref:`search`
-
+   changelogs/index

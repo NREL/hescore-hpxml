@@ -607,6 +607,19 @@ def test_invalid_hvac_distribution(hpxml_filebase):
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
+def test_invalid_duct_location(hpxml_filebase):
+    schema = get_json_schema()
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
+    js = get_example_json(hpxml_filebase)
+
+    js1 = copy.deepcopy(js)
+    js1['building']['zone']['zone_roof'][0]['roof_type'] = "cath_ceiling"
+    js1['building']['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location'] = "uncond_attic"
+    errors = get_error_messages(js1, js_schema)
+    assert "duct/location[\"uncond_attic\"] is not allowed as there is no attic." in errors
+
+
+@pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_domestic_hot_water(hpxml_filebase):
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())

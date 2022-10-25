@@ -302,6 +302,8 @@ Then the nearest discrete R-value to the weighted average R-value from the looku
 The lookup table can be found at `hescorehpxml\\lookups\\lu_roof_eff_rvalue.csv
 <https://github.com/NREL/hescore-hpxml/blob/master/hescorehpxml/lookups/lu_roof_eff_rvalue.csv>`_.
 
+.. _attic-rvalues:
+
 Attic R-value
 *************
 

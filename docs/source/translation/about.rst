@@ -133,6 +133,8 @@ blower door test or by specifying  whether the house has been air sealed or
 not (boolean). Preference is given to a blower door test measurement when it
 is available in HPXML. 
 
+.. _blower-door-test:
+
 Blower Door Test
 ================
 The translator first looks for an ``AirInfiltrationMeasurement`` with units
