@@ -55,14 +55,6 @@ class ReportHEScoreOutputTest < MiniTest::Test
     }
     _check_values(base_expected_values, actual_values, 20000, 20000)
 
-    # Floor_unconditioned_basement.json
-    # Check floor1_wall_area
-    json_path = File.join(@regression_files_path, 'Floor_unconditioned_basement.json')
-    actual_values = _test_measure(json_path)
-    expected_values = base_expected_values.dup
-    expected_values['floor1_wall_area'] = 1045
-    _check_values(expected_values, actual_values, 20000, 20000)
-
     # Floor2_vented_crawl.json
     # Check floor2_floor_area, floor2_wall_area
     json_path = File.join(@regression_files_path, 'Floor2_vented_crawl.json')
@@ -98,7 +90,7 @@ class ReportHEScoreOutputTest < MiniTest::Test
     _check_values(expected_values, actual_values, 20000, 20000)
 
     # Duct_multiple.json
-    # Check hvac1_duct2_area
+    # Check floor1_wall_area, hvac1_duct2_area
     json_path = File.join(@regression_files_path, 'Duct_multiple.json')
     actual_values = _test_measure(json_path)
     expected_values = base_expected_values.dup
