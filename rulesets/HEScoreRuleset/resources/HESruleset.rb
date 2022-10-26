@@ -228,13 +228,11 @@ class HEScoreRuleset
 
   def self.set_enclosure_walls(json, new_hpxml)
     # Above-grade walls
+    total_wall_area = 2 * (@bldg_length_front + @bldg_length_side) * @ceil_height * @ncfl_ag
+    total_window_area = json['building']['zone']['zone_wall'].sum { |wall| wall.fetch('zone_window', {}).fetch('window_area', 0.0) }
+    net_wall_area = total_wall_area - total_window_area
     json['building']['zone']['zone_wall'].each do |orig_wall|
-      wall_area = nil
-      if ['front', 'back'].include? orig_wall['side']
-        wall_area = @ceil_height * @bldg_length_front * @ncfl_ag
-      else
-        wall_area = @ceil_height * @bldg_length_side * @ncfl_ag
-      end
+      wall_area = net_wall_area / 4.0 + orig_wall.fetch('zone_window', {}).fetch('window_area', 0.0)
       wall_assembly_code = nil
       if @has_same_wall_const
         front_wall = json['building']['zone']['zone_wall'].find { |wall| wall['side'] == 'front' }
