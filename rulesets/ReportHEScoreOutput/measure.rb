@@ -450,7 +450,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       values[key] += surface.area.round(0)
     end
 
-    # HVAC heating/cooling capacities & duct areas
+    # HVAC heating/cooling capacities
     hpxml.hvac_systems.each do |hvac_system|
       instance_id = hvac_system.id.split('_')[0]
       if hvac_system.respond_to? :heating_capacity
@@ -461,12 +461,14 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
         key = ["#{instance_id}_cooling_capacity", 'Btuh']
         values[key] += hvac_system.cooling_capacity.round(0)
       end
-      next if hvac_system.distribution_system.nil?
+    end
 
-      # Each HEScore duct maps to two HPXML ducts (supply and return)
-      hvac_system.distribution_system.ducts.each do |duct|
+    # HVAC duct areas
+    hpxml.hvac_distributions.each do |hvac_dist|
+      hvac_instance_id = hvac_dist.hvac_systems[0].id.split('_')[0]
+      hvac_dist.ducts.each do |duct|
         duct_instance_id = duct.id.split('_')[0]
-        key = ["#{instance_id}_#{duct_instance_id}_area", 'sqft']
+        key = ["#{hvac_instance_id}_#{duct_instance_id}_area", 'sqft']
         values[key] += duct.duct_surface_area.round(0)
       end
     end

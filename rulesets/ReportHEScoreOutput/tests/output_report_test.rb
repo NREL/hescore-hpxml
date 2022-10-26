@@ -45,7 +45,7 @@ class ReportHEScoreOutputTest < MiniTest::Test
       'back_window_area' => 50, # sqft
       'left_window_area' => 30, # sqft
       'right_window_area' => 40, # sqft
-      'hvac1_duct1_area' => 1102, # sqft
+      'hvac1_duct1_area' => 551, # sqft
       'hvac1_duct2_area' => 0, # sqft
       'hvac1_duct3_area' => 0, # sqft
       'hvac2_duct1_area' => 0, # sqft
@@ -103,8 +103,8 @@ class ReportHEScoreOutputTest < MiniTest::Test
     actual_values = _test_measure(json_path)
     expected_values = base_expected_values.dup
     expected_values['floor1_wall_area'] = 1045
-    expected_values['hvac1_duct1_area'] = 790
-    expected_values['hvac1_duct2_area'] = 474
+    expected_values['hvac1_duct1_area'] = 395
+    expected_values['hvac1_duct2_area'] = 237
     _check_values(expected_values, actual_values, 20000, 20000)
 
     # HVAC2.json
@@ -112,6 +112,7 @@ class ReportHEScoreOutputTest < MiniTest::Test
     json_path = File.join(@regression_files_path, 'HVAC2.json')
     actual_values = _test_measure(json_path)
     expected_values = base_expected_values.dup
+    expected_values['hvac1_duct1_area'] = 551
     expected_values['hvac2_duct1_area'] = 551
     _check_values(expected_values, actual_values, 10000, 10000, 10000, 10000)
   end

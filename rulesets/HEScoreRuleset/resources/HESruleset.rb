@@ -803,7 +803,8 @@ class HEScoreRuleset
                                                                      duct_leakage_total_or_to_outside: HPXML::DuctLeakageToOutside)
 
       orig_hvac['hvac_distribution']['duct'].each do |orig_duct|
-        next if orig_duct['fraction'] == 0
+        duct_fraction = orig_duct['fraction'].to_f
+        next if duct_fraction == 0
 
         duct_location = $duct_location_map[orig_duct['location']]
 
@@ -815,8 +816,8 @@ class HEScoreRuleset
           duct_rvalue = 0
         end
 
-        supply_duct_surface_area = uncond_area_s * orig_duct['fraction'].to_f / (1.0 - frac_inside)
-        return_duct_surface_area = uncond_area_r * orig_duct['fraction'].to_f / (1.0 - frac_inside)
+        supply_duct_surface_area = uncond_area_s * duct_fraction / (1.0 - frac_inside)
+        return_duct_surface_area = uncond_area_r * duct_fraction / (1.0 - frac_inside)
 
         # Supply duct
         new_hpxml.hvac_distributions[-1].ducts.add(id: "#{orig_duct['name']}_#{orig_hvac['hvac_name']}_supply",
