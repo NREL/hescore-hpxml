@@ -412,6 +412,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
 
     # Enclosure surface areas
     (hpxml.frame_floors +
+     hpxml.slabs +
      hpxml.roofs +
      hpxml.walls +
      hpxml.windows +
@@ -436,6 +437,10 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
         else
           instance_id += '_ceiling'
         end
+      elsif surface.is_a? HPXML::Slab
+        next if surface.interior_adjacent_to != HPXML::LocationLivingSpace # Slab-on-grade only
+
+        instance_id += '_floor'
       elsif surface.is_a? HPXML::Roof
         instance_id += '_roof'
       else
