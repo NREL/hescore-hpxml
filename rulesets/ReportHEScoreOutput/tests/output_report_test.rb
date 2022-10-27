@@ -104,8 +104,8 @@ class ReportHEScoreOutputTest < MiniTest::Test
     json_path = File.join(@regression_files_path, 'HVAC2.json')
     actual_values = _test_measure(json_path)
     expected_values = base_expected_values.dup
-    expected_values['hvac1_duct1_area'] = 551
-    expected_values['hvac2_duct1_area'] = 551
+    expected_values['hvac1_duct1_area'] = 386
+    expected_values['hvac2_duct1_area'] = 165
     _check_values(expected_values, actual_values, 10000, 10000, 10000, 10000)
   end
 
