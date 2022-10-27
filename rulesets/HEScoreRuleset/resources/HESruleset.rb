@@ -512,6 +512,7 @@ class HEScoreRuleset
       if orig_cooling.nil? || (orig_cooling['type'] == 'none')
         has_cooling_system = false
       end
+      hvac_fraction = orig_hvac['hvac_fraction']
 
       # HeatingSystem
       if has_heating_system && (not hp_types.include? orig_heating['type'])
@@ -531,7 +532,6 @@ class HEScoreRuleset
         end
         year_installed = orig_heating['year']
         efficiency_level = orig_heating['efficiency_level']
-        fraction_heat_load_served = orig_hvac['hvac_fraction']
 
         if [HPXML::HVACTypeFurnace, HPXML::HVACTypeWallFurnace].include? heating_system_type
           if not heating_efficiency_afue.nil?
@@ -588,7 +588,7 @@ class HEScoreRuleset
                                       heating_system_fuel: heating_system_fuel,
                                       heating_efficiency_afue: heating_efficiency_afue,
                                       heating_efficiency_percent: heating_efficiency_percent,
-                                      fraction_heat_load_served: fraction_heat_load_served)
+                                      fraction_heat_load_served: hvac_fraction)
       end
 
       # CoolingSystem
@@ -606,7 +606,6 @@ class HEScoreRuleset
         end
         year_installed = orig_cooling['year']
         efficiency_level = orig_cooling['efficiency_level']
-        fraction_cool_load_served = orig_hvac['hvac_fraction']
 
         if cooling_system_type == HPXML::HVACTypeCentralAirConditioner
           if not cooling_efficiency_seer.nil?
@@ -644,7 +643,7 @@ class HEScoreRuleset
                                       distribution_system_idref: distribution_system_idref,
                                       cooling_system_type: cooling_system_type,
                                       cooling_system_fuel: cooling_system_fuel,
-                                      fraction_cool_load_served: fraction_cool_load_served,
+                                      fraction_cool_load_served: hvac_fraction,
                                       cooling_efficiency_seer: cooling_efficiency_seer,
                                       cooling_efficiency_eer: cooling_efficiency_eer)
       end
@@ -671,7 +670,7 @@ class HEScoreRuleset
           end
           cooling_year_installed = orig_cooling['year']
           cooling_efficiency_level = orig_cooling['efficiency_level']
-          heatpump_fraction_cool_load_served = orig_hvac['hvac_fraction']
+          heatpump_fraction_cool_load_served = hvac_fraction
         end
         if has_heating_system && (hp_types.include? orig_heating['type'])
           heat_pump_type = hescore_to_hpxml_hvac_type(orig_heating['type'])
@@ -685,7 +684,7 @@ class HEScoreRuleset
           end
           heating_year_installed = orig_heating['year']
           heating_efficiency_level = orig_heating['efficiency_level']
-          heatpump_fraction_heat_load_served = orig_hvac['hvac_fraction']
+          heatpump_fraction_heat_load_served = hvac_fraction
         end
 
         if [HPXML::HVACTypeHeatPumpAirToAir, HPXML::HVACTypeHeatPumpMiniSplit].include? heat_pump_type
@@ -786,9 +785,10 @@ class HEScoreRuleset
                                        air_type: HPXML::AirTypeRegularVelocity)
 
       hvac_fraction = orig_hvac['hvac_fraction']
-      new_hpxml.hvac_distributions[-1].conditioned_floor_area_served = hvac_fraction * @cfa
+      cfa_served = hvac_fraction * @cfa
+      new_hpxml.hvac_distributions[-1].conditioned_floor_area_served = cfa_served
 
-      lto_units, lto_s, lto_r, uncond_area_s, uncond_area_r = calc_duct_values(@ncfl_ag, @cfa, sealed, frac_inside, cfm25)
+      lto_units, lto_s, lto_r, uncond_area_s, uncond_area_r = calc_duct_values(@ncfl_ag, cfa_served, sealed, frac_inside, cfm25)
 
       # Supply duct leakage to the outside
       new_hpxml.hvac_distributions[-1].duct_leakage_measurements.add(duct_type: HPXML::DuctTypeSupply,
@@ -1366,7 +1366,7 @@ def get_roof_solar_absorptance(roof_color)
   fail "Could not get roof absorptance for color '#{roof_color}'"
 end
 
-def calc_duct_values(ncfl_ag, cfa, sealed, frac_inside, cfm25 = nil)
+def calc_duct_values(ncfl_ag, cfa_served, sealed, frac_inside, cfm25 = nil)
   # Fraction of ducts that are outside conditioned space
   if frac_inside > 0
     f_out_s = 1.0 - frac_inside
@@ -1385,16 +1385,16 @@ def calc_duct_values(ncfl_ag, cfa, sealed, frac_inside, cfm25 = nil)
   end
 
   # Duct surface areas that are outside conditioned space
-  uncond_area_s = 0.27 * f_out_s * cfa
-  uncond_area_r = 0.05 * ncfl_ag * f_out_r * cfa
+  uncond_area_s = (0.27 * f_out_s * cfa_served).round(2)
+  uncond_area_r = (0.05 * ncfl_ag * f_out_r * cfa_served).round(2)
 
   if not cfm25.nil? # Duct blaster measurements provided
-    cfm25_s = cfm25 / 2.0
-    cfm25_r = cfm25 / 2.0
-
-    return HPXML::UnitsCFM25, cfm25_s.round(2), cfm25_r.round(2), uncond_area_s.round(2), uncond_area_r.round(2)
+    lto_units = HPXML::UnitsCFM25
+    lto_s = (cfm25 / 2.0).round(2)
+    lto_r = (cfm25 / 2.0).round(2)
   else
     # Total leakage fraction of air handler flow
+    lto_units = HPXML::UnitsPercent
     if sealed
       total_leakage_frac = 0.10
     else
@@ -1402,11 +1402,11 @@ def calc_duct_values(ncfl_ag, cfa, sealed, frac_inside, cfm25 = nil)
     end
 
     # Duct leakages to the outside (assume total leakage equally split between supply/return)
-    percent_s = total_leakage_frac / 2.0 * f_out_s
-    percent_r = total_leakage_frac / 2.0 * f_out_r
-
-    return HPXML::UnitsPercent, percent_s.round(5), percent_r.round(5), uncond_area_s.round(2), uncond_area_r.round(2)
+    lto_s = (total_leakage_frac / 2.0 * f_out_s).round(5)
+    lto_r = (total_leakage_frac / 2.0 * f_out_r).round(5)
   end
+
+  return lto_units, lto_s, lto_r, uncond_area_s, uncond_area_r
 end
 
 def calc_ach50(ncfl_ag, cfa, ceil_height, cvolume, desc, year_built, iecc_cz, fnd_types, ducts)
