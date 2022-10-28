@@ -111,7 +111,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     end
 
     # Calculate the source energy
-    total_source_energy, asset_source_energy = calc_source_energy(runner, outputs, units_map)
+    total_source_energy, asset_source_energy = calc_source_energy(outputs, units_map)
     { 'total_source_energy' => total_source_energy,
       'asset_source_energy' => asset_source_energy }.each do |resource_type, quantity|
       quantity = quantity.round(2)
@@ -124,7 +124,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     end
 
     # Calculate the carbon emissions
-    carbon_emissions = calc_carbon_emissions(runner, outputs, hpxml.header.state_code)
+    carbon_emissions = calc_carbon_emissions(outputs, hpxml.header.state_code)
     resource_type = 'carbon_emissions'
     json_data['end_use'] << { 'quantity' => carbon_emissions,
                               'period_type' => 'year',
@@ -134,7 +134,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     runner.registerInfo("Registering #{carbon_emissions} for #{resource_type}.")
 
     # Calculate utility cost
-    utility_cost = calc_utility_cost(runner, outputs, hpxml.header.state_code)
+    utility_cost = calc_utility_cost(outputs, hpxml.header.state_code)
     resource_type = 'utility_cost'
     json_data['end_use'] << { 'quantity' => utility_cost,
                               'period_type' => 'year',
@@ -147,7 +147,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     weather_station = hpxml.climate_and_risk_zones.weather_station_wmo.to_i
     runner.registerValue('weather_station', weather_station)
     runner.registerInfo("Registering #{weather_station} for weather_station.")
-    score = calc_score(runner, weather_station, asset_source_energy)
+    score = calc_score(weather_station, asset_source_energy)
     resource_type = 'score'
     json_data['end_use'] << { 'quantity' => score,
                               'resource_type' => resource_type }
@@ -212,7 +212,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     return outputs
   end
 
-  def calc_source_energy(runner, outputs, units_map)
+  def calc_source_energy(outputs, units_map)
     site_to_source_map = { 'electric' => ELECTRIC_SITE_TO_SOURCE,
                            'natural_gas' => NATURAL_GAS_SITE_TO_SOURCE,
                            'lpg' => LPG_SITE_TO_SOURCE,
@@ -243,14 +243,14 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     return total_source_energy, asset_source_energy
   end
 
-  def calc_carbon_emissions(runner, outputs, state_code)
+  def calc_carbon_emissions(outputs, state_code)
     fuel_conv = { 'electric' => 1.0, # kWh -> kWh
                   'natural_gas' => 1.0, # kBtu -> kBtu
                   'lpg' => 1.0, # kBtu -> kBtu
                   'fuel_oil' => 1.0, # kBtu -> kBtu
                   'cord_wood' => 1.0, # kBtu -> kBtu
                   'pellet_wood' => 1.0 } # kBtu -> kBtu
-    carbon_factors = get_lookup_values_by_state(runner, state_code, 'lu_carbon_factor_by_state.csv')
+    carbon_factors = get_lookup_values_by_state(state_code, 'lu_carbon_factor_by_state.csv')
     fuel_uses = {}
     outputs.each do |hes_key, values|
       hes_end_use, hes_resource_type = hes_key
@@ -273,14 +273,14 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     return carbon_emissions.round(0)
   end
 
-  def calc_utility_cost(runner, outputs, state_code)
+  def calc_utility_cost(outputs, state_code)
     fuel_conv = { 'electric' => 1.0, # kWh -> kWh
                   'natural_gas' => 1.0 / 100.0, # kBtu -> therm
                   'lpg' => 10000.0 / 916000.0, # kBtu -> gal, assuming 0.0916 MMBtu/gal
                   'fuel_oil' => 10000.0 / 1385000.0, # kBtu -> gal, assuming 0.1385 MMBtu/gal
                   'cord_wood' => 1.0 / 20000.0, # kBtu -> cord, assuming 20 MMBtu/cord
                   'pellet_wood' => 2.0 / 16.4 } # kBtu -> lb, assuming 16.4 MMBtu/ton and 2000 lb/ton
-    resource_prices = get_lookup_values_by_state(runner, state_code, 'lu_resource_price_by_state.csv')
+    resource_prices = get_lookup_values_by_state(state_code, 'lu_resource_price_by_state.csv')
     fuel_uses = {}
     outputs.each do |hes_key, values|
       hes_end_use, hes_resource_type = hes_key
@@ -303,7 +303,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     return utility_cost.round(2)
   end
 
-  def calc_score(runner, weather_station, asset_source_energy)
+  def calc_score(weather_station, asset_source_energy)
     bins_file = File.join(File.dirname(__FILE__), 'resources', 'bins.csv')
     CSV.foreach(bins_file, headers: true) do |row|
       if row['weather_station_id'].to_i == weather_station
@@ -341,7 +341,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     return new_obj
   end
 
-  def get_lookup_values_by_state(runner, state_code, csv_file_name)
+  def get_lookup_values_by_state(state_code, csv_file_name)
     csv_file = File.join(File.dirname(__FILE__), 'resources', csv_file_name)
     CSV.foreach(csv_file, headers: true) do |row|
       if row['abbreviation'] == state_code
