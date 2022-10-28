@@ -201,25 +201,38 @@ class HEScoreRuleset
         roof_solar_abs = get_roof_solar_absorptance($roof_color_map[orig_roof['roof_color']])
       end
       roof_r = get_roof_effective_r_from_doe2code(orig_roof['roof_assembly_code'])
-      if @bldg_type == HPXML::ResidentialTypeSFA
-        roof_azimuths = [@bldg_azimuth + 90, @bldg_azimuth + 270]
-      else
-        # FIXME: What to do with apartment roofs azimuths?
-        roof_azimuths = [@bldg_azimuth, @bldg_azimuth + 180]
-      end
+
       has_radiant_barrier = false
       if orig_roof['roof_assembly_code'][2, 2] == 'rb'
         has_radiant_barrier = true
         radiant_barrier_grade = 1
       end
-      roof_azimuths.each_with_index do |roof_azimuth, i|
+      # FIXME: What to do with apartment roofs azimuths? BP: Treat apartment roofs as a flat roof; For flat roofs, there's no need to model the azimuth
+      if orig_roof['roof_type'] != 'flat_roof'
+        if @bldg_type == HPXML::ResidentialTypeSFA
+          roof_azimuths = [@bldg_azimuth + 90, @bldg_azimuth + 270]
+        else
+          roof_azimuths = [@bldg_azimuth, @bldg_azimuth + 180]
+        end
+        roof_azimuths.each_with_index do |roof_azimuth, i|
+          new_hpxml.roofs.add(id: "#{orig_roof['roof_name']}_#{i}",
+                              interior_adjacent_to: attic_location,
+                              area: roof_area / 2.0,
+                              azimuth: sanitize_azimuth(roof_azimuth),
+                              solar_absorptance: roof_solar_abs,
+                              emittance: 0.9,
+                              pitch: Math.tan(@roof_angle_rad) * 12,
+                              radiant_barrier: has_radiant_barrier,
+                              radiant_barrier_grade: radiant_barrier_grade,
+                              insulation_assembly_r_value: roof_r)
+        end
+      else
         new_hpxml.roofs.add(id: "#{orig_roof['roof_name']}_#{i}",
                             interior_adjacent_to: attic_location,
-                            area: roof_area / 2.0,
-                            azimuth: sanitize_azimuth(roof_azimuth),
+                            area: roof_area,
                             solar_absorptance: roof_solar_abs,
                             emittance: 0.9,
-                            pitch: Math.tan(@roof_angle_rad) * 12,
+                            pitch: 0,
                             radiant_barrier: has_radiant_barrier,
                             radiant_barrier_grade: radiant_barrier_grade,
                             insulation_assembly_r_value: roof_r)
@@ -316,38 +329,49 @@ class HEScoreRuleset
   end
 
   def self.set_enclosure_framefloors(json, new_hpxml)
-    # Floors above foundation
+    # Floors
     json['building']['zone']['zone_floor'].each_with_index do |orig_foundation, i|
-      fnd_location = { 'uncond_basement' => HPXML::LocationBasementUnconditioned,
-                       'cond_basement' => HPXML::LocationBasementConditioned,
-                       'vented_crawl' => HPXML::LocationCrawlspaceVented,
-                       'unvented_crawl' => HPXML::LocationCrawlspaceUnvented,
-                       'slab_on_grade' => HPXML::LocationLivingSpace }[orig_foundation['foundation_type']]
-      next unless [HPXML::LocationBasementUnconditioned, HPXML::LocationCrawlspaceVented, HPXML::LocationCrawlspaceUnvented].include? fnd_location
+      fnd_ext_adj_to = { 'uncond_basement' => HPXML::LocationBasementUnconditioned,
+                         'cond_basement' => HPXML::LocationBasementConditioned,
+                         'vented_crawl' => HPXML::LocationCrawlspaceVented,
+                         'unvented_crawl' => HPXML::LocationCrawlspaceUnvented,
+                         'slab_on_grade' => HPXML::LocationLivingSpace,
+                         'belly_and_wing' => HPXML::LocationBellyAndWing,
+                         'above_other_unit' => HPXML::LocationOtherHousingUnit }[orig_foundation['foundation_type']]
+      next unless [HPXML::LocationBasementUnconditioned, HPXML::LocationCrawlspaceVented, HPXML::LocationCrawlspaceUnvented, HPXML::LocationOtherHousingUnit].include? fnd_ext_adj_to # FIXME: Add belly and wing foundation type in the future
 
-      framefloor_r = get_floor_effective_r_from_doe2code(orig_foundation['floor_assembly_code'])
+      framefloor_r = get_floor_effective_r_from_doe2code(orig_foundation['floor_assembly_code']) # FIXME: Add effective r-value mapping for belly and wing foundation type
+      if fnd_ext_adj_to == HPXML::LocationOtherHousingUnit
+        other_space_above_or_below = HPXML::FrameFloorOtherSpaceBelow
+      end
 
       new_hpxml.frame_floors.add(id: "#{orig_foundation['floor_name']}_floor_#{i}",
-                                 exterior_adjacent_to: fnd_location,
+                                 exterior_adjacent_to: fnd_ext_adj_to,
                                  interior_adjacent_to: HPXML::LocationLivingSpace,
                                  area: orig_foundation['floor_area'],
-                                 insulation_assembly_r_value: framefloor_r)
+                                 insulation_assembly_r_value: framefloor_r,
+                                 other_space_above_or_below: other_space_above_or_below)
     end
 
-    # Floors below attic
+    # Ceilings
     json['building']['zone']['zone_roof'].each_with_index do |orig_attic, i|
-      attic_location = { 'vented_attic' => HPXML::LocationAtticVented,
-                         'cath_ceiling' => HPXML::LocationLivingSpace }[orig_attic['roof_type']]
-      next unless attic_location == HPXML::LocationAtticVented
+      ceiling_ext_adj_to = { 'vented_attic' => HPXML::LocationAtticVented,
+                             'cath_ceiling' => HPXML::LocationLivingSpace,
+                             'below_other_unit' => HPXML::LocationOtherHousingUnit }[orig_attic['roof_type']]
+      next unless [HPXML::LocationAtticVented, HPXML::LocationOtherHousingUnit].include? ceiling_ext_adj_to
 
       framefloor_r = get_ceiling_effective_r_from_doe2code(orig_attic['ceiling_assembly_code'])
       framefloor_area = orig_attic['ceiling_area']
+      if ceiling_ext_adj_to == HPXML::LocationOtherHousingUnit
+        other_space_above_or_below = HPXML::FrameFloorOtherSpaceAbove
+      end
 
       new_hpxml.frame_floors.add(id: "#{orig_attic['roof_name']}_floor_#{i}",
-                                 exterior_adjacent_to: attic_location,
+                                 exterior_adjacent_to: ceiling_ext_adj_to,
                                  interior_adjacent_to: HPXML::LocationLivingSpace,
                                  area: framefloor_area,
-                                 insulation_assembly_r_value: framefloor_r)
+                                 insulation_assembly_r_value: framefloor_r,
+                                 other_space_above_or_below: other_space_above_or_below)
     end
   end
 
@@ -474,17 +498,31 @@ class HEScoreRuleset
         ufactor, shgc = get_ufactor_shgc_adjusted_by_storms(orig_skylight['storm_type'], ufactor, shgc)
       end
 
-      if @bldg_type == HPXML::ResidentialTypeSFA
-        roof_azimuths = [@bldg_azimuth + 90, @bldg_azimuth + 270]
+      # FIXME: What to do with apartment roofs azimuths? BP: Treat apartment roofs as a flat roof; For flat roofs, there's no need to model the azimuth
+      if orig_roof['roof_type'] != 'flat_roof'
+        if @bldg_type == HPXML::ResidentialTypeSFA
+          roof_azimuths = [@bldg_azimuth + 90, @bldg_azimuth + 270]
+        else
+          
+          roof_azimuths = [@bldg_azimuth, @bldg_azimuth + 180]
+        end
+        roof_azimuths.each_with_index do |roof_azimuth, i|
+          skylight_area = orig_skylight['skylight_area'] / 2.0
+          new_hpxml.skylights.add(id: "#{orig_roof['roof_name']}_#{i}_skylight",
+                                  area: skylight_area,
+                                  azimuth: sanitize_azimuth(roof_azimuth),
+                                  ufactor: ufactor,
+                                  shgc: shgc,
+                                  roof_idref: "#{orig_roof['roof_name']}_#{i}",
+                                  interior_shading_factor_summer: interior_shading_factor_summer,
+                                  interior_shading_factor_winter: interior_shading_factor_winter,
+                                  exterior_shading_factor_summer: exterior_shading_factor_summer,
+                                  exterior_shading_factor_winter: exterior_shading_factor_winter)
+        end
       else
-        # FIXME: What to do with apartment roofs azimuths?
-        roof_azimuths = [@bldg_azimuth, @bldg_azimuth + 180]
-      end
-      roof_azimuths.each_with_index do |roof_azimuth, i|
-        skylight_area = orig_skylight['skylight_area'] / 2.0
         new_hpxml.skylights.add(id: "#{orig_roof['roof_name']}_#{i}_skylight",
-                                area: skylight_area,
-                                azimuth: sanitize_azimuth(roof_azimuth),
+                                area: orig_skylight['skylight_area'],
+                                azimuth: 180, # FIXME: use a random number for a flat roof
                                 ufactor: ufactor,
                                 shgc: shgc,
                                 roof_idref: "#{orig_roof['roof_name']}_#{i}",
