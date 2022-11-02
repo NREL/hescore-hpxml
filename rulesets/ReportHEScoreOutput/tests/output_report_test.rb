@@ -23,7 +23,7 @@ class ReportHEScoreOutputTest < MiniTest::Test
     # Base.json
     json_path = File.join(@regression_files_path, 'Base.json')
     actual_values = _test_measure(json_path)
-    expected_values = {
+    base_expected_values = {
       'footprint_area' => 1000, # sqft
       'floor1_floor_area' => 1000, # sqft
       'floor2_floor_area' => 0, # sqft
@@ -57,15 +57,30 @@ class ReportHEScoreOutputTest < MiniTest::Test
       'hvac2_cooling_capacity' => 0, # Btuh
       'hvac2_heating_capacity' => 0, # Btuh
     }
-    _check_values(expected_values, actual_values)
+    _check_values(base_expected_values, actual_values)
 
     # Roof_type_cathedral_ceiling.json
     json_path = File.join(@regression_files_path, 'Roof_type_cathedral_ceiling.json')
     actual_values = _test_measure(json_path)
+    expected_values = base_expected_values.dup
     expected_values['roof1_ceiling_area'] = 0
     expected_values['roof1_roof_area'] = 1000
     expected_values['hvac1_duct1_area'] = 0
     expected_values['hvac1_cooling_capacity'] = 30000
+    expected_values['hvac1_heating_capacity'] = 58000
+    _check_values(expected_values, actual_values)
+
+    # Floor_conditioned_basement.json
+    json_path = File.join(@regression_files_path, 'Floor_conditioned_basement.json')
+    actual_values = _test_measure(json_path)
+    expected_values = base_expected_values.dup
+    expected_values['footprint_area'] = 500
+    expected_values['floor1_wall_area'] = 739
+    expected_values['front_wall_area'] = 385
+    expected_values['back_wall_area'] = 375
+    expected_values['left_wall_area'] = 355
+    expected_values['right_wall_area'] = 365
+    expected_values['hvac1_cooling_capacity'] = 35000
     expected_values['hvac1_heating_capacity'] = 58000
     _check_values(expected_values, actual_values)
 

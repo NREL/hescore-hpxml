@@ -3,8 +3,8 @@
   <schema_version>3.0</schema_version>
   <name>report_he_score_output</name>
   <uid>785ca026-0050-41cd-9b8c-b2d64c832987</uid>
-  <version_id>29cdea4a-deba-4c3e-a2e5-ed5a7377f061</version_id>
-  <version_modified>20221102T163340Z</version_modified>
+  <version_id>a0a290d4-8043-4984-9459-a3a594d01017</version_id>
+  <version_modified>20221102T165459Z</version_modified>
   <xml_checksum>9BF1E6AC</xml_checksum>
   <class_name>ReportHEScoreOutput</class_name>
   <display_name>Report HEScore Output</display_name>
@@ -86,13 +86,13 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>EA8FADA0</checksum>
+      <checksum>5414D0D5</checksum>
     </file>
     <file>
       <filename>output_report_test.rb</filename>
       <filetype>rb</filetype>
       <usage_type>test</usage_type>
-      <checksum>2FA6953F</checksum>
+      <checksum>4E3587CA</checksum>
     </file>
   </files>
 </measure>
