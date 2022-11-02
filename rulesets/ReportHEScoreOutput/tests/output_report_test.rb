@@ -23,7 +23,7 @@ class ReportHEScoreOutputTest < MiniTest::Test
     # Base.json
     json_path = File.join(@regression_files_path, 'Base.json')
     actual_values = _test_measure(json_path)
-    base_expected_values = {
+    expected_values = {
       'footprint_area' => 1000, # sqft
       'floor1_floor_area' => 1000, # sqft
       'floor2_floor_area' => 0, # sqft
@@ -51,62 +51,62 @@ class ReportHEScoreOutputTest < MiniTest::Test
       'hvac2_duct1_area' => 0, # sqft
       'hvac2_duct2_area' => 0, # sqft
       'hvac2_duct3_area' => 0, # sqft
-      'water_heater_capacity' => 40 # gal
+      'water_heater_capacity' => 40, # gal
+      'hvac1_cooling_capacity' => 32000, # Btuh
+      'hvac1_heating_capacity' => 60000, # Btuh
+      'hvac2_cooling_capacity' => 0, # Btuh
+      'hvac2_heating_capacity' => 0, # Btuh
     }
-    _check_values(base_expected_values, actual_values, 20000, 20000)
+    _check_values(expected_values, actual_values)
 
-    # Floor2_vented_crawl.json
-    # Check floor2_floor_area, floor2_wall_area
-    json_path = File.join(@regression_files_path, 'Floor2_vented_crawl.json')
+    # Roof_type_cathedral_ceiling.json
+    json_path = File.join(@regression_files_path, 'Roof_type_cathedral_ceiling.json')
     actual_values = _test_measure(json_path)
-    expected_values = base_expected_values.dup
-    expected_values['floor1_floor_area'] = 600
-    expected_values['floor2_floor_area'] = 400
-    expected_values['floor2_wall_area'] = 143
-    _check_values(expected_values, actual_values, 20000, 20000)
+    expected_values['roof1_ceiling_area'] = 0
+    expected_values['roof1_roof_area'] = 1000
+    expected_values['hvac1_duct1_area'] = 0
+    expected_values['hvac1_cooling_capacity'] = 30000
+    expected_values['hvac1_heating_capacity'] = 58000
+    _check_values(expected_values, actual_values)
 
-    # Roof_knee_wall.json
-    # Check roof1_kneewall_area, roof2_roof_area
-    json_path = File.join(@regression_files_path, 'Roof_knee_wall.json')
+    # Full_for_cost_multipliers.json
+    json_path = File.join(@regression_files_path, 'Full_for_cost_multipliers.json')
     actual_values = _test_measure(json_path)
-    expected_values = base_expected_values.dup
-    expected_values['roof1_ceiling_area'] = 600
-    expected_values['roof1_roof_area'] = 692
-    expected_values['roof1_kneewall_area'] = 200
-    expected_values['roof2_roof_area'] = 400
-    _check_values(expected_values, actual_values, 20000, 20000)
-
-    # Skylight_dcaa_and_dtaa.json
-    # Check roof2_ceiling_area, roof1_skylight_area, roof2_skylight_area
-    json_path = File.join(@regression_files_path, 'Skylight_dcaa_and_dtaa.json')
-    actual_values = _test_measure(json_path)
-    expected_values = base_expected_values.dup
-    expected_values['roof1_ceiling_area'] = 600
-    expected_values['roof1_roof_area'] = 692
-    expected_values['roof1_skylight_area'] = 100
-    expected_values['roof2_ceiling_area'] = 400
-    expected_values['roof2_roof_area'] = 462
-    expected_values['roof2_skylight_area'] = 40
-    _check_values(expected_values, actual_values, 20000, 20000)
-
-    # Duct_multiple.json
-    # Check floor1_wall_area, hvac1_duct2_area
-    json_path = File.join(@regression_files_path, 'Duct_multiple.json')
-    actual_values = _test_measure(json_path)
-    expected_values = base_expected_values.dup
-    expected_values['floor1_wall_area'] = 1045
-    expected_values['hvac1_duct1_area'] = 395
-    expected_values['hvac1_duct2_area'] = 237
-    _check_values(expected_values, actual_values, 20000, 20000)
-
-    # HVAC2.json
-    # Check hvac2_duct1_area, hvac2_cooling_capacity, hvac2_heating_capacity
-    json_path = File.join(@regression_files_path, 'HVAC2.json')
-    actual_values = _test_measure(json_path)
-    expected_values = base_expected_values.dup
-    expected_values['hvac1_duct1_area'] = 386
-    expected_values['hvac2_duct1_area'] = 165
-    _check_values(expected_values, actual_values, 10000, 10000, 10000, 10000)
+    expected_values = {
+      'footprint_area' => 1000, # sqft
+      'floor1_floor_area' => 600, # sqft
+      'floor2_floor_area' => 400, # sqft
+      'floor1_wall_area' => 588, # sqft
+      'floor2_wall_area' => 143, # sqft
+      'roof1_ceiling_area' => 600, # sqft
+      'roof2_ceiling_area' => 400, # sqft
+      'roof1_kneewall_area' => 100, # sqft
+      'roof2_kneewall_area' => 200, # sqft
+      'roof1_roof_area' => 692, # sqft
+      'roof2_roof_area' => 462, # sqft
+      'roof1_skylight_area' => 100, # sqft
+      'roof2_skylight_area' => 40, # sqft
+      'front_wall_area' => 538, # sqft
+      'back_wall_area' => 528, # sqft
+      'left_wall_area' => 508, # sqft
+      'right_wall_area' => 518, # sqft
+      'front_window_area' => 60, # sqft
+      'back_window_area' => 50, # sqft
+      'left_window_area' => 30, # sqft
+      'right_window_area' => 40, # sqft
+      'hvac1_duct1_area' => 277, # sqft
+      'hvac1_duct2_area' => 166, # sqft
+      'hvac1_duct3_area' => 0, # sqft
+      'hvac2_duct1_area' => 119, # sqft
+      'hvac2_duct2_area' => 72, # sqft
+      'hvac2_duct3_area' => 0, # sqft
+      'water_heater_capacity' => 40, # gal
+      'hvac1_cooling_capacity' => 62000, # Btuh
+      'hvac1_heating_capacity' => 61000, # Btuh
+      'hvac2_cooling_capacity' => 27000, # Btuh
+      'hvac2_heating_capacity' => 27000, # Btuh
+    }
+    _check_values(expected_values, actual_values)
   end
 
   def _test_measure(json_path)
@@ -130,37 +130,16 @@ class ReportHEScoreOutputTest < MiniTest::Test
     return cost_multipliers
   end
 
-  def _check_values(expected_values, actual_values,
-                    min_cool_cap1 = nil, min_heat_cap1 = nil,
-                    min_cool_cap2 = nil, min_heat_cap2 = nil)
-
+  def _check_values(expected_values, actual_values)
     # Check for exact matches
     expected_values.each do |end_use, expected_value|
-      assert_equal(expected_value, actual_values[end_use])
-    end
-
-    # Since HVAC capacities can easily change based on different assumptions,
-    # we just check that the capacity is above a certain minimum value so we
-    # don't need to constantly update the expected values.
-    if min_cool_cap1.nil?
-      assert_equal(0, actual_values['hvac1_cooling_capacity'])
-    else
-      assert_operator(actual_values['hvac1_cooling_capacity'], :>, min_cool_cap1)
-    end
-    if min_heat_cap1.nil?
-      assert_equal(0, actual_values['hvac1_heating_capacity'])
-    else
-      assert_operator(actual_values['hvac1_heating_capacity'], :>, min_heat_cap1)
-    end
-    if min_cool_cap2.nil?
-      assert_equal(0, actual_values['hvac2_cooling_capacity'])
-    else
-      assert_operator(actual_values['hvac2_cooling_capacity'], :>, min_cool_cap2)
-    end
-    if min_heat_cap2.nil?
-      assert_equal(0, actual_values['hvac2_heating_capacity'])
-    else
-      assert_operator(actual_values['hvac2_heating_capacity'], :>, min_heat_cap2)
+      if (end_use.include? 'capacity') && (expected_value > 0)
+        # Check HVAC capacity is within half a ton
+        assert_in_delta(expected_value, actual_values[end_use], 6000)
+      else
+        # Check for exact value
+        assert_equal(expected_value, actual_values[end_use])
+      end
     end
   end
 end
