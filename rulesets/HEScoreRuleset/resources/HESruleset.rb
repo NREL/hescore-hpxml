@@ -784,7 +784,6 @@ class HEScoreRuleset
                                        distribution_system_type: HPXML::HVACDistributionTypeAir,
                                        air_type: HPXML::AirTypeRegularVelocity)
 
-      hvac_fraction = orig_hvac['hvac_fraction']
       cfa_served = hvac_fraction * @cfa
       new_hpxml.hvac_distributions[-1].conditioned_floor_area_served = cfa_served
 
