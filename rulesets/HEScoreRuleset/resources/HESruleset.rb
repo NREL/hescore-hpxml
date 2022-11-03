@@ -187,8 +187,11 @@ class HEScoreRuleset
 
   def self.set_enclosure_roofs(json, new_hpxml)
     json['building']['zone']['zone_roof'].each do |orig_roof|
-      attic_location = { 'vented_attic' => HPXML::LocationAtticVented,
-                         'cath_ceiling' => HPXML::LocationLivingSpace }[orig_roof['roof_type']]
+      roof_int_adjacent_to = { 'vented_attic' => HPXML::LocationAtticVented,
+                               'cath_ceiling' => HPXML::LocationLivingSpace,
+                               'below_other_unit' => HPXML::LocationLivingSpace,
+                               'flat_roof' => HPXML::LocationLivingSpace,
+                               'bowstring_roof' => HPXML::LocationLivingSpace }[orig_roof['roof_type']]
       # Roof: Two surfaces per HES zone_roof
       if orig_roof['roof_type'] == 'vented_attic'
         roof_area = orig_roof['ceiling_area'] / Math.cos(@roof_angle_rad)
@@ -207,16 +210,16 @@ class HEScoreRuleset
         has_radiant_barrier = true
         radiant_barrier_grade = 1
       end
-      # FIXME: What to do with apartment roofs azimuths? BP: Treat apartment roofs as a flat roof; For flat roofs, there's no need to model the azimuth
+      # FIXME: What to do with apartment roofs azimuths? BP: When the apartment roof is not a flat roof, treat it like the roof of a single-family attached
       if orig_roof['roof_type'] != 'flat_roof'
-        if @bldg_type == HPXML::ResidentialTypeSFA
+        if [HPXML::ResidentialTypeSFA, HPXML::ResidentialTypeApartment].include? @bldg_type 
           roof_azimuths = [@bldg_azimuth + 90, @bldg_azimuth + 270]
         else
           roof_azimuths = [@bldg_azimuth, @bldg_azimuth + 180]
         end
         roof_azimuths.each_with_index do |roof_azimuth, i|
           new_hpxml.roofs.add(id: "#{orig_roof['roof_name']}_#{i}",
-                              interior_adjacent_to: attic_location,
+                              interior_adjacent_to: roof_int_adjacent_to,
                               area: roof_area / 2.0,
                               azimuth: sanitize_azimuth(roof_azimuth),
                               solar_absorptance: roof_solar_abs,
@@ -228,7 +231,7 @@ class HEScoreRuleset
         end
       else
         new_hpxml.roofs.add(id: "#{orig_roof['roof_name']}_#{i}",
-                            interior_adjacent_to: attic_location,
+                            interior_adjacent_to: roof_int_adjacent_to,
                             area: roof_area,
                             solar_absorptance: roof_solar_abs,
                             emittance: 0.9,
@@ -498,9 +501,9 @@ class HEScoreRuleset
         ufactor, shgc = get_ufactor_shgc_adjusted_by_storms(orig_skylight['storm_type'], ufactor, shgc)
       end
 
-      # FIXME: What to do with apartment roofs azimuths? BP: Treat apartment roofs as a flat roof; For flat roofs, there's no need to model the azimuth
+      # FIXME: What to do with apartment roofs azimuths? BP: When the apartment roof is not a flat roof, treat it like the roof of a single-family attached
       if orig_roof['roof_type'] != 'flat_roof'
-        if @bldg_type == HPXML::ResidentialTypeSFA
+        if [HPXML::ResidentialTypeSFA, HPXML::ResidentialTypeApartment].include? @bldg_type
           roof_azimuths = [@bldg_azimuth + 90, @bldg_azimuth + 270]
         else
           
@@ -522,7 +525,7 @@ class HEScoreRuleset
       else
         new_hpxml.skylights.add(id: "#{orig_roof['roof_name']}_#{i}_skylight",
                                 area: orig_skylight['skylight_area'],
-                                azimuth: 180, # FIXME: use a random number for a flat roof
+                                azimuth: 180, # FIXME: use a random number for a flat roof; it doesn't affect the results
                                 ufactor: ufactor,
                                 shgc: shgc,
                                 roof_idref: "#{orig_roof['roof_name']}_#{i}",
