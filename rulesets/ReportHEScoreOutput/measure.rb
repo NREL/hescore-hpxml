@@ -432,16 +432,10 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       elsif surface.is_a? HPXML::Skylight
         instance_id += '_skylight'
       elsif surface.is_a? HPXML::FrameFloor
-        if surface.is_floor
-          instance_id += '_floor'
-        else
-          instance_id += '_ceiling'
-        end
-      elsif surface.is_a? HPXML::Slab
-        next unless [HPXML::LocationLivingSpace,
-                     HPXML::LocationBasementConditioned].include? surface.interior_adjacent_to
+        next if surface.is_floor # We'll use slabs for floor areas to include slab-on-grade/conditioned basement
 
-        # Use slab area for cases where there is no floor above the foundation
+        instance_id += '_ceiling'
+      elsif surface.is_a? HPXML::Slab
         instance_id += '_floor'
       elsif surface.is_a? HPXML::Roof
         instance_id += '_roof'
