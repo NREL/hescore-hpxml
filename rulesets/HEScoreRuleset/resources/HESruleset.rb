@@ -280,10 +280,9 @@ class HEScoreRuleset
       wall_area = net_wall_area / 4.0 + orig_wall.fetch('zone_window', {}).fetch('window_area', 0.0)
       wall_assembly_code = orig_wall['wall_assembly_code']
       wall_r = nil
-      if wall_assembly_code.nil?
+      if wall_assembly_code[0, 2] == 'iw'
         # This is when the wall is adjacent to another conditioned space
-        # FIXME: Come up with a better assumption for R-value here
-        wall_r = get_knee_wall_effective_r_from_doe2code("kwwf00")
+        wall_r = get_int_wall_effective_r_from_doe2code("iwwf00")
       else
         # TODO: Make new assembly codes for walls adjacent to "other" spaces
         wall_r = get_wall_effective_r_from_doe2code(wall_assembly_code)
@@ -1315,6 +1314,10 @@ $duct_location_map = {
 
 def get_knee_wall_effective_r_from_doe2code(doe2code)
   return get_effective_r_value_from_lu_tbl(doe2code, 'lu_knee_wall_eff_rvalue')
+end
+
+def get_int_wall_effective_r_from_doe2code(doe2code)
+  return get_effective_r_value_from_lu_tbl(doe2code, 'lu_int_wall_eff_rvalue')
 end
 
 def get_roof_effective_r_from_doe2code(doe2code)
