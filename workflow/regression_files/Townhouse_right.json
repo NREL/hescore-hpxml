@@ -9,7 +9,6 @@
   "building": {
     "about": {
       "assessment_date": "2021-06-07",
-      "shape": "town_house",
       "year_built": 1970,
       "number_bedrooms": 4,
       "num_floor_above_grade": 2,
@@ -18,7 +17,8 @@
       "orientation": "north",
       "blower_door_test": false,
       "air_sealing_present": false,
-      "town_house_walls": "back_front_left"
+      "town_house_walls": "back_front_left",
+      "dwelling_unit_type": "single_family_attached"
     },
     "zone": {
       "zone_wall": [
@@ -30,23 +30,32 @@
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "other_unit"
         },
         {
           "side": "back",
           "zone_window": {
-            "window_area": 50
-          }
+            "window_area": 50,
+            "window_method": "code",
+            "window_code": "dcaw",
+            "solar_screen": false
+          },
+          "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "other_unit"
         },
         {
           "side": "left",
           "zone_window": {
-            "window_area": 30
-          }
+            "window_area": 30,
+            "window_method": "code",
+            "window_code": "dcaw",
+            "solar_screen": false
+          },
+          "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "other_unit"
         }
       ],
-      "wall_construction_same": true,
-      "window_construction_same": true,
       "zone_roof": [
         {
           "roof_name": "roof1",

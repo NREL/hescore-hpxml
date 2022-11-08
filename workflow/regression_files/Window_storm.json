@@ -9,7 +9,6 @@
   "building": {
     "about": {
       "assessment_date": "2021-06-07",
-      "shape": "rectangle",
       "year_built": 1970,
       "number_bedrooms": 4,
       "num_floor_above_grade": 2,
@@ -17,7 +16,8 @@
       "conditioned_floor_area": 2000,
       "orientation": "north",
       "blower_door_test": false,
-      "air_sealing_present": false
+      "air_sealing_present": false,
+      "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
       "zone_wall": [
@@ -29,9 +29,9 @@
             "window_method": "code",
             "window_code": "scnw",
             "solar_screen": false,
-            "solar_screen": false,
             "storm_type": "clear"
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "back",
@@ -40,9 +40,10 @@
             "window_method": "code",
             "window_code": "stnw",
             "solar_screen": false,
-            "solar_screen": false,
             "storm_type": "low-e"
-          }
+          },
+          "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside"
         },
         {
           "side": "right",
@@ -51,9 +52,10 @@
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false,
-            "solar_screen": false,
             "storm_type": "clear"
-          }
+          },
+          "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside"
         },
         {
           "side": "left",
@@ -62,13 +64,12 @@
             "window_method": "code",
             "window_code": "dtaw",
             "solar_screen": false,
-            "solar_screen": false,
             "storm_type": "low-e"
-          }
+          },
+          "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside"
         }
       ],
-      "wall_construction_same": true,
-      "window_construction_same": false,
       "zone_roof": [
         {
           "roof_name": "roof1",
