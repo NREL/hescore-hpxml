@@ -338,7 +338,7 @@ class HEScoreRuleset
                          'vented_crawl' => HPXML::LocationCrawlspaceVented,
                          'unvented_crawl' => HPXML::LocationCrawlspaceUnvented,
                          'slab_on_grade' => HPXML::LocationLivingSpace,
-                         'belly_and_wing' => HPXML::LocationBellyAndWing,
+                        #  'belly_and_wing' => HPXML::LocationBellyAndWing,  # FIXME: Need to add LocationBellyAndWing to HPXML class  
                          'above_other_unit' => HPXML::LocationOtherHousingUnit }[orig_foundation['foundation_type']]
       next unless [HPXML::LocationBasementUnconditioned, HPXML::LocationCrawlspaceVented, HPXML::LocationCrawlspaceUnvented, HPXML::LocationOtherHousingUnit].include? fnd_ext_adj_to # FIXME: Add belly and wing foundation type in the future
 
