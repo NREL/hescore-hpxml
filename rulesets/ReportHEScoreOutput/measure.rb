@@ -403,7 +403,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     values[key] = hpxml.building_construction.building_footprint_area
 
     # Enclosure surface areas
-    (hpxml.frame_floors +
+    (hpxml.floors +
      hpxml.slabs +
      hpxml.roofs +
      hpxml.walls +
@@ -423,7 +423,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
         instance_id += '_window'
       elsif surface.is_a? HPXML::Skylight
         instance_id += '_skylight'
-      elsif surface.is_a? HPXML::FrameFloor
+      elsif surface.is_a? HPXML::Floor
         next if surface.is_floor # We'll use slabs for floor areas to include slab-on-grade/conditioned basement
 
         instance_id += '_ceiling'
