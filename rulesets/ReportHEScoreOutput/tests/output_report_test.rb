@@ -33,7 +33,7 @@ class ReportHEScoreOutputTest < MiniTest::Test
       'roof2_ceiling_area' => 0, # sqft
       'roof1_kneewall_area' => 0, # sqft
       'roof2_kneewall_area' => 0, # sqft
-      'roof1_roof_area' => 1154, # sqft
+      'roof1_roof_area' => 1155, # sqft
       'roof2_roof_area' => 0, # sqft
       'roof1_skylight_area' => 0, # sqft
       'roof2_skylight_area' => 0, # sqft
@@ -97,7 +97,7 @@ class ReportHEScoreOutputTest < MiniTest::Test
       'roof2_ceiling_area' => 400, # sqft
       'roof1_kneewall_area' => 100, # sqft
       'roof2_kneewall_area' => 200, # sqft
-      'roof1_roof_area' => 692, # sqft
+      'roof1_roof_area' => 693, # sqft
       'roof2_roof_area' => 462, # sqft
       'roof1_skylight_area' => 100, # sqft
       'roof2_skylight_area' => 40, # sqft
@@ -112,8 +112,8 @@ class ReportHEScoreOutputTest < MiniTest::Test
       'hvac1_duct1_area' => 277, # sqft
       'hvac1_duct2_area' => 166, # sqft
       'hvac1_duct3_area' => 0, # sqft
-      'hvac2_duct1_area' => 119, # sqft
-      'hvac2_duct2_area' => 72, # sqft
+      'hvac2_duct1_area' => 118, # sqft
+      'hvac2_duct2_area' => 71, # sqft
       'hvac2_duct3_area' => 0, # sqft
       'water_heater_capacity' => 40, # gal
       'hvac1_cooling_capacity' => 62000, # Btuh
