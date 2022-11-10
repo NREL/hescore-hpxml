@@ -723,17 +723,18 @@ class HEScoreRuleset
         end
 
         # If heat pump has no cooling/heating load served, assign arbitrary value for cooling/heating efficiency value
-        if (heatpump_fraction_cool_load_served == 0) && cooling_efficiency_seer.nil? && cooling_efficiency_eer.nil?
-          if heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir
+        if heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir
+          if (heatpump_fraction_cool_load_served == 0) && cooling_efficiency_eer.nil?
             cooling_efficiency_eer = 16.6
-          else
+          end
+          if (heatpump_fraction_heat_load_served == 0) && heating_efficiency_cop.nil?
+            heating_efficiency_cop = 3.6
+          end
+        else
+          if (heatpump_fraction_cool_load_served == 0) && cooling_efficiency_seer.nil?
             cooling_efficiency_seer = 13.0
           end
-        end
-        if (heatpump_fraction_heat_load_served == 0) && heating_efficiency_hspf.nil? && heating_efficiency_cop.nil?
-          if heat_pump_type == HPXML::HVACTypeHeatPumpGroundToAir
-            heating_efficiency_cop = 3.6
-          else
+          if (heatpump_fraction_heat_load_served == 0) && heating_efficiency_hspf.nil?
             heating_efficiency_hspf = 7.7
           end
         end
