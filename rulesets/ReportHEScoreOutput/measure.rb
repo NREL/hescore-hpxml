@@ -79,7 +79,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       json_output_path = nil
     end
 
-    hpxml = HPXML.new(hpxml_path: hpxml_path)
+    hpxml = HPXML.new(hpxml_path: hpxml_path, collapse_enclosure: false)
     rundir = File.dirname(runner.lastEpwFilePath.get.to_s)
 
     json_data = { 'end_use' => [] }
@@ -153,6 +153,16 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
                               'resource_type' => resource_type }
     runner.registerValue(resource_type, score)
     runner.registerInfo("Registering #{score} for #{resource_type}.")
+
+    # Calculate cost metrics (e.g., sqft, capacity)
+    cost_multipliers = calc_cost_multipliers(hpxml)
+    cost_multipliers.each do |key, value|
+      end_use, units = key
+      json_data['end_use'] << { 'quantity' => value,
+                                'resource_type' => 'cost_multiplier',
+                                'end_use' => end_use,
+                                'units' => units }
+    end
 
     # Write results to JSON
     if not json_output_path.nil?
@@ -349,6 +359,118 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       end
     end
     fail "Unable to find state '#{state_code}' in #{csv_file_name}."
+  end
+
+  def calc_cost_multipliers(hpxml)
+    # Initialize all possible cost multipliers so that we throw an
+    # error if we encounter an unexpected key below.
+    #          [end_use, units] => cost_multiplier_value
+    values = { ['footprint_area', 'sqft'] => 0.0,
+               ['floor1_floor_area', 'sqft'] => 0.0,
+               ['floor2_floor_area', 'sqft'] => 0.0,
+               ['floor1_wall_area', 'sqft'] => 0.0,
+               ['floor2_wall_area', 'sqft'] => 0.0,
+               ['roof1_ceiling_area', 'sqft'] => 0.0,
+               ['roof2_ceiling_area', 'sqft'] => 0.0,
+               ['roof1_kneewall_area', 'sqft'] => 0.0,
+               ['roof2_kneewall_area', 'sqft'] => 0.0,
+               ['roof1_roof_area', 'sqft'] => 0.0,
+               ['roof2_roof_area', 'sqft'] => 0.0,
+               ['roof1_skylight_area', 'sqft'] => 0.0,
+               ['roof2_skylight_area', 'sqft'] => 0.0,
+               ['front_wall_area', 'sqft'] => 0.0,
+               ['back_wall_area', 'sqft'] => 0.0,
+               ['left_wall_area', 'sqft'] => 0.0,
+               ['right_wall_area', 'sqft'] => 0.0,
+               ['front_window_area', 'sqft'] => 0.0,
+               ['back_window_area', 'sqft'] => 0.0,
+               ['left_window_area', 'sqft'] => 0.0,
+               ['right_window_area', 'sqft'] => 0.0,
+               ['hvac1_duct1_area', 'sqft'] => 0.0,
+               ['hvac1_duct2_area', 'sqft'] => 0.0,
+               ['hvac1_duct3_area', 'sqft'] => 0.0,
+               ['hvac2_duct1_area', 'sqft'] => 0.0,
+               ['hvac2_duct2_area', 'sqft'] => 0.0,
+               ['hvac2_duct3_area', 'sqft'] => 0.0,
+               ['hvac1_cooling_capacity', 'Btuh'] => 0.0,
+               ['hvac1_heating_capacity', 'Btuh'] => 0.0,
+               ['hvac2_cooling_capacity', 'Btuh'] => 0.0,
+               ['hvac2_heating_capacity', 'Btuh'] => 0.0,
+               ['water_heater_capacity', 'gal'] => 0.0 }
+
+    # Footprint area
+    key = ['footprint_area', 'sqft']
+    values[key] = hpxml.building_construction.building_footprint_area
+
+    # Enclosure surface areas
+    (hpxml.frame_floors +
+     hpxml.slabs +
+     hpxml.roofs +
+     hpxml.walls +
+     hpxml.windows +
+     hpxml.skylights +
+     hpxml.foundation_walls).each do |surface|
+      instance_id = surface.id.split('_')[0]
+      if surface.is_a? HPXML::Wall
+        if surface.exterior_adjacent_to == HPXML::LocationAtticVented
+          instance_id += '_kneewall'
+        else
+          instance_id += '_wall'
+        end
+      elsif surface.is_a? HPXML::FoundationWall
+        instance_id += '_wall'
+      elsif surface.is_a? HPXML::Window
+        instance_id += '_window'
+      elsif surface.is_a? HPXML::Skylight
+        instance_id += '_skylight'
+      elsif surface.is_a? HPXML::FrameFloor
+        next if surface.is_floor # We'll use slabs for floor areas to include slab-on-grade/conditioned basement
+
+        instance_id += '_ceiling'
+      elsif surface.is_a? HPXML::Slab
+        instance_id += '_floor'
+      elsif surface.is_a? HPXML::Roof
+        instance_id += '_roof'
+      else
+        fail "Unexpected surface type: #{surface.class}"
+      end
+      key = ["#{instance_id}_area", 'sqft']
+      values[key] += surface.area
+    end
+
+    # HVAC heating/cooling capacities
+    hpxml.hvac_systems.each do |hvac_system|
+      instance_id = hvac_system.id.split('_')[0]
+      if hvac_system.respond_to? :heating_capacity
+        key = ["#{instance_id}_heating_capacity", 'Btuh']
+        values[key] += hvac_system.heating_capacity
+      end
+      if hvac_system.respond_to? :cooling_capacity
+        key = ["#{instance_id}_cooling_capacity", 'Btuh']
+        values[key] += hvac_system.cooling_capacity
+      end
+    end
+
+    # HVAC duct areas
+    hpxml.hvac_distributions.each do |hvac_dist|
+      hvac_instance_id = hvac_dist.hvac_systems[0].id.split('_')[0]
+      hvac_dist.ducts.each do |duct|
+        duct_instance_id = duct.id.split('_')[0]
+        key = ["#{hvac_instance_id}_#{duct_instance_id}_area", 'sqft']
+        values[key] += duct.duct_surface_area
+      end
+    end
+
+    # Water heater capacity
+    key = ['water_heater_capacity', 'gal']
+    values[key] = hpxml.water_heating_systems[0].tank_volume.to_f
+
+    # Round values
+    values.each do |key, val|
+      values[key] = val.round(0)
+    end
+
+    return values
   end
 end
 
