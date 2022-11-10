@@ -443,7 +443,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
         fail "Unexpected surface type: #{surface.class}"
       end
       key = ["#{instance_id}_area", 'sqft']
-      values[key] += surface.area.round(0)
+      values[key] += surface.area
     end
 
     # HVAC heating/cooling capacities
@@ -451,11 +451,11 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       instance_id = hvac_system.id.split('_')[0]
       if hvac_system.respond_to? :heating_capacity
         key = ["#{instance_id}_heating_capacity", 'Btuh']
-        values[key] += hvac_system.heating_capacity.round(0)
+        values[key] += hvac_system.heating_capacity
       end
       if hvac_system.respond_to? :cooling_capacity
         key = ["#{instance_id}_cooling_capacity", 'Btuh']
-        values[key] += hvac_system.cooling_capacity.round(0)
+        values[key] += hvac_system.cooling_capacity
       end
     end
 
@@ -465,13 +465,18 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       hvac_dist.ducts.each do |duct|
         duct_instance_id = duct.id.split('_')[0]
         key = ["#{hvac_instance_id}_#{duct_instance_id}_area", 'sqft']
-        values[key] += duct.duct_surface_area.round(0)
+        values[key] += duct.duct_surface_area
       end
     end
 
     # Water heater capacity
     key = ['water_heater_capacity', 'gal']
     values[key] = hpxml.water_heating_systems[0].tank_volume.to_f
+
+    # Round values
+    values.each do |key, val|
+      values[key] = val.round(0)
+    end
 
     return values
   end
