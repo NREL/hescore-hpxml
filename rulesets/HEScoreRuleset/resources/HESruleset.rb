@@ -114,6 +114,7 @@ class HEScoreRuleset
     new_hpxml.building_construction.number_of_bedrooms = @nbeds
     new_hpxml.building_construction.conditioned_floor_area = @cfa
     new_hpxml.building_construction.conditioned_building_volume = @cvolume
+    new_hpxml.building_construction.building_footprint_area = @bldg_footprint
     new_hpxml.building_construction.has_flue_or_chimney = false
   end
 
@@ -819,13 +820,15 @@ class HEScoreRuleset
         return_duct_surface_area = uncond_area_r * duct_fraction / (1.0 - frac_inside)
 
         # Supply duct
-        new_hpxml.hvac_distributions[-1].ducts.add(duct_type: HPXML::DuctTypeSupply,
+        new_hpxml.hvac_distributions[-1].ducts.add(id: "#{orig_duct['name']}_#{orig_hvac['hvac_name']}_supply",
+                                                   duct_type: HPXML::DuctTypeSupply,
                                                    duct_insulation_r_value: duct_rvalue,
                                                    duct_location: duct_location,
                                                    duct_surface_area: supply_duct_surface_area)
 
         # Return duct
-        new_hpxml.hvac_distributions[-1].ducts.add(duct_type: HPXML::DuctTypeReturn,
+        new_hpxml.hvac_distributions[-1].ducts.add(id: "#{orig_duct['name']}_#{orig_hvac['hvac_name']}_return",
+                                                   duct_type: HPXML::DuctTypeReturn,
                                                    duct_insulation_r_value: duct_rvalue,
                                                    duct_location: duct_location,
                                                    duct_surface_area: return_duct_surface_area)
