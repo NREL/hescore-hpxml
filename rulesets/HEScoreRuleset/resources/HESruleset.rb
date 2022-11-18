@@ -297,6 +297,7 @@ class HEScoreRuleset
       floor_r = get_floor_effective_r_from_doe2code(orig_foundation['floor_assembly_code'])
 
       new_hpxml.floors.add(id: "#{orig_foundation['floor_name']}_floor_#{i}",
+                           floor_type: HPXML::FloorTypeWoodFrame,
                            exterior_adjacent_to: fnd_location,
                            interior_adjacent_to: HPXML::LocationLivingSpace,
                            area: orig_foundation['floor_area'],
@@ -313,6 +314,7 @@ class HEScoreRuleset
       floor_area = orig_attic['ceiling_area']
 
       new_hpxml.floors.add(id: "#{orig_attic['roof_name']}_floor_#{i}",
+                           floor_type: HPXML::FloorTypeWoodFrame,
                            exterior_adjacent_to: attic_location,
                            interior_adjacent_to: HPXML::LocationLivingSpace,
                            area: floor_area,

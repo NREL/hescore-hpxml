@@ -50,7 +50,6 @@ def run_design(basedir, rundir, resultsdir, json, hourly_output, debug, skip_sim
     args['output_dir'] = rundir
     args['debug'] = debug
     args['add_component_loads'] = false
-    args['skip_validation'] = !debug
     update_args_hash(measures, measure_subdir, args)
 
     # Add OS-HPXML reporting measure to workflow
