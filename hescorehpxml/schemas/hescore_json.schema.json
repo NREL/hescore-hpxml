@@ -2722,7 +2722,7 @@
                             },
                             "cooling_efficiency_unit": {
                                 "type": "string",
-                                "enum": ["seer"],
+                                "enum": ["seer", "eer"],
                                 "description": "Unit of cooling efficiency for upgraded cooling/heat pump system"
                             },
                             "cooling_efficiency_value": {
@@ -2903,6 +2903,9 @@
                                     ]
                                 },
                                 "then": {
+                                    "properties": {
+                                        "heating_efficiency_unit": {"const": "afue"}
+                                    },
                                     "required": [
                                         "heating_efficiency_unit",
                                         "heating_efficiency_value"
@@ -2923,6 +2926,9 @@
                                     ]
                                 },
                                 "then": {
+                                    "properties": {
+                                        "cooling_efficiency_unit": {"enum": ["seer", "eer"]}
+                                    },
                                     "required": [
                                         "cooling_efficiency_unit",
                                         "cooling_efficiency_value"
@@ -2945,6 +2951,10 @@
                                     ]
                                 },
                                 "then": {
+                                    "properties": {
+                                        "cooling_efficiency_unit": {"const": "seer"},
+                                        "heating_efficiency_unit": {"const": "hspf"}
+                                    },
                                     "required": [
                                         "cooling_efficiency_unit",
                                         "cooling_efficiency_value",
@@ -2969,6 +2979,9 @@
                                     ]
                                 },
                                 "then": {
+                                    "properties": {
+                                        "efficiency_unit": {"enum": ["energy_factor", "uniform_energy_factor"]}
+                                    },
                                     "required": [
                                         "efficiency_unit",
                                         "efficiency_value"
