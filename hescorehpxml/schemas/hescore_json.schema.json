@@ -3,7 +3,7 @@
     "$id": "https://github.com/NREL/hescore-hpxml/blob/master/hescorehpxml/schemas/hescore_json.schema.json",
     "type": "object",
     "title": "HEScore JSON Schema",
-    "additionalProperties": true,
+    "additionalProperties": false,
     "properties": {
         "building_address": {
             "type": "object",
@@ -2720,29 +2720,38 @@
                                 "maximum": 1.0,
                                 "description": "% Reduction of leakage for sealing upgrades"
                             },
-                            "heating_efficiency_afue": {
-                                "type": "number",
-                                "minimum": 0.6,
-                                "maximum": 1.0,
-                                "description": "AFUE heating efficiency for upgraded heating system"
+                            "cooling_efficiency_unit": {
+                                "type": "string",
+                                "enum": ["seer"],
+                                "description": "Unit of cooling efficiency for upgraded cooling/heat pump system"
                             },
-                            "cooling_efficiency_seer": {
+                            "cooling_efficiency_value": {
                                 "type": "number",
                                 "minimum": 8.0,
                                 "maximum": 40.0,
-                                "description": "SEER cooling efficiency for upgraded cooling system"
+                                "description": "Cooling efficiency value for upgraded cooling/heat pump system"
                             },
-                            "heating_efficiency_hspf": {
+                            "heating_efficiency_unit": {
+                                "type": "string",
+                                "enum": ["hspf", "afue"],
+                                "description": "Unit of heating efficiency for upgraded heating/heat pump system"
+                            },
+                            "heating_efficiency_value": {
                                 "type": "number",
-                                "minimum": 6.0,
+                                "minimum": 0.6,
                                 "maximum": 20.0,
-                                "description": "HSPF heating efficiency for upgraded heat pump system"
+                                "description": "Heating efficiency value for upgraded heating/heat pump system"
                             },
-                            "energy_factor": {
+                            "efficiency_unit": {
+                                "type": "string",
+                                "enum": ["energy_factor", "uniform_energy_factor"],
+                                "description": "Unit of efficiency for upgraded domestic hot water systems"
+                            },
+                            "efficiency_value": {
                                 "type": "number",
                                 "minimum": 0.45,
                                 "maximum": 4.0,
-                                "description": "Energy factor for upgraded domestic hot water systems"
+                                "description": "Efficiency value for upgraded domestic hot water systems"
                             },
                             "instance_id": {
                                 "type": ["array", "null"],
@@ -2895,7 +2904,8 @@
                                 },
                                 "then": {
                                     "required": [
-                                        "heating_efficiency_afue"
+                                        "heating_efficiency_unit",
+                                        "heating_efficiency_value"
                                     ]
                                 }
                             },
@@ -2914,7 +2924,8 @@
                                 },
                                 "then": {
                                     "required": [
-                                        "cooling_efficiency_seer"
+                                        "cooling_efficiency_unit",
+                                        "cooling_efficiency_value"
                                     ]
                                 }
                             },
@@ -2935,8 +2946,10 @@
                                 },
                                 "then": {
                                     "required": [
-                                        "cooling_efficiency_seer",
-                                        "heating_efficiency_hspf"
+                                        "cooling_efficiency_unit",
+                                        "cooling_efficiency_value",
+                                        "heating_efficiency_unit",
+                                        "heating_efficiency_value"
                                     ]
                                 }
                             },
@@ -2957,7 +2970,8 @@
                                 },
                                 "then": {
                                     "required": [
-                                        "energy_factor"
+                                        "efficiency_unit",
+                                        "efficiency_value"
                                     ]
                                 }
                             }
