@@ -669,12 +669,14 @@ class HEScoreRulesetTest < MiniTest::Test
       next if window_code_by_id[windowid].nil?
 
       hpxml_ufactor = XMLHelper.get_value(window, 'UFactor', :float)
+      hpxml_shgc = XMLHelper.get_value(window, 'SHGC', :float)
       json_ufactor, json_shgc = get_window_ufactor_shgc_from_doe2code(window_code_by_id[windowid])
       if not storm_type_by_id[windowid].nil?
-        json_ufactor, _json_shgc = get_ufactor_shgc_adjusted_by_storms(storm_type_by_id[windowid], json_ufactor, json_shgc)
+        json_ufactor, json_shgc = get_ufactor_shgc_adjusted_by_storms(storm_type_by_id[windowid], json_ufactor, json_shgc)
       end
 
       assert_in_epsilon(hpxml_ufactor, json_ufactor, 0.01)
+      assert_in_epsilon(hpxml_shgc, json_shgc, 0.01)
     end
   end
 
