@@ -11,6 +11,6 @@ class HPXML4toHEScoreTranslator(HPXML3toHEScoreTranslator):
             return []
         b = self.xpath(attic, 'ancestor::h:Building')
         floors = self.xpath(b, '//h:Floor[contains("{}",h:SystemIdentifier/@id)]'.format(floor_idref),
-                                    aslist=True, raise_err=True)
+                            aslist=True, raise_err=True)
 
         return floors
