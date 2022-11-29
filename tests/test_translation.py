@@ -47,18 +47,18 @@ class ComparatorBase(object):
         else:
             self.assertEqual(x, y, '{}: item not equal'.format('.'.join(curpath)))
 
-    def _do_compare(self, filebase, jsonfilebase=None):
+    def _do_compare(self, filebase, jsonfilebase=None, kwargs={}):
         if not jsonfilebase:
             jsonfilebase = filebase
-        hescore_trans = self.translator.hpxml_to_hescore()
+        hescore_trans = self.translator.hpxml_to_hescore(**kwargs)
         jsonfilepath = os.path.join(exampledir, jsonfilebase + '.json')
         with open(os.path.join(exampledir, jsonfilepath)) as f:
             hescore_truth = json.load(f)
         self._compare_item(hescore_trans, hescore_truth)
 
-    def _do_full_compare(self, filebase, jsonfilebase=None):
+    def _do_full_compare(self, filebase, jsonfilebase=None, kwargs={}):
         self._load_xmlfile(filebase)
-        self._do_compare(filebase, jsonfilebase)
+        self._do_compare(filebase, jsonfilebase, kwargs)
 
     def _write_xml_file(self, filename):
         self.translator.hpxmldoc.write(os.path.join(exampledir, filename))
@@ -3617,6 +3617,9 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
 
     def test_house9(self):
         self._do_full_compare('house9')
+
+    def test_house_resstock(self):
+        self._do_full_compare('house_resstock', kwargs={'resstock_file': True})
 
     def test_attic_with_multiple_roofs(self):
         tr = self._load_xmlfile('hescore_min_v3')
