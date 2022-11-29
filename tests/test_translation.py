@@ -3615,9 +3615,6 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
     def test_hescore_min_v3(self):
         self._do_full_compare('hescore_min_v3', 'hescore_min')
 
-    def test_house9(self):
-        self._do_full_compare('house9')
-
     def test_house_resstock(self):
         self._do_full_compare('house_resstock', kwargs={'resstock_file': True})
 
