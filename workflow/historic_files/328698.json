@@ -10,7 +10,6 @@
   "building": {
     "about": {
       "assessment_date": "2017-01-25",
-      "shape": "rectangle",
       "year_built": 1970,
       "number_bedrooms": 2,
       "num_floor_above_grade": 2,
@@ -18,7 +17,8 @@
       "conditioned_floor_area": 1641,
       "orientation": "west",
       "blower_door_test": true,
-      "envelope_leakage": 2088
+      "envelope_leakage": 2088,
+      "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
       "zone_roof": [
@@ -43,8 +43,6 @@
           "floor_assembly_code": "efwf00ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -54,7 +52,8 @@
             "window_method": "code",
             "window_code": "dpeaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "left",
@@ -64,7 +63,8 @@
             "window_method": "code",
             "window_code": "dpeaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "back",
@@ -74,7 +74,8 @@
             "window_method": "code",
             "window_code": "dpeaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "right",
@@ -84,7 +85,8 @@
             "window_method": "code",
             "window_code": "dpeaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         }
       ]
     },

@@ -10,8 +10,6 @@
   "building": {
     "about": {
       "assessment_date": "2018-02-02",
-      "shape": "town_house",
-      "town_house_walls": "back_front_left",
       "year_built": 1979,
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
@@ -19,7 +17,8 @@
       "conditioned_floor_area": 1602,
       "orientation": "north",
       "blower_door_test": true,
-      "envelope_leakage": 1700
+      "envelope_leakage": 1700,
+      "dwelling_unit_type": "single_family_attached"
     },
     "zone": {
       "zone_roof": [
@@ -50,8 +49,6 @@
           "floor_assembly_code": "efwf11ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -62,7 +59,8 @@
             "window_u_value": 0.55,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "other_unit"
         },
         {
           "side": "left",
@@ -73,7 +71,8 @@
             "window_u_value": 0.55,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "other_unit"
         },
         {
           "side": "back",
@@ -84,7 +83,8 @@
             "window_u_value": 0.55,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "other_unit"
         }
       ]
     },

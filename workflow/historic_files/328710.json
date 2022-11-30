@@ -10,7 +10,6 @@
   "building": {
     "about": {
       "assessment_date": "2019-12-31",
-      "shape": "rectangle",
       "year_built": 1925,
       "number_bedrooms": 2,
       "num_floor_above_grade": 2,
@@ -18,7 +17,8 @@
       "conditioned_floor_area": 1863,
       "orientation": "west",
       "blower_door_test": false,
-      "air_sealing_present": false
+      "air_sealing_present": false,
+      "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
       "zone_roof": [
@@ -60,8 +60,6 @@
           "floor_assembly_code": "efwf00ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -71,7 +69,8 @@
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "left",
@@ -81,7 +80,8 @@
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "back",
@@ -91,7 +91,8 @@
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "right",
@@ -101,7 +102,8 @@
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         }
       ]
     },

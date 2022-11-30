@@ -10,8 +10,6 @@
   "building": {
     "about": {
       "assessment_date": "2018-02-16",
-      "shape": "town_house",
-      "town_house_walls": "back_right_front",
       "year_built": 1939,
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
@@ -19,7 +17,8 @@
       "conditioned_floor_area": 1044,
       "orientation": "west",
       "blower_door_test": false,
-      "air_sealing_present": false
+      "air_sealing_present": false,
+      "dwelling_unit_type": "single_family_attached"
     },
     "zone": {
       "zone_roof": [
@@ -50,8 +49,6 @@
           "foundation_insulation_level": 0
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -61,7 +58,8 @@
             "window_method": "code",
             "window_code": "dseaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "other_unit"
         },
         {
           "side": "back",
@@ -71,7 +69,8 @@
             "window_method": "code",
             "window_code": "dseaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "other_unit"
         },
         {
           "side": "right",
@@ -81,7 +80,8 @@
             "window_method": "code",
             "window_code": "dseaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "other_unit"
         }
       ]
     },

@@ -10,7 +10,6 @@
   "building": {
     "about": {
       "assessment_date": "2017-06-06",
-      "shape": "rectangle",
       "year_built": 2017,
       "number_bedrooms": 4,
       "num_floor_above_grade": 2,
@@ -18,7 +17,8 @@
       "conditioned_floor_area": 2496,
       "orientation": "south",
       "blower_door_test": false,
-      "air_sealing_present": false
+      "air_sealing_present": false,
+      "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
       "zone_roof": [
@@ -59,8 +59,6 @@
           "foundation_insulation_level": 0
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -71,7 +69,8 @@
             "window_u_value": 0.26,
             "window_shgc": 0.360811,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "left",
@@ -82,7 +81,8 @@
             "window_u_value": 0.26,
             "window_shgc": 0.360811,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "back",
@@ -93,7 +93,8 @@
             "window_u_value": 0.26,
             "window_shgc": 0.360811,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "right",
@@ -104,7 +105,8 @@
             "window_u_value": 0.26,
             "window_shgc": 0.360811,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         }
       ]
     },

@@ -10,8 +10,6 @@
   "building": {
     "about": {
       "assessment_date": "2018-01-18",
-      "shape": "town_house",
-      "town_house_walls": "back_front",
       "year_built": 1988,
       "number_bedrooms": 2,
       "num_floor_above_grade": 2,
@@ -19,7 +17,8 @@
       "conditioned_floor_area": 1428,
       "orientation": "west",
       "blower_door_test": true,
-      "envelope_leakage": 1946
+      "envelope_leakage": 1946,
+      "dwelling_unit_type": "single_family_attached"
     },
     "zone": {
       "zone_roof": [
@@ -52,8 +51,6 @@
           "floor_assembly_code": "efwf00ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -63,7 +60,8 @@
             "window_method": "code",
             "window_code": "dpeaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "other_unit"
         },
         {
           "side": "back",
@@ -73,7 +71,8 @@
             "window_method": "code",
             "window_code": "dpeaw",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "other_unit"
         }
       ]
     },

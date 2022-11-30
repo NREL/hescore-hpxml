@@ -10,7 +10,6 @@
   "building": {
     "about": {
       "assessment_date": "2016-08-17",
-      "shape": "rectangle",
       "year_built": 1989,
       "number_bedrooms": 4,
       "num_floor_above_grade": 2,
@@ -18,7 +17,8 @@
       "conditioned_floor_area": 2736,
       "orientation": "west",
       "blower_door_test": true,
-      "envelope_leakage": 3244
+      "envelope_leakage": 3244,
+      "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
       "zone_roof": [
@@ -42,8 +42,6 @@
           "floor_assembly_code": "efwf00ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -54,7 +52,8 @@
             "window_u_value": 0.51,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "left",
@@ -65,7 +64,8 @@
             "window_u_value": 0.51,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "back",
@@ -76,7 +76,8 @@
             "window_u_value": 0.51,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "right",
@@ -87,7 +88,8 @@
             "window_u_value": 0.51,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         }
       ]
     },

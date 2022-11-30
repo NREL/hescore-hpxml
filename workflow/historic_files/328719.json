@@ -10,7 +10,6 @@
   "building": {
     "about": {
       "assessment_date": "2018-07-18",
-      "shape": "rectangle",
       "year_built": 1952,
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
@@ -18,7 +17,8 @@
       "conditioned_floor_area": 1856,
       "orientation": "east",
       "blower_door_test": false,
-      "air_sealing_present": false
+      "air_sealing_present": false,
+      "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
       "zone_roof": [
@@ -53,8 +53,6 @@
           "floor_assembly_code": "efwf00ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -65,7 +63,8 @@
             "window_u_value": 0.44,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "left",
@@ -76,7 +75,8 @@
             "window_u_value": 0.44000000000000006,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "back",
@@ -87,7 +87,8 @@
             "window_u_value": 0.44,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "right",
@@ -98,7 +99,8 @@
             "window_u_value": 0.44,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         }
       ]
     },

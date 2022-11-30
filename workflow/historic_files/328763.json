@@ -10,7 +10,6 @@
   "building": {
     "about": {
       "assessment_date": "2018-11-21",
-      "shape": "rectangle",
       "year_built": 2000,
       "number_bedrooms": 3,
       "num_floor_above_grade": 1,
@@ -18,7 +17,8 @@
       "conditioned_floor_area": 1604,
       "orientation": "north",
       "blower_door_test": true,
-      "envelope_leakage": 1211
+      "envelope_leakage": 1211,
+      "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
       "zone_roof": [
@@ -42,8 +42,6 @@
           "foundation_insulation_level": 0
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -54,7 +52,8 @@
             "window_u_value": 0.44,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "left",
@@ -64,7 +63,8 @@
             "window_method": "code",
             "window_code": "scna",
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "back",
@@ -75,7 +75,8 @@
             "window_u_value": 0.44,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         },
         {
           "side": "right",
@@ -86,7 +87,8 @@
             "window_u_value": 0.44,
             "window_shgc": 0.56,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "outside"
         }
       ]
     },

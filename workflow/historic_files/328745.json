@@ -10,8 +10,6 @@
   "building": {
     "about": {
       "assessment_date": "2017-11-20",
-      "shape": "town_house",
-      "town_house_walls": "back_front",
       "year_built": 2000,
       "number_bedrooms": 3,
       "num_floor_above_grade": 3,
@@ -19,7 +17,8 @@
       "conditioned_floor_area": 1300,
       "orientation": "east",
       "blower_door_test": true,
-      "envelope_leakage": 1389
+      "envelope_leakage": 1389,
+      "dwelling_unit_type": "single_family_attached"
     },
     "zone": {
       "zone_roof": [
@@ -44,8 +43,6 @@
           "floor_assembly_code": "efwf00ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -56,7 +53,8 @@
             "window_u_value": 0.37,
             "window_shgc": 0.52,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "other_unit"
         },
         {
           "side": "back",
@@ -67,7 +65,8 @@
             "window_u_value": 0.37,
             "window_shgc": 0.52,
             "solar_screen": false
-          }
+          },
+          "adjacent_to": "other_unit"
         }
       ]
     },
