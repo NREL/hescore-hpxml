@@ -101,8 +101,8 @@ class HEScoreRuleset
       @bldg_length_front = (5.0 / 3.0) * @bldg_length_side # ft
     when HPXML::ResidentialTypeSFA
       # 5:3 ratio, short side on front
-      @bldg_length_side = (5.0 / 3.0) * @bldg_length_side # ft
-      @bldg_length_front = (3.0 / 5.0 * @bldg_footprint)**0.5 # ft
+      @bldg_length_side = (5.0 / 3.0 * @bldg_footprint)**0.5 # ft
+      @bldg_length_front = (3.0 / 5.0) * @bldg_length_side # ft
     when HPXML::ResidentialTypeApartment
       # Square
       @bldg_length_side = @bldg_footprint**0.5 # ft
