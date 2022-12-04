@@ -8,7 +8,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2021-06-07",
+      "assessment_date": "6/7/2021",
       "year_built": 1970,
       "number_bedrooms": 4.0,
       "num_floor_above_grade": 2.0,
@@ -47,7 +47,7 @@
             "window_area": 60.0,
             "window_method": "code",
             "window_code": "dcaw",
-            "solar_screen": true
+            "solar_screen": false
           }
         },
         {
@@ -58,7 +58,7 @@
             "window_area": 50.0,
             "window_method": "code",
             "window_code": "dcaw",
-            "solar_screen": true
+            "solar_screen": false
           }
         },
         {
@@ -69,7 +69,7 @@
             "window_area": 40.0,
             "window_method": "code",
             "window_code": "dcaw",
-            "solar_screen": true
+            "solar_screen": false
           }
         },
         {
@@ -80,7 +80,7 @@
             "window_area": 30.0,
             "window_method": "code",
             "window_code": "dcaw",
-            "solar_screen": true
+            "solar_screen": false
           }
         }
       ]
@@ -103,13 +103,13 @@
           },
           "hvac_distribution": {
             "leakage_method": "qualitative",
-            "sealed": true,
+            "sealed": false,
             "duct": [
               {
                 "name": "duct1",
                 "location": "uncond_attic",
                 "fraction": 1.0,
-                "insulated": true
+                "insulated": false
               },
               {
                 "name": "duct2",

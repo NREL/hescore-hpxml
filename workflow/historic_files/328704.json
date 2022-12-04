@@ -3,18 +3,18 @@
     "address": "9 Sandy Bottom Ln",
     "city": "Barnegat Township",
     "state": "NJ",
-    "zip_code": "08005",
+    "zip_code": "8005",
     "assessment_type": "test",
     "external_building_id": "15050"
   },
   "building": {
     "about": {
-      "assessment_date": "2019-06-05",
+      "assessment_date": "6/5/2019",
       "year_built": 2000,
-      "number_bedrooms": 2,
-      "num_floor_above_grade": 1,
-      "floor_to_ceiling_height": 10,
-      "conditioned_floor_area": 1721,
+      "number_bedrooms": 2.0,
+      "num_floor_above_grade": 1.0,
+      "floor_to_ceiling_height": 10.0,
+      "conditioned_floor_area": 1721.0,
       "orientation": "north",
       "blower_door_test": false,
       "air_sealing_present": false,
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf30",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -39,7 +39,7 @@
           "floor_name": "floor1",
           "floor_area": 1721.0,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 11,
+          "foundation_insulation_level": 11.0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
@@ -47,46 +47,46 @@
         {
           "side": "front",
           "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 45.0,
             "window_method": "code",
             "window_code": "dseaaw",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "left",
           "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 50.0,
             "window_method": "code",
             "window_code": "dseaaw",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "back",
           "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 120.0,
             "window_method": "code",
             "window_code": "dseaaw",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "right",
           "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 89.0,
             "window_method": "code",
             "window_code": "dseaaw",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         }
       ]
     },
@@ -114,7 +114,7 @@
                 "name": "duct1",
                 "location": "uncond_attic",
                 "fraction": 1.0,
-                "insulated": true
+                "insulated": false
               }
             ]
           }

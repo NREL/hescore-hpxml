@@ -9,15 +9,15 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2018-11-19",
+      "assessment_date": "11/19/2018",
       "year_built": 2015,
-      "number_bedrooms": 5,
-      "num_floor_above_grade": 2,
-      "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 2340,
+      "number_bedrooms": 5.0,
+      "num_floor_above_grade": 2.0,
+      "floor_to_ceiling_height": 8.0,
+      "conditioned_floor_area": 2340.0,
       "orientation": "west",
-      "blower_door_test": true,
-      "envelope_leakage": 1901,
+      "blower_door_test": false,
+      "envelope_leakage": 1901.0,
       "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf11",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -39,13 +39,13 @@
           "floor_name": "floor1",
           "floor_area": 920.0,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0
+          "foundation_insulation_level": 0.0
         },
         {
           "floor_name": "floor2",
           "floor_area": 250.0,
           "foundation_type": "unvented_crawl",
-          "foundation_insulation_level": 0,
+          "foundation_insulation_level": 0.0,
           "floor_assembly_code": "efwf19ca"
         }
       ],
@@ -53,50 +53,50 @@
         {
           "side": "front",
           "wall_assembly_code": "ewwf11wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 195.5,
             "window_method": "custom",
             "window_u_value": 0.44,
             "window_shgc": 0.56,
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "left",
           "wall_assembly_code": "ewwf11wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 25.5,
             "window_method": "custom",
             "window_u_value": 0.44,
             "window_shgc": 0.56,
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "back",
           "wall_assembly_code": "ewwf11wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 312.8,
             "window_method": "custom",
             "window_u_value": 0.44,
             "window_shgc": 0.56,
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "right",
           "wall_assembly_code": "ewwf11wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 153.0,
             "window_method": "custom",
-            "window_u_value": 0.44000000000000006,
+            "window_u_value": 0.44,
             "window_shgc": 0.56,
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         }
       ]
     },
@@ -124,13 +124,13 @@
                 "name": "duct1",
                 "location": "uncond_attic",
                 "fraction": 0.5,
-                "insulated": true
+                "insulated": false
               },
               {
                 "name": "duct2",
                 "location": "cond_space",
                 "fraction": 0.5,
-                "insulated": true
+                "insulated": false
               }
             ]
           }

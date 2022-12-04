@@ -3,21 +3,21 @@
     "address": "45 W Parsonage Way",
     "city": "Manalapan Township",
     "state": "NJ",
-    "zip_code": "07726",
+    "zip_code": "7726",
     "assessment_type": "test",
     "external_building_id": "16070"
   },
   "building": {
     "about": {
-      "assessment_date": "2019-05-21",
+      "assessment_date": "5/21/2019",
       "year_built": 2005,
-      "number_bedrooms": 4,
-      "num_floor_above_grade": 2,
-      "floor_to_ceiling_height": 9,
-      "conditioned_floor_area": 2938,
+      "number_bedrooms": 4.0,
+      "num_floor_above_grade": 2.0,
+      "floor_to_ceiling_height": 9.0,
+      "conditioned_floor_area": 2938.0,
       "orientation": "west",
-      "blower_door_test": true,
-      "envelope_leakage": 3918,
+      "blower_door_test": false,
+      "envelope_leakage": 3918.0,
       "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf25",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         },
         {
@@ -41,7 +41,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf25",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -50,14 +50,14 @@
           "floor_name": "floor1",
           "floor_area": 1602.0,
           "foundation_type": "uncond_basement",
-          "foundation_insulation_level": 0,
+          "foundation_insulation_level": 0.0,
           "floor_assembly_code": "efwf19ca"
         },
         {
           "floor_name": "floor2",
           "floor_area": 184.0,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 0,
+          "foundation_insulation_level": 0.0,
           "floor_assembly_code": "efwf19ca"
         }
       ],
@@ -65,46 +65,46 @@
         {
           "side": "front",
           "wall_assembly_code": "ewwf13br",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 153.0,
             "window_method": "code",
             "window_code": "dseaaw",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "left",
           "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 14.0,
             "window_method": "code",
             "window_code": "dseaaw",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "back",
           "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 188.0,
             "window_method": "code",
             "window_code": "dseaaw",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "right",
           "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 60.0,
             "window_method": "code",
             "window_code": "dseaaw",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         }
       ]
     },
@@ -126,7 +126,7 @@
           },
           "hvac_distribution": {
             "leakage_method": "qualitative",
-            "sealed": true,
+            "sealed": false,
             "duct": [
               {
                 "name": "duct1",
@@ -159,7 +159,7 @@
                 "name": "duct1",
                 "location": "uncond_attic",
                 "fraction": 1.0,
-                "insulated": true
+                "insulated": false
               }
             ]
           }

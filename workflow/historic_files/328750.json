@@ -9,12 +9,12 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2019-03-13",
+      "assessment_date": "3/13/2019",
       "year_built": 1983,
-      "number_bedrooms": 3,
-      "num_floor_above_grade": 1,
-      "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 1796,
+      "number_bedrooms": 3.0,
+      "num_floor_above_grade": 1.0,
+      "floor_to_ceiling_height": 8.0,
+      "conditioned_floor_area": 1796.0,
       "orientation": "south_west",
       "blower_door_test": false,
       "air_sealing_present": false,
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf21",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -39,53 +39,53 @@
           "floor_name": "floor1",
           "floor_area": 1796.0,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0
+          "foundation_insulation_level": 0.0
         }
       ],
       "zone_wall": [
         {
           "side": "front",
           "wall_assembly_code": "ewwf00wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 67.0,
             "window_method": "code",
             "window_code": "dcaa",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "left",
           "wall_assembly_code": "ewwf00wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 46.0,
             "window_method": "code",
             "window_code": "dcaa",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "back",
           "wall_assembly_code": "ewwf00wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 123.0,
             "window_method": "code",
             "window_code": "dcaa",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "right",
           "wall_assembly_code": "ewwf00wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 42.0,
             "window_method": "code",
             "window_code": "dcaa",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         }
       ]
     },

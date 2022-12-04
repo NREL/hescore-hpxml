@@ -9,15 +9,15 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2017-11-20",
+      "assessment_date": "11/20/2017",
       "year_built": 2000,
-      "number_bedrooms": 3,
-      "num_floor_above_grade": 3,
-      "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 1300,
+      "number_bedrooms": 3.0,
+      "num_floor_above_grade": 3.0,
+      "floor_to_ceiling_height": 8.0,
+      "conditioned_floor_area": 1300.0,
       "orientation": "east",
-      "blower_door_test": true,
-      "envelope_leakage": 1389,
+      "blower_door_test": false,
+      "envelope_leakage": 1389.0,
       "dwelling_unit_type": "single_family_attached"
     },
     "zone": {
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf38",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -39,7 +39,7 @@
           "floor_name": "floor1",
           "floor_area": 607.0,
           "foundation_type": "uncond_basement",
-          "foundation_insulation_level": 0,
+          "foundation_insulation_level": 0.0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
@@ -47,25 +47,35 @@
         {
           "side": "front",
           "wall_assembly_code": "ewwf15wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 39.0,
             "window_method": "custom",
             "window_u_value": 0.37,
             "window_shgc": 0.52,
             "solar_screen": false
-          },
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf15wo",
           "adjacent_to": "other_unit"
         },
         {
           "side": "back",
           "wall_assembly_code": "ewwf15wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 60.0,
             "window_method": "custom",
             "window_u_value": 0.37,
             "window_shgc": 0.52,
             "solar_screen": false
-          },
+          }
+        },
+        {
+          "side": "right",
+          "wall_assembly_code": "ewwf15wo",
           "adjacent_to": "other_unit"
         }
       ]

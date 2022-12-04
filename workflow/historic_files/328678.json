@@ -9,12 +9,12 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2018-02-09",
+      "assessment_date": "2/9/2018",
       "year_built": 1949,
-      "number_bedrooms": 3,
-      "num_floor_above_grade": 1,
-      "floor_to_ceiling_height": 9,
-      "conditioned_floor_area": 2508,
+      "number_bedrooms": 3.0,
+      "num_floor_above_grade": 1.0,
+      "floor_to_ceiling_height": 9.0,
+      "conditioned_floor_area": 2508.0,
       "orientation": "north",
       "blower_door_test": false,
       "air_sealing_present": false,
@@ -43,7 +43,7 @@
           "roof_color": "white",
           "roof_type": "cath_ceiling",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -52,7 +52,7 @@
           "floor_name": "floor1",
           "floor_area": 2508.0,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 0,
+          "foundation_insulation_level": 0.0,
           "floor_assembly_code": "efwf13ca"
         }
       ],
@@ -60,46 +60,46 @@
         {
           "side": "front",
           "wall_assembly_code": "ewwf03wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 164.0,
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "left",
           "wall_assembly_code": "ewwf03wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 114.0,
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "back",
           "wall_assembly_code": "ewwf03wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 144.0,
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         },
         {
           "side": "right",
           "wall_assembly_code": "ewwf03wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 260.0,
             "window_method": "code",
             "window_code": "dcaw",
             "solar_screen": false
-          },
-          "adjacent_to": "outside"
+          }
         }
       ]
     },
@@ -121,13 +121,13 @@
           },
           "hvac_distribution": {
             "leakage_method": "qualitative",
-            "sealed": true,
+            "sealed": false,
             "duct": [
               {
                 "name": "duct1",
                 "location": "uncond_attic",
                 "fraction": 1.0,
-                "insulated": true
+                "insulated": false
               }
             ]
           }

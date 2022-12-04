@@ -3,21 +3,21 @@
     "address": "Great Oak Court ,9,",
     "city": "Cromwell",
     "state": "CT",
-    "zip_code": "06416",
+    "zip_code": "6416",
     "assessment_type": "test",
     "external_building_id": "73293"
   },
   "building": {
     "about": {
-      "assessment_date": "2017-02-08",
+      "assessment_date": "2/8/2017",
       "year_built": 1972,
-      "number_bedrooms": 2,
-      "num_floor_above_grade": 2,
-      "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 2059,
+      "number_bedrooms": 2.0,
+      "num_floor_above_grade": 2.0,
+      "floor_to_ceiling_height": 8.0,
+      "conditioned_floor_area": 2059.0,
       "orientation": "east",
-      "blower_door_test": true,
-      "envelope_leakage": 2435,
+      "blower_door_test": false,
+      "envelope_leakage": 2435.0,
       "dwelling_unit_type": "single_family_attached"
     },
     "zone": {
@@ -41,7 +41,7 @@
           "floor_name": "floor1",
           "floor_area": 686.0,
           "foundation_type": "cond_basement",
-          "foundation_insulation_level": 0,
+          "foundation_insulation_level": 0.0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
@@ -49,23 +49,33 @@
         {
           "side": "front",
           "wall_assembly_code": "ewwf07wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 51.55,
             "window_method": "code",
             "window_code": "dpeaw",
             "solar_screen": false
-          },
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf07wo",
           "adjacent_to": "other_unit"
         },
         {
           "side": "back",
           "wall_assembly_code": "ewwf07wo",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 167.79,
             "window_method": "code",
             "window_code": "dpeaw",
             "solar_screen": false
-          },
+          }
+        },
+        {
+          "side": "right",
+          "wall_assembly_code": "ewwf07wo",
           "adjacent_to": "other_unit"
         }
       ]
@@ -86,13 +96,13 @@
           },
           "hvac_distribution": {
             "leakage_method": "qualitative",
-            "sealed": true,
+            "sealed": false,
             "duct": [
               {
                 "name": "duct1",
                 "location": "cond_space",
                 "fraction": 1.0,
-                "insulated": true
+                "insulated": false
               }
             ]
           }
