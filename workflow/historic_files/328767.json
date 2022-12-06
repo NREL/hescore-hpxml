@@ -17,7 +17,7 @@
       "conditioned_floor_area": 2000.0,
       "orientation": "south",
       "blower_door_test": false,
-      "air_sealing_present": false,
+      "air_sealing_present": true,
       "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
@@ -112,7 +112,7 @@
           },
           "hvac_distribution": {
             "leakage_method": "qualitative",
-            "sealed": false,
+            "sealed": true,
             "duct": [
               {
                 "name": "duct1",

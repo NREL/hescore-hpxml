@@ -121,7 +121,7 @@
                 "name": "duct1",
                 "location": "vented_crawl",
                 "fraction": 1.0,
-                "insulated": false
+                "insulated": true
               }
             ]
           }
@@ -136,7 +136,7 @@
       },
       "generation": {
         "solar_electric": {
-          "capacity_known": false,
+          "capacity_known": true,
           "system_capacity": 2.5,
           "year": 2007,
           "array_azimuth": "south",

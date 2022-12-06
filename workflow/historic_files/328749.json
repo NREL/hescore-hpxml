@@ -16,7 +16,7 @@
       "floor_to_ceiling_height": 10.0,
       "conditioned_floor_area": 1946.0,
       "orientation": "north_west",
-      "blower_door_test": false,
+      "blower_door_test": true,
       "envelope_leakage": 3077.0,
       "dwelling_unit_type": "single_family_detached"
     },
@@ -121,13 +121,13 @@
           },
           "hvac_distribution": {
             "leakage_method": "qualitative",
-            "sealed": false,
+            "sealed": true,
             "duct": [
               {
                 "name": "duct1",
                 "location": "vented_crawl",
                 "fraction": 1.0,
-                "insulated": false
+                "insulated": true
               }
             ]
           }

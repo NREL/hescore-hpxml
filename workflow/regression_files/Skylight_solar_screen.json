@@ -32,7 +32,7 @@
             "skylight_area": 100.0,
             "skylight_method": "code",
             "skylight_code": "dcaa",
-            "solar_screen": false
+            "solar_screen": true
           }
         }
       ],
@@ -109,13 +109,13 @@
           },
           "hvac_distribution": {
             "leakage_method": "qualitative",
-            "sealed": false,
+            "sealed": true,
             "duct": [
               {
                 "name": "duct1",
                 "location": "uncond_attic",
                 "fraction": 1.0,
-                "insulated": false
+                "insulated": true
               },
               {
                 "name": "duct2",

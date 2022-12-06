@@ -41,8 +41,8 @@ def set_json_property_values(json_input)
   data['building']['about']['floor_to_ceiling_height'] = json_input['floor_to_ceiling_height'].to_f unless json_input['floor_to_ceiling_height'].nil?
   data['building']['about']['conditioned_floor_area'] = json_input['conditioned_floor_area'].to_f unless json_input['conditioned_floor_area'].nil?
   data['building']['about']['orientation'] = json_input['orientation'] unless json_input['orientation'].nil?
-  data['building']['about']['blower_door_test'] = (json_input['blower_door_test'] == 'True' ? true : false) unless json_input['blower_door_test'].nil?
-  data['building']['about']['air_sealing_present'] = (json_input['air_sealing_present'] == 'True' ? true : false) unless json_input['air_sealing_present'].nil?
+  data['building']['about']['blower_door_test'] = (json_input['blower_door_test'] == 'TRUE' ? true : false) unless json_input['blower_door_test'].nil?
+  data['building']['about']['air_sealing_present'] = (json_input['air_sealing_present'] == 'TRUE' ? true : false) unless json_input['air_sealing_present'].nil?
   data['building']['about']['envelope_leakage'] = json_input['envelope_leakage'].to_f unless json_input['envelope_leakage'].nil?
   data['building']['about']['dwelling_unit_type'] = json_input['dwelling_unit_type'] unless json_input['dwelling_unit_type'].nil?
 
@@ -67,7 +67,7 @@ def set_json_property_values(json_input)
     zone_roof_hash['zone_skylight']['skylight_code'] = json_input["skylight_code_#{id}"] unless json_input["skylight_code_#{id}"].nil?
     zone_roof_hash['zone_skylight']['skylight_u_value'] = json_input["skylight_u_value_#{id}"].to_f unless json_input["skylight_u_value_#{id}"].nil?
     zone_roof_hash['zone_skylight']['skylight_shgc'] = json_input["skylight_shgc_#{id}"].to_f unless json_input["skylight_shgc_#{id}"].nil?
-    zone_roof_hash['zone_skylight']['solar_screen'] = (json_input["skylight_solar_screen_#{id}"] == 'True' ? true : false) unless json_input["skylight_solar_screen_#{id}"].nil?
+    zone_roof_hash['zone_skylight']['solar_screen'] = (json_input["skylight_solar_screen_#{id}"] == 'TRUE' ? true : false) unless json_input["skylight_solar_screen_#{id}"].nil?
     zone_roof_hash['zone_skylight']['storm_type'] = json_input["skylight_storm_type_#{id}"] unless json_input["skylight_storm_type_#{id}"].nil?
     
     zone_roof[i] = zone_roof_hash
@@ -103,7 +103,7 @@ def set_json_property_values(json_input)
     zone_wall_hash['zone_window']['window_code'] = json_input["window#{id}_code"] unless json_input["window#{id}_code"].nil?
     zone_wall_hash['zone_window']['window_u_value'] = json_input["window#{id}_u_value"].to_f unless json_input["window#{id}_u_value"].nil?
     zone_wall_hash['zone_window']['window_shgc'] = json_input["window#{id}_shgc"].to_f unless json_input["window#{id}_shgc"].nil?
-    zone_wall_hash['zone_window']['solar_screen'] = (json_input["window#{id}_solar_screen"] == 'True' ? true : false) unless json_input["window#{id}_solar_screen"].nil?
+    zone_wall_hash['zone_window']['solar_screen'] = (json_input["window#{id}_solar_screen"] == 'TRUE' ? true : false) unless json_input["window#{id}_solar_screen"].nil?
     zone_wall_hash['zone_window']['storm_type'] = json_input["window#{id}_storm_type"] unless json_input["window#{id}_storm_type"].nil?
     zone_wall[i] = zone_wall_hash
   end
@@ -130,7 +130,7 @@ def set_json_property_values(json_input)
     hvac_hash['cooling']['year'] = json_input["cooling_year_#{id}"].to_i unless json_input["cooling_year_#{id}"].nil?
     hvac_hash['hvac_distribution']['leakage_method'] = json_input["duct_leakage_method_#{id}"] unless json_input["duct_leakage_method_#{id}"].nil?
     hvac_hash['hvac_distribution']['leakage_to_outside'] = json_input["duct_leakage_to_outside_#{id}"].to_f unless json_input["duct_leakage_to_outside_#{id}"].nil?
-    hvac_hash['hvac_distribution']['sealed'] = (json_input["duct_sealed_#{id}"] == 'True' ? true : false) unless json_input["duct_sealed_#{id}"].nil?
+    hvac_hash['hvac_distribution']['sealed'] = (json_input["duct_sealed_#{id}"] == 'TRUE' ? true : false) unless json_input["duct_sealed_#{id}"].nil?
 
     duct = []
     3.times do |j|
@@ -141,7 +141,7 @@ def set_json_property_values(json_input)
       duct_hash['name'] = json_input["duct#{duct_id}_name_#{id}"] unless json_input["duct#{duct_id}_name_#{id}"].nil?
       duct_hash['location'] = json_input["duct#{duct_id}_location_#{id}"] unless json_input["duct#{duct_id}_location_#{id}"].nil?
       duct_hash['fraction'] = json_input["duct#{duct_id}_fraction_#{id}"].to_f unless json_input["duct#{duct_id}_fraction_#{id}"].nil?
-      duct_hash['insulated'] = (json_input["duct#{duct_id}_insulated_#{id}"] == 'True' ? true : false) unless json_input["duct#{duct_id}_insulated_#{id}"].nil?
+      duct_hash['insulated'] = (json_input["duct#{duct_id}_insulated_#{id}"] == 'TRUE' ? true : false) unless json_input["duct#{duct_id}_insulated_#{id}"].nil?
       duct[j] = duct_hash
     end
     hvac_hash['hvac_distribution']['duct'] = duct unless duct.empty?
@@ -158,7 +158,7 @@ def set_json_property_values(json_input)
   data['building']['systems']['domestic_hot_water']['energy_factor'] = json_input['hw_energy_factor'].to_f unless json_input['hw_energy_factor'].nil?
   data['building']['systems']['domestic_hot_water']['year'] = json_input['hw_year'].to_i unless json_input['hw_year'].nil?
 
-  data['building']['systems']['generation']['solar_electric']['capacity_known'] = (json_input['pv_capacity_known'] == 'True' ? true : false) unless json_input['pv_capacity_known'].nil?
+  data['building']['systems']['generation']['solar_electric']['capacity_known'] = (json_input['pv_capacity_known'] == 'TRUE' ? true : false) unless json_input['pv_capacity_known'].nil?
   data['building']['systems']['generation']['solar_electric']['system_capacity'] = json_input['pv_system_capacity'].to_f unless json_input['pv_system_capacity'].nil?
   data['building']['systems']['generation']['solar_electric']['year'] = json_input['pv_year'].to_i unless json_input['pv_year'].nil?
   data['building']['systems']['generation']['solar_electric']['array_azimuth'] = json_input['pv_array_azimuth'] unless json_input['pv_array_azimuth'].nil?

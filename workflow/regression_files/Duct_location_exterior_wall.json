@@ -103,13 +103,13 @@
           },
           "hvac_distribution": {
             "leakage_method": "qualitative",
-            "sealed": false,
+            "sealed": true,
             "duct": [
               {
                 "name": "duct1",
                 "location": "exterior_wall",
                 "fraction": 1.0,
-                "insulated": false
+                "insulated": true
               },
               {
                 "name": "duct2",

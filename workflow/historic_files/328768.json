@@ -123,7 +123,7 @@
                 "name": "duct1",
                 "location": "uncond_attic",
                 "fraction": 1.0,
-                "insulated": false
+                "insulated": true
               }
             ]
           }
@@ -138,7 +138,7 @@
       },
       "generation": {
         "solar_electric": {
-          "capacity_known": false,
+          "capacity_known": true,
           "system_capacity": 3.5,
           "year": 2017,
           "array_azimuth": "south",

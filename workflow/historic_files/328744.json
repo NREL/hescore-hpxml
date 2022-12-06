@@ -16,7 +16,7 @@
       "floor_to_ceiling_height": 9.0,
       "conditioned_floor_area": 1600.0,
       "orientation": "south",
-      "blower_door_test": false,
+      "blower_door_test": true,
       "envelope_leakage": 1445.0,
       "dwelling_unit_type": "single_family_attached"
     },

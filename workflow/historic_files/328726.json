@@ -16,7 +16,7 @@
       "floor_to_ceiling_height": 11.0,
       "conditioned_floor_area": 2180.0,
       "orientation": "south",
-      "blower_door_test": false,
+      "blower_door_test": true,
       "envelope_leakage": 4230.0,
       "dwelling_unit_type": "single_family_detached"
     },
@@ -120,7 +120,7 @@
                 "name": "duct1",
                 "location": "uncond_attic",
                 "fraction": 1.0,
-                "insulated": false
+                "insulated": true
               }
             ]
           }

@@ -103,13 +103,13 @@
           },
           "hvac_distribution": {
             "leakage_method": "qualitative",
-            "sealed": false,
+            "sealed": true,
             "duct": [
               {
                 "name": "duct1",
                 "location": "uncond_attic",
                 "fraction": 1.0,
-                "insulated": false
+                "insulated": true
               },
               {
                 "name": "duct2",
@@ -132,7 +132,7 @@
       },
       "generation": {
         "solar_electric": {
-          "capacity_known": false,
+          "capacity_known": true,
           "system_capacity": 4.0,
           "year": 2022,
           "array_azimuth": "south",
