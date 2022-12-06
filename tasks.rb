@@ -30,7 +30,7 @@ def set_json_property_values(json_input)
   data['building_address']['address'] = json_input['address'] unless json_input['address'].nil?
   data['building_address']['city'] = json_input['city'] unless json_input['city'].nil?
   data['building_address']['state'] = json_input['state'] unless json_input['state'].nil?
-  data['building_address']['zip_code'] = json_input['zip_code'] unless json_input['zip_code'].nil?
+  data['building_address']['zip_code'] = "%05d" % json_input['zip_code'] unless json_input['zip_code'].nil?
   data['building_address']['assessment_type'] = json_input['assessment_type'] unless json_input['assessment_type'].nil?
   data['building_address']['external_building_id'] = json_input['external_building_id'] unless json_input['external_building_id'].nil?
   
