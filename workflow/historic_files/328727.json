@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "9/28/2017",
+      "assessment_date": "2017-09-28",
       "shape": "rectangle",
       "year_built": 2013,
       "number_bedrooms": 5.0,
@@ -49,6 +49,8 @@
           "floor_assembly_code": "efwf19ca"
         }
       ],
+      "wall_construction_same": true,
+      "window_construction_same": true,
       "zone_wall": [
         {
           "side": "front",

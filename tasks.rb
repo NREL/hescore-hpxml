@@ -89,6 +89,9 @@ def set_json_property_values(json_input)
   end
   data['building']['zone']['zone_floor'] = zone_floor
 
+  data['building']['zone']['wall_construction_same'] = (json_input['wall_construction_same'] == 'TRUE' ? true : false) unless json_input['wall_construction_same'].nil?
+  data['building']['zone']['window_construction_same'] = (json_input['window_construction_same'] == 'TRUE' ? true : false) unless json_input['window_construction_same'].nil?
+
   zone_wall = []
   4.times do |i|
     id = (i+1).to_s

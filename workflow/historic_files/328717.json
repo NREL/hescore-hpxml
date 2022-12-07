@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "9/8/2017",
+      "assessment_date": "2017-09-08",
       "shape": "rectangle",
       "year_built": 1931,
       "number_bedrooms": 4.0,
@@ -53,6 +53,8 @@
           "floor_assembly_code": "efwf00ca"
         }
       ],
+      "wall_construction_same": true,
+      "window_construction_same": true,
       "zone_wall": [
         {
           "side": "front",

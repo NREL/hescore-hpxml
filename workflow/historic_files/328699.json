@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2/8/2017",
+      "assessment_date": "2017-02-08",
       "shape": "town_house",
       "year_built": 1972,
       "number_bedrooms": 2.0,
@@ -45,6 +45,8 @@
           "floor_assembly_code": "efwf00ca"
         }
       ],
+      "wall_construction_same": true,
+      "window_construction_same": true,
       "zone_wall": [
         {
           "side": "front",

@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "1/21/2019",
+      "assessment_date": "2019-01-21",
       "shape": "rectangle",
       "year_built": 1998,
       "number_bedrooms": 4.0,
@@ -53,6 +53,8 @@
           "foundation_insulation_level": 0.0
         }
       ],
+      "wall_construction_same": true,
+      "window_construction_same": true,
       "zone_wall": [
         {
           "side": "front",

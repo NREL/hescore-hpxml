@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2/16/2018",
+      "assessment_date": "2018-02-16",
       "shape": "town_house",
       "year_built": 1939,
       "number_bedrooms": 3.0,
@@ -49,6 +49,8 @@
           "foundation_insulation_level": 0.0
         }
       ],
+      "wall_construction_same": true,
+      "window_construction_same": true,
       "zone_wall": [
         {
           "side": "front",

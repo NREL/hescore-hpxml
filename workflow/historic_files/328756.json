@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "10/17/2016",
+      "assessment_date": "2016-10-17",
       "shape": "town_house",
       "year_built": 2000,
       "number_bedrooms": 3.0,
@@ -43,6 +43,8 @@
           "floor_assembly_code": "efwf11ca"
         }
       ],
+      "wall_construction_same": true,
+      "window_construction_same": true,
       "zone_wall": [
         {
           "side": "front",
