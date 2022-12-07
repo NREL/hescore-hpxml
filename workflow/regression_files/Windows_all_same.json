@@ -38,7 +38,7 @@
           "foundation_insulation_level": 0.0
         }
       ],
-      "wall_construction_same": true,
+      "wall_construction_same": false,
       "window_construction_same": true,
       "zone_wall": [
         {

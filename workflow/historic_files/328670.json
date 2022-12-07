@@ -53,8 +53,8 @@
           "floor_assembly_code": "efwf13ca"
         }
       ],
-      "wall_construction_same": true,
-      "window_construction_same": true,
+      "wall_construction_same": false,
+      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
