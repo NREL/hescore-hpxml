@@ -9,16 +9,16 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2016-08-17",
+      "assessment_date": "8/17/2016",
       "shape": "rectangle",
       "year_built": 1989,
-      "number_bedrooms": 4,
-      "num_floor_above_grade": 2,
-      "floor_to_ceiling_height": 12,
-      "conditioned_floor_area": 2736,
+      "number_bedrooms": 4.0,
+      "num_floor_above_grade": 2.0,
+      "floor_to_ceiling_height": 12.0,
+      "conditioned_floor_area": 2736.0,
       "orientation": "west",
       "blower_door_test": true,
-      "envelope_leakage": 3244
+      "envelope_leakage": 3244.0
     },
     "zone": {
       "zone_roof": [
@@ -29,7 +29,7 @@
           "roof_color": "medium",
           "roof_type": "cath_ceiling",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -38,12 +38,10 @@
           "floor_name": "floor1",
           "floor_area": 1368.0,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 0,
+          "foundation_insulation_level": 0.0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",

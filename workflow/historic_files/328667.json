@@ -9,13 +9,13 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2019-04-17",
+      "assessment_date": "4/17/2019",
       "shape": "rectangle",
       "year_built": 1924,
-      "number_bedrooms": 3,
-      "num_floor_above_grade": 2,
-      "floor_to_ceiling_height": 7,
-      "conditioned_floor_area": 1840,
+      "number_bedrooms": 3.0,
+      "num_floor_above_grade": 2.0,
+      "floor_to_ceiling_height": 7.0,
+      "conditioned_floor_area": 1840.0,
       "orientation": "east",
       "blower_door_test": false,
       "air_sealing_present": false
@@ -29,7 +29,7 @@
           "roof_color": "dark",
           "roof_type": "cath_ceiling",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         },
         {
@@ -40,7 +40,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf19",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -49,12 +49,10 @@
           "floor_name": "floor1",
           "floor_area": 776.0,
           "foundation_type": "cond_basement",
-          "foundation_insulation_level": 11,
+          "foundation_insulation_level": 11.0,
           "floor_assembly_code": "efwf11ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",

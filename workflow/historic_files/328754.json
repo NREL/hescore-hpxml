@@ -9,17 +9,16 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2017-07-12",
+      "assessment_date": "7/12/2017",
       "shape": "town_house",
-      "town_house_walls": "back_right_front",
       "year_built": 1974,
-      "number_bedrooms": 3,
-      "num_floor_above_grade": 2,
-      "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 950,
+      "number_bedrooms": 3.0,
+      "num_floor_above_grade": 2.0,
+      "floor_to_ceiling_height": 8.0,
+      "conditioned_floor_area": 950.0,
       "orientation": "north",
       "blower_door_test": true,
-      "envelope_leakage": 1454
+      "envelope_leakage": 1454.0
     },
     "zone": {
       "zone_roof": [
@@ -31,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf49",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -40,19 +39,17 @@
           "floor_name": "floor1",
           "floor_area": 500.0,
           "foundation_type": "unvented_crawl",
-          "foundation_insulation_level": 0,
+          "foundation_insulation_level": 0.0,
           "floor_assembly_code": "efwf00ca"
         },
         {
           "floor_name": "floor2",
           "floor_area": 475.0,
           "foundation_type": "uncond_basement",
-          "foundation_insulation_level": 0,
+          "foundation_insulation_level": 0.0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -64,6 +61,10 @@
             "window_shgc": 0.56,
             "solar_screen": false
           }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf00vi"
         },
         {
           "side": "back",

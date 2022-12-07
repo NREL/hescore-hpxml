@@ -9,16 +9,16 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2018-01-25",
+      "assessment_date": "1/25/2018",
       "shape": "rectangle",
       "year_built": 1973,
-      "number_bedrooms": 4,
-      "num_floor_above_grade": 3,
-      "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 3854,
+      "number_bedrooms": 4.0,
+      "num_floor_above_grade": 3.0,
+      "floor_to_ceiling_height": 8.0,
+      "conditioned_floor_area": 3854.0,
       "orientation": "north",
       "blower_door_test": true,
-      "envelope_leakage": 3003
+      "envelope_leakage": 3003.0
     },
     "zone": {
       "zone_roof": [
@@ -45,7 +45,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf11",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -54,18 +54,16 @@
           "floor_name": "floor1",
           "floor_area": 1387.0,
           "foundation_type": "uncond_basement",
-          "foundation_insulation_level": 0,
+          "foundation_insulation_level": 0.0,
           "floor_assembly_code": "efwf00ca"
         },
         {
           "floor_name": "floor2",
           "floor_area": 154.0,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 5
+          "foundation_insulation_level": 5.0
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -73,7 +71,7 @@
           "zone_window": {
             "window_area": 221.9,
             "window_method": "custom",
-            "window_u_value": 0.44000000000000006,
+            "window_u_value": 0.44,
             "window_shgc": 0.56,
             "solar_screen": false
           }
@@ -106,7 +104,7 @@
           "zone_window": {
             "window_area": 40.54,
             "window_method": "custom",
-            "window_u_value": 0.43999999999999995,
+            "window_u_value": 0.44,
             "window_shgc": 0.56,
             "solar_screen": false
           }

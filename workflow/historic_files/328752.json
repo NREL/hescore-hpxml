@@ -9,16 +9,16 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2016-08-18",
+      "assessment_date": "8/18/2016",
       "shape": "rectangle",
       "year_built": 1978,
-      "number_bedrooms": 5,
-      "num_floor_above_grade": 3,
-      "floor_to_ceiling_height": 10,
-      "conditioned_floor_area": 2403,
+      "number_bedrooms": 5.0,
+      "num_floor_above_grade": 3.0,
+      "floor_to_ceiling_height": 10.0,
+      "conditioned_floor_area": 2403.0,
       "orientation": "north_west",
       "blower_door_test": true,
-      "envelope_leakage": 1850
+      "envelope_leakage": 1850.0
     },
     "zone": {
       "zone_roof": [
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf49",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -39,12 +39,10 @@
           "floor_name": "floor1",
           "floor_area": 801.0,
           "foundation_type": "cond_basement",
-          "foundation_insulation_level": 19,
+          "foundation_insulation_level": 19.0,
           "floor_assembly_code": "efwf11ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",

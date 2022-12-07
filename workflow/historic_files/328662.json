@@ -9,13 +9,13 @@
   },
   "building": {
     "about": {
-      "assessment_date": "2019-10-13",
+      "assessment_date": "10/13/2019",
       "shape": "rectangle",
       "year_built": 1971,
-      "number_bedrooms": 3,
-      "num_floor_above_grade": 1,
-      "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 1344,
+      "number_bedrooms": 3.0,
+      "num_floor_above_grade": 1.0,
+      "floor_to_ceiling_height": 8.0,
+      "conditioned_floor_area": 1344.0,
       "orientation": "east",
       "blower_door_test": false,
       "air_sealing_present": false
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf21",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -39,19 +39,17 @@
           "floor_name": "floor1",
           "floor_area": 960.0,
           "foundation_type": "unvented_crawl",
-          "foundation_insulation_level": 11,
+          "foundation_insulation_level": 11.0,
           "floor_assembly_code": "efwf00ca"
         },
         {
           "floor_name": "floor2",
           "floor_area": 384.0,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 0,
+          "foundation_insulation_level": 0.0,
           "floor_assembly_code": "efwf15ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -67,7 +65,7 @@
           "side": "left",
           "wall_assembly_code": "ewwf00wo",
           "zone_window": {
-            "window_area": 0,
+            "window_area": 0.0,
             "window_method": "code",
             "window_code": "scna",
             "solar_screen": false
@@ -87,7 +85,7 @@
           "side": "right",
           "wall_assembly_code": "ewwf19wo",
           "zone_window": {
-            "window_area": 0,
+            "window_area": 0.0,
             "window_method": "code",
             "window_code": "scna",
             "solar_screen": false
