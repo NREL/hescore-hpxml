@@ -11,6 +11,7 @@
     "about": {
       "assessment_date": "2018-02-16",
       "shape": "town_house",
+      "town_house_walls": "back_right_front",
       "year_built": 1939,
       "number_bedrooms": 3.0,
       "num_floor_above_grade": 2.0,
@@ -61,10 +62,6 @@
             "window_code": "dseaw",
             "solar_screen": false
           }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf00st"
         },
         {
           "side": "back",

@@ -36,6 +36,7 @@ def set_json_property_values(json_input)
   
   data['building']['about']['assessment_date'] = json_input['assessment_date'] unless json_input['assessment_date'].nil?
   data['building']['about']['shape'] = json_input['shape'] unless json_input['shape'].nil?
+  data['building']['about']['town_house_walls'] = json_input['town_house_walls'] unless json_input['town_house_walls'].nil?
   data['building']['about']['year_built'] = json_input['year_built'].to_i unless json_input['year_built'].nil?
   data['building']['about']['number_bedrooms'] = json_input['number_bedrooms'].to_f unless json_input['number_bedrooms'].nil?
   data['building']['about']['num_floor_above_grade'] = json_input['num_floor_above_grade'].to_f unless json_input['num_floor_above_grade'].nil?

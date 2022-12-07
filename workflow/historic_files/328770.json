@@ -11,6 +11,7 @@
     "about": {
       "assessment_date": "2019-01-15",
       "shape": "town_house",
+      "town_house_walls": "back_front",
       "year_built": 1971,
       "number_bedrooms": 3.0,
       "num_floor_above_grade": 1.0,
@@ -54,10 +55,6 @@
             "window_code": "scna",
             "solar_screen": false
           }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewcb00st"
         },
         {
           "side": "back",

@@ -11,6 +11,7 @@
     "about": {
       "assessment_date": "2016-10-17",
       "shape": "town_house",
+      "town_house_walls": "back_front",
       "year_built": 2000,
       "number_bedrooms": 3.0,
       "num_floor_above_grade": 2.0,
@@ -57,10 +58,7 @@
             "solar_screen": false
           }
         },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf19wo"
-        },
+        null,
         {
           "side": "back",
           "wall_assembly_code": "ewwf19wo",
@@ -71,10 +69,6 @@
             "window_shgc": 0.52,
             "solar_screen": false
           }
-        },
-        {
-          "side": "right",
-          "wall_assembly_code": "ewwf19wo"
         }
       ]
     },

@@ -10,6 +10,7 @@
     "about": {
       "assessment_date": "2021-06-07",
       "shape": "town_house",
+      "town_house_walls": "back_front",
       "year_built": 1970,
       "number_bedrooms": 4.0,
       "num_floor_above_grade": 2.0,
@@ -57,12 +58,6 @@
             "window_area": 50.0,
             "solar_screen": false
           }
-        },
-        {
-          "side": "right"
-        },
-        {
-          "side": "left"
         }
       ]
     },

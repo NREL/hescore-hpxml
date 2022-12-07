@@ -11,6 +11,7 @@
     "about": {
       "assessment_date": "2018-01-18",
       "shape": "town_house",
+      "town_house_walls": "back_front",
       "year_built": 1988,
       "number_bedrooms": 2.0,
       "num_floor_above_grade": 2.0,
@@ -65,10 +66,6 @@
           }
         },
         {
-          "side": "left",
-          "wall_assembly_code": "ewwf13wo"
-        },
-        {
           "side": "back",
           "wall_assembly_code": "ewwf13wo",
           "zone_window": {
@@ -77,10 +74,6 @@
             "window_code": "dpeaw",
             "solar_screen": false
           }
-        },
-        {
-          "side": "right",
-          "wall_assembly_code": "ewwf13wo"
         }
       ]
     },

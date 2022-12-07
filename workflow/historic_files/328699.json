@@ -11,6 +11,7 @@
     "about": {
       "assessment_date": "2017-02-08",
       "shape": "town_house",
+      "town_house_walls": "back_front",
       "year_built": 1972,
       "number_bedrooms": 2.0,
       "num_floor_above_grade": 2.0,
@@ -59,10 +60,6 @@
           }
         },
         {
-          "side": "left",
-          "wall_assembly_code": "ewwf07wo"
-        },
-        {
           "side": "back",
           "wall_assembly_code": "ewwf07wo",
           "zone_window": {
@@ -71,10 +68,6 @@
             "window_code": "dpeaw",
             "solar_screen": false
           }
-        },
-        {
-          "side": "right",
-          "wall_assembly_code": "ewwf07wo"
         }
       ]
     },
