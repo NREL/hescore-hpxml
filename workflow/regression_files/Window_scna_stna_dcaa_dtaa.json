@@ -39,7 +39,7 @@
         }
       ],
       "wall_construction_same": true,
-      "window_construction_same": true,
+      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -55,6 +55,8 @@
           "side": "back",
           "zone_window": {
             "window_area": 50.0,
+            "window_method": "code",
+            "window_code": "stna",
             "solar_screen": false
           }
         },
@@ -62,6 +64,8 @@
           "side": "right",
           "zone_window": {
             "window_area": 40.0,
+            "window_method": "code",
+            "window_code": "dcaa",
             "solar_screen": false
           }
         },
@@ -69,6 +73,8 @@
           "side": "left",
           "zone_window": {
             "window_area": 30.0,
+            "window_method": "code",
+            "window_code": "dtaa",
             "solar_screen": false
           }
         }

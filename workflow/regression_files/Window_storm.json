@@ -39,7 +39,7 @@
         }
       ],
       "wall_construction_same": true,
-      "window_construction_same": true,
+      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
@@ -56,6 +56,8 @@
           "side": "back",
           "zone_window": {
             "window_area": 50.0,
+            "window_method": "code",
+            "window_code": "stnw",
             "solar_screen": false,
             "storm_type": "low-e"
           }
@@ -64,6 +66,8 @@
           "side": "right",
           "zone_window": {
             "window_area": 40.0,
+            "window_method": "code",
+            "window_code": "dcaw",
             "solar_screen": false,
             "storm_type": "clear"
           }
@@ -72,6 +76,8 @@
           "side": "left",
           "zone_window": {
             "window_area": 30.0,
+            "window_method": "code",
+            "window_code": "dtaw",
             "solar_screen": false,
             "storm_type": "low-e"
           }

@@ -52,25 +52,13 @@
           }
         },
         {
-          "side": "back",
-          "zone_window": {
-            "window_area": 1.0,
-            "solar_screen": false
-          }
+          "side": "back"
         },
         {
-          "side": "right",
-          "zone_window": {
-            "window_area": 1.0,
-            "solar_screen": false
-          }
+          "side": "right"
         },
         {
-          "side": "left",
-          "zone_window": {
-            "window_area": 1.0,
-            "solar_screen": false
-          }
+          "side": "left"
         }
       ]
     },

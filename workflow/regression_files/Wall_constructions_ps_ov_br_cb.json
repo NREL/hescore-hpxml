@@ -38,7 +38,7 @@
           "foundation_insulation_level": 0.0
         }
       ],
-      "wall_construction_same": true,
+      "wall_construction_same": false,
       "window_construction_same": true,
       "zone_wall": [
         {
@@ -53,23 +53,23 @@
         },
         {
           "side": "back",
+          "wall_assembly_code": "ewov19wo",
           "zone_window": {
-            "window_area": 50.0,
-            "solar_screen": false
+            "window_area": 50.0
           }
         },
         {
           "side": "right",
+          "wall_assembly_code": "ewbr05nn",
           "zone_window": {
-            "window_area": 40.0,
-            "solar_screen": false
+            "window_area": 40.0
           }
         },
         {
           "side": "left",
+          "wall_assembly_code": "ewcb03st",
           "zone_window": {
-            "window_area": 30.0,
-            "solar_screen": false
+            "window_area": 30.0
           }
         }
       ]
