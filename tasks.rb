@@ -28,17 +28,7 @@ if ARGV[0].to_sym == :update_measures
   # Apply rubocop
   cops = ['Layout',
           'Lint/DeprecatedClassMethods',
-          'Lint/DuplicateElsifCondition',
-          'Lint/DuplicateHashKey',
-          'Lint/DuplicateMethods',
-          'Lint/InterpolationCheck',
-          'Lint/LiteralAsCondition',
-          'Lint/RedundantStringCoercion',
-          'Lint/SelfAssignment',
-          'Lint/UnderscorePrefixedVariableName',
-          'Lint/UnusedBlockArgument',
-          'Lint/UnusedMethodArgument',
-          'Lint/UselessAssignment',
+          # 'Lint/RedundantStringCoercion', # Enable when rubocop is upgraded
           'Style/AndOr',
           'Style/FrozenStringLiteralComment',
           'Style/HashSyntax',

@@ -34,7 +34,7 @@ class HEScoreTest < MiniTest::Test
       results[File.basename(json)] = run_and_check(json, out_dir, zipfile)
     end
 
-    _write_summary_results(results.sort_by { |k, _v| k.downcase }.to_h, results_csv_path)
+    _write_summary_results(results.sort_by { |k, v| k.downcase }.to_h, results_csv_path)
   end
 
   def test_historic_files
@@ -54,7 +54,7 @@ class HEScoreTest < MiniTest::Test
       results[File.basename(json)] = run_and_check(json, out_dir, zipfile)
     end
 
-    _write_summary_results(results.sort_by { |k, _v| k.downcase }.to_h, results_csv_path)
+    _write_summary_results(results.sort_by { |k, v| k.downcase }.to_h, results_csv_path)
   end
 
   def test_hescore_hpxml_example_files
@@ -75,7 +75,7 @@ class HEScoreTest < MiniTest::Test
       results[File.basename(json)] = run_and_check(json, out_dir, zipfile)
     end
 
-    _write_summary_results(results.sort_by { |k, _v| k.downcase }.to_h, results_csv_path)
+    _write_summary_results(results.sort_by { |k, v| k.downcase }.to_h, results_csv_path)
   end
 
   def test_skip_simulation
@@ -161,8 +161,10 @@ class HEScoreTest < MiniTest::Test
     # Run workflow
     cli_path = OpenStudio.getOpenStudioCLI
     command = "\"#{cli_path}\" \"#{File.join(File.dirname(__FILE__), '../run_simulation.rb')}\" -j #{json_path} -o #{parent_dir} --debug"
+    start_time = Time.now
     success = system(command)
     assert_equal(true, success)
+    runtime = Time.now - start_time
 
     results_json = File.join(parent_dir, 'results', 'results.json')
 
@@ -171,11 +173,20 @@ class HEScoreTest < MiniTest::Test
     assert(File.exist?(hes_hpxml))
     assert(File.exist?(results_json))
 
+    # Check HPXMLs are valid
+    schemas_dir = File.absolute_path(File.join(parent_dir, '..', '..', 'hpxml-measures', 'HPXMLtoOpenStudio', 'resources', 'hpxml_schema'))
+    _test_schema_validation(parent_dir, hes_hpxml, schemas_dir)
+
     # Check run.log for messages
     File.readlines(File.join(parent_dir, 'HEScoreDesign', 'run.log')).each do |log_line|
       next if log_line.strip.empty?
       next if log_line.start_with? 'Info: '
       next if log_line.start_with? 'Executing command'
+
+      next if log_line.include? 'Warning: Could not load nokogiri, no HPXML validation performed.'
+
+      # FIXME: Remove this warning when https://github.com/NREL/OpenStudio-HPXML/issues/638 is resolved
+      next if log_line.include?('Glazing U-factor') && log_line.include?('above maximum expected value. U-factor decreased')
 
       # Files w/o cooling systems
       no_spc_clg = false
@@ -207,7 +218,7 @@ class HEScoreTest < MiniTest::Test
     zipfile.addFile(OpenStudio::Path.new(results_json), OpenStudio::Path.new(File.basename(json_path.gsub('.json', '_results.json'))))
 
     results = _get_results(parent_dir)
-    _test_results(json, results)
+    _test_results(json_path, json, results)
 
     return results
   end
@@ -266,7 +277,7 @@ class HEScoreTest < MiniTest::Test
     return results
   end
 
-  def _test_results(json, results)
+  def _test_results(json_path, json, results)
     # Get HPXML values for Building Construction
     cfa = json['building']['about']['conditioned_floor_area']
     nbr = json['building']['about']['number_bedrooms']
@@ -458,6 +469,16 @@ class HEScoreTest < MiniTest::Test
     end
 
     puts "Wrote results to #{results_csv_path}."
+  end
+
+  def _test_schema_validation(parent_dir, xml, schemas_dir)
+    # TODO: Remove this when schema validation is included with CLI calls
+    hpxml_doc = XMLHelper.parse_file(xml)
+    errors = XMLHelper.validate(hpxml_doc.to_xml, File.join(schemas_dir, 'HPXML.xsd'), nil)
+    if errors.size > 0
+      puts "#{xml}: #{errors}"
+    end
+    assert_equal(0, errors.size)
   end
 
   def _rm_path(path)
