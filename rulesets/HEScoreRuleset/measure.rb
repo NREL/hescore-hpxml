@@ -4,28 +4,14 @@ require 'pathname'
 require 'csv'
 require 'oga'
 require 'json'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/airflow'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/battery'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/constants'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/constructions'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/geometry'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hpxml'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hpxml_defaults'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hotwater_appliances'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hvac'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hvac_sizing'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/lighting'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/materials'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/misc_loads'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/psychrometrics'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/pv'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/schedules'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/unit_conversions'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/util'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/waterheater'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/weather'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/xmlhelper'
-require_relative 'resources/HESruleset'
+Dir["#{File.dirname(__FILE__)}/../../hpxml-measures/HPXMLtoOpenStudio/resources/*.rb"].each do |resource_file|
+  next if resource_file.include? 'minitest_helper.rb'
+
+  require resource_file
+end
+Dir["#{File.dirname(__FILE__)}/resources/*.rb"].each do |resource_file|
+  require resource_file
+end
 
 # start the measure
 class HEScoreMeasure < OpenStudio::Measure::ModelMeasure
@@ -46,7 +32,7 @@ class HEScoreMeasure < OpenStudio::Measure::ModelMeasure
   end
 
   # define the arguments that the user will input
-  def arguments(model)
+  def arguments(model) # rubocop:disable Lint/UnusedMethodArgument
     args = OpenStudio::Measure::OSArgumentVector.new
 
     arg = OpenStudio::Measure::OSArgument.makeStringArgument('json_path', true)
@@ -136,7 +122,7 @@ class HEScoreMeasure < OpenStudio::Measure::ModelMeasure
     weather = WeatherProcess.new(nil, nil, cache_path)
 
     begin
-      new_hpxml = HEScoreRuleset.apply_ruleset(json, weather, zipcode_row)
+      new_hpxml = HEScoreRuleset.apply_ruleset(runner, json, weather, zipcode_row)
     rescue Exception => e
       runner.registerError("#{e.message}\n#{e.backtrace.join("\n")}")
       return false

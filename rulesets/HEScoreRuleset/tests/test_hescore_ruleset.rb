@@ -23,7 +23,6 @@ class HEScoreRulesetTest < MiniTest::Test
       args_hash['hpxml_output_path'] = File.absolute_path(json).gsub('.json', '.xml.out')
 
       _test_measure(args_hash)
-      _test_schema_validation(this_dir, json.gsub('.json', '.xml.out'))
       _test_assembly_effective_rvalues(args_hash)
       _test_conditioned_building_volume(args_hash)
 
@@ -43,7 +42,6 @@ class HEScoreRulesetTest < MiniTest::Test
       args_hash['hpxml_output_path'] = File.absolute_path(json).gsub('.json', '.xml.out')
 
       _test_measure(args_hash)
-      _test_schema_validation(this_dir, json.gsub('.json', '.xml.out'))
       _test_assembly_effective_rvalues(args_hash)
       _test_conditioned_building_volume(args_hash)
 
@@ -598,17 +596,6 @@ class HEScoreRulesetTest < MiniTest::Test
     assert_equal('Success', result.value.valueName)
   end
 
-  def _test_schema_validation(parent_dir, xml)
-    # TODO: Remove this when schema validation is included with CLI calls
-    schemas_dir = File.absolute_path(File.join(parent_dir, '..', '..', '..', 'hpxml-measures', 'HPXMLtoOpenStudio', 'resources', 'hpxml_schema'))
-    hpxml_doc = XMLHelper.parse_file(xml)
-    errors = XMLHelper.validate(hpxml_doc.to_xml, File.join(schemas_dir, 'HPXML.xsd'), nil)
-    if errors.size > 0
-      puts "#{xml}: #{errors}"
-    end
-    assert_equal(0, errors.size)
-  end
-
   def _test_assembly_effective_rvalues(args_hash)
     json_file = File.open(args_hash['json_path'])
     in_doc = JSON.parse(json_file.read)
@@ -682,13 +669,14 @@ class HEScoreRulesetTest < MiniTest::Test
       next if window_code_by_id[windowid].nil?
 
       hpxml_ufactor = XMLHelper.get_value(window, 'UFactor', :float)
+      hpxml_shgc = XMLHelper.get_value(window, 'SHGC', :float)
       json_ufactor, json_shgc = get_window_ufactor_shgc_from_doe2code(window_code_by_id[windowid])
       if not storm_type_by_id[windowid].nil?
         json_ufactor, json_shgc = get_ufactor_shgc_adjusted_by_storms(storm_type_by_id[windowid], json_ufactor, json_shgc)
       end
-      windowid = XMLHelper.get_attribute_value(XMLHelper.get_element(window, 'SystemIdentifier'), 'id')
 
       assert_in_epsilon(hpxml_ufactor, json_ufactor, 0.01)
+      assert_in_epsilon(hpxml_shgc, json_shgc, 0.01)
     end
   end
 
