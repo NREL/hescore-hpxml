@@ -14,18 +14,12 @@ end
 # Map between reporting measure end use and HEScore [end_use, resource_type]
 def get_output_map
   return { 'End Use: Electricity: Heating' => ['heating', 'electric'],
-           'End Use: Electricity: Heating Heat Pump Backup' => ['heating', 'electric'],
            'End Use: Electricity: Heating Fans/Pumps' => ['heating', 'electric'],
            'End Use: Natural Gas: Heating' => ['heating', 'natural_gas'],
-           'End Use: Natural Gas: Heating Heat Pump Backup' => ['heating', 'natural_gas'],
            'End Use: Propane: Heating' => ['heating', 'lpg'],
-           'End Use: Propane: Heating Heat Pump Backup' => ['heating', 'lpg'],
            'End Use: Fuel Oil: Heating' => ['heating', 'fuel_oil'],
-           'End Use: Fuel Oil: Heating Heat Pump Backup' => ['heating', 'fuel_oil'],
            'End Use: Wood Cord: Heating' => ['heating', 'cord_wood'],
-           'End Use: Wood Cord: Heating Heat Pump Backup' => ['heating', 'cord_wood'],
            'End Use: Wood Pellets: Heating' => ['heating', 'pellet_wood'],
-           'End Use: Wood Pellets: Heating Heat Pump Backup' => ['heating', 'pellet_wood'],
            'End Use: Electricity: Cooling' => ['cooling', 'electric'],
            'End Use: Electricity: Cooling Fans/Pumps' => ['cooling', 'electric'],
            'End Use: Electricity: Hot Water' => ['hot_water', 'electric'],

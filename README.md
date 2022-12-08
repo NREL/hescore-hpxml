@@ -7,7 +7,7 @@ An OpenStudio/EnergyPlus simulation workflow that operates on a JSON file produc
 
 ## Setup
 
-1. Either download [OpenStudio 3.5.0](https://github.com/NREL/OpenStudio/releases/tag/v3.5.0) (at a minimum, install the Command Line Interface/EnergyPlus/C++ API components) or use the [nrel/openstudio docker image](https://hub.docker.com/r/nrel/openstudio).
+1. Either download [OpenStudio 3.3.0](https://github.com/NREL/OpenStudio/releases/tag/v3.3.0) (at a minimum, install the Command Line Interface and EnergyPlus components) or use the [nrel/openstudio docker image](https://hub.docker.com/r/nrel/openstudio).
 2. Clone or download this repository's source code. 
 3. To obtain all available weather files, run:  
 ```openstudio workflow/run_simulation.rb --download-weather``` 
