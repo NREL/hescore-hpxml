@@ -12,13 +12,13 @@
       "assessment_date": "2019-11-18",
       "shape": "rectangle",
       "year_built": 1979,
-      "number_bedrooms": 3.0,
-      "num_floor_above_grade": 1.0,
-      "floor_to_ceiling_height": 10.0,
-      "conditioned_floor_area": 1946.0,
+      "number_bedrooms": 3,
+      "num_floor_above_grade": 1,
+      "floor_to_ceiling_height": 10,
+      "conditioned_floor_area": 1946,
       "orientation": "north_west",
       "blower_door_test": true,
-      "envelope_leakage": 3077.0
+      "envelope_leakage": 3077
     },
     "zone": {
       "zone_roof": [
@@ -50,9 +50,9 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 1946.0,
+          "floor_area": 1946,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf13ca"
         }
       ],

@@ -12,10 +12,10 @@
       "assessment_date": "2019-01-09",
       "shape": "rectangle",
       "year_built": 1966,
-      "number_bedrooms": 4.0,
-      "num_floor_above_grade": 1.0,
-      "floor_to_ceiling_height": 8.0,
-      "conditioned_floor_area": 1540.0,
+      "number_bedrooms": 4,
+      "num_floor_above_grade": 1,
+      "floor_to_ceiling_height": 8,
+      "conditioned_floor_area": 1540,
       "orientation": "south_west",
       "blower_door_test": false,
       "air_sealing_present": false
@@ -37,9 +37,9 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 1540.0,
+          "floor_area": 1540,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         }
       ],

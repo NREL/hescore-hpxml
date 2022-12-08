@@ -12,10 +12,10 @@
       "assessment_date": "2019-04-17",
       "shape": "rectangle",
       "year_built": 1924,
-      "number_bedrooms": 3.0,
-      "num_floor_above_grade": 2.0,
-      "floor_to_ceiling_height": 7.0,
-      "conditioned_floor_area": 1840.0,
+      "number_bedrooms": 3,
+      "num_floor_above_grade": 2,
+      "floor_to_ceiling_height": 7,
+      "conditioned_floor_area": 1840,
       "orientation": "east",
       "blower_door_test": false,
       "air_sealing_present": false
@@ -47,9 +47,9 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 776.0,
+          "floor_area": 776,
           "foundation_type": "cond_basement",
-          "foundation_insulation_level": 11.0,
+          "foundation_insulation_level": 11,
           "floor_assembly_code": "efwf11ca"
         }
       ],

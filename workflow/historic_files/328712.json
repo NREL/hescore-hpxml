@@ -12,13 +12,13 @@
       "assessment_date": "2018-07-13",
       "shape": "rectangle",
       "year_built": 2001,
-      "number_bedrooms": 3.0,
-      "num_floor_above_grade": 1.0,
-      "floor_to_ceiling_height": 8.0,
-      "conditioned_floor_area": 2704.0,
+      "number_bedrooms": 3,
+      "num_floor_above_grade": 1,
+      "floor_to_ceiling_height": 8,
+      "conditioned_floor_area": 2704,
       "orientation": "north",
       "blower_door_test": true,
-      "envelope_leakage": 1200.0
+      "envelope_leakage": 1200
     },
     "zone": {
       "zone_roof": [
@@ -52,9 +52,9 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 1352.0,
+          "floor_area": 1352,
           "foundation_type": "cond_basement",
-          "foundation_insulation_level": 11.0,
+          "foundation_insulation_level": 11,
           "floor_assembly_code": "efwf00ca"
         }
       ],

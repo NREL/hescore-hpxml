@@ -11,13 +11,13 @@
       "assessment_date": "2021-06-07",
       "shape": "rectangle",
       "year_built": 1970,
-      "number_bedrooms": 4.0,
-      "num_floor_above_grade": 2.0,
-      "floor_to_ceiling_height": 8.0,
-      "conditioned_floor_area": 2000.0,
+      "number_bedrooms": 4,
+      "num_floor_above_grade": 2,
+      "floor_to_ceiling_height": 8,
+      "conditioned_floor_area": 2000,
       "orientation": "north",
       "blower_door_test": true,
-      "envelope_leakage": 1.0
+      "envelope_leakage": 1
     },
     "zone": {
       "zone_roof": [
@@ -33,9 +33,9 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 1000.0,
+          "floor_area": 1000,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0.0
+          "foundation_insulation_level": 0
         }
       ],
       "wall_construction_same": true,

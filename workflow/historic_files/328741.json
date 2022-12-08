@@ -13,13 +13,13 @@
       "shape": "town_house",
       "town_house_walls": "back_front_left",
       "year_built": 1979,
-      "number_bedrooms": 3.0,
-      "num_floor_above_grade": 2.0,
-      "floor_to_ceiling_height": 11.0,
-      "conditioned_floor_area": 1602.0,
+      "number_bedrooms": 3,
+      "num_floor_above_grade": 2,
+      "floor_to_ceiling_height": 11,
+      "conditioned_floor_area": 1602,
       "orientation": "north",
       "blower_door_test": true,
-      "envelope_leakage": 1700.0
+      "envelope_leakage": 1700
     },
     "zone": {
       "zone_roof": [
@@ -37,16 +37,16 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 651.0,
+          "floor_area": 651,
           "foundation_type": "unvented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         },
         {
           "floor_name": "floor2",
-          "floor_area": 150.0,
+          "floor_area": 150,
           "foundation_type": "unvented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf11ca"
         }
       ],

@@ -12,13 +12,13 @@
       "assessment_date": "2018-11-10",
       "shape": "rectangle",
       "year_built": 2000,
-      "number_bedrooms": 3.0,
-      "num_floor_above_grade": 1.0,
-      "floor_to_ceiling_height": 8.0,
-      "conditioned_floor_area": 1836.0,
+      "number_bedrooms": 3,
+      "num_floor_above_grade": 1,
+      "floor_to_ceiling_height": 8,
+      "conditioned_floor_area": 1836,
       "orientation": "south",
       "blower_door_test": true,
-      "envelope_leakage": 870.0
+      "envelope_leakage": 870
     },
     "zone": {
       "zone_roof": [
@@ -37,16 +37,16 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 884.0,
+          "floor_area": 884,
           "foundation_type": "cond_basement",
-          "foundation_insulation_level": 11.0,
+          "foundation_insulation_level": 11,
           "floor_assembly_code": "efwf00ca"
         },
         {
           "floor_name": "floor2",
-          "floor_area": 68.0,
+          "floor_area": 68,
           "foundation_type": "unvented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf19ca"
         }
       ],

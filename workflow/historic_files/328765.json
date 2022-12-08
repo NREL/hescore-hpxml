@@ -12,13 +12,13 @@
       "assessment_date": "2019-01-21",
       "shape": "rectangle",
       "year_built": 1998,
-      "number_bedrooms": 4.0,
-      "num_floor_above_grade": 1.0,
-      "floor_to_ceiling_height": 11.0,
-      "conditioned_floor_area": 1984.0,
+      "number_bedrooms": 4,
+      "num_floor_above_grade": 1,
+      "floor_to_ceiling_height": 11,
+      "conditioned_floor_area": 1984,
       "orientation": "south",
       "blower_door_test": true,
-      "envelope_leakage": 1829.0
+      "envelope_leakage": 1829
     },
     "zone": {
       "zone_roof": [
@@ -48,9 +48,9 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 1984.0,
+          "floor_area": 1984,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0.0
+          "foundation_insulation_level": 0
         }
       ],
       "wall_construction_same": false,

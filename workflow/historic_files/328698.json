@@ -12,13 +12,13 @@
       "assessment_date": "2017-01-25",
       "shape": "rectangle",
       "year_built": 1970,
-      "number_bedrooms": 2.0,
-      "num_floor_above_grade": 2.0,
-      "floor_to_ceiling_height": 8.0,
-      "conditioned_floor_area": 1641.0,
+      "number_bedrooms": 2,
+      "num_floor_above_grade": 2,
+      "floor_to_ceiling_height": 8,
+      "conditioned_floor_area": 1641,
       "orientation": "west",
       "blower_door_test": true,
-      "envelope_leakage": 2088.0
+      "envelope_leakage": 2088
     },
     "zone": {
       "zone_roof": [
@@ -37,9 +37,9 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 820.0,
+          "floor_area": 820,
           "foundation_type": "uncond_basement",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
