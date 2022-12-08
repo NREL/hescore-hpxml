@@ -15,7 +15,7 @@
       "number_bedrooms": 4,
       "num_floor_above_grade": 1,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 2020,
+      "conditioned_floor_area": 2020.0,
       "orientation": "north_west",
       "blower_door_test": false,
       "air_sealing_present": false
@@ -37,7 +37,7 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 2020,
+          "floor_area": 2020.0,
           "foundation_type": "slab_on_grade",
           "foundation_insulation_level": 0
         }

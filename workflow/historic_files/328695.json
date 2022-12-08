@@ -15,7 +15,7 @@
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 5283,
+      "conditioned_floor_area": 5283.0,
       "orientation": "north_west",
       "blower_door_test": true,
       "envelope_leakage": 3071
@@ -37,7 +37,7 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 1761,
+          "floor_area": 1761.0,
           "foundation_type": "cond_basement",
           "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf15ca"

@@ -16,7 +16,7 @@
       "number_bedrooms": 3,
       "num_floor_above_grade": 3,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 1300,
+      "conditioned_floor_area": 1300.0,
       "orientation": "east",
       "blower_door_test": true,
       "envelope_leakage": 1389
@@ -38,7 +38,7 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 607,
+          "floor_area": 607.0,
           "foundation_type": "uncond_basement",
           "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"

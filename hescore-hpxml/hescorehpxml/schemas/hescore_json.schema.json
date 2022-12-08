@@ -126,7 +126,7 @@
                             "description": "Floor to ceiling height (feet)"
                         },
                         "conditioned_floor_area": {
-                            "type": "integer",
+                            "type": "number",
                             "minimum": 250,
                             "maximum": 25000,
                             "description": "Total conditioned floor area (square feet)"

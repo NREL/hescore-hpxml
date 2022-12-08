@@ -16,7 +16,7 @@
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
       "floor_to_ceiling_height": 9,
-      "conditioned_floor_area": 1600,
+      "conditioned_floor_area": 1600.0,
       "orientation": "south",
       "blower_door_test": true,
       "envelope_leakage": 1445
@@ -49,14 +49,14 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 650,
+          "floor_area": 650.0,
           "foundation_type": "unvented_crawl",
           "foundation_insulation_level": 11,
           "floor_assembly_code": "efwf00ca"
         },
         {
           "floor_name": "floor2",
-          "floor_area": 150,
+          "floor_area": 150.0,
           "foundation_type": "unvented_crawl",
           "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf11ca"

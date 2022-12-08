@@ -15,7 +15,7 @@
       "number_bedrooms": 4,
       "num_floor_above_grade": 1,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 1769,
+      "conditioned_floor_area": 1769.0,
       "orientation": "north",
       "blower_door_test": true,
       "envelope_leakage": 1599
@@ -37,7 +37,7 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 1769,
+          "floor_area": 1769.0,
           "foundation_type": "slab_on_grade",
           "foundation_insulation_level": 0
         }

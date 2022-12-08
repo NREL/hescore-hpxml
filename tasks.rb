@@ -41,7 +41,7 @@ def set_json_property_values(json_input)
   data['building']['about']['number_bedrooms'] = Integer(json_input['number_bedrooms']) unless json_input['number_bedrooms'].nil?
   data['building']['about']['num_floor_above_grade'] = Integer(json_input['num_floor_above_grade']) unless json_input['num_floor_above_grade'].nil?
   data['building']['about']['floor_to_ceiling_height'] = Integer(json_input['floor_to_ceiling_height']) unless json_input['floor_to_ceiling_height'].nil?
-  data['building']['about']['conditioned_floor_area'] = Integer(json_input['conditioned_floor_area']) unless json_input['conditioned_floor_area'].nil?
+  data['building']['about']['conditioned_floor_area'] = Float(json_input['conditioned_floor_area']) unless json_input['conditioned_floor_area'].nil?
   data['building']['about']['orientation'] = json_input['orientation'] unless json_input['orientation'].nil?
   data['building']['about']['blower_door_test'] = (json_input['blower_door_test'] == 'TRUE' ? true : false) unless json_input['blower_door_test'].nil?
   data['building']['about']['air_sealing_present'] = (json_input['air_sealing_present'] == 'TRUE' ? true : false) unless json_input['air_sealing_present'].nil?
@@ -82,7 +82,7 @@ def set_json_property_values(json_input)
 
     zone_floor_hash = Hash.new { |h, k| h[k] = h.dup.clear }
     zone_floor_hash['floor_name'] = json_input["floor_name_#{id}"] unless json_input["floor_name_#{id}"].nil?
-    zone_floor_hash['floor_area'] = Integer(json_input["floor_area_#{id}"]) unless json_input["floor_area_#{id}"].nil?
+    zone_floor_hash['floor_area'] = Float(json_input["floor_area_#{id}"]) unless json_input["floor_area_#{id}"].nil?
     zone_floor_hash['foundation_type'] = json_input["foundation_type_#{id}"] unless json_input["foundation_type_#{id}"].nil?
     zone_floor_hash['foundation_insulation_level'] = Integer(json_input["foundation_insulation_level_#{id}"]) unless json_input["foundation_insulation_level_#{id}"].nil?
     zone_floor_hash['floor_assembly_code'] = json_input["floor_assembly_code_#{id}"] unless json_input["floor_assembly_code_#{id}"].nil?

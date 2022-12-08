@@ -15,7 +15,7 @@
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
       "floor_to_ceiling_height": 11,
-      "conditioned_floor_area": 2180,
+      "conditioned_floor_area": 2180.0,
       "orientation": "south",
       "blower_door_test": true,
       "envelope_leakage": 4230
@@ -37,13 +37,13 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 1870,
+          "floor_area": 1870.0,
           "foundation_type": "slab_on_grade",
           "foundation_insulation_level": 0
         },
         {
           "floor_name": "floor2",
-          "floor_area": 310,
+          "floor_area": 310.0,
           "foundation_type": "uncond_basement",
           "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf19ca"

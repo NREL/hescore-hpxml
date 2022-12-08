@@ -15,7 +15,7 @@
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
       "floor_to_ceiling_height": 9,
-      "conditioned_floor_area": 1808,
+      "conditioned_floor_area": 1808.0,
       "orientation": "south_east",
       "blower_door_test": false,
       "air_sealing_present": false
@@ -36,7 +36,7 @@
       "zone_floor": [
         {
           "floor_name": "floor1",
-          "floor_area": 904,
+          "floor_area": 904.0,
           "foundation_type": "unvented_crawl",
           "foundation_insulation_level": 19,
           "floor_assembly_code": "efwf00ca"
