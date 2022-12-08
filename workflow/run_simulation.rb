@@ -29,7 +29,7 @@ def get_output_hpxml_path(resultsdir, rundir)
   return File.join(resultsdir, File.basename(rundir) + '.xml')
 end
 
-def run_design(basedir, rundir, design, resultsdir, json, hourly_output, debug, skip_simulation)
+def run_design(basedir, rundir, resultsdir, json, hourly_output, debug, skip_simulation)
   measures_dir = File.join(basedir, '..')
   output_hpxml_path = get_output_hpxml_path(resultsdir, rundir)
 
@@ -50,22 +50,14 @@ def run_design(basedir, rundir, design, resultsdir, json, hourly_output, debug, 
     args['output_dir'] = rundir
     args['debug'] = debug
     args['add_component_loads'] = false
-    args['skip_validation'] = !debug
     update_args_hash(measures, measure_subdir, args)
 
     # Add OS-HPXML reporting measure to workflow
     measure_subdir = 'hpxml-measures/ReportSimulationOutput'
     args = {}
     args['timeseries_frequency'] = 'monthly'
-    args['include_timeseries_fuel_consumptions'] = false
     args['include_timeseries_end_use_consumptions'] = true
-    args['include_timeseries_emissions'] = false
     args['include_timeseries_hot_water_uses'] = true
-    args['include_timeseries_total_loads'] = false
-    args['include_timeseries_component_loads'] = false
-    args['include_timeseries_zone_temperatures'] = false
-    args['include_timeseries_airflows'] = false
-    args['include_timeseries_weather'] = false
     args['timeseries_output_file_name'] = 'results_monthly.csv'
     update_args_hash(measures, measure_subdir, args)
 
@@ -82,15 +74,8 @@ def run_design(basedir, rundir, design, resultsdir, json, hourly_output, debug, 
       measure_subdir = 'hpxml-measures/ReportSimulationOutput'
       args = {}
       args['timeseries_frequency'] = 'hourly'
-      args['include_timeseries_fuel_consumptions'] = false
       args['include_timeseries_end_use_consumptions'] = true
-      args['include_timeseries_emissions'] = false
       args['include_timeseries_hot_water_uses'] = true
-      args['include_timeseries_total_loads'] = false
-      args['include_timeseries_component_loads'] = false
-      args['include_timeseries_zone_temperatures'] = false
-      args['include_timeseries_airflows'] = false
-      args['include_timeseries_weather'] = false
       args['timeseries_output_file_name'] = 'results_hourly.csv'
       update_args_hash(measures, measure_subdir, args)
     end
@@ -151,7 +136,7 @@ OptionParser.new do |opts|
   end
 
   options[:hourly_output] = false
-  opts.on('--hourly', 'Request hourly output CSV') do |t|
+  opts.on('--hourly', 'Request hourly output CSV') do |_t|
     options[:hourly_output] = true
   end
 
@@ -160,12 +145,12 @@ OptionParser.new do |opts|
   end
 
   options[:skip_simulation] = false
-  opts.on('--skip-simulation', 'Skip the EnergyPlus simulation') do |t|
+  opts.on('--skip-simulation', 'Skip the EnergyPlus simulation') do |_t|
     options[:skip_simulation] = true
   end
 
   options[:debug] = false
-  opts.on('-d', '--debug') do |t|
+  opts.on('-d', '--debug') do |_t|
     options[:debug] = true
   end
 
@@ -212,7 +197,7 @@ puts "JSON: #{options[:json]}"
 design = 'HEScoreDesign'
 rundir = get_rundir(options[:output_dir], design)
 
-success = run_design(basedir, rundir, design, resultsdir, options[:json], options[:hourly_output],
+success = run_design(basedir, rundir, resultsdir, options[:json], options[:hourly_output],
                      options[:debug], options[:skip_simulation])
 
 if not success

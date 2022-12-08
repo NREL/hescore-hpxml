@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class HEScoreRuleset
-  def self.apply_ruleset(json, weather, zipcode_row)
+  def self.apply_ruleset(runner, json, weather, zipcode_row)
     # Create new HPXML object
     new_hpxml = HPXML.new
     new_hpxml.header.xml_type = nil
@@ -11,12 +11,13 @@ class HEScoreRuleset
     new_hpxml.header.event_type = 'construction-period testing/daily test out'
     new_hpxml.header.zip_code = json['building_address']['zip_code']
     new_hpxml.header.state_code = json['building_address']['state']
+    new_hpxml.header.natvent_days_per_week = 7
 
     # BuildingSummary
     set_summary(json, new_hpxml)
 
     # ClimateAndRiskZones
-    set_climate(json, new_hpxml, zipcode_row)
+    set_climate(new_hpxml, zipcode_row)
 
     # Enclosure
     set_enclosure_air_infiltration(json, new_hpxml)
@@ -25,7 +26,7 @@ class HEScoreRuleset
     set_enclosure_rim_joists(json, new_hpxml)
     set_enclosure_walls(json, new_hpxml)
     set_enclosure_foundation_walls(json, new_hpxml)
-    set_enclosure_framefloors(json, new_hpxml)
+    set_enclosure_floors(json, new_hpxml)
     set_enclosure_slabs(json, new_hpxml)
     set_enclosure_windows(json, new_hpxml)
     set_enclosure_skylights(json, new_hpxml)
@@ -35,28 +36,27 @@ class HEScoreRuleset
     set_systems_hvac(json, new_hpxml)
     set_systems_mechanical_ventilation(json, new_hpxml)
     set_systems_water_heater(json, new_hpxml)
-    set_systems_water_heating_use(json, new_hpxml)
+    set_systems_water_heating_use(new_hpxml)
     set_systems_photovoltaics(json, new_hpxml)
 
     # Appliances
-    set_appliances_clothes_washer(json, new_hpxml)
-    set_appliances_clothes_dryer(json, new_hpxml)
-    set_appliances_dishwasher(json, new_hpxml)
-    set_appliances_refrigerator(json, new_hpxml)
-    set_appliances_cooking_range_oven(json, new_hpxml)
+    set_appliances_clothes_washer(new_hpxml)
+    set_appliances_clothes_dryer(new_hpxml)
+    set_appliances_dishwasher(new_hpxml)
+    set_appliances_refrigerator(new_hpxml)
+    set_appliances_cooking_range_oven(new_hpxml)
 
     # Lighting
-    set_lighting(json, new_hpxml)
-    set_ceiling_fans(json, new_hpxml)
+    set_lighting(new_hpxml)
 
     # MiscLoads
-    set_misc_plug_loads(json, new_hpxml)
-    set_misc_television(json, new_hpxml)
+    set_misc_plug_loads(new_hpxml)
+    set_misc_television(new_hpxml)
 
     # Prevent downstream errors in OS-HPXML
     adjust_floor_areas(new_hpxml)
 
-    HPXMLDefaults.apply(new_hpxml, Constants.ERIVersions[-1], weather)
+    HPXMLDefaults.apply(runner, new_hpxml, Constants.ERIVersions[-1], weather)
 
     return new_hpxml
   end
@@ -118,7 +118,7 @@ class HEScoreRuleset
     new_hpxml.building_construction.has_flue_or_chimney = false
   end
 
-  def self.set_climate(json, new_hpxml, zipcode_row)
+  def self.set_climate(new_hpxml, zipcode_row)
     zipcode_city = zipcode_row['city'].gsub(/\s/, '_')
     zipcode_state = zipcode_row['state_zipcode']
     station_name = zipcode_row['name']
@@ -284,7 +284,7 @@ class HEScoreRuleset
     end
   end
 
-  def self.set_enclosure_framefloors(json, new_hpxml)
+  def self.set_enclosure_floors(json, new_hpxml)
     # Floors above foundation
     json['building']['zone']['zone_floor'].each_with_index do |orig_foundation, i|
       fnd_location = { 'uncond_basement' => HPXML::LocationBasementUnconditioned,
@@ -294,13 +294,14 @@ class HEScoreRuleset
                        'slab_on_grade' => HPXML::LocationLivingSpace }[orig_foundation['foundation_type']]
       next unless [HPXML::LocationBasementUnconditioned, HPXML::LocationCrawlspaceVented, HPXML::LocationCrawlspaceUnvented].include? fnd_location
 
-      framefloor_r = get_floor_effective_r_from_doe2code(orig_foundation['floor_assembly_code'])
+      floor_r = get_floor_effective_r_from_doe2code(orig_foundation['floor_assembly_code'])
 
-      new_hpxml.frame_floors.add(id: "#{orig_foundation['floor_name']}_floor_#{i}",
-                                 exterior_adjacent_to: fnd_location,
-                                 interior_adjacent_to: HPXML::LocationLivingSpace,
-                                 area: orig_foundation['floor_area'],
-                                 insulation_assembly_r_value: framefloor_r)
+      new_hpxml.floors.add(id: "#{orig_foundation['floor_name']}_floor_#{i}",
+                           floor_type: HPXML::FloorTypeWoodFrame,
+                           exterior_adjacent_to: fnd_location,
+                           interior_adjacent_to: HPXML::LocationLivingSpace,
+                           area: orig_foundation['floor_area'],
+                           insulation_assembly_r_value: floor_r)
     end
 
     # Floors below attic
@@ -309,14 +310,15 @@ class HEScoreRuleset
                          'cath_ceiling' => HPXML::LocationLivingSpace }[orig_attic['roof_type']]
       next unless attic_location == HPXML::LocationAtticVented
 
-      framefloor_r = get_ceiling_effective_r_from_doe2code(orig_attic['ceiling_assembly_code'])
-      framefloor_area = orig_attic['ceiling_area']
+      floor_r = get_ceiling_effective_r_from_doe2code(orig_attic['ceiling_assembly_code'])
+      floor_area = orig_attic['ceiling_area']
 
-      new_hpxml.frame_floors.add(id: "#{orig_attic['roof_name']}_floor_#{i}",
-                                 exterior_adjacent_to: attic_location,
-                                 interior_adjacent_to: HPXML::LocationLivingSpace,
-                                 area: framefloor_area,
-                                 insulation_assembly_r_value: framefloor_r)
+      new_hpxml.floors.add(id: "#{orig_attic['roof_name']}_floor_#{i}",
+                           floor_type: HPXML::FloorTypeWoodFrame,
+                           exterior_adjacent_to: attic_location,
+                           interior_adjacent_to: HPXML::LocationLivingSpace,
+                           area: floor_area,
+                           insulation_assembly_r_value: floor_r)
     end
   end
 
@@ -837,8 +839,8 @@ class HEScoreRuleset
 
     # HVACControl
     control_type = HPXML::HVACControlTypeManual
-    htg_sp, htg_setback_sp, htg_setback_hrs_per_week, htg_setback_start_hr = HVAC.get_default_heating_setpoint(control_type)
-    clg_sp, clg_setup_sp, clg_setup_hrs_per_week, clg_setup_start_hr = HVAC.get_default_cooling_setpoint(control_type)
+    htg_sp = HVAC.get_default_heating_setpoint(control_type)[0]
+    clg_sp = HVAC.get_default_cooling_setpoint(control_type)[0]
     new_hpxml.hvac_controls.add(id: 'hvac_control',
                                 control_type: control_type,
                                 heating_setpoint_temp: htg_sp,
@@ -930,7 +932,7 @@ class HEScoreRuleset
                                         related_hvac_idref: related_hvac_idref)
   end
 
-  def self.set_systems_water_heating_use(json, new_hpxml)
+  def self.set_systems_water_heating_use(new_hpxml)
     new_hpxml.hot_water_distributions.add(id: 'HotWaterDistribution',
                                           system_type: HPXML::DHWDistTypeStandard,
                                           pipe_r_value: 0)
@@ -976,33 +978,33 @@ class HEScoreRuleset
                              year_modules_manufactured: orig_pv_system['year'])
   end
 
-  def self.set_appliances_clothes_washer(json, new_hpxml)
+  def self.set_appliances_clothes_washer(new_hpxml)
     new_hpxml.clothes_washers.add(id: 'ClothesWasher')
   end
 
-  def self.set_appliances_clothes_dryer(json, new_hpxml)
+  def self.set_appliances_clothes_dryer(new_hpxml)
     new_hpxml.clothes_dryers.add(id: 'ClothesDryer',
                                  fuel_type: HPXML::FuelTypeElectricity,
                                  is_vented: true,
                                  vented_flow_rate: 0.0)
   end
 
-  def self.set_appliances_dishwasher(json, new_hpxml)
+  def self.set_appliances_dishwasher(new_hpxml)
     new_hpxml.dishwashers.add(id: 'Dishwasher')
   end
 
-  def self.set_appliances_refrigerator(json, new_hpxml)
+  def self.set_appliances_refrigerator(new_hpxml)
     new_hpxml.refrigerators.add(id: 'Refrigerator')
   end
 
-  def self.set_appliances_cooking_range_oven(json, new_hpxml)
+  def self.set_appliances_cooking_range_oven(new_hpxml)
     new_hpxml.cooking_ranges.add(id: 'CookingRange',
                                  fuel_type: HPXML::FuelTypeElectricity)
 
     new_hpxml.ovens.add(id: 'Oven')
   end
 
-  def self.set_lighting(json, new_hpxml)
+  def self.set_lighting(new_hpxml)
     ltg_fracs = Lighting.get_default_fractions()
     ltg_fracs.each_with_index do |(key, fraction), i|
       location, lighting_type = key
@@ -1013,16 +1015,12 @@ class HEScoreRuleset
     end
   end
 
-  def self.set_ceiling_fans(json, new_hpxml)
-    # No ceiling fans
-  end
-
-  def self.set_misc_plug_loads(json, new_hpxml)
+  def self.set_misc_plug_loads(new_hpxml)
     new_hpxml.plug_loads.add(id: 'PlugLoadOther',
                              plug_load_type: HPXML::PlugLoadTypeOther)
   end
 
-  def self.set_misc_television(json, new_hpxml)
+  def self.set_misc_television(new_hpxml)
     new_hpxml.plug_loads.add(id: 'PlugLoadTV',
                              plug_load_type: HPXML::PlugLoadTypeTelevision)
   end
@@ -1030,12 +1028,12 @@ class HEScoreRuleset
   def self.adjust_floor_areas(new_hpxml)
     # Gather floors/slabs adjacent to conditioned space
     conditioned_floors = []
-    new_hpxml.frame_floors.each do |frame_floor|
-      next unless frame_floor.is_floor
-      next unless [HPXML::LocationLivingSpace, HPXML::LocationBasementConditioned].include?(frame_floor.interior_adjacent_to) ||
-                  [HPXML::LocationLivingSpace, HPXML::LocationBasementConditioned].include?(frame_floor.exterior_adjacent_to)
+    new_hpxml.floors.each do |floor|
+      next unless floor.is_floor
+      next unless [HPXML::LocationLivingSpace, HPXML::LocationBasementConditioned].include?(floor.interior_adjacent_to) ||
+                  [HPXML::LocationLivingSpace, HPXML::LocationBasementConditioned].include?(floor.exterior_adjacent_to)
 
-      conditioned_floors << frame_floor
+      conditioned_floors << floor
     end
     new_hpxml.slabs.each do |slab|
       next unless [HPXML::LocationLivingSpace, HPXML::LocationBasementConditioned].include? slab.interior_adjacent_to
@@ -1479,7 +1477,7 @@ def calc_ach50(ncfl_ag, cfa, ceil_height, cvolume, desc, year_built, iecc_cz, fn
 
   # Ducts (weighted by duct fraction and hvac fraction)
   sum_duct_hvac_frac = 0.0
-  ducts.each do |hvac_frac, duct_frac, duct_location|
+  ducts.each do |hvac_frac, duct_frac, _duct_location|
     sum_duct_hvac_frac += (duct_frac * hvac_frac)
   end
   if sum_duct_hvac_frac > 1.0001 # Using 1.0001 to allow small tolerance on sum

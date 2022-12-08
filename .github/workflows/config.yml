@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate-jsons
     container:
-      image: nrel/openstudio:3.3.0
+      image: docker://nrel/openstudio:3.5.0
     steps:
       - uses: actions/checkout@v2
         with:
