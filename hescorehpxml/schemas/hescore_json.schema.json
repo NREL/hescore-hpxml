@@ -2706,11 +2706,11 @@
                                 "minimum": 0.0,
                                 "description": "R value of the added insulation"
                             },
-                            "code": {
+                            "window_code": {
                                 "type": "string",
                                 "description": "Construction assembly code for window/skylight upgrades"
                             },
-                            "type": {
+                            "storm_type": {
                                 "type": "string",
                                 "enum": ["low-e", "clear"],
                                 "description": "Storm type for window/skylight storm upgrades"
@@ -2845,7 +2845,7 @@
                                 },
                                 "then": {
                                     "required": [
-                                        "code"
+                                        "window_code"
                                     ]
                                 }
                             },
@@ -2865,7 +2865,7 @@
                                 },
                                 "then": {
                                     "required": [
-                                        "type"
+                                        "storm_type"
                                     ]
                                 }
                             },
