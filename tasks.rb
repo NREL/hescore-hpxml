@@ -30,10 +30,10 @@ def set_json_property_values(json_input)
   data['building_address']['address'] = json_input['address'] unless json_input['address'].nil?
   data['building_address']['city'] = json_input['city'] unless json_input['city'].nil?
   data['building_address']['state'] = json_input['state'] unless json_input['state'].nil?
-  data['building_address']['zip_code'] = "%05d" % json_input['zip_code'] unless json_input['zip_code'].nil?
+  data['building_address']['zip_code'] = '%05d' % json_input['zip_code'] unless json_input['zip_code'].nil?
   data['building_address']['assessment_type'] = json_input['assessment_type'] unless json_input['assessment_type'].nil?
   data['building_address']['external_building_id'] = json_input['external_building_id'] unless json_input['external_building_id'].nil?
-  
+
   data['building']['about']['assessment_date'] = json_input['assessment_date'] unless json_input['assessment_date'].nil?
   data['building']['about']['shape'] = json_input['shape'] unless json_input['shape'].nil?
   data['building']['about']['town_house_walls'] = json_input['town_house_walls'] unless json_input['town_house_walls'].nil?
@@ -49,7 +49,7 @@ def set_json_property_values(json_input)
 
   zone_roof = []
   2.times do |i|
-    id = (i+1).to_s
+    id = (i + 1).to_s
     next if json_input["roof_name_#{id}"].nil?
 
     zone_roof_hash = Hash.new { |h, k| h[k] = h.dup.clear }
@@ -70,14 +70,14 @@ def set_json_property_values(json_input)
     zone_roof_hash['zone_skylight']['skylight_shgc'] = json_input["skylight_shgc_#{id}"].to_f unless json_input["skylight_shgc_#{id}"].nil?
     zone_roof_hash['zone_skylight']['solar_screen'] = (json_input["skylight_solar_screen_#{id}"] == 'TRUE' ? true : false) unless json_input["skylight_solar_screen_#{id}"].nil?
     zone_roof_hash['zone_skylight']['storm_type'] = json_input["skylight_storm_type_#{id}"] unless json_input["skylight_storm_type_#{id}"].nil?
-    
+
     zone_roof[i] = zone_roof_hash
   end
   data['building']['zone']['zone_roof'] = zone_roof
 
   zone_floor = []
   2.times do |i|
-    id = (i+1).to_s
+    id = (i + 1).to_s
     next if json_input["floor_name_#{id}"].nil?
 
     zone_floor_hash = Hash.new { |h, k| h[k] = h.dup.clear }
@@ -95,7 +95,7 @@ def set_json_property_values(json_input)
 
   zone_wall = []
   4.times do |i|
-    id = (i+1).to_s
+    id = (i + 1).to_s
     next if json_input["wall#{id}_side"].nil?
 
     zone_wall_hash = Hash.new { |h, k| h[k] = h.dup.clear }
@@ -114,7 +114,7 @@ def set_json_property_values(json_input)
 
   hvac = []
   2.times do |i|
-    id = (i+1).to_s
+    id = (i + 1).to_s
     next if json_input["hvac_name_#{id}"].nil?
 
     hvac_hash = Hash.new { |h, k| h[k] = h.dup.clear }
@@ -137,9 +137,9 @@ def set_json_property_values(json_input)
 
     duct = []
     3.times do |j|
-      duct_id = (j+1).to_s
+      duct_id = (j + 1).to_s
       next if json_input["duct#{duct_id}_name_#{id}"].nil?
-      
+
       duct_hash = Hash.new { |h, k| h[k] = h.dup.clear }
       duct_hash['name'] = json_input["duct#{duct_id}_name_#{id}"] unless json_input["duct#{duct_id}_name_#{id}"].nil?
       duct_hash['location'] = json_input["duct#{duct_id}_location_#{id}"] unless json_input["duct#{duct_id}_location_#{id}"].nil?
