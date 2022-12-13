@@ -18,7 +18,7 @@ jobs:
         shell: bash
         run: |
           ruby tasks.rb update_jsons
-          git diff
+          git diff --exit-code
       - name: Validate JSONs
         shell: bash
         run: |
