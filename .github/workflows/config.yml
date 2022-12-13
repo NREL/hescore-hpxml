@@ -18,7 +18,7 @@ jobs:
         shell: bash
         run: |
           ruby tasks.rb update_jsons
-          if [[ $(git diff --exit-code --ignore-cr-at-eol --quiet) ]]; then
+          if [[ $(git diff --exit-code) ]]; then
             echo "One or more regression or historic JSON files do not match the auto-generated JSON files."
           fi
       - name: Validate JSONs
