@@ -43,7 +43,7 @@
       "zone_wall": [
         {
           "side": "front",
-          "wall_assembly_code": "ewwf13vi",
+          "wall_assembly_code": "ewwf11vi",
           "zone_window": {
             "window_area": 60.0,
             "window_method": "code",
