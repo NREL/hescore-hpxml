@@ -30,6 +30,11 @@ jobs:
           ref: ${{ github.head_ref }}
       - name: Install gems
         run: rm -f Gemfile.lock && bundle install
+      - name: Update JSONs
+        shell: bash
+        run: |
+          openstudio tasks.rb update_jsons
+          git diff --exit-code --ignore-cr-at-eol --quiet
       - name: Run tests
         run: bundle exec rake test_all
       - name: Store results
