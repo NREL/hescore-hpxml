@@ -14,9 +14,6 @@ def create_jsons()
     json_data = set_json_property_values(json_inputs[i])
 
     begin
-      if json_filepath.include? '328769.json'
-        raise "Temporary CI test"
-      end
       File.open(json_filepath, 'w') do |f|
         f.write(JSON.pretty_generate(json_data))
       end
