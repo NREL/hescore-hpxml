@@ -15,7 +15,7 @@
       "number_bedrooms": 3,
       "num_floor_above_grade": 1,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 1312,
+      "conditioned_floor_area": 1312.0,
       "orientation": "north_east",
       "blower_door_test": false,
       "air_sealing_present": false
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf19",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -52,7 +52,7 @@
           "zone_window": {
             "window_area": 192.0,
             "window_method": "custom",
-            "window_u_value": 0.6999999999999998,
+            "window_u_value": 0.7,
             "window_shgc": 0.64,
             "solar_screen": false
           }

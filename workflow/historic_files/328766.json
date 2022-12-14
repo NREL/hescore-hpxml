@@ -15,7 +15,7 @@
       "number_bedrooms": 4,
       "num_floor_above_grade": 1,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 1769,
+      "conditioned_floor_area": 1769.0,
       "orientation": "north",
       "blower_door_test": true,
       "envelope_leakage": 1599
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf25",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],

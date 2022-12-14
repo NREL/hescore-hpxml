@@ -15,7 +15,7 @@
       "number_bedrooms": 4,
       "num_floor_above_grade": 1,
       "floor_to_ceiling_height": 10,
-      "conditioned_floor_area": 2800,
+      "conditioned_floor_area": 2800.0,
       "orientation": "south_west",
       "blower_door_test": false,
       "air_sealing_present": false
@@ -43,7 +43,7 @@
           "roof_color": "light",
           "roof_type": "cath_ceiling",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],

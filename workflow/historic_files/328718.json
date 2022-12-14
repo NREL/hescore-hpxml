@@ -15,7 +15,7 @@
       "number_bedrooms": 6,
       "num_floor_above_grade": 3,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 2537,
+      "conditioned_floor_area": 2537.0,
       "orientation": "north",
       "blower_door_test": false,
       "air_sealing_present": false
@@ -29,7 +29,7 @@
           "roof_color": "medium_dark",
           "roof_type": "cath_ceiling",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         },
         {
@@ -40,7 +40,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf25",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],

@@ -15,7 +15,7 @@
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 1412,
+      "conditioned_floor_area": 1412.0,
       "orientation": "south",
       "blower_door_test": true,
       "envelope_leakage": 7820
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf25",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -53,7 +53,7 @@
             "window_area": 58.0,
             "window_method": "custom",
             "window_u_value": 0.7,
-            "window_shgc": 0.6399999999999999,
+            "window_shgc": 0.64,
             "solar_screen": false
           }
         },
@@ -63,7 +63,7 @@
           "zone_window": {
             "window_area": 6.0,
             "window_method": "custom",
-            "window_u_value": 0.6999999999999998,
+            "window_u_value": 0.7,
             "window_shgc": 0.64,
             "solar_screen": false
           }
@@ -85,7 +85,7 @@
           "zone_window": {
             "window_area": 24.0,
             "window_method": "custom",
-            "window_u_value": 0.6999999999999998,
+            "window_u_value": 0.7,
             "window_shgc": 0.64,
             "solar_screen": false
           }

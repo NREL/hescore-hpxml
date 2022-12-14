@@ -15,7 +15,7 @@
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 5283,
+      "conditioned_floor_area": 5283.0,
       "orientation": "north_west",
       "blower_door_test": true,
       "envelope_leakage": 3071
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf30",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -60,7 +60,7 @@
           "side": "left",
           "wall_assembly_code": "ewwf11vi",
           "zone_window": {
-            "window_area": 0,
+            "window_area": 0.0,
             "window_method": "code",
             "window_code": "scna",
             "solar_screen": false
@@ -117,7 +117,7 @@
               {
                 "name": "duct2",
                 "location": "uncond_attic",
-                "fraction": 0.35000000000000003,
+                "fraction": 0.35,
                 "insulated": true
               }
             ]

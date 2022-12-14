@@ -15,7 +15,7 @@
       "number_bedrooms": 1,
       "num_floor_above_grade": 1,
       "floor_to_ceiling_height": 12,
-      "conditioned_floor_area": 1100,
+      "conditioned_floor_area": 1100.0,
       "orientation": "east",
       "blower_door_test": true,
       "envelope_leakage": 3035
@@ -29,7 +29,7 @@
           "roof_color": "medium",
           "roof_type": "cath_ceiling",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -62,7 +62,7 @@
           "zone_window": {
             "window_area": 89.0,
             "window_method": "custom",
-            "window_u_value": 0.41999999999999993,
+            "window_u_value": 0.42,
             "window_shgc": 0.52,
             "solar_screen": false
           }
