@@ -18,6 +18,7 @@ jobs:
         shell: bash
         run: |
           ruby tasks.rb update_jsons
+          echo "Checking for JSON differences..."
           git diff --exit-code --ignore-cr-at-eol
       - name: Validate JSONs
         shell: bash
