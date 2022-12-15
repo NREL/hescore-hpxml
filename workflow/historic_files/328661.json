@@ -11,9 +11,9 @@
     "about": {
       "assessment_date": "9/4/2019",
       "year_built": 1929,
-      "number_bedrooms": 2.0,
-      "num_floor_above_grade": 1.0,
-      "floor_to_ceiling_height": 8.0,
+      "number_bedrooms": 2,
+      "num_floor_above_grade": 1,
+      "floor_to_ceiling_height": 8,
       "conditioned_floor_area": 1254.0,
       "orientation": "east",
       "blower_door_test": false,

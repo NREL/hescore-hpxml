@@ -11,9 +11,9 @@
     "about": {
       "assessment_date": "11/20/2017",
       "year_built": 2000,
-      "number_bedrooms": 3.0,
-      "num_floor_above_grade": 3.0,
-      "floor_to_ceiling_height": 8.0,
+      "number_bedrooms": 3,
+      "num_floor_above_grade": 3,
+      "floor_to_ceiling_height": 8,
       "conditioned_floor_area": 1300.0,
       "orientation": "east",
       "blower_door_test": true,

@@ -11,9 +11,9 @@
     "about": {
       "assessment_date": "12/31/2019",
       "year_built": 1925,
-      "number_bedrooms": 2.0,
-      "num_floor_above_grade": 2.0,
-      "floor_to_ceiling_height": 7.0,
+      "number_bedrooms": 2,
+      "num_floor_above_grade": 2,
+      "floor_to_ceiling_height": 7,
       "conditioned_floor_area": 1863.0,
       "orientation": "west",
       "blower_door_test": false,

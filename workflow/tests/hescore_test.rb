@@ -266,6 +266,14 @@ class HEScoreTest < MiniTest::Test
       results[key] = result['quantity']
     end
 
+    # Retrieve cost multipliers
+    data['end_use'].each do |result|
+      next if result['resource_type'] != 'cost_multiplier'
+
+      key = [result['resource_type'], result['end_use'], result['units']]
+      results[key] = result['quantity']
+    end
+
     return results
   end
 

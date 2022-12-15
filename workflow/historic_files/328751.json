@@ -11,9 +11,9 @@
     "about": {
       "assessment_date": "7/19/2017",
       "year_built": 1982,
-      "number_bedrooms": 4.0,
-      "num_floor_above_grade": 3.0,
-      "floor_to_ceiling_height": 9.0,
+      "number_bedrooms": 4,
+      "num_floor_above_grade": 3,
+      "floor_to_ceiling_height": 9,
       "conditioned_floor_area": 3469.0,
       "orientation": "north",
       "blower_door_test": true,

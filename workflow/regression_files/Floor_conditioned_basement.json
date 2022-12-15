@@ -10,9 +10,9 @@
     "about": {
       "assessment_date": "6/7/2021",
       "year_built": 1970,
-      "number_bedrooms": 4.0,
-      "num_floor_above_grade": 2.0,
-      "floor_to_ceiling_height": 8.0,
+      "number_bedrooms": 4,
+      "num_floor_above_grade": 2,
+      "floor_to_ceiling_height": 8,
       "conditioned_floor_area": 2000.0,
       "orientation": "north",
       "blower_door_test": false,
@@ -35,10 +35,12 @@
           "floor_name": "floor1",
           "floor_area": 1000.0,
           "foundation_type": "cond_basement",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
+      "wall_construction_same": true,
+      "window_construction_same": true,
       "zone_wall": [
         {
           "side": "front",
@@ -57,8 +59,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 50.0,
-            "window_method": "code",
-            "window_code": "dcaw",
             "solar_screen": false
           }
         },
@@ -68,8 +68,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 40.0,
-            "window_method": "code",
-            "window_code": "dcaw",
             "solar_screen": false
           }
         },
@@ -79,8 +77,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 30.0,
-            "window_method": "code",
-            "window_code": "dcaw",
             "solar_screen": false
           }
         }

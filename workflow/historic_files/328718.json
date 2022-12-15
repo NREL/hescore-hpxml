@@ -11,9 +11,9 @@
     "about": {
       "assessment_date": "11/15/2019",
       "year_built": 1880,
-      "number_bedrooms": 6.0,
-      "num_floor_above_grade": 3.0,
-      "floor_to_ceiling_height": 8.0,
+      "number_bedrooms": 6,
+      "num_floor_above_grade": 3,
+      "floor_to_ceiling_height": 8,
       "conditioned_floor_area": 2537.0,
       "orientation": "north",
       "blower_door_test": false,

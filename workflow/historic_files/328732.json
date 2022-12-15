@@ -11,9 +11,9 @@
     "about": {
       "assessment_date": "10/6/2017",
       "year_built": 1950,
-      "number_bedrooms": 2.0,
-      "num_floor_above_grade": 1.0,
-      "floor_to_ceiling_height": 8.0,
+      "number_bedrooms": 2,
+      "num_floor_above_grade": 1,
+      "floor_to_ceiling_height": 8,
       "conditioned_floor_area": 904.0,
       "orientation": "south",
       "blower_door_test": false,

@@ -11,9 +11,9 @@
     "about": {
       "assessment_date": "2/28/2018",
       "year_built": 1994,
-      "number_bedrooms": 3.0,
-      "num_floor_above_grade": 1.0,
-      "floor_to_ceiling_height": 10.0,
+      "number_bedrooms": 3,
+      "num_floor_above_grade": 1,
+      "floor_to_ceiling_height": 10,
       "conditioned_floor_area": 1664.0,
       "orientation": "south_west",
       "blower_door_test": false,
