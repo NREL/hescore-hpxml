@@ -53,17 +53,26 @@
         {
           "side": "back",
           "wall_assembly_code": "ewwf13vi",
-          "adjacent_to": "outside"
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 0.0
+          }
         },
         {
           "side": "right",
           "wall_assembly_code": "ewwf13vi",
-          "adjacent_to": "outside"
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 0.0
+          }
         },
         {
           "side": "left",
           "wall_assembly_code": "ewwf13vi",
-          "adjacent_to": "outside"
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 0.0
+          }
         }
       ]
     },
