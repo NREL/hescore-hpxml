@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "7/13/2018",
+      "assessment_date": "2018-07-13",
       "year_built": 2001,
       "number_bedrooms": 3,
       "num_floor_above_grade": 1,
@@ -17,7 +17,7 @@
       "conditioned_floor_area": 2704.0,
       "orientation": "north",
       "blower_door_test": true,
-      "envelope_leakage": 1200.0,
+      "envelope_leakage": 1200,
       "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
@@ -54,7 +54,7 @@
           "floor_name": "floor1",
           "floor_area": 1352.0,
           "foundation_type": "cond_basement",
-          "foundation_insulation_level": 11.0,
+          "foundation_insulation_level": 11,
           "floor_assembly_code": "efwf00ca"
         }
       ],
@@ -65,18 +65,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 13.76,
-            "window_method": "custom",
-            "window_u_value": 0.44,
-            "window_shgc": 0.56,
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf13wo",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 15.6,
             "window_method": "custom",
             "window_u_value": 0.44,
             "window_shgc": 0.56,
@@ -101,6 +89,18 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 72.8,
+            "window_method": "custom",
+            "window_u_value": 0.44,
+            "window_shgc": 0.56,
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf13wo",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 15.6,
             "window_method": "custom",
             "window_u_value": 0.44,
             "window_shgc": 0.56,

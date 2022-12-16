@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "8/8/2017",
+      "assessment_date": "2017-08-08",
       "year_built": 1900,
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
@@ -39,14 +39,14 @@
           "floor_name": "floor1",
           "floor_area": 452.0,
           "foundation_type": "unvented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         },
         {
           "floor_name": "floor2",
           "floor_area": 194.0,
           "foundation_type": "uncond_basement",
-          "foundation_insulation_level": 11.0,
+          "foundation_insulation_level": 11,
           "floor_assembly_code": "efwf00ca"
         }
       ],
@@ -57,18 +57,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 102.0,
-            "window_method": "custom",
-            "window_u_value": 0.7,
-            "window_shgc": 0.64,
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf15vi",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 47.6,
             "window_method": "custom",
             "window_u_value": 0.7,
             "window_shgc": 0.64,
@@ -93,6 +81,18 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 71.4,
+            "window_method": "custom",
+            "window_u_value": 0.7,
+            "window_shgc": 0.64,
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf15vi",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 47.6,
             "window_method": "custom",
             "window_u_value": 0.7,
             "window_shgc": 0.64,

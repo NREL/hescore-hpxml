@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "1/15/2019",
+      "assessment_date": "2019-01-15",
       "year_built": 1971,
       "number_bedrooms": 3,
       "num_floor_above_grade": 1,
@@ -39,7 +39,7 @@
           "floor_name": "floor1",
           "floor_area": 1015.0,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0.0
+          "foundation_insulation_level": 0
         }
       ],
       "zone_wall": [
@@ -55,11 +55,6 @@
           }
         },
         {
-          "side": "left",
-          "wall_assembly_code": "ewcb00st",
-          "adjacent_to": "other_unit"
-        },
-        {
           "side": "back",
           "wall_assembly_code": "ewcb00st",
           "adjacent_to": "outside",
@@ -72,6 +67,11 @@
         },
         {
           "side": "right",
+          "wall_assembly_code": "ewcb00st",
+          "adjacent_to": "other_unit"
+        },
+        {
+          "side": "left",
           "wall_assembly_code": "ewcb00st",
           "adjacent_to": "other_unit"
         }

@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "10/13/2019",
+      "assessment_date": "2019-10-13",
       "year_built": 1971,
       "number_bedrooms": 3,
       "num_floor_above_grade": 1,
@@ -39,14 +39,14 @@
           "floor_name": "floor1",
           "floor_area": 960.0,
           "foundation_type": "unvented_crawl",
-          "foundation_insulation_level": 11.0,
+          "foundation_insulation_level": 11,
           "floor_assembly_code": "efwf00ca"
         },
         {
           "floor_name": "floor2",
           "floor_area": 384.0,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf15ca"
         }
       ],
@@ -59,17 +59,6 @@
             "window_area": 80.0,
             "window_method": "code",
             "window_code": "dcaw",
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf00wo",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 0.0,
-            "window_method": "code",
-            "window_code": "scna",
             "solar_screen": false
           }
         },
@@ -87,6 +76,17 @@
         {
           "side": "right",
           "wall_assembly_code": "ewwf19wo",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 0.0,
+            "window_method": "code",
+            "window_code": "scna",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf00wo",
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 0.0,

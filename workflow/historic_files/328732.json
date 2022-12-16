@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "10/6/2017",
+      "assessment_date": "2017-10-06",
       "year_built": 1950,
       "number_bedrooms": 2,
       "num_floor_above_grade": 1,
@@ -39,7 +39,7 @@
           "floor_name": "floor1",
           "floor_area": 904.0,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
@@ -50,18 +50,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 121.6,
-            "window_method": "custom",
-            "window_u_value": 0.7,
-            "window_shgc": 0.64,
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf07vi",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 20.8,
             "window_method": "custom",
             "window_u_value": 0.7,
             "window_shgc": 0.64,
@@ -82,6 +70,18 @@
         },
         {
           "side": "right",
+          "wall_assembly_code": "ewwf07vi",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 20.8,
+            "window_method": "custom",
+            "window_u_value": 0.7,
+            "window_shgc": 0.64,
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
           "wall_assembly_code": "ewwf07vi",
           "adjacent_to": "outside",
           "zone_window": {

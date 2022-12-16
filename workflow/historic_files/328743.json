@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "8/18/2016",
+      "assessment_date": "2016-08-18",
       "year_built": 2002,
       "number_bedrooms": 6,
       "num_floor_above_grade": 2,
@@ -17,7 +17,7 @@
       "conditioned_floor_area": 5690.0,
       "orientation": "west",
       "blower_door_test": true,
-      "envelope_leakage": 8701.0,
+      "envelope_leakage": 8701,
       "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
@@ -38,14 +38,14 @@
           "floor_name": "floor1",
           "floor_area": 1475.0,
           "foundation_type": "cond_basement",
-          "foundation_insulation_level": 19.0,
+          "foundation_insulation_level": 19,
           "floor_assembly_code": "efwf00ca"
         },
         {
           "floor_name": "floor2",
           "floor_area": 632.0,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
@@ -56,18 +56,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 293.0,
-            "window_method": "custom",
-            "window_u_value": 0.51,
-            "window_shgc": 0.56,
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf19st",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 51.0,
             "window_method": "custom",
             "window_u_value": 0.51,
             "window_shgc": 0.56,
@@ -92,6 +80,18 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 238.0,
+            "window_method": "custom",
+            "window_u_value": 0.51,
+            "window_shgc": 0.56,
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf19st",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 51.0,
             "window_method": "custom",
             "window_u_value": 0.51,
             "window_shgc": 0.56,

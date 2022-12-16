@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "12/23/2019",
+      "assessment_date": "2019-12-23",
       "year_built": 1996,
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
@@ -38,14 +38,14 @@
           "floor_name": "floor1",
           "floor_area": 463.0,
           "foundation_type": "unvented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf19ca"
         },
         {
           "floor_name": "floor2",
           "floor_area": 437.0,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0.0
+          "foundation_insulation_level": 0
         }
       ],
       "zone_wall": [
@@ -57,17 +57,6 @@
             "window_area": 20.0,
             "window_method": "code",
             "window_code": "dseaw",
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf19al",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 18.0,
-            "window_method": "code",
-            "window_code": "dcaw",
             "solar_screen": false
           }
         },
@@ -90,6 +79,17 @@
             "window_area": 10.0,
             "window_method": "code",
             "window_code": "dseaw",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf19al",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 18.0,
+            "window_method": "code",
+            "window_code": "dcaw",
             "solar_screen": false
           }
         }

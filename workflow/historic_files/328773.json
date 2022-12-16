@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "6/19/2017",
+      "assessment_date": "2017-06-19",
       "year_built": 1973,
       "number_bedrooms": 2,
       "num_floor_above_grade": 2,
@@ -39,23 +39,12 @@
           "floor_name": "floor1",
           "floor_area": 1009.0,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0.0
+          "foundation_insulation_level": 0
         }
       ],
       "zone_wall": [
         {
           "side": "front",
-          "wall_assembly_code": "ewcb00st",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 29.0,
-            "window_method": "code",
-            "window_code": "scna",
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
           "wall_assembly_code": "ewcb00st",
           "adjacent_to": "outside",
           "zone_window": {
@@ -78,6 +67,17 @@
         },
         {
           "side": "right",
+          "wall_assembly_code": "ewcb00st",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 29.0,
+            "window_method": "code",
+            "window_code": "scna",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
           "wall_assembly_code": "ewcb00st",
           "adjacent_to": "outside",
           "zone_window": {

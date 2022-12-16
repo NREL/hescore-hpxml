@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "9/28/2017",
+      "assessment_date": "2017-09-28",
       "year_built": 2013,
       "number_bedrooms": 5,
       "num_floor_above_grade": 2,
@@ -17,7 +17,7 @@
       "conditioned_floor_area": 4200.0,
       "orientation": "north_east",
       "blower_door_test": true,
-      "envelope_leakage": 2920.0,
+      "envelope_leakage": 2920,
       "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
@@ -39,13 +39,13 @@
           "floor_name": "floor1",
           "floor_area": 2178.0,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0.0
+          "foundation_insulation_level": 0
         },
         {
           "floor_name": "floor2",
           "floor_area": 608.0,
           "foundation_type": "uncond_basement",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf19ca"
         }
       ],
@@ -56,17 +56,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 125.0,
-            "window_method": "code",
-            "window_code": "dseaw",
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf13wo",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 75.0,
             "window_method": "code",
             "window_code": "dseaw",
             "solar_screen": false
@@ -89,6 +78,17 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 48.0,
+            "window_method": "code",
+            "window_code": "dseaw",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf13wo",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 75.0,
             "window_method": "code",
             "window_code": "dseaw",
             "solar_screen": false

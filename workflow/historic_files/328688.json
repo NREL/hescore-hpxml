@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "10/25/2017",
+      "assessment_date": "2017-10-25",
       "year_built": 1955,
       "number_bedrooms": 1,
       "num_floor_above_grade": 1,
@@ -39,7 +39,7 @@
           "floor_name": "floor1",
           "floor_area": 560.0,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
@@ -50,17 +50,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 15.0,
-            "window_method": "code",
-            "window_code": "dcaa",
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf13wo",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 45.0,
             "window_method": "code",
             "window_code": "dcaa",
             "solar_screen": false
@@ -83,6 +72,17 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 24.0,
+            "window_method": "code",
+            "window_code": "dcaa",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf13wo",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 45.0,
             "window_method": "code",
             "window_code": "dcaa",
             "solar_screen": false

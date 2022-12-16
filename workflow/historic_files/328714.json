@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "4/20/2019",
+      "assessment_date": "2019-04-20",
       "year_built": 2015,
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
@@ -42,7 +42,7 @@
           "floor_name": "floor1",
           "floor_area": 1397.0,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf19ca"
         }
       ],
@@ -53,17 +53,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 72.0,
-            "window_method": "code",
-            "window_code": "dseaaw",
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf11st",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 48.0,
             "window_method": "code",
             "window_code": "dseaaw",
             "solar_screen": false
@@ -86,6 +75,17 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 47.0,
+            "window_method": "code",
+            "window_code": "dseaaw",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf11st",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 48.0,
             "window_method": "code",
             "window_code": "dseaaw",
             "solar_screen": false

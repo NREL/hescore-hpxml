@@ -36,14 +36,14 @@ def set_json_property_values(json_input)
   
   data['building']['about']['assessment_date'] = json_input['assessment_date'] unless json_input['assessment_date'].nil?
   data['building']['about']['year_built'] = Integer(json_input['year_built']) unless json_input['year_built'].nil?
-  data['building']['about']['number_bedrooms'] = Float(json_input['number_bedrooms']) unless json_input['number_bedrooms'].nil?
-  data['building']['about']['num_floor_above_grade'] = Float(json_input['num_floor_above_grade']) unless json_input['num_floor_above_grade'].nil?
-  data['building']['about']['floor_to_ceiling_height'] = Float(json_input['floor_to_ceiling_height']) unless json_input['floor_to_ceiling_height'].nil?
+  data['building']['about']['number_bedrooms'] = Integer(json_input['number_bedrooms']) unless json_input['number_bedrooms'].nil?
+  data['building']['about']['num_floor_above_grade'] = Integer(json_input['num_floor_above_grade']) unless json_input['num_floor_above_grade'].nil?
+  data['building']['about']['floor_to_ceiling_height'] = Integer(json_input['floor_to_ceiling_height']) unless json_input['floor_to_ceiling_height'].nil?
   data['building']['about']['conditioned_floor_area'] = Float(json_input['conditioned_floor_area']) unless json_input['conditioned_floor_area'].nil?
   data['building']['about']['orientation'] = json_input['orientation'] unless json_input['orientation'].nil?
   data['building']['about']['blower_door_test'] = (json_input['blower_door_test'] == 'TRUE' ? true : false) unless json_input['blower_door_test'].nil?
   data['building']['about']['air_sealing_present'] = (json_input['air_sealing_present'] == 'TRUE' ? true : false) unless json_input['air_sealing_present'].nil?
-  data['building']['about']['envelope_leakage'] = Float(json_input['envelope_leakage']) unless json_input['envelope_leakage'].nil?
+  data['building']['about']['envelope_leakage'] = Integer(json_input['envelope_leakage']) unless json_input['envelope_leakage'].nil?
   data['building']['about']['dwelling_unit_type'] = json_input['dwelling_unit_type'] unless json_input['dwelling_unit_type'].nil?
 
   zone_roof = []

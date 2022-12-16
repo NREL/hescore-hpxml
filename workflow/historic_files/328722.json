@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "4/2/2019",
+      "assessment_date": "2019-04-02",
       "year_built": 1950,
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
@@ -17,7 +17,7 @@
       "conditioned_floor_area": 1458.0,
       "orientation": "west",
       "blower_door_test": true,
-      "envelope_leakage": 2256.0,
+      "envelope_leakage": 2256,
       "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
@@ -49,25 +49,13 @@
           "floor_name": "floor1",
           "floor_area": 972.0,
           "foundation_type": "uncond_basement",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
       "zone_wall": [
         {
           "side": "front",
-          "wall_assembly_code": "ewps15vi",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 61.81,
-            "window_method": "custom",
-            "window_u_value": 0.44,
-            "window_shgc": 0.56,
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
           "wall_assembly_code": "ewps15vi",
           "adjacent_to": "outside",
           "zone_window": {
@@ -92,6 +80,18 @@
         },
         {
           "side": "right",
+          "wall_assembly_code": "ewps15vi",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 61.81,
+            "window_method": "custom",
+            "window_u_value": 0.44,
+            "window_shgc": 0.56,
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
           "wall_assembly_code": "ewps15vi",
           "adjacent_to": "outside",
           "zone_window": {

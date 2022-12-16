@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "1/6/2017",
+      "assessment_date": "2017-01-06",
       "year_built": 2010,
       "number_bedrooms": 4,
       "num_floor_above_grade": 2,
@@ -39,7 +39,7 @@
           "floor_name": "floor1",
           "floor_area": 1000.0,
           "foundation_type": "vented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf19ca"
         }
       ],
@@ -50,18 +50,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 88.0,
-            "window_method": "custom",
-            "window_u_value": 0.65,
-            "window_shgc": 0.4,
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf13vi",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 52.0,
             "window_method": "custom",
             "window_u_value": 0.65,
             "window_shgc": 0.4,
@@ -82,6 +70,18 @@
         },
         {
           "side": "right",
+          "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 52.0,
+            "window_method": "custom",
+            "window_u_value": 0.65,
+            "window_shgc": 0.4,
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
           "wall_assembly_code": "ewwf13vi",
           "adjacent_to": "outside",
           "zone_window": {

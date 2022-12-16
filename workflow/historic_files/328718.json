@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "11/15/2019",
+      "assessment_date": "2019-11-15",
       "year_built": 1880,
       "number_bedrooms": 6,
       "num_floor_above_grade": 3,
@@ -49,7 +49,7 @@
           "floor_name": "floor1",
           "floor_area": 1000.0,
           "foundation_type": "unvented_crawl",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
@@ -60,17 +60,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 108.0,
-            "window_method": "code",
-            "window_code": "scnw",
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf07wo",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 137.0,
             "window_method": "code",
             "window_code": "scnw",
             "solar_screen": false
@@ -93,6 +82,17 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 177.0,
+            "window_method": "code",
+            "window_code": "scnw",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf07wo",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 137.0,
             "window_method": "code",
             "window_code": "scnw",
             "solar_screen": false

@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "12/29/2017",
+      "assessment_date": "2017-12-29",
       "year_built": 2017,
       "number_bedrooms": 4,
       "num_floor_above_grade": 1,
@@ -17,7 +17,7 @@
       "conditioned_floor_area": 1859.0,
       "orientation": "south_west",
       "blower_door_test": true,
-      "envelope_leakage": 800.0,
+      "envelope_leakage": 800,
       "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
@@ -39,7 +39,7 @@
           "floor_name": "floor1",
           "floor_area": 1859.0,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0.0
+          "foundation_insulation_level": 0
         }
       ],
       "zone_wall": [
@@ -49,18 +49,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 43.0,
-            "window_method": "custom",
-            "window_u_value": 0.32,
-            "window_shgc": 0.21,
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewps15br",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 60.0,
             "window_method": "custom",
             "window_u_value": 0.32,
             "window_shgc": 0.21,
@@ -85,6 +73,18 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 22.0,
+            "window_method": "custom",
+            "window_u_value": 0.32,
+            "window_shgc": 0.21,
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewps15br",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 60.0,
             "window_method": "custom",
             "window_u_value": 0.32,
             "window_shgc": 0.21,

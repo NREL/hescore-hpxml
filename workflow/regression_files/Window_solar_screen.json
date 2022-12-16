@@ -8,7 +8,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "6/7/2021",
+      "assessment_date": "2021-06-07",
       "year_built": 1970,
       "number_bedrooms": 4,
       "num_floor_above_grade": 2,
@@ -38,8 +38,6 @@
           "foundation_insulation_level": 0
         }
       ],
-      "wall_construction_same": true,
-      "window_construction_same": true,
       "zone_wall": [
         {
           "side": "front",
@@ -58,6 +56,8 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 50.0,
+            "window_method": "code",
+            "window_code": "dcaw",
             "solar_screen": true
           }
         },
@@ -67,6 +67,8 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 40.0,
+            "window_method": "code",
+            "window_code": "dcaw",
             "solar_screen": true
           }
         },
@@ -76,6 +78,8 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 30.0,
+            "window_method": "code",
+            "window_code": "dcaw",
             "solar_screen": true
           }
         }

@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "3/13/2019",
+      "assessment_date": "2019-03-13",
       "year_built": 1983,
       "number_bedrooms": 3,
       "num_floor_above_grade": 1,
@@ -39,7 +39,7 @@
           "floor_name": "floor1",
           "floor_area": 1796.0,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0.0
+          "foundation_insulation_level": 0
         }
       ],
       "zone_wall": [
@@ -49,17 +49,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 67.0,
-            "window_method": "code",
-            "window_code": "dcaa",
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf00wo",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 46.0,
             "window_method": "code",
             "window_code": "dcaa",
             "solar_screen": false
@@ -82,6 +71,17 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 42.0,
+            "window_method": "code",
+            "window_code": "dcaa",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf00wo",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 46.0,
             "window_method": "code",
             "window_code": "dcaa",
             "solar_screen": false

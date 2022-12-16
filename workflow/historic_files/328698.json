@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "1/25/2017",
+      "assessment_date": "2017-01-25",
       "year_built": 1970,
       "number_bedrooms": 2,
       "num_floor_above_grade": 2,
@@ -17,7 +17,7 @@
       "conditioned_floor_area": 1641.0,
       "orientation": "west",
       "blower_door_test": true,
-      "envelope_leakage": 2088.0,
+      "envelope_leakage": 2088,
       "dwelling_unit_type": "single_family_detached"
     },
     "zone": {
@@ -39,7 +39,7 @@
           "floor_name": "floor1",
           "floor_area": 820.0,
           "foundation_type": "uncond_basement",
-          "foundation_insulation_level": 0.0,
+          "foundation_insulation_level": 0,
           "floor_assembly_code": "efwf00ca"
         }
       ],
@@ -50,17 +50,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 57.0,
-            "window_method": "code",
-            "window_code": "dpeaw",
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewwf13vi",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 31.0,
             "window_method": "code",
             "window_code": "dpeaw",
             "solar_screen": false
@@ -83,6 +72,17 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 16.0,
+            "window_method": "code",
+            "window_code": "dpeaw",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 31.0,
             "window_method": "code",
             "window_code": "dpeaw",
             "solar_screen": false

@@ -9,7 +9,7 @@
   },
   "building": {
     "about": {
-      "assessment_date": "6/6/2017",
+      "assessment_date": "2017-06-06",
       "year_built": 2017,
       "number_bedrooms": 3,
       "num_floor_above_grade": 1,
@@ -39,7 +39,7 @@
           "floor_name": "floor1",
           "floor_area": 1512.0,
           "foundation_type": "slab_on_grade",
-          "foundation_insulation_level": 0.0
+          "foundation_insulation_level": 0
         }
       ],
       "zone_wall": [
@@ -49,18 +49,6 @@
           "adjacent_to": "outside",
           "zone_window": {
             "window_area": 56.0,
-            "window_method": "custom",
-            "window_u_value": 0.52,
-            "window_shgc": 0.411262,
-            "solar_screen": false
-          }
-        },
-        {
-          "side": "left",
-          "wall_assembly_code": "ewps21wo",
-          "adjacent_to": "outside",
-          "zone_window": {
-            "window_area": 35.2,
             "window_method": "custom",
             "window_u_value": 0.52,
             "window_shgc": 0.411262,
@@ -81,6 +69,18 @@
         },
         {
           "side": "right",
+          "wall_assembly_code": "ewps21wo",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 35.2,
+            "window_method": "custom",
+            "window_u_value": 0.52,
+            "window_shgc": 0.411262,
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
           "wall_assembly_code": "ewps21wo",
           "adjacent_to": "outside",
           "zone_window": {
