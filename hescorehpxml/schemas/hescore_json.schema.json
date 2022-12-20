@@ -2739,12 +2739,12 @@
                         "maximum": 20.0,
                         "description": "Heating efficiency value for upgraded heating/heat pump system"
                     },
-                    "efficiency_unit": {
+                    "wh_efficiency_unit": {
                         "type": "string",
                         "enum": ["energy_factor", "uniform_energy_factor"],
                         "description": "Unit of efficiency for upgraded domestic hot water systems"
                     },
-                    "efficiency_value": {
+                    "wh_efficiency_value": {
                         "type": "number",
                         "minimum": 0.45,
                         "maximum": 4.0,
@@ -2977,11 +2977,11 @@
                         },
                         "then": {
                             "properties": {
-                                "efficiency_unit": {"enum": ["energy_factor", "uniform_energy_factor"]}
+                                "wh_efficiency_unit": {"enum": ["energy_factor", "uniform_energy_factor"]}
                             },
                             "required": [
-                                "efficiency_unit",
-                                "efficiency_value"
+                                "wh_efficiency_unit",
+                                "wh_efficiency_value"
                             ]
                         }
                     }
