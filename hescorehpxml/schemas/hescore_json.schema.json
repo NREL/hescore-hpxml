@@ -2645,353 +2645,347 @@
                 }
             ]
         },
-        "upgrades": {
-            "type": "object",
+        "applicable_upgrades": {
+            "type": "array",
+            "description": "Inputs about the applicable upgrades",
             "additionalProperties": false,
-            "properties": {
-                "applicable_upgrades": {
-                    "type": "array",
-                    "description": "Inputs about the applicable upgrades",
-                    "additionalItems": false,
-                    "items": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "properties": {
-                            "upgrade_id": {
-                                "type": "integer",
-                                "description": "ID of the upgrade"
-                            },
-                            "upgrade_code": {
-                                "type": "string",
-                                "enum": [
-                                    "attic_insulation",
-                                    "floor_insulation",
-                                    "roof_absorptivity",
-                                    "roof_sheathing",
-                                    "knee_wall_insulation",
-                                    "wall_insulation",
-                                    "wall_sheathing",
-                                    "skylight",
-                                    "skylight_storm",
-                                    "window",
-                                    "window_storm",
-                                    "foundation_wall_insulation",
-                                    "envelope_sealing",
-                                    "duct_insulation",
-                                    "duct_sealing",
-                                    "heating_efficiency",
-                                    "cooling_efficiency",
-                                    "hp_efficiency",
-                                    "replace_hvac_with_ducted_heat_pump",
-                                    "replace_hvac_with_ductless_mini_split",
-                                    "replace_heating_with_ng",
-                                    "wh_efficiency",
-                                    "replace_wh_with_heat_pump",
-                                    "replace_wh_fuel_with_ng"
-                                ],
-                                "description": "Upgrades that can be applied to the base building"
-                            },
-                            "insulation_R_value": {
-                                "type": "integer",
-                                "description": "Assembly R value of the upgraded insulation"
-                            },
-                            "solar_absorptance": {
-                                "type": "number",
-                                "minimum": 0.0,
-                                "maximum": 1.0,
-                                "description": "Solar absorptance of the upgraded roof."
-                            },
-                            "added_insulation_R_value": {
-                                "type": "integer",
-                                "minimum": 0.0,
-                                "description": "R value of the added insulation"
-                            },
-                            "window_code": {
-                                "type": "string",
-                                "description": "Construction assembly code for window/skylight upgrades"
-                            },
-                            "storm_type": {
-                                "type": "string",
-                                "enum": ["low-e", "clear"],
-                                "description": "Storm type for window/skylight storm upgrades"
-                            },
-                            "leakage_reduction": {
-                                "type": "number",
-                                "minimum": 0.0,
-                                "maximum": 1.0,
-                                "description": "% Reduction of leakage for sealing upgrades"
-                            },
-                            "cooling_efficiency_unit": {
-                                "type": "string",
-                                "enum": ["seer", "eer"],
-                                "description": "Unit of cooling efficiency for upgraded cooling/heat pump system"
-                            },
-                            "cooling_efficiency_value": {
-                                "type": "number",
-                                "minimum": 8.0,
-                                "maximum": 40.0,
-                                "description": "Cooling efficiency value for upgraded cooling/heat pump system"
-                            },
-                            "heating_efficiency_unit": {
-                                "type": "string",
-                                "enum": ["hspf", "afue"],
-                                "description": "Unit of heating efficiency for upgraded heating/heat pump system"
-                            },
-                            "heating_efficiency_value": {
-                                "type": "number",
-                                "minimum": 0.6,
-                                "maximum": 20.0,
-                                "description": "Heating efficiency value for upgraded heating/heat pump system"
-                            },
-                            "efficiency_unit": {
-                                "type": "string",
-                                "enum": ["energy_factor", "uniform_energy_factor"],
-                                "description": "Unit of efficiency for upgraded domestic hot water systems"
-                            },
-                            "efficiency_value": {
-                                "type": "number",
-                                "minimum": 0.45,
-                                "maximum": 4.0,
-                                "description": "Efficiency value for upgraded domestic hot water systems"
-                            },
-                            "instance_id": {
-                                "type": ["array", "null"],
-                                "minItems": 1,
-                                "description": "Array of instances that upgrade applies to"
-                            }
-                        },
-                        "allOf": [
-                            {
-                                "required": [
-                                    "upgrade_id",
-                                    "upgrade_code",
-                                    "instance_id"
-                                ]
-                            },
-                            {
-                                "if": {
-                                    "properties": {
-                                        "upgrade_code": {
-                                            "enum": [
-                                                "attic_insulation",
-                                                "floor_insulation",
-                                                "knee_wall_insulation",
-                                                "wall_insulation",
-                                                "foundation_wall_insulation",
-                                                "duct_insulation"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "upgrade_code"
-                                    ]
-                                },
-                                "then": {
-                                    "required": [
-                                        "insulation_R_value"
-                                    ]
-                                }
-                            },
-                            {
-                                "if": {
-                                    "properties": {
-                                        "upgrade_code": {
-                                            "const": "roof_absorptivity"
-                                        }
-                                    },
-                                    "required": [
-                                        "upgrade_code"
-                                    ]
-                                },
-                                "then": {
-                                    "required": [
-                                        "solar_absorptance"
-                                    ]
-                                }
-                            },
-                            {
-                                "if": {
-                                    "properties": {
-                                        "upgrade_code": {
-                                            "enum": [
-                                                "roof_sheathing",
-                                                "wall_sheathing"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "upgrade_code"
-                                    ]
-                                },
-                                "then": {
-                                    "required": [
-                                        "added_insulation_R_value"
-                                    ]
-                                }
-                            },
-                            {
-                                "if": {
-                                    "properties": {
-                                        "upgrade_code": {
-                                            "enum": [
-                                                "skylight",
-                                                "window"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "upgrade_code"
-                                    ]
-                                },
-                                "then": {
-                                    "required": [
-                                        "window_code"
-                                    ]
-                                }
-                            },
-                            {
-                                "if": {
-                                    "properties": {
-                                        "upgrade_code": {
-                                            "enum": [
-                                                "skylight_storm",
-                                                "window_storm"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "upgrade_code"
-                                    ]
-                                },
-                                "then": {
-                                    "required": [
-                                        "storm_type"
-                                    ]
-                                }
-                            },
-                            {
-                                "if": {
-                                    "properties": {
-                                        "upgrade_code": {
-                                            "enum": [
-                                                "envelope_sealing",
-                                                "duct_sealing"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "upgrade_code"
-                                    ]
-                                },
-                                "then": {
-                                    "required": [
-                                        "leakage_reduction"
-                                    ]
-                                }
-                            },
-                            {
-                                "if": {
-                                    "properties": {
-                                        "upgrade_code": {
-                                            "enum": [
-                                                "heating_efficiency",
-                                                "replace_heating_with_ng"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "upgrade_code"
-                                    ]
-                                },
-                                "then": {
-                                    "properties": {
-                                        "heating_efficiency_unit": {"const": "afue"}
-                                    },
-                                    "required": [
-                                        "heating_efficiency_unit",
-                                        "heating_efficiency_value"
-                                    ]
-                                }
-                            },
-                            {
-                                "if": {
-                                    "properties": {
-                                        "upgrade_code": {
-                                            "enum": [
-                                                "cooling_efficiency"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "upgrade_code"
-                                    ]
-                                },
-                                "then": {
-                                    "properties": {
-                                        "cooling_efficiency_unit": {"enum": ["seer", "eer"]}
-                                    },
-                                    "required": [
-                                        "cooling_efficiency_unit",
-                                        "cooling_efficiency_value"
-                                    ]
-                                }
-                            },
-                            {
-                                "if": {
-                                    "properties": {
-                                        "upgrade_code": {
-                                            "enum": [
-                                                "hp_efficiency",
-                                                "replace_hvac_with_ducted_heat_pump",
-                                                "replace_hvac_with_ductless_mini_split"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "upgrade_code"
-                                    ]
-                                },
-                                "then": {
-                                    "properties": {
-                                        "cooling_efficiency_unit": {"const": "seer"},
-                                        "heating_efficiency_unit": {"const": "hspf"}
-                                    },
-                                    "required": [
-                                        "cooling_efficiency_unit",
-                                        "cooling_efficiency_value",
-                                        "heating_efficiency_unit",
-                                        "heating_efficiency_value"
-                                    ]
-                                }
-                            },
-                            {
-                                "if": {
-                                    "properties": {
-                                        "upgrade_code": {
-                                            "enum": [
-                                                "wh_efficiency",
-                                                "replace_wh_with_heat_pump",
-                                                "replace_wh_fuel_with_ng"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "upgrade_code"
-                                    ]
-                                },
-                                "then": {
-                                    "properties": {
-                                        "efficiency_unit": {"enum": ["energy_factor", "uniform_energy_factor"]}
-                                    },
-                                    "required": [
-                                        "efficiency_unit",
-                                        "efficiency_value"
-                                    ]
-                                }
-                            }
-                        ]
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "upgrade_id": {
+                        "type": "integer",
+                        "description": "ID of the upgrade"
+                    },
+                    "upgrade_code": {
+                        "type": "string",
+                        "enum": [
+                            "attic_insulation",
+                            "floor_insulation",
+                            "roof_absorptivity",
+                            "roof_sheathing",
+                            "knee_wall_insulation",
+                            "wall_insulation",
+                            "wall_sheathing",
+                            "skylight",
+                            "skylight_storm",
+                            "window",
+                            "window_storm",
+                            "foundation_wall_insulation",
+                            "envelope_sealing",
+                            "duct_insulation",
+                            "duct_sealing",
+                            "heating_efficiency",
+                            "cooling_efficiency",
+                            "hp_efficiency",
+                            "replace_hvac_with_ducted_heat_pump",
+                            "replace_hvac_with_ductless_mini_split",
+                            "replace_heating_with_ng",
+                            "wh_efficiency",
+                            "replace_wh_with_heat_pump",
+                            "replace_wh_fuel_with_ng"
+                        ],
+                        "description": "Upgrades that can be applied to the base building"
+                    },
+                    "insulation_R_value": {
+                        "type": "integer",
+                        "description": "Assembly R value of the upgraded insulation"
+                    },
+                    "solar_absorptance": {
+                        "type": "number",
+                        "minimum": 0.0,
+                        "maximum": 1.0,
+                        "description": "Solar absorptance of the upgraded roof."
+                    },
+                    "added_insulation_R_value": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "description": "R value of the added insulation"
+                    },
+                    "window_code": {
+                        "type": "string",
+                        "description": "Construction assembly code for window/skylight upgrades"
+                    },
+                    "storm_type": {
+                        "type": "string",
+                        "enum": ["low-e", "clear"],
+                        "description": "Storm type for window/skylight storm upgrades"
+                    },
+                    "leakage_reduction": {
+                        "type": "number",
+                        "minimum": 0.0,
+                        "maximum": 1.0,
+                        "description": "% Reduction of leakage for sealing upgrades"
+                    },
+                    "cooling_efficiency_unit": {
+                        "type": "string",
+                        "enum": ["seer", "eer"],
+                        "description": "Unit of cooling efficiency for upgraded cooling/heat pump system"
+                    },
+                    "cooling_efficiency_value": {
+                        "type": "number",
+                        "minimum": 8.0,
+                        "maximum": 40.0,
+                        "description": "Cooling efficiency value for upgraded cooling/heat pump system"
+                    },
+                    "heating_efficiency_unit": {
+                        "type": "string",
+                        "enum": ["hspf", "afue"],
+                        "description": "Unit of heating efficiency for upgraded heating/heat pump system"
+                    },
+                    "heating_efficiency_value": {
+                        "type": "number",
+                        "minimum": 0.6,
+                        "maximum": 20.0,
+                        "description": "Heating efficiency value for upgraded heating/heat pump system"
+                    },
+                    "efficiency_unit": {
+                        "type": "string",
+                        "enum": ["energy_factor", "uniform_energy_factor"],
+                        "description": "Unit of efficiency for upgraded domestic hot water systems"
+                    },
+                    "efficiency_value": {
+                        "type": "number",
+                        "minimum": 0.45,
+                        "maximum": 4.0,
+                        "description": "Efficiency value for upgraded domestic hot water systems"
+                    },
+                    "instance_id": {
+                        "type": ["array", "null"],
+                        "minItems": 1,
+                        "description": "Array of instances that upgrade applies to"
                     }
-                }
+                },
+                "allOf": [
+                    {
+                        "required": [
+                            "upgrade_id",
+                            "upgrade_code",
+                            "instance_id"
+                        ]
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "attic_insulation",
+                                        "floor_insulation",
+                                        "knee_wall_insulation",
+                                        "wall_insulation",
+                                        "foundation_wall_insulation",
+                                        "duct_insulation"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "insulation_R_value"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "const": "roof_absorptivity"
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "solar_absorptance"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "roof_sheathing",
+                                        "wall_sheathing"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "added_insulation_R_value"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "skylight",
+                                        "window"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "window_code"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "skylight_storm",
+                                        "window_storm"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "storm_type"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "envelope_sealing",
+                                        "duct_sealing"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "leakage_reduction"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "heating_efficiency",
+                                        "replace_heating_with_ng"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "heating_efficiency_unit": {"const": "afue"}
+                            },
+                            "required": [
+                                "heating_efficiency_unit",
+                                "heating_efficiency_value"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "cooling_efficiency"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "cooling_efficiency_unit": {"enum": ["seer", "eer"]}
+                            },
+                            "required": [
+                                "cooling_efficiency_unit",
+                                "cooling_efficiency_value"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "hp_efficiency",
+                                        "replace_hvac_with_ducted_heat_pump",
+                                        "replace_hvac_with_ductless_mini_split"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "cooling_efficiency_unit": {"const": "seer"},
+                                "heating_efficiency_unit": {"const": "hspf"}
+                            },
+                            "required": [
+                                "cooling_efficiency_unit",
+                                "cooling_efficiency_value",
+                                "heating_efficiency_unit",
+                                "heating_efficiency_value"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "wh_efficiency",
+                                        "replace_wh_with_heat_pump",
+                                        "replace_wh_fuel_with_ng"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "efficiency_unit": {"enum": ["energy_factor", "uniform_energy_factor"]}
+                            },
+                            "required": [
+                                "efficiency_unit",
+                                "efficiency_value"
+                            ]
+                        }
+                    }
+                ]
             }
         }
     },
