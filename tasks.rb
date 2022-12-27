@@ -5,6 +5,12 @@ def create_jsons()
   json_inputs_path = File.join(this_dir, 'workflow/json_inputs.tsv')
   json_inputs = CSV.parse(File.read(json_inputs_path), headers: true, col_sep: "\t")
 
+  ['historic_files', 'regression_files'].each do |subdir|
+    subdir_path = File.join(this_dir, 'workflow', subdir)
+    FileUtils.rm_rf(subdir_path)
+    FileUtils.mkdir_p(subdir_path)
+  end
+
   json_inputs.each_with_index do |row, i|
     json_filename = json_inputs[i]['file_name']
     json_filepath = File.join(this_dir, "workflow/#{json_inputs[i]['file_type']}/#{json_inputs[i]['file_name']}")
@@ -19,7 +25,7 @@ def create_jsons()
       end
     rescue Exception => e
       puts "\n#{e}\n#{e.backtrace.join('\n')}"
-      puts "\nError: Did not successfully generate #{json_file}."
+      puts "\nError: Did not successfully generate #{json_filename}."
       exit!
     end
   end
