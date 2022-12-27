@@ -5,6 +5,7 @@ def create_jsons()
   json_inputs_path = File.join(this_dir, 'workflow/json_inputs.tsv')
   json_inputs = CSV.parse(File.read(json_inputs_path), headers: true, col_sep: "\t")
 
+  require 'fileutils'
   ['historic_files', 'regression_files'].each do |subdir|
     subdir_path = File.join(this_dir, 'workflow', subdir)
     FileUtils.rm_rf(subdir_path)
