@@ -54,7 +54,7 @@
             "skylight_area": 40.0,
             "skylight_method": "code",
             "skylight_code": "stna",
-            "storm_type": "FALSE"
+            "solar_screen": false
           }
         }
       ],
