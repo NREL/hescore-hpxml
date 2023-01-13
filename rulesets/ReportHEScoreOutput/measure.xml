@@ -3,8 +3,8 @@
   <schema_version>3.0</schema_version>
   <name>report_he_score_output</name>
   <uid>785ca026-0050-41cd-9b8c-b2d64c832987</uid>
-  <version_id>05b28e9a-2b09-4cc2-943a-2359898d0f56</version_id>
-  <version_modified>20221110T145513Z</version_modified>
+  <version_id>11a20aa4-9e8a-4e95-92a6-e93186d161d1</version_id>
+  <version_modified>20221215T000857Z</version_modified>
   <xml_checksum>9BF1E6AC</xml_checksum>
   <class_name>ReportHEScoreOutput</class_name>
   <display_name>Report HEScore Output</display_name>
@@ -60,22 +60,10 @@
   </attributes>
   <files>
     <file>
-      <filename>bins.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>E7FC9F4B</checksum>
-    </file>
-    <file>
-      <filename>lu_resource_price_by_state.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>38167034</checksum>
-    </file>
-    <file>
-      <filename>lu_carbon_factor_by_state.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>BDE60C05</checksum>
+      <filename>output_report_test.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>test</usage_type>
+      <checksum>62FF96DB</checksum>
     </file>
     <file>
       <version>
@@ -86,13 +74,7 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>48434BF1</checksum>
-    </file>
-    <file>
-      <filename>output_report_test.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>test</usage_type>
-      <checksum>62FF96DB</checksum>
+      <checksum>B3C780E7</checksum>
     </file>
   </files>
 </measure>
