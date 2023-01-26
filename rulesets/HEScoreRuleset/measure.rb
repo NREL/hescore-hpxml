@@ -77,7 +77,7 @@ class HEScoreMeasure < OpenStudio::Measure::ModelMeasure
     zipcode_row = nil
     zipcode = json['building_address']['zip_code']
     zip_distance = 99999
-    CSV.foreach(File.join(File.dirname(__FILE__), 'resources', 'zipcodes_wx.csv'), headers: true) do |row|
+    CSV.foreach(File.join(File.dirname(__FILE__), '..', '..', 'resources', 'zipcodes_wx.csv'), headers: true) do |row|
       zip3_of_interest = zipcode[0, 3]
       next unless row['postal_code'].start_with?(zip3_of_interest)
 
@@ -91,7 +91,7 @@ class HEScoreMeasure < OpenStudio::Measure::ModelMeasure
       end
     end
     if zipcode_row.nil?
-      fail "Zip code #{zipcode} could not be found in #{File.join(File.dirname(__FILE__), 'resources', 'zipcodes_wx.csv')}"
+      fail "Zip code #{zipcode} could not be found in #{File.join(File.dirname(__FILE__), '..', '..', 'resources', 'zipcodes_wx.csv')}"
     end
 
     # Look up EPW path from WMO

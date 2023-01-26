@@ -15,7 +15,7 @@
       "number_bedrooms": 3,
       "num_floor_above_grade": 1,
       "floor_to_ceiling_height": 10,
-      "conditioned_floor_area": 1946,
+      "conditioned_floor_area": 1946.0,
       "orientation": "north_west",
       "blower_door_test": true,
       "envelope_leakage": 3077
@@ -43,7 +43,7 @@
           "roof_color": "medium_dark",
           "roof_type": "cath_ceiling",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -93,7 +93,7 @@
           "side": "right",
           "wall_assembly_code": "ewwf03wo",
           "zone_window": {
-            "window_area": 0,
+            "window_area": 0.0,
             "window_method": "code",
             "window_code": "scna",
             "solar_screen": false

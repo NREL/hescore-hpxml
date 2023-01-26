@@ -3,8 +3,8 @@
   <schema_version>3.0</schema_version>
   <name>he_score_measure</name>
   <uid>013ca589-73ab-451f-afae-dbeb5304dea8</uid>
-  <version_id>b0f53c2f-66dc-4721-bf7b-b98a7a231d5a</version_id>
-  <version_modified>20221123T170140Z</version_modified>
+  <version_id>4c5fb7d2-68fd-47e3-81f0-ed8d6ffdbc6e</version_id>
+  <version_modified>20230126T175752Z</version_modified>
   <xml_checksum>2AF3A68E</xml_checksum>
   <class_name>HEScoreMeasure</class_name>
   <display_name>Apply Home Energy Score Ruleset</display_name>
@@ -57,28 +57,10 @@
   </attributes>
   <files>
     <file>
-      <filename>lu_es_furnace_region.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>F98E711A</checksum>
-    </file>
-    <file>
-      <filename>zipcodes_wx.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>1154F211</checksum>
-    </file>
-    <file>
-      <filename>lu_water_heater_efficiency.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>7991870D</checksum>
-    </file>
-    <file>
-      <filename>lu_hvac_equipment_efficiency.csv</filename>
-      <filetype>csv</filetype>
-      <usage_type>resource</usage_type>
-      <checksum>56E99952</checksum>
+      <filename>test_hescore_ruleset.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>test</usage_type>
+      <checksum>B9B4BC34</checksum>
     </file>
     <file>
       <version>
@@ -89,19 +71,13 @@
       <filename>measure.rb</filename>
       <filetype>rb</filetype>
       <usage_type>script</usage_type>
-      <checksum>CAE6E845</checksum>
+      <checksum>3732DA30</checksum>
     </file>
     <file>
       <filename>HESruleset.rb</filename>
       <filetype>rb</filetype>
       <usage_type>resource</usage_type>
-      <checksum>BF02D079</checksum>
-    </file>
-    <file>
-      <filename>test_hescore_ruleset.rb</filename>
-      <filetype>rb</filetype>
-      <usage_type>test</usage_type>
-      <checksum>B9B4BC34</checksum>
+      <checksum>99F5AF1F</checksum>
     </file>
   </files>
 </measure>

@@ -15,7 +15,7 @@
       "number_bedrooms": 2,
       "num_floor_above_grade": 1,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 744,
+      "conditioned_floor_area": 744.0,
       "orientation": "east",
       "blower_door_test": false,
       "air_sealing_present": false
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf09",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],

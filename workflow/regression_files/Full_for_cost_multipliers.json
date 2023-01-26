@@ -1,200 +1,203 @@
 {
-    "building_address": {
-        "address": "Regression run 10.177",
-        "city": "St Louis",
-        "state": "MO",
-        "zip_code": "63101",
-        "assessment_type": "construction-period testing\/daily test out"
+  "building_address": {
+    "address": "Regression run 10.177",
+    "city": "St Louis",
+    "state": "MO",
+    "zip_code": "63101",
+    "assessment_type": "construction-period testing/daily test out"
+  },
+  "building": {
+    "about": {
+      "assessment_date": "2022-10-27",
+      "shape": "rectangle",
+      "year_built": 1970,
+      "number_bedrooms": 4,
+      "num_floor_above_grade": 2,
+      "floor_to_ceiling_height": 8,
+      "conditioned_floor_area": 2000.0,
+      "orientation": "north",
+      "blower_door_test": false,
+      "air_sealing_present": false
     },
-    "building": {
-        "about": {
-            "assessment_date": "2022-10-27",
-            "shape": "rectangle",
-            "year_built": 1970,
-            "number_bedrooms": 4,
-            "num_floor_above_grade": 2,
-            "floor_to_ceiling_height": 8,
-            "conditioned_floor_area": 2000,
-            "orientation": "north",
-            "blower_door_test": false,
-            "air_sealing_present": false
+    "zone": {
+      "zone_roof": [
+        {
+          "roof_name": "roof1",
+          "ceiling_area": 600.0,
+          "roof_assembly_code": "rfwf00co",
+          "roof_color": "medium",
+          "roof_type": "vented_attic",
+          "ceiling_assembly_code": "ecwf19",
+          "knee_wall": {
+            "assembly_code": "kwwf11",
+            "area": 100.0
+          },
+          "zone_skylight": {
+            "skylight_area": 100.0,
+            "skylight_method": "code",
+            "skylight_code": "scna",
+            "solar_screen": false
+          }
         },
-        "zone": {
-            "zone_wall": [
-                {
-                    "side": "front",
-                    "wall_assembly_code": "ewwf13vi",
-                    "zone_window": {
-                        "window_area": 60,
-                        "window_method": "code",
-                        "solar_screen": false,
-                        "window_code": "dcaw"
-                    }
-                },
-                {
-                    "side": "back",
-                    "zone_window": {
-                        "window_area": 50
-                    }
-                },
-                {
-                    "side": "right",
-                    "zone_window": {
-                        "window_area": 40
-                    }
-                },
-                {
-                    "side": "left",
-                    "zone_window": {
-                        "window_area": 30
-                    }
-                }
-            ],
-            "wall_construction_same": true,
-            "window_construction_same": true,
-            "zone_roof": [
-                {
-                    "roof_name": "roof1",
-                    "roof_type": "vented_attic",
-                    "ceiling_assembly_code": "ecwf19",
-                    "ceiling_area": 600,
-                    "roof_assembly_code": "rfwf00co",
-                    "roof_color": "medium",
-                    "zone_skylight": {
-                        "skylight_area": 100,
-                        "skylight_method": "code",
-                        "skylight_code": "scna",
-                        "solar_screen": false
-                    },
-                    "knee_wall": {
-                        "area": 100,
-                        "assembly_code": "kwwf11"
-                    }
-                },
-                {
-                    "roof_name": "roof2",
-                    "roof_type": "vented_attic",
-                    "ceiling_assembly_code": "ecwf19",
-                    "ceiling_area": 400,
-                    "roof_assembly_code": "rfwf00co",
-                    "roof_color": "medium",
-                    "zone_skylight": {
-                        "skylight_area": 40,
-                        "skylight_method": "code",
-                        "skylight_code": "stna",
-                        "solar_screen": false
-                    },
-                    "knee_wall": {
-                        "area": 200,
-                        "assembly_code": "kwwf11"
-                    }
-                }
-            ],
-            "zone_floor": [
-                {
-                    "floor_name": "floor1",
-                    "floor_area": 600,
-                    "foundation_type": "uncond_basement",
-                    "foundation_insulation_level": 0,
-                    "floor_assembly_code": "efwf00ca"
-                },
-                {
-                    "floor_name": "floor2",
-                    "floor_area": 400,
-                    "foundation_type": "vented_crawl",
-                    "foundation_insulation_level": 0,
-                    "floor_assembly_code": "efwf00ca"
-                }
-            ]
-        },
-        "systems": {
-            "hvac": [
-                {
-                    "hvac_name": "hvac1",
-                    "hvac_fraction": 0.7,
-                    "heating": {
-                        "fuel_primary": "natural_gas",
-                        "type": "central_furnace",
-                        "efficiency_method": "user",
-                        "efficiency": 0.8
-                    },
-                    "cooling": {
-                        "type": "split_dx",
-                        "efficiency_method": "user",
-                        "efficiency": 13
-                    },
-                    "hvac_distribution": {
-                        "leakage_method": "qualitative",
-                        "sealed": true,
-                        "duct": [
-                            {
-                                "name": "duct1",
-                                "location": "uncond_attic",
-                                "fraction": 0.5,
-                                "insulated": true
-                            },
-                            {
-                                "name": "duct2",
-                                "location": "vented_crawl",
-                                "fraction": 0.3,
-                                "insulated": false
-                            },
-                            {
-                                "name": "duct3",
-                                "location": "cond_space",
-                                "fraction": 0.2,
-                                "insulated": true
-                            }
-                        ]
-                    }
-                },
-                {
-                    "hvac_name": "hvac2",
-                    "hvac_fraction": 0.3,
-                    "heating": {
-                        "fuel_primary": "electric",
-                        "type": "heat_pump",
-                        "efficiency_method": "user",
-                        "efficiency": 6
-                    },
-                    "cooling": {
-                        "type": "heat_pump",
-                        "efficiency_method": "user",
-                        "efficiency": 10
-                    },
-                    "hvac_distribution": {
-                        "leakage_method": "qualitative",
-                        "sealed": true,
-                        "duct": [
-                            {
-                                "name": "duct1",
-                                "location": "uncond_attic",
-                                "fraction": 0.5,
-                                "insulated": false
-                            },
-                            {
-                                "name": "duct2",
-                                "location": "vented_crawl",
-                                "fraction": 0.3,
-                                "insulated": false
-                            },
-                            {
-                                "name": "duct3",
-                                "location": "cond_space",
-                                "fraction": 0.2,
-                                "insulated": true
-                            }
-                        ]
-                    }
-                }
-            ],
-            "domestic_hot_water": {
-                "category": "unit",
-                "type": "storage",
-                "fuel_primary": "natural_gas",
-                "efficiency_method": "user",
-                "energy_factor": 0.6
-            }
+        {
+          "roof_name": "roof2",
+          "ceiling_area": 400.0,
+          "roof_assembly_code": "rfwf00co",
+          "roof_color": "medium",
+          "roof_type": "vented_attic",
+          "ceiling_assembly_code": "ecwf19",
+          "knee_wall": {
+            "assembly_code": "kwwf11",
+            "area": 200.0
+          },
+          "zone_skylight": {
+            "skylight_area": 40.0,
+            "skylight_method": "code",
+            "skylight_code": "stna",
+            "solar_screen": false
+          }
         }
+      ],
+      "zone_floor": [
+        {
+          "floor_name": "floor1",
+          "floor_area": 600.0,
+          "foundation_type": "uncond_basement",
+          "foundation_insulation_level": 0,
+          "floor_assembly_code": "efwf00ca"
+        },
+        {
+          "floor_name": "floor2",
+          "floor_area": 400.0,
+          "foundation_type": "vented_crawl",
+          "foundation_insulation_level": 0,
+          "floor_assembly_code": "efwf00ca"
+        }
+      ],
+      "wall_construction_same": true,
+      "window_construction_same": true,
+      "zone_wall": [
+        {
+          "side": "front",
+          "wall_assembly_code": "ewwf13vi",
+          "zone_window": {
+            "window_area": 60.0,
+            "window_method": "code",
+            "window_code": "dcaw",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "back",
+          "zone_window": {
+            "window_area": 50.0,
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "right",
+          "zone_window": {
+            "window_area": 40.0,
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "left",
+          "zone_window": {
+            "window_area": 30.0,
+            "solar_screen": false
+          }
+        }
+      ]
+    },
+    "systems": {
+      "hvac": [
+        {
+          "hvac_name": "hvac1",
+          "hvac_fraction": 0.7,
+          "heating": {
+            "fuel_primary": "natural_gas",
+            "type": "central_furnace",
+            "efficiency_method": "user",
+            "efficiency": 0.8
+          },
+          "cooling": {
+            "type": "split_dx",
+            "efficiency_method": "user",
+            "efficiency": 13.0
+          },
+          "hvac_distribution": {
+            "leakage_method": "qualitative",
+            "sealed": true,
+            "duct": [
+              {
+                "name": "duct1",
+                "location": "uncond_attic",
+                "fraction": 0.5,
+                "insulated": true
+              },
+              {
+                "name": "duct2",
+                "location": "vented_crawl",
+                "fraction": 0.3,
+                "insulated": false
+              },
+              {
+                "name": "duct3",
+                "location": "cond_space",
+                "fraction": 0.2,
+                "insulated": true
+              }
+            ]
+          }
+        },
+        {
+          "hvac_name": "hvac2",
+          "hvac_fraction": 0.3,
+          "heating": {
+            "fuel_primary": "electric",
+            "type": "heat_pump",
+            "efficiency_method": "user",
+            "efficiency": 6.0
+          },
+          "cooling": {
+            "type": "heat_pump",
+            "efficiency_method": "user",
+            "efficiency": 10.0
+          },
+          "hvac_distribution": {
+            "leakage_method": "qualitative",
+            "sealed": true,
+            "duct": [
+              {
+                "name": "duct1",
+                "location": "uncond_attic",
+                "fraction": 0.5,
+                "insulated": false
+              },
+              {
+                "name": "duct2",
+                "location": "vented_crawl",
+                "fraction": 0.3,
+                "insulated": false
+              },
+              {
+                "name": "duct3",
+                "location": "cond_space",
+                "fraction": 0.2,
+                "insulated": true
+              }
+            ]
+          }
+        }
+      ],
+      "domestic_hot_water": {
+        "category": "unit",
+        "type": "storage",
+        "fuel_primary": "natural_gas",
+        "efficiency_method": "user",
+        "energy_factor": 0.6
+      }
     }
+  }
 }

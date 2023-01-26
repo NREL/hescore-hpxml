@@ -15,7 +15,7 @@
       "number_bedrooms": 3,
       "num_floor_above_grade": 1,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 2106,
+      "conditioned_floor_area": 2106.0,
       "orientation": "east",
       "blower_door_test": true,
       "envelope_leakage": 1279
@@ -30,7 +30,7 @@
           "roof_type": "vented_attic",
           "ceiling_assembly_code": "ecwf11",
           "zone_skylight": {
-            "skylight_area": 0
+            "skylight_area": 0.0
           }
         }
       ],
@@ -50,7 +50,7 @@
           "side": "front",
           "wall_assembly_code": "ewwf00br",
           "zone_window": {
-            "window_area": 0,
+            "window_area": 0.0,
             "window_method": "code",
             "window_code": "scna",
             "solar_screen": false
@@ -60,7 +60,7 @@
           "side": "left",
           "wall_assembly_code": "ewwf00br",
           "zone_window": {
-            "window_area": 0,
+            "window_area": 0.0,
             "window_method": "code",
             "window_code": "scna",
             "solar_screen": false
@@ -70,7 +70,7 @@
           "side": "back",
           "wall_assembly_code": "ewwf00br",
           "zone_window": {
-            "window_area": 0,
+            "window_area": 0.0,
             "window_method": "code",
             "window_code": "scna",
             "solar_screen": false
@@ -80,7 +80,7 @@
           "side": "right",
           "wall_assembly_code": "ewwf00br",
           "zone_window": {
-            "window_area": 0,
+            "window_area": 0.0,
             "window_method": "code",
             "window_code": "scna",
             "solar_screen": false

@@ -15,7 +15,7 @@
       "number_bedrooms": 5,
       "num_floor_above_grade": 2,
       "floor_to_ceiling_height": 8,
-      "conditioned_floor_area": 2536,
+      "conditioned_floor_area": 2536.0,
       "orientation": "north",
       "blower_door_test": false,
       "air_sealing_present": false
@@ -89,7 +89,7 @@
           "side": "right",
           "wall_assembly_code": "ewwf07vi",
           "zone_window": {
-            "window_area": 0,
+            "window_area": 0.0,
             "window_method": "code",
             "window_code": "scna",
             "solar_screen": false

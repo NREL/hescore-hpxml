@@ -314,7 +314,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
   end
 
   def calc_score(weather_station, asset_source_energy)
-    bins_file = File.join(File.dirname(__FILE__), 'resources', 'bins.csv')
+    bins_file = File.join(File.dirname(__FILE__), '..', '..', 'resources', 'bins.csv')
     CSV.foreach(bins_file, headers: true) do |row|
       if row['weather_station_id'].to_i == weather_station
         (2..10).each do |i|
@@ -326,7 +326,6 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
       end
     end
     fail "Unable to find weather station '#{weather_station}' in bins.csv."
-    return score
   end
 
   def flatten(obj, prefix = [])
@@ -352,7 +351,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
   end
 
   def get_lookup_values_by_state(state_code, csv_file_name)
-    csv_file = File.join(File.dirname(__FILE__), 'resources', csv_file_name)
+    csv_file = File.join(File.dirname(__FILE__), '..', '..', 'resources', csv_file_name)
     CSV.foreach(csv_file, headers: true) do |row|
       if row['abbreviation'] == state_code
         return row.to_h

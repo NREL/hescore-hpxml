@@ -1113,7 +1113,7 @@ def lookup_hvac_efficiency(year, hvac_type, fuel_type, units, performance_id = '
   if (performance_id == 'energy_star') && (type_id == 'central_furnace') && ['lpg', 'natural_gas'].include?(fuel_primary_id)
     fail 'state_code required for Energy Star central furnaces' if state_code.nil?
 
-    CSV.foreach(File.join(File.dirname(__FILE__), 'lu_es_furnace_region.csv'), headers: true) do |row|
+    CSV.foreach(File.join(File.dirname(__FILE__), '..', '..', '..', 'resources', 'lu_es_furnace_region.csv'), headers: true) do |row|
       next unless row['state_code'] == state_code
 
       region_id = row['furnace_region']
@@ -1124,7 +1124,7 @@ def lookup_hvac_efficiency(year, hvac_type, fuel_type, units, performance_id = '
 
   value = nil
   lookup_year = 0
-  CSV.foreach(File.join(File.dirname(__FILE__), 'lu_hvac_equipment_efficiency.csv'), headers: true) do |row|
+  CSV.foreach(File.join(File.dirname(__FILE__), '..', '..', '..', 'resources', 'lu_hvac_equipment_efficiency.csv'), headers: true) do |row|
     next unless row['performance_id'] == performance_id
     next unless row['type_id'] == type_id
     next unless row['fuel_primary_id'] == fuel_primary_id
@@ -1152,7 +1152,7 @@ def lookup_water_heater_efficiency(year, fuel_type, performance_id = 'shipment_w
 
   value = nil
   lookup_year = 0
-  CSV.foreach(File.join(File.dirname(__FILE__), 'lu_water_heater_efficiency.csv'), headers: true) do |row|
+  CSV.foreach(File.join(File.dirname(__FILE__), '..', '..', '..', 'resources', 'lu_water_heater_efficiency.csv'), headers: true) do |row|
     next unless row['performance_id'] == performance_id
     next unless row['fuel_primary_id'] == fuel_primary_id
 
