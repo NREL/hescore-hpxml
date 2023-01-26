@@ -119,7 +119,7 @@ class HEScoreMeasure < OpenStudio::Measure::ModelMeasure
     end
 
     # Obtain weather object
-    weather = WeatherProcess.new(nil, nil, cache_path)
+    weather = WeatherProcess.new(csv_path: cache_path)
 
     begin
       new_hpxml = HEScoreRuleset.apply_ruleset(runner, json, weather, zipcode_row)

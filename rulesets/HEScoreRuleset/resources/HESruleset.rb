@@ -968,6 +968,7 @@ class HEScoreRuleset
       fail "Unexpected array_tilt: #{orig_pv_system['array_tilt']}."
     end
 
+    new_hpxml.inverters.add(id: 'Inverter')
     new_hpxml.pv_systems.add(id: 'PVSystem',
                              location: HPXML::LocationRoof,
                              module_type: HPXML::PVModuleTypeStandard,
@@ -975,7 +976,8 @@ class HEScoreRuleset
                              array_azimuth: orientation_to_azimuth(orig_pv_system['array_azimuth']),
                              array_tilt: array_tilt,
                              max_power_output: max_power_output,
-                             year_modules_manufactured: orig_pv_system['year'])
+                             year_modules_manufactured: orig_pv_system['year'],
+                             inverter_idref: new_hpxml.inverters[-1].id)
   end
 
   def self.set_appliances_clothes_washer(new_hpxml)
