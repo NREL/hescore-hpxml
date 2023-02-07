@@ -365,6 +365,7 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     # error if we encounter an unexpected key below.
     #          [end_use, units] => cost_multiplier_value
     values = { ['footprint_area', 'sqft'] => 0.0,
+               ['conditioned_floor_area', 'sqft'] => 0.0,
                ['floor1_floor_area', 'sqft'] => 0.0,
                ['floor2_floor_area', 'sqft'] => 0.0,
                ['floor1_wall_area', 'sqft'] => 0.0,
@@ -400,6 +401,10 @@ class ReportHEScoreOutput < OpenStudio::Measure::ReportingMeasure
     # Footprint area
     key = ['footprint_area', 'sqft']
     values[key] = hpxml.building_construction.building_footprint_area
+
+    # Conditioned floor area
+    key = ['conditioned_floor_area', 'sqft']
+    values[key] = hpxml.building_construction.conditioned_floor_area
 
     # Enclosure surface areas
     (hpxml.floors +
