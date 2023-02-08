@@ -211,7 +211,6 @@ class HEScoreRuleset
         has_radiant_barrier = true
         radiant_barrier_grade = 1
       end
-      # FIXME: What to do with apartment roofs azimuths? BP: When the apartment roof is not a flat roof, treat it like the roof of a single-family attached
       if orig_roof['roof_type'] != 'flat_roof'
         if [HPXML::ResidentialTypeSFA, HPXML::ResidentialTypeApartment].include? @bldg_type 
           roof_azimuths = [@bldg_azimuth + 90, @bldg_azimuth + 270]
@@ -285,7 +284,6 @@ class HEScoreRuleset
         # This is when the wall is adjacent to another conditioned space
         wall_r = get_int_wall_effective_r_from_doe2code("iwwf00")
       else
-        # TODO: Make new assembly codes for walls adjacent to "other" spaces
         wall_r = get_wall_effective_r_from_doe2code(wall_assembly_code)
       end
       new_hpxml.walls.add(id: "#{orig_wall['side']}_wall",
@@ -360,7 +358,9 @@ class HEScoreRuleset
     json['building']['zone']['zone_roof'].each_with_index do |orig_attic, i|
       ceiling_ext_adj_to = { 'vented_attic' => HPXML::LocationAtticVented,
                              'cath_ceiling' => HPXML::LocationLivingSpace,
-                             'below_other_unit' => HPXML::LocationOtherHousingUnit }[orig_attic['roof_type']]
+                             'below_other_unit' => HPXML::LocationOtherHousingUnit,
+                             'flat_roof' => HPXML::LocationLivingSpace,
+                             'bowstring_roof' => HPXML::LocationLivingSpace }[orig_attic['roof_type']]
       next unless [HPXML::LocationAtticVented, HPXML::LocationOtherHousingUnit].include? ceiling_ext_adj_to
 
       framefloor_r = get_ceiling_effective_r_from_doe2code(orig_attic['ceiling_assembly_code'])
@@ -501,7 +501,6 @@ class HEScoreRuleset
         ufactor, shgc = get_ufactor_shgc_adjusted_by_storms(orig_skylight['storm_type'], ufactor, shgc)
       end
 
-      # FIXME: What to do with apartment roofs azimuths? BP: When the apartment roof is not a flat roof, treat it like the roof of a single-family attached
       if orig_roof['roof_type'] != 'flat_roof'
         if [HPXML::ResidentialTypeSFA, HPXML::ResidentialTypeApartment].include? @bldg_type
           roof_azimuths = [@bldg_azimuth + 90, @bldg_azimuth + 270]
