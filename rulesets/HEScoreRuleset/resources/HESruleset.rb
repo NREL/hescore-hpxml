@@ -230,7 +230,7 @@ class HEScoreRuleset
                               insulation_assembly_r_value: roof_r)
         end
       else
-        new_hpxml.roofs.add(id: "#{orig_roof['roof_name']}_#{i}",
+        new_hpxml.roofs.add(id: "#{orig_roof['roof_name']}",
                             interior_adjacent_to: roof_int_adjacent_to,
                             area: roof_area,
                             solar_absorptance: roof_solar_abs,

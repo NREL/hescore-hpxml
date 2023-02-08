@@ -16,7 +16,6 @@ class HEScoreRulesetTest < MiniTest::Test
     args_hash = {}
 
     Dir["#{this_dir}/../../../workflow/regression_files/*.json"].sort.each do |json|
-      # next if File.basename(json, ".json") != "Roof2_cathedral_ceiling_kneewall"
       puts "Testing #{File.absolute_path(json)}..."
 
       args_hash['json_path'] = File.absolute_path(json)
