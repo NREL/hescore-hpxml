@@ -2715,7 +2715,7 @@
                         "type": "number",
                         "minimum": 0.0,
                         "maximum": 1.0,
-                        "description": "% Reduction of leakage for sealing upgrades"
+                        "description": "Fractional reduction of leakage for sealing upgrades"
                     },
                     "cooling_efficiency_unit": {
                         "type": "string",
