@@ -441,7 +441,7 @@
                                             "required": ["roof_type"]
                                         },
                                         "then": {
-                                            "not": {"required": ["roof_type"]}
+                                            "not": {"required": ["roof_type", "ceiling_area", "ceiling_assembly_code"]}
                                         }
                                     },
                                     {
@@ -571,7 +571,7 @@
                                                 {
                                                     "if": {
                                                         "properties": {
-                                                            "foundation_type": {"const": "slab_on_grade"}
+                                                            "foundation_type": {"enum": ["slab_on_grade", "above_other_unit"]}
                                                         },
                                                         "required": ["foundation_type"]
                                                     },
