@@ -52,6 +52,7 @@ def set_json_property_values(json_input)
   data['building']['about']['air_sealing_present'] = (json_input['air_sealing_present'] == 'TRUE' ? true : false) unless json_input['air_sealing_present'].nil?
   data['building']['about']['envelope_leakage'] = Integer(json_input['envelope_leakage']) unless json_input['envelope_leakage'].nil?
   data['building']['about']['dwelling_unit_type'] = json_input['dwelling_unit_type'] unless json_input['dwelling_unit_type'].nil?
+  data['building']['about']['manufactured_home_width'] = json_input['manufactured_home_width'] if json_input['dwelling_unit_type'] == 'manufactured_home'
 
   zone_roof = []
   2.times do |i|

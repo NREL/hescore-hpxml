@@ -17,7 +17,8 @@
       "orientation": "north",
       "blower_door_test": false,
       "air_sealing_present": false,
-      "dwelling_unit_type": "manufactured_home"
+      "dwelling_unit_type": "manufactured_home",
+      "manufactured_home_width": "double"
     },
     "zone": {
       "zone_roof": [

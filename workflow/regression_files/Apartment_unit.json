@@ -24,10 +24,7 @@
         {
           "roof_name": "roof1",
           "ceiling_area": 1000.0,
-          "roof_assembly_code": "rfwf00co",
-          "roof_color": "medium",
-          "roof_type": "below_other_unit",
-          "ceiling_assembly_code": "ecwf19"
+          "roof_type": "below_other_unit"
         }
       ],
       "zone_floor": [
@@ -35,8 +32,7 @@
           "floor_name": "floor1",
           "floor_area": 1000.0,
           "foundation_type": "above_other_unit",
-          "foundation_insulation_level": 0,
-          "floor_assembly_code": "efwf00ca"
+          "foundation_insulation_level": 0
         }
       ],
       "zone_wall": [
@@ -102,7 +98,7 @@
             "duct": [
               {
                 "name": "duct1",
-                "location": "uncond_attic",
+                "location": "cond_space",
                 "fraction": 1.0,
                 "insulated": true
               },
