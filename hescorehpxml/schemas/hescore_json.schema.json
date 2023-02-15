@@ -644,7 +644,7 @@
                                     },
                                     "adjacent_to": {
                                         "type": "string",
-                                        "enum": ["other_unit", "common_area", "outside"],
+                                        "enum": ["other_unit", "interior_common_area", "outside"],
                                         "description": "What is on the other side of the wall"
                                     },
                                     "zone_window": {
@@ -701,7 +701,7 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "adjacent_to": {"enum": ["outside", "common_area"]}
+                                                "adjacent_to": {"enum": ["outside", "interior_common_area"]}
                                             },
                                             "required": ["adjacent_to"]
                                         },
