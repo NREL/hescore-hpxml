@@ -267,10 +267,9 @@ class HEScoreRuleset
 
   def self.set_enclosure_walls(json, new_hpxml)
     # Above-grade walls
-    # TODO: Review this map and add/remove/rename as necessary
     wall_adjacent_map = {
       "other_unit" => HPXML::LocationOtherHousingUnit,
-      "common_area" => HPXML::LocationOtherHeatedSpace,
+      "interior_common_area" => HPXML::LocationOtherHeatedSpace,
       "outside" => HPXML::LocationOutside
     }
     total_wall_area = 2 * (@bldg_length_front + @bldg_length_side) * @ceil_height * @ncfl_ag
