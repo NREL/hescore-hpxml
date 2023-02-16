@@ -2655,6 +2655,7 @@
                 "properties": {
                     "upgrade_id": {
                         "type": "integer",
+                        "minimum": 1,
                         "description": "ID of the upgrade"
                     },
                     "upgrade_code": {
@@ -2750,7 +2751,7 @@
                         "maximum": 4.0,
                         "description": "Efficiency value for upgraded domestic hot water systems"
                     },
-                    "instance_id": {
+                    "instance_ids": {
                         "type": ["array", "null"],
                         "minItems": 1,
                         "description": "Array of instances that upgrade applies to"
