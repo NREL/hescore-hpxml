@@ -2762,7 +2762,7 @@
                         "required": [
                             "upgrade_id",
                             "upgrade_code",
-                            "instance_id"
+                            "instance_ids"
                         ]
                     },
                     {
