@@ -4,28 +4,14 @@ require 'pathname'
 require 'csv'
 require 'oga'
 require 'json'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/airflow'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/battery'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/constants'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/constructions'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/geometry'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hpxml'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hpxml_defaults'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hotwater_appliances'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hvac'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/hvac_sizing'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/lighting'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/materials'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/misc_loads'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/psychrometrics'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/pv'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/schedules'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/unit_conversions'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/util'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/waterheater'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/weather'
-require_relative '../../hpxml-measures/HPXMLtoOpenStudio/resources/xmlhelper'
-require_relative 'resources/HESruleset'
+Dir["#{File.dirname(__FILE__)}/../../hpxml-measures/HPXMLtoOpenStudio/resources/*.rb"].each do |resource_file|
+  next if resource_file.include? 'minitest_helper.rb'
+
+  require resource_file
+end
+Dir["#{File.dirname(__FILE__)}/resources/*.rb"].each do |resource_file|
+  require resource_file
+end
 
 # start the measure
 class HEScoreMeasure < OpenStudio::Measure::ModelMeasure
@@ -46,7 +32,7 @@ class HEScoreMeasure < OpenStudio::Measure::ModelMeasure
   end
 
   # define the arguments that the user will input
-  def arguments(model)
+  def arguments(model) # rubocop:disable Lint/UnusedMethodArgument
     args = OpenStudio::Measure::OSArgumentVector.new
 
     arg = OpenStudio::Measure::OSArgument.makeStringArgument('json_path', true)
@@ -91,7 +77,7 @@ class HEScoreMeasure < OpenStudio::Measure::ModelMeasure
     zipcode_row = nil
     zipcode = json['building_address']['zip_code']
     zip_distance = 99999
-    CSV.foreach(File.join(File.dirname(__FILE__), 'resources', 'zipcodes_wx.csv'), headers: true) do |row|
+    CSV.foreach(File.join(File.dirname(__FILE__), '..', '..', 'resources', 'zipcodes_wx.csv'), headers: true) do |row|
       zip3_of_interest = zipcode[0, 3]
       next unless row['postal_code'].start_with?(zip3_of_interest)
 
@@ -105,7 +91,7 @@ class HEScoreMeasure < OpenStudio::Measure::ModelMeasure
       end
     end
     if zipcode_row.nil?
-      fail "Zip code #{zipcode} could not be found in #{File.join(File.dirname(__FILE__), 'resources', 'zipcodes_wx.csv')}"
+      fail "Zip code #{zipcode} could not be found in #{File.join(File.dirname(__FILE__), '..', '..', 'resources', 'zipcodes_wx.csv')}"
     end
 
     # Look up EPW path from WMO
@@ -133,10 +119,10 @@ class HEScoreMeasure < OpenStudio::Measure::ModelMeasure
     end
 
     # Obtain weather object
-    weather = WeatherProcess.new(nil, nil, cache_path)
+    weather = WeatherProcess.new(csv_path: cache_path)
 
     begin
-      new_hpxml = HEScoreRuleset.apply_ruleset(json, weather, zipcode_row)
+      new_hpxml = HEScoreRuleset.apply_ruleset(runner, json, weather, zipcode_row)
     rescue Exception => e
       runner.registerError("#{e.message}\n#{e.backtrace.join("\n")}")
       return false

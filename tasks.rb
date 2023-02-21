@@ -12,13 +12,13 @@ def create_jsons()
     FileUtils.mkdir_p(subdir_path)
   end
 
-  json_inputs.each_with_index do |row, i|
-    json_filename = json_inputs[i]['file_name']
-    json_filepath = File.join(this_dir, "workflow/#{json_inputs[i]['file_type']}/#{json_inputs[i]['file_name']}")
+  json_inputs.each_with_index do |json_row, i|
+    json_filename = json_row['file_name']
+    json_filepath = File.join(this_dir, "workflow/#{json_row['file_type']}/#{json_row['file_name']}")
 
     puts "[#{i + 1}/#{json_inputs.length}] Generating #{json_filename}..."
 
-    json_data = set_json_property_values(json_inputs[i])
+    json_data = set_json_property_values(json_row)
 
     begin
       File.open(json_filepath, 'w') do |f|
@@ -204,7 +204,17 @@ if ARGV[0].to_sym == :update_measures
   # Apply rubocop
   cops = ['Layout',
           'Lint/DeprecatedClassMethods',
-          # 'Lint/RedundantStringCoercion', # Enable when rubocop is upgraded
+          'Lint/DuplicateElsifCondition',
+          'Lint/DuplicateHashKey',
+          'Lint/DuplicateMethods',
+          'Lint/InterpolationCheck',
+          'Lint/LiteralAsCondition',
+          'Lint/RedundantStringCoercion',
+          'Lint/SelfAssignment',
+          'Lint/UnderscorePrefixedVariableName',
+          'Lint/UnusedBlockArgument',
+          'Lint/UnusedMethodArgument',
+          'Lint/UselessAssignment',
           'Style/AndOr',
           'Style/FrozenStringLiteralComment',
           'Style/HashSyntax',

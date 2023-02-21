@@ -25,6 +25,7 @@ class ReportHEScoreOutputTest < MiniTest::Test
     actual_values = _test_measure(json_path)
     base_expected_values = {
       'footprint_area' => 1000, # sqft
+      'conditioned_floor_area' => 2000, # sqft
       'floor1_floor_area' => 1000, # sqft
       'floor2_floor_area' => 0, # sqft
       'floor1_wall_area' => 0, # sqft
@@ -89,6 +90,7 @@ class ReportHEScoreOutputTest < MiniTest::Test
     actual_values = _test_measure(json_path)
     expected_values = {
       'footprint_area' => 1000, # sqft
+      'conditioned_floor_area' => 2000, # sqft
       'floor1_floor_area' => 600, # sqft
       'floor2_floor_area' => 400, # sqft
       'floor1_wall_area' => 588, # sqft
