@@ -823,8 +823,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         skylights = self.get_skylights(b, bldg['zone']['zone_roof'])
         for roof_num in range(len(bldg['zone']['zone_roof'])):
             bldg['zone']['zone_roof'][roof_num]['zone_skylight'] = skylights[roof_num]
-        bldg['zone']['wall_construction_same'] = False
-        bldg['zone']['window_construction_same'] = False
         bldg['zone']['zone_wall'] = self.get_building_zone_wall(b, bldg['about'])
         bldg['systems'] = OrderedDict()
         bldg['systems']['hvac'] = self.get_hvac(b, bldg)
@@ -959,39 +957,25 @@ class HPXMLtoHEScoreTranslatorBase(object):
         residential_facility_type = xpath(
             b, 'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ResidentialFacilityType/text()')
         try:
-            bldg_about['shape'] = {'single-family detached': 'rectangle',
-                                   'single-family attached': 'town_house',
-                                   'manufactured home': None,
-                                   '2-4 unit building': None,
-                                   '5+ unit building': None,
-                                   'multi-family - uncategorized': None,
-                                   'multi-family - town homes': 'town_house',
-                                   'multi-family - condos': None,
-                                   'apartment unit': None,
-                                   'studio unit': None,
-                                   'other': None,
-                                   'unknown': None
-                                   }[residential_facility_type]
+            bldg_about['dwelling_unit_type'] = {'single-family detached': 'single_family_detached',
+                                                'single-family attached': 'single_family_attached',
+                                                'manufactured home': 'manufactured_home',
+                                                '2-4 unit building': None,
+                                                '5+ unit building': None,
+                                                'multi-family - uncategorized': None,
+                                                'multi-family - town homes': 'single_family_attached',
+                                                'multi-family - condos': None,
+                                                'apartment unit': 'apartment_unit',
+                                                'studio unit': None,
+                                                'other': None,
+                                                'unknown': None
+                                                }[residential_facility_type]
         except KeyError:
             raise TranslationError('ResidentialFacilityType is required in the HPXML document')
-        if bldg_about['shape'] is None:
+        if bldg_about['dwelling_unit_type'] is None:
             raise TranslationError(
-                'Cannot translate HPXML ResidentialFacilityType of %s into HEScore building shape' %
+                'Cannot translate HPXML ResidentialFacilityType of %s into HEScore building dwelling unit type' %
                 residential_facility_type)
-        if bldg_about['shape'] == 'town_house':
-            hpxml_surroundings = xpath(b, 'h:BuildingDetails/h:BuildingSummary/h:Site/h:Surroundings/text()')
-            try:
-                bldg_about['town_house_walls'] = {'stand-alone': None,
-                                                  'attached on one side': 'back_right_front',
-                                                  'attached on two sides': 'back_front',
-                                                  'attached on three sides': None
-                                                  }[hpxml_surroundings]
-            except KeyError:
-                raise TranslationError('Site/Surroundings element is required in the HPXML document for town houses')
-            if bldg_about['town_house_walls'] is None:
-                raise TranslationError(
-                    'Cannot translate HPXML Site/Surroundings element value of %s into HEScore town_house_walls' %
-                    hpxml_surroundings)
 
         bldg_cons_el = xpath(b, 'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction', raise_err=True)
         bldg_about['year_built'] = int(xpath(bldg_cons_el, 'h:YearBuilt/text()', raise_err=True))
@@ -1821,14 +1805,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     hpxmlwalls[wall_side].append(walld)
 
         if len(hpxmlwalls['noside']) > 0 and list(map(len, [hpxmlwalls[key] for key in sidemap.values()])) == ([0] * 4):
-            all_walls_same = True
             # if none of the walls have orientation information
             # copy the walls to all sides
             for side in list(sidemap.values()):
                 hpxmlwalls[side] = hpxmlwalls['noside']
             del hpxmlwalls['noside']
         else:
-            all_walls_same = False
             # make sure all of the walls have an orientation
             if len(hpxmlwalls['noside']) > 0:
                 raise TranslationError('Some of the HPXML walls have orientation information and others do not.')
@@ -1919,55 +1901,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
             windowd['area'] /= float(len(window_sides))
             for window_side in window_sides:
                 hpxmlwindows[window_side].append(dict(windowd))
-
-        def get_shared_wall_sides():
-            return set(sidemap.values()) - set(bldg_about['town_house_walls'].split('_'))
-
-        def windows_are_on_shared_walls():
-            shared_wall_sides = get_shared_wall_sides()
-            for side in shared_wall_sides:
-                if len(hpxmlwindows[side]) > 0:
-                    return True
-            return False
-
-        if bldg_about['shape'] == 'town_house':
-            if all_walls_same:
-                # Check to make sure the windows aren't on shared walls.
-                window_on_shared_wall_fail = windows_are_on_shared_walls()
-                if window_on_shared_wall_fail:
-                    # Change which walls are shared and check again.
-                    if bldg_about['town_house_walls'] == 'back_right_front':
-                        bldg_about['town_house_walls'] = 'back_front_left'
-                        window_on_shared_wall_fail = windows_are_on_shared_walls()
-                if window_on_shared_wall_fail:
-                    raise TranslationError('The house has windows on shared walls.')
-                # Since there was one wall construction for the whole building,
-                # remove the construction for shared walls.
-                for side in get_shared_wall_sides():
-                    for heswall in zone_wall:
-                        if heswall['side'] == side:
-                            zone_wall.remove(heswall)
-                            break
-            else:
-                # Make sure that there are walls defined for each side of the house that isn't a shared wall.
-                sides_without_heswall = set(self.sidemap.values())
-                for heswall in zone_wall:
-                    sides_without_heswall.remove(heswall['side'])
-                shared_wall_fail = sides_without_heswall != get_shared_wall_sides()
-                if shared_wall_fail:
-                    # Change which walls are shared and check again.
-                    if bldg_about['town_house_walls'] == 'back_right_front':
-                        bldg_about['town_house_walls'] = 'back_front_left'
-                        shared_wall_fail = sides_without_heswall != get_shared_wall_sides()
-                if shared_wall_fail:
-                    raise TranslationError(
-                        'The house has walls defined for sides {} and shared walls on sides {}.'.format(
-                            ', '.join(set(self.sidemap.values()) - sides_without_heswall),
-                            ', '.join(get_shared_wall_sides())
-                        )
-                    )
-                if windows_are_on_shared_walls():
-                    raise TranslationError('The house has windows on shared walls.')
 
         # Determine the predominant window characteristics and create HEScore windows
         for side, windows in list(hpxmlwindows.items()):
