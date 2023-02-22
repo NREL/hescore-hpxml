@@ -2690,7 +2690,7 @@
                     },
                     "insulation_R_value": {
                         "type": "integer",
-                        "description": "Assembly R value of the upgraded insulation"
+                        "description": "Insulation R value of the upgrade"
                     },
                     "solar_absorptance": {
                         "type": "number",
