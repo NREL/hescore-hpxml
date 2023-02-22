@@ -193,6 +193,8 @@ class HEScoreRuleset
                                'below_other_unit' => HPXML::LocationLivingSpace,
                                'flat_roof' => HPXML::LocationLivingSpace,
                                'bowstring_roof' => HPXML::LocationLivingSpace }[orig_roof['roof_type']]
+      next if orig_roof['roof_type'] == 'below_other_unit'
+
       # Roof: Two surfaces per HES zone_roof
       if orig_roof['roof_type'] == 'vented_attic'
         roof_area = orig_roof['ceiling_area'] / Math.cos(@roof_angle_rad)
@@ -341,16 +343,14 @@ class HEScoreRuleset
       next unless [HPXML::LocationBasementUnconditioned, HPXML::LocationCrawlspaceVented, HPXML::LocationCrawlspaceUnvented, HPXML::LocationOtherHousingUnit].include? fnd_ext_adj_to # FIXME: Add belly and wing foundation type in the future
 
       floor_r = get_floor_effective_r_from_doe2code(orig_foundation['floor_assembly_code']) # FIXME: Add effective r-value mapping for belly and wing foundation type
-      if fnd_ext_adj_to == HPXML::LocationOtherHousingUnit
-        other_space_above_or_below = HPXML::FrameFloorOtherSpaceBelow
-      end
 
       new_hpxml.floors.add(id: "#{orig_foundation['floor_name']}_floor_#{i}",
                            floor_type: HPXML::FloorTypeWoodFrame,
                            exterior_adjacent_to: fnd_ext_adj_to,
                            interior_adjacent_to: HPXML::LocationLivingSpace,
                            area: orig_foundation['floor_area'],
-                           other_space_above_or_below: other_space_above_or_below)
+                           insulation_assembly_r_value: floor_r,
+                           floor_or_ceiling: HPXML::FloorOrCeilingFloor)
     end
 
     # Ceilings
@@ -364,9 +364,6 @@ class HEScoreRuleset
 
       floor_r = get_ceiling_effective_r_from_doe2code(orig_attic['ceiling_assembly_code'])
       floor_area = orig_attic['ceiling_area']
-      if ceiling_ext_adj_to == HPXML::LocationOtherHousingUnit
-        other_space_above_or_below = HPXML::FrameFloorOtherSpaceAbove
-      end
 
       new_hpxml.floors.add(id: "#{orig_attic['roof_name']}_floor_#{i}",
                            floor_type: HPXML::FloorTypeWoodFrame,
@@ -374,7 +371,7 @@ class HEScoreRuleset
                            interior_adjacent_to: HPXML::LocationLivingSpace,
                            area: floor_area,
                            insulation_assembly_r_value: floor_r,
-                           other_space_above_or_below: other_space_above_or_below)
+                           floor_or_ceiling: HPXML::FloorOrCeilingCeiling)
     end
   end
 
@@ -385,6 +382,8 @@ class HEScoreRuleset
                        'vented_crawl' => HPXML::LocationCrawlspaceVented,
                        'unvented_crawl' => HPXML::LocationCrawlspaceUnvented,
                        'slab_on_grade' => HPXML::LocationLivingSpace }[orig_foundation['foundation_type']]
+      next if orig_foundation['foundation_type'] == 'above_other_unit'
+
       fnd_type = orig_foundation['foundation_type']
 
       # Slab
@@ -1524,7 +1523,7 @@ def calc_ach50(ncfl_ag, cfa, ceil_height, cvolume, desc, year_built, iecc_cz, fn
     sum_fnd_area += area
     if fnd_type == 'slab_on_grade'
       c_foundation += -0.036992 * area
-    elsif (fnd_type == 'cond_basement') || (fnd_type == 'unvented_crawl')
+    elsif (fnd_type == 'cond_basement') || (fnd_type == 'unvented_crawl') || (fnd_type == 'above_other_unit')
       c_foundation += 0.108713 * area
     elsif (fnd_type == 'uncond_basement') || (fnd_type == 'vented_crawl')
       c_foundation += 0.180352 * area
