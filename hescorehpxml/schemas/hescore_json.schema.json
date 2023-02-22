@@ -436,18 +436,7 @@
                                     {
                                         "if": {
                                             "properties": {
-                                                "roof_type": {"enum": ["below_other_unit"]}
-                                            },
-                                            "required": ["roof_type"]
-                                        },
-                                        "then": {
-                                            "not": {"required": ["roof_type", "ceiling_area", "ceiling_assembly_code"]}
-                                        }
-                                    },
-                                    {
-                                        "if": {
-                                            "properties": {
-                                                "roof_type": {"const": "vented_attic"}
+                                                "roof_type": {"enum": ["vented_attic", "below_other_unit"]}
                                             },
                                             "required": ["roof_type"]
                                         },
@@ -571,7 +560,7 @@
                                                 {
                                                     "if": {
                                                         "properties": {
-                                                            "foundation_type": {"enum": ["slab_on_grade", "above_other_unit"]}
+                                                            "foundation_type": {"const": "slab_on_grade"}
                                                         },
                                                         "required": ["foundation_type"]
                                                     },
