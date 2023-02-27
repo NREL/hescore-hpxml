@@ -9,7 +9,7 @@
   "building": {
     "about": {
       "assessment_date": "2014-10-23",
-      "shape": "rectangle",
+      "dwelling_unit_type": "single_family_detached",
       "year_built": 1953,
       "number_bedrooms": 3,
       "num_floor_above_grade": 2,
@@ -42,12 +42,11 @@
           "floor_assembly_code": "efwf03ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
           "wall_assembly_code": "ewwf00br",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 108.0,
             "window_method": "code",
@@ -58,6 +57,7 @@
         {
           "side": "left",
           "wall_assembly_code": "ewwf00br",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 60.0,
             "window_method": "code",
@@ -68,6 +68,7 @@
         {
           "side": "back",
           "wall_assembly_code": "ewwf00br",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 135.3333333,
             "window_method": "code",
@@ -78,6 +79,7 @@
         {
           "side": "right",
           "wall_assembly_code": "ewwf00br",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 45.0,
             "window_method": "code",

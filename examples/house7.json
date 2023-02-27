@@ -9,8 +9,7 @@
   "building": {
     "about": {
       "assessment_date": "2014-12-18",
-      "shape": "town_house",
-      "town_house_walls": "back_front",
+      "dwelling_unit_type": "single_family_attached",
       "year_built": 1935,
       "number_bedrooms": 5,
       "num_floor_above_grade": 4,
@@ -41,12 +40,11 @@
           "foundation_insulation_level": 0
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
           "wall_assembly_code": "ewbr00nn",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 112.0,
             "window_method": "code",
@@ -55,12 +53,35 @@
           }
         },
         {
+          "side": "left",
+          "wall_assembly_code": "ewbr00nn",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 0,
+            "window_method": "code",
+            "window_code": "scna",
+            "solar_screen": false
+          }
+        },
+        {
           "side": "back",
           "wall_assembly_code": "ewbr00nn",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 108.0,
             "window_method": "code",
             "window_code": "dcaw",
+            "solar_screen": false
+          }
+        },
+        {
+          "side": "right",
+          "wall_assembly_code": "ewbr00nn",
+          "adjacent_to": "outside",
+          "zone_window": {
+            "window_area": 0,
+            "window_method": "code",
+            "window_code": "scna",
             "solar_screen": false
           }
         }

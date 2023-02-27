@@ -9,7 +9,7 @@
   "building": {
     "about": {
       "assessment_date": "2014-10-30",
-      "shape": "rectangle",
+      "dwelling_unit_type": "single_family_detached",
       "year_built": 1970,
       "number_bedrooms": 4,
       "num_floor_above_grade": 2,
@@ -61,12 +61,11 @@
           "foundation_insulation_level": 0
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
           "wall_assembly_code": "ewwf07st",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 124.0,
             "window_method": "code",
@@ -77,6 +76,7 @@
         {
           "side": "left",
           "wall_assembly_code": "ewwf07st",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 104.0,
             "window_method": "code",
@@ -87,6 +87,7 @@
         {
           "side": "back",
           "wall_assembly_code": "ewwf13st",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 165.333,
             "window_method": "code",
@@ -97,6 +98,7 @@
         {
           "side": "right",
           "wall_assembly_code": "ewwf11st",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 153.0,
             "window_method": "code",

@@ -95,6 +95,7 @@
                 <Walls>
                     <Wall>
                         <SystemIdentifier id="wall1"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
@@ -110,6 +111,7 @@
                     </Wall>
                     <Wall>
                         <SystemIdentifier id="wall2"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
@@ -125,6 +127,7 @@
                     </Wall>
                     <Wall>
                         <SystemIdentifier id="wall3"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
@@ -135,6 +138,21 @@
                             <Layer>
                                 <InstallationType>cavity</InstallationType>
                                 <NominalRValue>19</NominalRValue>
+                            </Layer>
+                        </Insulation>
+                    </Wall>
+                    <Wall>
+                        <SystemIdentifier id="wall4"/>
+                        <ExteriorAdjacentTo>other housing unit</ExteriorAdjacentTo>
+                        <WallType>
+                            <WoodStud/>
+                        </WallType>
+                        <Orientation>west</Orientation>
+                        <Insulation>
+                            <SystemIdentifier id="wall4ins"/>
+                            <Layer>
+                                <InstallationType>cavity</InstallationType>
+                                <NominalRValue>0</NominalRValue>
                             </Layer>
                         </Insulation>
                     </Wall>

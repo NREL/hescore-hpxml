@@ -88,6 +88,7 @@
                 <Walls>
                     <Wall>
                         <SystemIdentifier id="wallfront"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <StructuralBrick/>
                         </WallType>

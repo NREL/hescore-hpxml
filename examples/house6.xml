@@ -127,6 +127,7 @@
                 <Walls>
                     <Wall>
                         <SystemIdentifier id="wallfront"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <StructuralBrick/>
                         </WallType>
@@ -135,6 +136,7 @@
                     </Wall>
                     <Wall>
                         <SystemIdentifier id="wallback1"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <StructuralBrick/>
                         </WallType>
@@ -150,6 +152,7 @@
                     </Wall>
                     <Wall>
                         <SystemIdentifier id="wallback2"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
@@ -166,6 +169,7 @@
                     </Wall>
                     <Wall>
                         <SystemIdentifier id="wallright1"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <StructuralBrick/>
                         </WallType>
@@ -181,6 +185,7 @@
                     </Wall>
                     <Wall>
                         <SystemIdentifier id="wallright2"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
@@ -197,6 +202,7 @@
                     </Wall>
                     <Wall>
                         <SystemIdentifier id="wallleft1"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <StructuralBrick/>
                         </WallType>
@@ -212,6 +218,7 @@
                     </Wall>
                     <Wall>
                         <SystemIdentifier id="wallleft2"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>

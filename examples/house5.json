@@ -9,7 +9,7 @@
   "building": {
     "about": {
       "assessment_date": "2014-10-30",
-      "shape": "rectangle",
+      "dwelling_unit_type": "single_family_detached",
       "year_built": 1890,
       "number_bedrooms": 4,
       "num_floor_above_grade": 2,
@@ -49,12 +49,11 @@
           "floor_assembly_code": "efwf00ca"
         }
       ],
-      "wall_construction_same": false,
-      "window_construction_same": false,
       "zone_wall": [
         {
           "side": "front",
           "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 105.0,
             "window_method": "code",
@@ -65,6 +64,7 @@
         {
           "side": "left",
           "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 80.0,
             "window_method": "code",
@@ -75,6 +75,7 @@
         {
           "side": "back",
           "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 144.0,
             "window_method": "code",
@@ -85,6 +86,7 @@
         {
           "side": "right",
           "wall_assembly_code": "ewwf13vi",
+          "adjacent_to": "outside",
           "zone_window": {
             "window_area": 72.0,
             "window_method": "code",
