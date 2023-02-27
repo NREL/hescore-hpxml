@@ -225,7 +225,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_hescore_walls(self, b):
         return self.xpath(
             b, 'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall\
-                [((h:ExteriorAdjacentTo="outside" and not(contains(h:ExteriorAdjacentTo, "garage"))) or\
+                [((h:ExteriorAdjacentTo[text()="outside" or text()="other housing unit" or text()="other housing unit above" or text()="other housing unit below" or text()="unconditioned space"] and not(contains(h:ExteriorAdjacentTo, "garage"))) or\
                     not(h:ExteriorAdjacentTo)) and not(contains(h:InteriorAdjacentTo, "attic"))]',  # noqa: E501
             aslist=True)
 
@@ -288,3 +288,31 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                          'attic - conditioned': ['cond_space'],
                          'attic - unvented': ['uncond_attic'],
                          'attic - vented': ['uncond_attic']}
+
+    def get_enclosure_adjacent_to(self, enclosure_adjacent_to):
+        return self.enclosure_adjacent_to_map[enclosure_adjacent_to]
+
+    enclosure_adjacent_to_map = {'attic': None,
+                                 'attic - conditioned': None,
+                                 'attic - unconditioned': None,
+                                 'attic - unvented': None,
+                                 'attic - vented': None,
+                                 'basement': None,
+                                 'basement - conditioned': None,
+                                 'basement - unconditioned': None,
+                                 'crawlspace': None,
+                                 'crawlspace - conditioned': None,
+                                 'crawlspace - unconditioned': None,
+                                 'crawlspace - unvented': None,
+                                 'crawlspace - vented': None,
+                                 'garage': None,
+                                 'garage - conditioned': None,
+                                 'garage - unconditioned': None,
+                                 'ground': None,
+                                 'living space': None,
+                                 'other': None,
+                                 'other housing unit': 'other_unit',
+                                 'other housing unit above': 'other_unit',
+                                 'other housing unit below': 'other_unit',
+                                 'outside': 'outside',
+                                 'unconditioned space': 'interior_common_area'}  # FIXME: Check it
