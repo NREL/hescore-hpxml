@@ -70,11 +70,11 @@ def test_invalid_building_about(hpxml_filebase):
     js1['building']['about'].append(js1_about)
     errors = get_error_messages(js1, js_schema)
     if hpxml_filebase == 'townhouse_walls':
-        assert any(error.startswith("[{'assessment_date': '2014-12-02', 'dwelling_unit_type': 'single_family_attached'") and
-                   error.endswith("is not of type 'object'") for error in errors)
+        assert any(error.startswith("[{'assessment_date': '2014-12-02', 'dwelling_unit_type': 'single_family_attached'")
+                   and error.endswith("is not of type 'object'") for error in errors)
     elif hpxml_filebase == 'house1':
-        assert any(error.startswith("[{'assessment_date': '2014-10-23', 'dwelling_unit_type': 'single_family_detached'") and
-                   error.endswith("is not of type 'object'") for error in errors)
+        assert any(error.startswith("[{'assessment_date': '2014-10-23', 'dwelling_unit_type': 'single_family_detached'")
+                   and error.endswith("is not of type 'object'") for error in errors)
 
     js2 = copy.deepcopy(js)
     if hpxml_filebase == 'townhouse_walls':
@@ -126,9 +126,10 @@ def test_invalid_building_about(hpxml_filebase):
         js3['building']['about']['envelope_leakage'] = 1204
         errors = get_error_messages(js3, js_schema)
         assert ("{'required': ['envelope_leakage']} is not allowed for {'assessment_date': '2021', "
-                "'dwelling_unit_type': 'single_family_detached', 'year_built': 1953, 'number_bedrooms': 3, 'num_floor_above_grade': 2, "
-                "'floor_to_ceiling_height': 11, 'conditioned_floor_area': 1620, 'orientation': 'east', "
-                "'blower_door_test': False, 'air_sealing_present': False, 'envelope_leakage': 1204}") in errors
+                "'dwelling_unit_type': 'single_family_detached', 'year_built': 1953, 'number_bedrooms': 3, "
+                "'num_floor_above_grade': 2, 'floor_to_ceiling_height': 11, 'conditioned_floor_area': 1620, "
+                "'orientation': 'east', 'blower_door_test': False, 'air_sealing_present': False, "
+                "'envelope_leakage': 1204}") in errors
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -239,7 +240,6 @@ def test_invalid_floor(hpxml_filebase):
         assert ("{'required': ['floor_assembly_code']} is not allowed for {'floor_name': 'floor1', "
                 "'floor_area': 810.0, 'foundation_type': 'slab_on_grade', 'foundation_insulation_level': 0, "
                 "'floor_assembly_code': 'efwf03ca'}") in errors
-
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)

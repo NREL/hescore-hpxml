@@ -222,7 +222,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 else:
                     if sidingtype is None:
                         raise TranslationError(
-                            f'Wall {wallid}: There is no HEScore wall siding equivalent for the HPXML option: {hpxmlsiding}'
+                            f'Wall {wallid}: '
+                            f'There is no HEScore wall siding equivalent for the HPXML option: {hpxmlsiding}'
                         )
             elif wall_type == 'StructuralBrick':
                 wallconstype = 'br'
@@ -1888,7 +1889,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             except TranslationError:
                 raise TranslationError(
                     'The Wall[SystemIdentifier/@id="{}"] has no ExteriorAdjacentTo.'.format(
-                    hpxmlwalls[side][0]['id'])
+                        hpxmlwalls[side][0]['id'])
                 )
             zone_wall.append(heswall)
 
