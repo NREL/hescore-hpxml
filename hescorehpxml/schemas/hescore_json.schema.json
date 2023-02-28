@@ -2663,7 +2663,7 @@
                         "enum": [
                             "attic_insulation",
                             "floor_insulation",
-                            "roof_absorptivity",
+                            "roof_absorptance",
                             "roof_sheathing",
                             "knee_wall_insulation",
                             "wall_insulation",
@@ -2793,7 +2793,7 @@
                         "if": {
                             "properties": {
                                 "upgrade_code": {
-                                    "const": "roof_absorptivity"
+                                    "const": "roof_absorptance"
                                 }
                             },
                             "required": [
