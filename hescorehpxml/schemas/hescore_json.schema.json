@@ -348,11 +348,6 @@
                                             "solar_screen": {
                                                 "type": "boolean",
                                                 "description": "Does this skylight have a solar screen?"
-                                            },
-                                            "storm_type": {
-                                                "type": "string",
-                                                "enum": ["clear", "low-e"],
-                                                "description": "Type of storm for this skylight"
                                             }
                                         },
                                         "allOf": [
@@ -677,11 +672,6 @@
                                             "solar_screen": {
                                                 "type": "boolean",
                                                 "description": "Does this window have a solar screen?"
-                                            },
-                                            "storm_type": {
-                                                "type": "string",
-                                                "enum": ["clear", "low-e"],
-                                                "description": "Type of storm for this window"
                                             }
                                         }
                                     }
@@ -774,10 +764,6 @@
                                             "efficiency": {
                                                 "type": "number",
                                                 "$comment": "Additional requirements for this property apply based on the heating system type"
-                                            },
-                                            "efficiency_level": {
-                                                "type": "string",
-                                                "description": "Efficiency level upgrade of the heating system (Optional)"
                                             }
                                         },
                                         "allOf": [
@@ -806,11 +792,6 @@
                                                                 "description": "AFUE of heating equipment (only used if efficiency_method is user)"
                                                             }
                                                         }
-                                                    },
-                                                    "properties": {
-                                                        "efficiency_level": {
-                                                            "enum": ["energy_star"]
-                                                        }
                                                     }
                                                 }
                                             },
@@ -825,23 +806,6 @@
                                                             "minimum": 6,
                                                             "maximum": 20,
                                                             "description": "HSPF of heating equipment (only used if efficiency_method is user)"
-                                                        }
-                                                    },
-                                                    "if":{
-                                                        "properties": {"type": {"const": "heat_pump"}}
-                                                    },
-                                                    "then": {
-                                                        "properties": {
-                                                            "efficiency_level": {
-                                                                "enum": ["energy_star", "cee_tier1", "cee_tier2", "cee_tier3"]
-                                                            }
-                                                        }
-                                                    },
-                                                    "else": {
-                                                        "properties": {
-                                                            "efficiency_level": {
-                                                                "enum": ["energy_star", "cee_tier1"]
-                                                            }
                                                         }
                                                     }
                                                 }
@@ -899,10 +863,6 @@
                                             "efficiency": {
                                                 "type": "number",
                                                 "$comment": "Additional requirements for this property apply based on the cooling system type"
-                                            },
-                                            "efficiency_level": {
-                                                "type": "string",
-                                                "description": "Efficiency level upgrade of the cooling system (Optional)"
                                             }
                                         },
                                         "allOf": [
@@ -918,23 +878,6 @@
                                                             "maximum": 40,
                                                             "description": "SEER of cooling equipment (only used if efficiency_method is user)"
                                                         }
-                                                    },
-                                                    "if":{
-                                                        "properties": {"type": {"const": "heat_pump"}}
-                                                    },
-                                                    "then": {
-                                                        "properties": {
-                                                            "efficiency_level": {
-                                                                "enum": ["energy_star", "cee_tier1", "cee_tier2", "cee_tier3"]
-                                                            }
-                                                        }
-                                                    },
-                                                    "else": {
-                                                        "properties": {
-                                                            "efficiency_level": {
-                                                                "enum": ["energy_star", "cee_tier1", "cee_tier2"]
-                                                            }
-                                                        }
                                                     }
                                                 }
                                             },
@@ -949,23 +892,6 @@
                                                             "minimum": 8,
                                                             "maximum": 40,
                                                             "description": "EER of cooling equipment (only used if efficiency_method is user)"
-                                                        }
-                                                    },
-                                                    "if":{
-                                                        "properties": {"type": {"const": "mini_split"}}
-                                                    },
-                                                    "then": {
-                                                        "properties": {
-                                                            "efficiency_level": {
-                                                                "enum": ["energy_star", "cee_tier1"]
-                                                            }
-                                                        }
-                                                    },
-                                                    "else": {
-                                                        "properties": {
-                                                            "efficiency_level": {
-                                                                "enum": ["energy_star"]
-                                                            }
                                                         }
                                                     }
                                                 }
@@ -1090,18 +1016,6 @@
                                                                 }
                                                             }
                                                         ]
-                                                    }
-                                                },
-                                                {
-                                                    "not": {
-                                                        "properties": {
-                                                            "heating": {
-                                                                "properties": {
-                                                                    "efficiency_level": {"enum": ["energy_star", "cee_tier1", "cee_tier2", "cee_tier3"]}
-                                                                },
-                                                                "required": ["efficiency_level"]
-                                                            }
-                                                        }
                                                     }
                                                 }
                                             ]
@@ -1303,18 +1217,6 @@
                                                                 "properties": {
                                                                     "type": {"enum": ["none", "dec"]}
                                                                 }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                {
-                                                    "not": {
-                                                        "properties": {
-                                                            "cooling": {
-                                                                "properties": {
-                                                                    "efficiency_level": {"enum": ["energy_star", "cee_tier1", "cee_tier2", "cee_tier3"]}
-                                                                },
-                                                                "required": ["efficiency_level"]
                                                             }
                                                         }
                                                     }
@@ -1914,11 +1816,6 @@
                                 "energy_factor": {
                                     "type": "number",
                                     "description": "Energy factor of water heater (only used if efficiency_method is user or uef)"
-                                },
-                                "efficiency_level": {
-                                    "type": "string",
-                                    "enum": ["energy_star"],
-                                    "description": "Efficiency level upgrade of the domestic hot water system (Optional)"
                                 }
                             },
                             "allOf": [
@@ -1944,14 +1841,6 @@
                                                     "category": {"const": "unit"}
                                                 },
                                                 "required": ["category"]
-                                            },
-                                            {
-                                                "not": {
-                                                    "properties": {
-                                                        "efficiency_level": {"const": "energy_star"}
-                                                    },
-                                                    "required": ["efficiency_level"]
-                                                }
                                             }
                                         ]
                                     },
@@ -2261,6 +2150,1042 @@
                                 }
                             }
                         }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "wall_construction_same": {"const": false},
+                                    "window_construction_same": {"const": true}
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "if": {
+                            "properties": {
+                                "about": {
+                                    "properties": {
+                                        "shape": {"const": "town_house"}
+                                    }
+                                }
+                            }
+                        },
+                        "then": {
+                            "allOf": [
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_right_front"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_right_front_has_same_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front_left"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_left_has_same_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_has_same_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "else": {
+                            "properties": {
+                                "zone": {
+                                    "properties": {
+                                        "zone_wall": {
+                                            "$ref": "#/definitions/def_sf_has_same_windows"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "wall_construction_same": {"const": true},
+                                    "window_construction_same": {"const": true}
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "if": {
+                            "properties": {
+                                "about": {
+                                    "properties": {
+                                        "shape": {"const": "town_house"}
+                                    }
+                                }
+                            }
+                        },
+                        "then": {
+                            "allOf": [
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_right_front"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_right_front_has_same_walls_and_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front_left"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_left_has_same_walls_and_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "properties": {
+                                            "about": {
+                                                "properties": {
+                                                    "town_house_walls": {"const": "back_front"}
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "zone": {
+                                                "properties": {
+                                                    "zone_wall": {
+                                                        "$ref": "#/definitions/def_mf_back_front_has_same_walls_and_windows"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "else": {
+                            "properties": {
+                                "zone": {
+                                    "properties": {
+                                        "zone_wall": {
+                                            "$ref": "#/definitions/def_sf_mf_has_same_walls_and_windows"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "zone": {
+                                "properties": {
+                                    "zone_roof": {
+                                        "not": {
+                                            "contains": {
+                                                "properties": {
+                                                    "roof_type": {"enum": ["vented_attic", "cond_attic"]}
+                                                },
+                                                "required": ["roof_type"]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "systems": {
+                                "properties": {
+                                    "hvac": {
+                                        "contains": {
+                                            "properties": {
+                                                "hvac_distribution": {
+                                                    "properties": {
+                                                        "duct": {
+                                                            "not": {
+                                                                "contains": {
+                                                                    "properties": {
+                                                                        "location": {"const": "uncond_attic"}
+                                                                    },
+                                                                    "required": ["location"]
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "error_msg": "duct/location[\"uncond_attic\"] is not allowed as there is no attic."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "applicable_upgrades": {
+            "type": "array",
+            "description": "Inputs about the applicable upgrades",
+            "additionalProperties": false,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "upgrade_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "ID of the upgrade"
+                    },
+                    "upgrade_code": {
+                        "type": "string",
+                        "enum": [
+                            "attic_insulation",
+                            "floor_insulation",
+                            "roof_absorptance",
+                            "roof_sheathing",
+                            "knee_wall_insulation",
+                            "wall_insulation",
+                            "wall_sheathing",
+                            "skylight",
+                            "skylight_storm",
+                            "window",
+                            "window_storm",
+                            "foundation_wall_insulation",
+                            "envelope_sealing",
+                            "duct_insulation",
+                            "duct_sealing",
+                            "heating_efficiency",
+                            "cooling_efficiency",
+                            "hp_efficiency",
+                            "replace_hvac_with_ducted_heat_pump",
+                            "replace_hvac_with_ductless_mini_split",
+                            "replace_heating_with_ng",
+                            "wh_efficiency",
+                            "replace_wh_with_heat_pump",
+                            "replace_wh_fuel_with_ng"
+                        ],
+                        "description": "Upgrades that can be applied to the base building"
+                    },
+                    "insulation_R_value": {
+                        "type": "integer",
+                        "description": "Insulation R value of the upgrade"
+                    },
+                    "solar_absorptance": {
+                        "type": "number",
+                        "minimum": 0.0,
+                        "maximum": 1.0,
+                        "description": "Solar absorptance of the upgraded roof."
+                    },
+                    "added_insulation_R_value": {
+                        "type": "integer",
+                        "minimum": 0.0,
+                        "description": "R value of the added insulation"
+                    },
+                    "window_code": {
+                        "type": "string",
+                        "description": "Construction assembly code for window/skylight upgrades"
+                    },
+                    "storm_type": {
+                        "type": "string",
+                        "enum": ["low-e", "clear"],
+                        "description": "Storm type for window/skylight storm upgrades"
+                    },
+                    "leakage_reduction": {
+                        "type": "number",
+                        "minimum": 0.0,
+                        "maximum": 1.0,
+                        "description": "Fractional reduction of leakage for sealing upgrades"
+                    },
+                    "cooling_efficiency_unit": {
+                        "type": "string",
+                        "enum": ["seer", "eer"],
+                        "description": "Unit of cooling efficiency for upgraded cooling/heat pump system"
+                    },
+                    "cooling_efficiency_value": {
+                        "type": "number",
+                        "minimum": 8.0,
+                        "maximum": 40.0,
+                        "description": "Cooling efficiency value for upgraded cooling/heat pump system"
+                    },
+                    "heating_efficiency_unit": {
+                        "type": "string",
+                        "enum": ["hspf", "afue"],
+                        "description": "Unit of heating efficiency for upgraded heating/heat pump system"
+                    },
+                    "heating_efficiency_value": {
+                        "type": "number",
+                        "minimum": 0.6,
+                        "maximum": 20.0,
+                        "description": "Heating efficiency value for upgraded heating/heat pump system"
+                    },
+                    "wh_efficiency_unit": {
+                        "type": "string",
+                        "enum": ["energy_factor", "uniform_energy_factor"],
+                        "description": "Unit of efficiency for upgraded domestic hot water systems"
+                    },
+                    "wh_efficiency_value": {
+                        "type": "number",
+                        "minimum": 0.45,
+                        "maximum": 4.0,
+                        "description": "Efficiency value for upgraded domestic hot water systems"
+                    },
+                    "instance_ids": {
+                        "type": ["array", "null"],
+                        "minItems": 1,
+                        "description": "Array of instances that upgrade applies to"
+                    }
+                },
+                "allOf": [
+                    {
+                        "required": [
+                            "upgrade_id",
+                            "upgrade_code",
+                            "instance_ids"
+                        ]
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "attic_insulation",
+                                        "floor_insulation",
+                                        "knee_wall_insulation",
+                                        "wall_insulation",
+                                        "foundation_wall_insulation",
+                                        "duct_insulation"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "insulation_R_value"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "const": "roof_absorptance"
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "solar_absorptance"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "roof_sheathing",
+                                        "wall_sheathing"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "added_insulation_R_value"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "skylight",
+                                        "window"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "window_code"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "skylight_storm",
+                                        "window_storm"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "storm_type"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "envelope_sealing",
+                                        "duct_sealing"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "leakage_reduction"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "heating_efficiency",
+                                        "replace_heating_with_ng"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "heating_efficiency_unit": {"const": "afue"}
+                            },
+                            "required": [
+                                "heating_efficiency_unit",
+                                "heating_efficiency_value"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "cooling_efficiency"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "cooling_efficiency_unit": {"enum": ["seer", "eer"]}
+                            },
+                            "required": [
+                                "cooling_efficiency_unit",
+                                "cooling_efficiency_value"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "hp_efficiency",
+                                        "replace_hvac_with_ducted_heat_pump",
+                                        "replace_hvac_with_ductless_mini_split"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "cooling_efficiency_unit": {"const": "seer"},
+                                "heating_efficiency_unit": {"const": "hspf"}
+                            },
+                            "required": [
+                                "cooling_efficiency_unit",
+                                "cooling_efficiency_value",
+                                "heating_efficiency_unit",
+                                "heating_efficiency_value"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "upgrade_code": {
+                                    "enum": [
+                                        "wh_efficiency",
+                                        "replace_wh_with_heat_pump",
+                                        "replace_wh_fuel_with_ng"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "upgrade_code"
+                            ]
+                        },
+                        "then": {
+                            "properties": {
+                                "wh_efficiency_unit": {"enum": ["energy_factor", "uniform_energy_factor"]}
+                            },
+                            "required": [
+                                "wh_efficiency_unit",
+                                "wh_efficiency_value"
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "def_front_wall_constraint": {
+            "contains": {
+                "properties": {
+                    "side": {"const": "front"}
+                },
+                "required": ["side", "wall_assembly_code"]
+            },
+            "error_msg": "zone_wall/side[\"front\"] requires \"side\" and \"wall_assembly_code\""
+        },
+        "def_back_wall_constraint": {
+            "contains": {
+                "properties": {
+                    "side": {"const": "back"}
+                },
+                "required": ["side", "wall_assembly_code"]
+            },
+            "error_msg": "zone_wall/side[\"back\"] requires \"side\" and \"wall_assembly_code\""
+        },
+        "def_right_wall_constraint": {
+            "contains": {
+                "properties": {
+                    "side": {"const": "right"}
+                },
+                "required": ["side", "wall_assembly_code"]
+            },
+            "error_msg": "zone_wall/side[\"right\"] requires \"side\" and \"wall_assembly_code\""
+        },
+        "def_left_wall_constraint": {
+            "contains": {
+                "properties": {
+                    "side": {"const": "left"}
+                },
+                "required": ["side", "wall_assembly_code"]
+            },
+            "error_msg": "zone_wall/side[\"left\"] requires \"side\" and \"wall_assembly_code\""
+        },
+        "def_right_wall_not_allowed_constraint": {
+            "not": {
+                "contains": {
+                    "properties": {
+                        "side": {"const": "right"}
+                    },
+                    "required": ["side"]
+                }
+            },
+            "error_msg": "zone_wall/side[\"right\"] not allowed"
+        },
+        "def_left_wall_not_allowed_constraint": {
+            "not": {
+                "contains": {
+                    "properties": {
+                        "side": {"const": "left"}
+                    },
+                    "required": ["side"]
+                }
+            },
+            "error_msg": "zone_wall/side[\"left\"] not allowed"
+        },
+        "def_back_wall_has_same_construction_constraint": {
+            "contains": {
+                "properties": {
+                    "side": {"const": "back"}
+                },
+                "required": ["side"],
+                "not": {
+                    "required": ["wall_assembly_code"]
+                }
+            },
+            "error_msg": "\"wall_assembly_code\" is not allowed for zone_wall/side[\"back\"]"
+        },
+        "def_left_wall_has_same_construction_constraint": {
+            "contains": {
+                "properties": {
+                    "side": {"const": "left"}
+                },
+                "required": ["side"],
+                "not": {
+                    "required": ["wall_assembly_code"]
+                }
+            },
+            "error_msg": "\"wall_assembly_code\" is not allowed for zone_wall/side[\"left\"]"
+        },
+        "def_right_wall_has_same_construction_constraint": {
+            "contains": {
+                "properties": {
+                    "side": {"const": "right"}
+                },
+                "required": ["side"],
+                "not": {
+                    "required": ["wall_assembly_code"]
+                }
+            },
+            "error_msg": "\"wall_assembly_code\" is not allowed for zone_wall/side[\"right\"]"
+        },
+        "def_front_window_constraint": {
+            "allOf": [
+                {
+                    "contains": {
+                        "properties": {
+                            "side": {"const": "front"},
+                            "zone_window": {
+                                "required": ["window_area", "window_method"]
+                            }
+                        },
+                        "required": ["side", "zone_window"]
+                    },
+                    "error_msg": "zone_wall/side[\"front\"]/zone_window requires \"window_area\" and \"window_method\""
+                },
+                {
+                    "if": {
+                        "contains": {
+                            "properties": {
+                                "side": {"const": "front"},
+                                "zone_window": {
+                                    "properties": {
+                                        "window_method": {"const": "code"}
+                                    }
+                                }
+                            },
+                            "required": ["side"]
+                        }
+                    },
+                    "then": {
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "front"},
+                                        "zone_window": {
+                                            "required": ["window_code"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"front\"]/zone_window requires \"window_code\""
+                            },
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "front"},
+                                        "zone_window": {
+                                            "not": {
+                                                "anyOf": [
+                                                    {
+                                                        "required": ["window_u_value"]
+                                                    },
+                                                    {
+                                                        "required": ["window_shgc"]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "\"window_u_value\" and \"window_shgc\" are not allowed for zone_wall/side[\"front\"]/zone_window"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "contains": {
+                            "properties": {
+                                "side": {"const": "front"},
+                                "zone_window": {
+                                    "properties": {
+                                        "window_method": {"const": "custom"}
+                                    }
+                                }
+                            },
+                            "required": ["side"]
+                        }
+                    },
+                    "then": {
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "front"},
+                                        "zone_window": {
+                                            "required": ["window_u_value", "window_shgc"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"front\"]/zone_window requires \"window_u_value\" and \"window_shgc\""
+                            },
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "front"},
+                                        "zone_window": {
+                                            "not": {
+                                                "required": ["window_code"]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "\"window_code\" is not allowed for zone_wall/side[\"front\"]/zone_window"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "def_back_window_constraint": {
+            "allOf": [
+                {
+                    "contains": {
+                        "properties": {
+                            "side": {"const": "back"},
+                            "zone_window": {
+                                "required": ["window_area", "window_method"]
+                            }
+                        },
+                        "required": ["side", "zone_window"]
+                    },
+                    "error_msg": "zone_wall/side[\"back\"]/zone_window requires \"window_area\" and \"window_method\""
+                },
+                {
+                    "if": {
+                        "contains": {
+                            "properties": {
+                                "side": {"const": "back"},
+                                "zone_window": {
+                                    "properties": {
+                                        "window_method": {"const": "code"}
+                                    }
+                                }
+                            },
+                            "required": ["side"]
+                        }
+                    },
+                    "then": {
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "back"},
+                                        "zone_window": {
+                                            "required": ["window_code"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"back\"]/zone_window requires \"window_code\""
+                            },
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "back"},
+                                        "zone_window": {
+                                            "not": {
+                                                "anyOf": [
+                                                    {
+                                                        "required": ["window_u_value"]
+                                                    },
+                                                    {
+                                                        "required": ["window_shgc"]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "\"window_u_value\" and \"window_shgc\" are not allowed for zone_wall/side[\"back\"]/zone_window"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "contains": {
+                            "properties": {
+                                "side": {"const": "back"},
+                                "zone_window": {
+                                    "properties": {
+                                        "window_method": {"const": "custom"}
+                                    }
+                                }
+                            },
+                            "required": ["side"]
+                        }
+                    },
+                    "then": {
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "back"},
+                                        "zone_window": {
+                                            "required": ["window_u_value", "window_shgc"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"back\"]/zone_window requires \"window_u_value\" and \"window_shgc\""
+                            },
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "back"},
+                                        "zone_window": {
+                                            "not": {
+                                                "required": ["window_code"]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "\"window_code\" is not allowed for zone_wall/side[\"back\"]/zone_window"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "def_right_window_constraint": {
+            "allOf": [
+                {
+                    "contains": {
+                        "properties": {
+                            "side": {"const": "right"},
+                            "zone_window": {
+                                "required": ["window_area", "window_method"]
+                            }
+                        },
+                        "required": ["side", "zone_window"]
+                    },
+                    "error_msg": "zone_wall/side[\"right\"]/zone_window requires \"window_area\" and \"window_method\""
+                },
+                {
+                    "if": {
+                        "contains": {
+                            "properties": {
+                                "side": {"const": "right"},
+                                "zone_window": {
+                                    "properties": {
+                                        "window_method": {"const": "code"}
+                                    }
+                                }
+                            },
+                            "required": ["side"]
+                        }
+                    },
+                    "then": {
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "right"},
+                                        "zone_window": {
+                                            "required": ["window_code"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"right\"]/zone_window requires \"window_code\""
+                            },
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "right"},
+                                        "zone_window": {
+                                            "not": {
+                                                "anyOf": [
+                                                    {
+                                                        "required": ["window_u_value"]
+                                                    },
+                                                    {
+                                                        "required": ["window_shgc"]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "\"window_u_value\" and \"window_shgc\" are not allowed for zone_wall/side[\"right\"]/zone_window"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "contains": {
+                            "properties": {
+                                "side": {"const": "right"},
+                                "zone_window": {
+                                    "properties": {
+                                        "window_method": {"const": "custom"}
+                                    }
+                                }
+                            },
+                            "required": ["side"]
+                        }
+                    },
+                    "then": {
+                        "allOf": [
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "right"},
+                                        "zone_window": {
+                                            "required": ["window_u_value", "window_shgc"]
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "zone_wall/side[\"right\"]/zone_window requires \"window_u_value\" and \"window_shgc\""
+                            },
+                            {
+                                "contains": {
+                                    "properties": {
+                                        "side": {"const": "right"},
+                                        "zone_window": {
+                                            "not": {
+                                                "required": ["window_code"]
+                                            }
+                                        }
+                                    },
+                                    "required": ["side"]
+                                },
+                                "error_msg": "\"window_code\" is not allowed for zone_wall/side[\"right\"]/zone_window"
+                            }
+                        ]
                     }
                 }
             ]
