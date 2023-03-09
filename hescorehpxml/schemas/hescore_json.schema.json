@@ -19,7 +19,6 @@
                             "type": "string",
                             "pattern": "^[0-9]{5}$"
                         },
-                        "assessment_type": {"type": "string"},
                         "external_building_id": {
                             "type": "string",
                             "description": " Allows an organization to assign an ID to the building for that organization's internal use. This field has no impact within the HES system, except that it can be filtered on in some of the retrieve_* methods."
@@ -76,6 +75,7 @@
                     ],
                     "additionalProperties": false,
                     "properties": {
+                        "assessment_type": {"type": "string"},
                         "assessment_date": {
                             "type": "string",
                             "format": "date",
