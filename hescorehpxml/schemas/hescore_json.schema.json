@@ -5,57 +5,62 @@
     "title": "HEScore JSON Schema",
     "additionalProperties": false,
     "properties": {
-        "building_address": {
+        "building_unit": {
             "type": "object",
-            "additionalProperties": false,
             "properties": {
-                "address": {"type": "string"},
-                "city": {"type": "string"},
-                "state": {"type": "string"},
-                "zip_code": {
-                    "type": "string",
-                    "pattern": "^[0-9]{5}$"
+                "address": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "address": {"type": "string"},
+                        "city": {"type": "string"},
+                        "state": {"type": "string"},
+                        "zip_code": {
+                            "type": "string",
+                            "pattern": "^[0-9]{5}$"
+                        },
+                        "assessment_type": {"type": "string"},
+                        "external_building_id": {
+                            "type": "string",
+                            "description": " Allows an organization to assign an ID to the building for that organization's internal use. This field has no impact within the HES system, except that it can be filtered on in some of the retrieve_* methods."
+                        }
+                    },
+                    "required": [
+                        "address",
+                        "city",
+                        "state",
+                        "zip_code"
+                    ]
                 },
-                "assessment_type": {"type": "string"},
-                "external_building_id": {
-                    "type": "string",
-                    "description": " Allows an organization to assign an ID to the building for that organization's internal use. This field has no impact within the HES system, except that it can be filtered on in some of the retrieve_* methods."
-                }
-            }
-        },
-        "hpwes": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "improvement_installation_start_date": {
-                    "type": "string",
-                    "format": "date",
-                    "description": "The date on which HPwES upgrade installation began, in YYYY-MM-DD format"
+                "hpwes": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "improvement_installation_start_date": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "The date on which HPwES upgrade installation began, in YYYY-MM-DD format"
+                        },
+                        "improvement_installation_completion_date": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "The date on which HPwES upgrade installation was completed, in YYYY-MM-DD format"
+                        },
+                        "contractor_zip_code": {
+                            "type": "string",
+                            "pattern": "^[0-9]{5}$",
+                            "description": "Five-digit postal code of the contractor installing the HPwES upgrades"
+                        },
+                        "contractor_business_name": {
+                            "type": "string",
+                            "description": "The name of the contracting business installing the HPwES upgrades"
+                        },
+                        "is_income_eligible_program": {
+                            "type": "boolean",
+                            "description": "Whether or not the HPwES upgrades were performed for a homeowner participating in an income-eligible program"
+                        }
+                    }
                 },
-                "improvement_installation_completion_date": {
-                    "type": "string",
-                    "format": "date",
-                    "description": "The date on which HPwES upgrade installation was completed, in YYYY-MM-DD format"
-                },
-                "contractor_zip_code": {
-                    "type": "string",
-                    "pattern": "^[0-9]{5}$",
-                    "description": "Five-digit postal code of the contractor installing the HPwES upgrades"
-                },
-                "contractor_business_name": {
-                    "type": "string",
-                    "description": "The name of the contracting business installing the HPwES upgrades"
-                },
-                "is_income_eligible_program": {
-                    "type": "boolean",
-                    "description": "Whether or not the HPwES upgrades were performed for a homeowner participating in an income-eligible program"
-                }
-            }
-        },
-        "building": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
                 "about": {
                     "type": "object",
                     "required": [
@@ -222,7 +227,10 @@
                     "type": "object",
                     "required": [
                         "wall_construction_same",
-                        "window_construction_same"
+                        "window_construction_same",
+                        "zone_roof",
+                        "zone_floor",
+                        "zone_wall"
                     ],
                     "additionalProperties": false,
                     "properties": {
@@ -1287,7 +1295,10 @@
                                             }
                                         ]
                                     },
-                                    "hvac_distribution": {"$comment": "Additional requirements for this property apply based on the heating and cooling system type"}
+                                    "hvac_distribution": {
+                                        "$comment": "Additional requirements for this property apply based on the heating and cooling system type",
+                                        "$ref": "#/properties/building_unit/properties/systems/properties/hvac/items/definitions/def_hvac_distribution"
+                                    }
                                 },
                                 "allOf": [
                                     {
@@ -2100,7 +2111,7 @@
                                         },
                                         "then": {
                                             "properties": {
-                                                "hvac_distribution": {"$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution"}
+                                                "hvac_distribution": {"$ref": "#/properties/building_unit/properties/systems/properties/hvac/items/definitions/def_hvac_distribution"}
                                             },
                                             "required": ["hvac_distribution"]
                                         }
@@ -2129,7 +2140,7 @@
                                         },
                                         "then": {
                                             "properties": {
-                                                "hvac_distribution": {"$ref": "#/properties/building/properties/systems/properties/hvac/items/definitions/def_hvac_distribution"}
+                                                "hvac_distribution": {"$ref": "#/properties/building_unit/properties/systems/properties/hvac/items/definitions/def_hvac_distribution"}
                                             },
                                             "required": ["hvac_distribution"]
                                         }
@@ -2541,8 +2552,8 @@
                                         "properties": {
                                             "energy_factor": {
                                                 "type": "number",
-                                                "minimum": 1.0,
-                                                "maximum": 4.0
+                                                "minimum": 1,
+                                                "maximum": 4
                                             }
                                         }
                                     }
@@ -2719,6 +2730,10 @@
                                 }
                             }
                         }
+                    ],
+                    "required": [
+                        "hvac",
+                        "domestic_hot_water"
                     ]
                 }
             },
@@ -3167,9 +3182,17 @@
                         }
                     }
                 }
+            ],
+            "additionalProperties": false,
+            "description": "Description of the assessed building",
+            "required": [
+                "address",
+                "about",
+                "zone",
+                "systems"
             ]
         },
-        "applicable_upgrades": {
+        "upgrades": {
             "type": "array",
             "description": "Inputs about the applicable upgrades",
             "additionalProperties": false,
@@ -3218,13 +3241,13 @@
                     },
                     "solar_absorptance": {
                         "type": "number",
-                        "minimum": 0.0,
-                        "maximum": 1.0,
+                        "minimum": 0,
+                        "maximum": 1,
                         "description": "Solar absorptance of the upgraded roof."
                     },
                     "added_insulation_R_value": {
                         "type": "integer",
-                        "minimum": 0.0,
+                        "minimum": 0,
                         "description": "R value of the added insulation"
                     },
                     "window_code": {
@@ -3241,8 +3264,8 @@
                     },
                     "leakage_reduction": {
                         "type": "number",
-                        "minimum": 0.0,
-                        "maximum": 1.0,
+                        "minimum": 0,
+                        "maximum": 1,
                         "description": "Fractional reduction of leakage for sealing upgrades"
                     },
                     "cooling_efficiency_unit": {
@@ -3255,8 +3278,8 @@
                     },
                     "cooling_efficiency_value": {
                         "type": "number",
-                        "minimum": 8.0,
-                        "maximum": 40.0,
+                        "minimum": 8,
+                        "maximum": 40,
                         "description": "Cooling efficiency value for upgraded cooling/heat pump system"
                     },
                     "heating_efficiency_unit": {
@@ -3270,7 +3293,7 @@
                     "heating_efficiency_value": {
                         "type": "number",
                         "minimum": 0.6,
-                        "maximum": 20.0,
+                        "maximum": 20,
                         "description": "Heating efficiency value for upgraded heating/heat pump system"
                     },
                     "wh_efficiency_unit": {
@@ -3284,7 +3307,7 @@
                     "wh_efficiency_value": {
                         "type": "number",
                         "minimum": 0.45,
-                        "maximum": 4.0,
+                        "maximum": 4,
                         "description": "Efficiency value for upgraded domestic hot water systems"
                     },
                     "instance_ids": {
@@ -4258,5 +4281,6 @@
                 {"$ref": "#/definitions/def_back_window_constraint"}
             ]
         }
-    }
+    },
+    "required": ["building_unit"]
 }
