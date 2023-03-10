@@ -1,13 +1,13 @@
 {
-  "building_address": {
-    "address": "1 API House",
-    "city": "Minden",
-    "state": "NE",
-    "zip_code": "68959",
-    "assessment_type": "initial"
-  },
-  "building": {
+  "building_unit": {
+    "address": {
+      "address": "1 API House",
+      "city": "Minden",
+      "state": "NE",
+      "zip_code": "68959"
+    },
     "about": {
+      "assessment_type": "initial",
       "assessment_date": "2014-10-23",
       "shape": "rectangle",
       "year_built": 1953,

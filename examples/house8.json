@@ -1,13 +1,13 @@
 {
-  "building_address": {
-    "address": "8 API House",
-    "city": "Kansas City",
-    "state": "KS",
-    "zip_code": "66101",
-    "assessment_type": "mentor"
-  },
-  "building": {
+  "building_unit": {
+    "address": {
+      "address": "8 API House",
+      "city": "Kansas City",
+      "state": "KS",
+      "zip_code": "66101"
+    },
     "about": {
+      "assessment_type": "mentor",
       "assessment_date": "2014-12-18",
       "shape": "rectangle",
       "year_built": 1950,

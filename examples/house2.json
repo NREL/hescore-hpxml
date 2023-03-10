@@ -1,13 +1,13 @@
 {
-  "building_address": {
-    "address": "2 API House",
-    "city": "Tulsa",
-    "state": "OK",
-    "zip_code": "74132",
-    "assessment_type": "initial"
-  },
-  "building": {
+  "building_unit": {
+    "address": {
+      "address": "2 API House",
+      "city": "Tulsa",
+      "state": "OK",
+      "zip_code": "74132"
+    },
     "about": {
+      "assessment_type": "initial",
       "assessment_date": "2014-10-28",
       "shape": "rectangle",
       "year_built": 1953,

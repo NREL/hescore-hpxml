@@ -1,13 +1,13 @@
 {
-  "building_address": {
-    "address": "123 Main Street",
-    "city": "Golden",
-    "state": "CO",
-    "zip_code": "80401",
-    "assessment_type": "initial"
-  },
-  "building": {
+  "building_unit": {
+    "address": {
+      "address": "123 Main Street",
+      "city": "Golden",
+      "state": "CO",
+      "zip_code": "80401"
+    },
     "about": {
+      "assessment_type": "initial",
       "assessment_date": "2014-12-02",
       "shape": "rectangle",
       "year_built": 1961,

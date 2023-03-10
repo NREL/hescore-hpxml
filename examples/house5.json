@@ -1,13 +1,13 @@
 {
-  "building_address": {
-    "address": "5 API House",
-    "city": "Springfield",
-    "state": "MO",
-    "zip_code": "65802",
-    "assessment_type": "alternative"
-  },
-  "building": {
+  "building_unit": {
+    "address": {
+      "address": "5 API House",
+      "city": "Springfield",
+      "state": "MO",
+      "zip_code": "65802"
+    },
     "about": {
+      "assessment_type": "alternative",
       "assessment_date": "2014-10-30",
       "shape": "rectangle",
       "year_built": 1890,

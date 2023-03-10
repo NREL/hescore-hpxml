@@ -1,13 +1,13 @@
 {
-  "building_address": {
-    "address": "4 API House",
-    "city": "Tacoma",
-    "state": "WA",
-    "zip_code": "98404",
-    "assessment_type": "alternative"
-  },
-  "building": {
+  "building_unit": {
+    "address": {
+      "address": "4 API House",
+      "city": "Tacoma",
+      "state": "WA",
+      "zip_code": "98404"
+    },
     "about": {
+      "assessment_type": "alternative",
       "assessment_date": "2014-10-30",
       "shape": "rectangle",
       "year_built": 1970,

@@ -808,12 +808,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         # Create return dict
         hescore_inputs = OrderedDict()
-        hescore_inputs['building_address'] = self.get_building_address(b)
-        if self.check_hpwes(p, b):
-            hescore_inputs['hpwes'] = self.get_hpwes(p, c)
-
         bldg = OrderedDict()
-        hescore_inputs['building'] = bldg
+        hescore_inputs['building_unit'] = bldg
+        bldg['address'] = self.get_building_address(b)
+        if self.check_hpwes(p, b):
+            bldg['hpwes'] = self.get_hpwes(p, c)
+
         bldg['about'] = self.get_building_about(b, p)
         bldg['zone'] = OrderedDict()
         bldg['zone']['zone_roof'] = None  # to save the spot in the order
@@ -878,24 +878,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         bldgaddr['state'] = xpath(b, 'h:Site/h:Address/h:StateCode/text()', raise_err=True)
         hpxml_zipcode = xpath(b, 'h:Site/h:Address/h:ZipCode/text()', raise_err=True)
         bldgaddr['zip_code'] = re.match(r"([0-9]{5})(-[0-9]{4})?", hpxml_zipcode).group(1)
-        transaction_type = xpath(self.hpxmldoc, 'h:XMLTransactionHeaderInformation/h:Transaction/text()')
-        is_mentor = xpath(b, 'boolean(h:ProjectStatus/h:extension/h:HEScoreMentorAssessment)')
-        if is_mentor:
-            bldgaddr['assessment_type'] = 'mentor'
-        else:
-            if transaction_type == 'create':
-                bldgaddr['assessment_type'] = {
-                    'audit': 'initial',
-                    'proposed workscope': 'alternative',
-                    'approved workscope': 'alternative',
-                    'construction-period testing/daily test out': 'test',
-                    'job completion testing/final inspection': 'final',
-                    'quality assurance/monitoring': 'qa',
-                    'preconstruction': 'preconstruction'
-                }[xpath(b, 'h:ProjectStatus/h:EventType/text()', raise_err=True)]
-            else:
-                assert transaction_type == 'update'
-                bldgaddr['assessment_type'] = 'corrected'
 
         ext_id_xpath_exprs = (
             'h:extension/h:HESExternalID/text()',
@@ -947,6 +929,25 @@ class HPXMLtoHEScoreTranslatorBase(object):
         xpath = self.xpath
         ns = self.ns
         bldg_about = OrderedDict()
+
+        transaction_type = xpath(self.hpxmldoc, 'h:XMLTransactionHeaderInformation/h:Transaction/text()')
+        is_mentor = xpath(b, 'boolean(h:ProjectStatus/h:extension/h:HEScoreMentorAssessment)')
+        if is_mentor:
+            bldg_about['assessment_type'] = 'mentor'
+        else:
+            if transaction_type == 'create':
+                bldg_about['assessment_type'] = {
+                    'audit': 'initial',
+                    'proposed workscope': 'alternative',
+                    'approved workscope': 'alternative',
+                    'construction-period testing/daily test out': 'test',
+                    'job completion testing/final inspection': 'final',
+                    'quality assurance/monitoring': 'qa',
+                    'preconstruction': 'preconstruction'
+                }[xpath(b, 'h:ProjectStatus/h:EventType/text()', raise_err=True)]
+            else:
+                assert transaction_type == 'update'
+                bldg_about['assessment_type'] = 'corrected'
 
         project_status_date_el = b.find('h:ProjectStatus/h:Date', namespaces=ns)
         if project_status_date_el is None:
@@ -2547,35 +2548,35 @@ class HPXMLtoHEScoreTranslatorBase(object):
         this_year = dt.datetime.today().year
 
         do_bounds_check('assessment_date',
-                        dt.datetime.strptime(hescore_inputs['building']['about']['assessment_date'], '%Y-%m-%d').date(),
+                        dt.datetime.strptime(hescore_inputs['building_unit']['about']['assessment_date'], '%Y-%m-%d').date(),
                         dt.date(2010, 1, 1), dt.datetime.today().date())
 
         do_bounds_check('year_built',
-                        hescore_inputs['building']['about']['year_built'],
+                        hescore_inputs['building_unit']['about']['year_built'],
                         1600, this_year)
 
         do_bounds_check('number_bedrooms',
-                        hescore_inputs['building']['about']['number_bedrooms'],
+                        hescore_inputs['building_unit']['about']['number_bedrooms'],
                         1, 10)
 
         do_bounds_check('num_floor_above_grade',
-                        hescore_inputs['building']['about']['num_floor_above_grade'],
+                        hescore_inputs['building_unit']['about']['num_floor_above_grade'],
                         1, 4)
 
         do_bounds_check('floor_to_ceiling_height',
-                        hescore_inputs['building']['about']['floor_to_ceiling_height'],
+                        hescore_inputs['building_unit']['about']['floor_to_ceiling_height'],
                         6, 12)
 
         do_bounds_check('conditioned_floor_area',
-                        hescore_inputs['building']['about']['conditioned_floor_area'],
+                        hescore_inputs['building_unit']['about']['conditioned_floor_area'],
                         250, 25000)
 
-        if hescore_inputs['building']['about']['blower_door_test']:
+        if hescore_inputs['building_unit']['about']['blower_door_test']:
             do_bounds_check('envelope_leakage',
-                            hescore_inputs['building']['about']['envelope_leakage'],
+                            hescore_inputs['building_unit']['about']['envelope_leakage'],
                             0, 25000)
 
-        for zone_roof in hescore_inputs['building']['zone']['zone_roof']:
+        for zone_roof in hescore_inputs['building_unit']['zone']['zone_roof']:
             zone_skylight = zone_roof['zone_skylight']
             do_bounds_check('skylight_area',
                             zone_skylight['skylight_area'],
@@ -2589,12 +2590,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                 zone_skylight['skylight_shgc'],
                                 0, 1)
 
-        for zone_floor in hescore_inputs['building']['zone']['zone_floor']:
+        for zone_floor in hescore_inputs['building_unit']['zone']['zone_floor']:
             do_bounds_check('foundation_insulation_level',
                             zone_floor['foundation_insulation_level'],
                             0, 19)
 
-        for zone_wall in hescore_inputs['building']['zone']['zone_wall']:
+        for zone_wall in hescore_inputs['building_unit']['zone']['zone_wall']:
             zone_window = zone_wall['zone_window']
             do_bounds_check('window_area',
                             zone_window['window_area'],
@@ -2607,7 +2608,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                 zone_window['window_shgc'],
                                 0, 1)
 
-        for sys_hvac in hescore_inputs['building']['systems']['hvac']:
+        for sys_hvac in hescore_inputs['building_unit']['systems']['hvac']:
 
             sys_heating = sys_hvac['heating']
             if sys_heating['type'] not in ('none', 'baseboard', 'wood_stove'):
@@ -2652,22 +2653,22 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     if hvacd['location'] == 'uncond_basement':
                         duct_location_error = 'uncond_basement' not in [
                             zone_floor['foundation_type']
-                            for zone_floor in hescore_inputs['building']['zone']['zone_floor']
+                            for zone_floor in hescore_inputs['building_unit']['zone']['zone_floor']
                         ]
                     elif hvacd['location'] == 'unvented_crawl':
                         duct_location_error = 'unvented_crawl' not in [
                             zone_floor['foundation_type']
-                            for zone_floor in hescore_inputs['building']['zone']['zone_floor']
+                            for zone_floor in hescore_inputs['building_unit']['zone']['zone_floor']
                         ]
                     elif hvacd['location'] == 'vented_crawl':
                         duct_location_error = 'vented_crawl' not in [
                             zone_floor['foundation_type']
-                            for zone_floor in hescore_inputs['building']['zone']['zone_floor']
+                            for zone_floor in hescore_inputs['building_unit']['zone']['zone_floor']
                         ]
                     elif hvacd['location'] == 'uncond_attic':
                         duct_location_error = 'vented_attic' not in [
                             zone_roof['roof_type'] for zone_roof in
-                            hescore_inputs['building']['zone']['zone_roof']
+                            hescore_inputs['building_unit']['zone']['zone_roof']
                         ]
 
                     if duct_location_error:
@@ -2675,7 +2676,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             'HVAC distribution: %(name)s location: %(location)s not exists in zone_roof/floor types.' %
                             hvacd)
 
-        dhw = hescore_inputs['building']['systems']['domestic_hot_water']
+        dhw = hescore_inputs['building_unit']['systems']['domestic_hot_water']
         # check range of uef with the same range as ef, add tankless into "type to check" list
         if dhw['type'] in ('storage', 'heat_pump', 'tankless'):
             if dhw['efficiency_method'] == 'user' or dhw['efficiency_method'] == 'uef':
@@ -2691,7 +2692,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                 1972, this_year)
         elif dhw['category'] == 'combined' and dhw['type'] in ('tankless_coil', 'indirect'):
             found_boiler = False
-            for sys_hvac in hescore_inputs['building']['systems']['hvac']:
+            for sys_hvac in hescore_inputs['building_unit']['systems']['hvac']:
                 if 'heating' not in sys_hvac:
                     continue
                 if sys_hvac['heating']['type'] == 'boiler':

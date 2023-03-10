@@ -1,13 +1,13 @@
 {
-  "building_address": {
-    "address": "6 API House",
-    "city": "Bakersfield",
-    "state": "CA",
-    "zip_code": "93301",
-    "assessment_type": "corrected"
-  },
-  "building": {
+  "building_unit": {
+    "address": {
+      "address": "6 API House",
+      "city": "Bakersfield",
+      "state": "CA",
+      "zip_code": "93301"
+    },
     "about": {
+      "assessment_type": "corrected",
       "assessment_date": "2014-12-18",
       "shape": "rectangle",
       "year_built": 1950,

@@ -1,13 +1,13 @@
 {
-  "building_address": {
-    "address": "resstock test house",
-    "city": "resstock test city",
-    "state": "WA",
-    "zip_code": "98052",
-    "assessment_type": "alternative"
-  },
-  "building": {
+  "building_unit": {
+    "address": {
+      "address": "resstock test house",
+      "city": "resstock test city",
+      "state": "WA",
+      "zip_code": "98052"
+    },
     "about": {
+      "assessment_type": "alternative",
       "assessment_date": "2022-02-15",
       "shape": "rectangle",
       "year_built": 1950,

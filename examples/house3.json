@@ -1,13 +1,13 @@
 {
-  "building_address": {
-    "address": "3 API House",
-    "city": "Hunstville",
-    "state": "AL",
-    "zip_code": "35801",
-    "assessment_type": "qa"
-  },
-  "building": {
+  "building_unit": {
+    "address": {
+      "address": "3 API House",
+      "city": "Hunstville",
+      "state": "AL",
+      "zip_code": "35801"
+    },
     "about": {
+      "assessment_type": "qa",
       "assessment_date": "2014-10-29",
       "shape": "rectangle",
       "year_built": 1980,

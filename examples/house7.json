@@ -1,13 +1,13 @@
 {
-  "building_address": {
-    "address": "7 API House",
-    "city": "Washington",
-    "state": "DC",
-    "zip_code": "20011",
-    "assessment_type": "test"
-  },
-  "building": {
+  "building_unit": {
+    "address": {
+      "address": "7 API House",
+      "city": "Washington",
+      "state": "DC",
+      "zip_code": "20011"
+    },
     "about": {
+      "assessment_type": "test",
       "assessment_date": "2014-12-18",
       "shape": "town_house",
       "town_house_walls": "back_front",
