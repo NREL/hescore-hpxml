@@ -5,7 +5,6 @@ import pathlib
 import copy
 import glob
 import pytest
-import re
 
 hescore_examples = [
     'townhouse_walls',
