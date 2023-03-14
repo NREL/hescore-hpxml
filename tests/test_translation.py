@@ -171,6 +171,15 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             elif wall['side'] == 'back':
                 self.assertEqual(wall['zone_window']['window_area'], 0)
 
+    def test_missing_adjacent_to(self):
+        tr = self._load_xmlfile('house9')
+        # change an exterior wall to a shared wall
+        wall3_ext_adjacent_to = self.xpath('//h:Wall[h:SystemIdentifier/@id="Surface_20"]/h:ExteriorAdjacentTo')
+        wall3_ext_adjacent_to.getparent().remove(wall3_ext_adjacent_to)
+        self.assertRaisesRegex(TranslationError,
+                               r'Surface_20 has no orientation information\.',
+                               tr.hpxml_to_hescore)
+
     def test_missing_siding(self):
         tr = self._load_xmlfile('hescore_min')
         siding = self.xpath('//h:Wall[1]/h:Siding')

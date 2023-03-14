@@ -167,7 +167,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
     def get_wall_assembly_rvalue(self, wall):
         return convert_to_type(float, self.xpath(wall, 'h:Insulation/h:AssemblyEffectiveRValue/text()'))
 
-    def get_wall_assembly_code_and_rvalue(self, hpxmlwall):
+    def get_wall_assembly_code_and_rvalue(self, hpxmlwall, is_exterior_wall):
         xpath = self.xpath
         wallid = xpath(hpxmlwall, 'h:SystemIdentifier/@id', raise_err=True)
 
@@ -195,10 +195,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         # Construction type and Siding
         wall_type = xpath(hpxmlwall, 'name(h:WallType/*)', raise_err=True)
-        if self.get_enclosure_adjacent_to(xpath(hpxmlwall, 'h:ExteriorAdjacentTo/text()', raise_err=True)) == 'outside':
-            is_exterior_wall = True
-        else:
-            is_exterior_wall = False
 
         if is_exterior_wall:
             if wall_type == 'WoodStud':
@@ -1808,12 +1804,25 @@ class HPXMLtoHEScoreTranslatorBase(object):
         hpxmlwalls = dict([(side, []) for side in list(sidemap.values())])
         hpxmlwalls['noside'] = []
         for wall in self.get_hescore_walls(b):
-            assembly_code, assembly_eff_rvalue = self.get_wall_assembly_code_and_rvalue(wall)
+            wall_id = xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)
+            try:
+                # Require walls facing each direction with the AdjacentTo
+                wall_adjacent_to = xpath(wall, 'h:ExteriorAdjacentTo/text()', raise_err=True)
+            except ElementNotFoundError:
+                raise TranslationError('%s has no orientation information.' % (wall_id))
+
+            if self.get_enclosure_adjacent_to(wall_adjacent_to) == 'outside':
+                is_exterior_wall = True
+            else:
+                is_exterior_wall = False
+
+            assembly_code, assembly_eff_rvalue = self.get_wall_assembly_code_and_rvalue(wall, is_exterior_wall)
+
             walld = {'assembly_code': assembly_code,
                      'assembly_eff_rvalue': assembly_eff_rvalue,
                      'area': convert_to_type(float, xpath(wall, 'h:Area/text()')),
-                     'id': xpath(wall, 'h:SystemIdentifier/@id', raise_err=True),
-                     'adjacent_to': xpath(wall, 'h:ExteriorAdjacentTo/text()')}
+                     'id': wall_id,
+                     'adjacent_to': wall_adjacent_to}
 
             try:
                 wall_azimuth = self.get_nearest_azimuth(xpath(wall, 'h:Azimuth/text()'),
