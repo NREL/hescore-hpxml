@@ -1806,7 +1806,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         for wall in self.get_hescore_walls(b):
             wall_id = xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)
             try:
-                # Require walls facing each direction with the AdjacentTo
+                # Require walls facing each direction with the ExteriorAdjacentTo
                 wall_adjacent_to = xpath(wall, 'h:ExteriorAdjacentTo/text()', raise_err=True)
             except ElementNotFoundError:
                 raise TranslationError('%s has no orientation information.' % (wall_id))
