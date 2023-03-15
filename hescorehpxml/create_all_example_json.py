@@ -9,7 +9,7 @@ def main():
     exampledir = os.path.normpath(os.path.join(thisdir, '..', 'examples'))
     for filename in os.listdir(exampledir):
         filebase, ext = os.path.splitext(filename)
-        if ext != '.xml':
+        if ext != '.xml' or ('_v3' in filebase) or ('-v2' in filebase):
             continue
         print(filename)
         tr = HPXMLtoHEScoreTranslator(os.path.join(exampledir, filename))

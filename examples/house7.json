@@ -54,8 +54,8 @@
         },
         {
           "side": "left",
-          "wall_assembly_code": "ewbr00nn",
-          "adjacent_to": "outside",
+          "wall_assembly_code": "iwwf00",
+          "adjacent_to": "other_unit",
           "zone_window": {
             "window_area": 0,
             "window_method": "code",
@@ -76,8 +76,8 @@
         },
         {
           "side": "right",
-          "wall_assembly_code": "ewbr00nn",
-          "adjacent_to": "outside",
+          "wall_assembly_code": "iwwf00",
+          "adjacent_to": "other_unit",
           "zone_window": {
             "window_area": 0,
             "window_method": "code",

@@ -1805,11 +1805,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         hpxmlwalls['noside'] = []
         for wall in self.get_hescore_walls(b):
             wall_id = xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)
-            try:
-                # Require walls facing each direction with the ExteriorAdjacentTo
-                wall_adjacent_to = xpath(wall, 'h:ExteriorAdjacentTo/text()', raise_err=True)
-            except ElementNotFoundError:
-                raise TranslationError('%s has no orientation information.' % (wall_id))
+            wall_adjacent_to = xpath(wall, 'h:ExteriorAdjacentTo/text()', raise_err=True)
 
             if self.get_enclosure_adjacent_to(wall_adjacent_to) == 'outside':
                 is_exterior_wall = True
@@ -1965,9 +1961,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         def windows_are_on_shared_walls(zone_wall):
             shared_wall_sides = get_shared_wall_sides(zone_wall)
-            print(shared_wall_sides)
             for side in shared_wall_sides:
-                print(hpxmlwindows[side])
                 if len(hpxmlwindows[side]) > 0:
                     return True
             return False
@@ -1975,45 +1969,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         window_on_shared_wall_fail = windows_are_on_shared_walls(zone_wall)
         if window_on_shared_wall_fail:
             raise TranslationError('The house has windows on shared walls.')
-
-        # if bldg_about['shape'] == 'town_house':
-        #     if all_walls_same:
-        #         # Check to make sure the windows aren't on shared walls.
-        #         window_on_shared_wall_fail = windows_are_on_shared_walls()
-        #         if window_on_shared_wall_fail:
-        #             # Change which walls are shared and check again.
-        #             if bldg_about['town_house_walls'] == 'back_right_front':
-        #                 bldg_about['town_house_walls'] = 'back_front_left'
-        #                 window_on_shared_wall_fail = windows_are_on_shared_walls()
-        #         if window_on_shared_wall_fail:
-        #             raise TranslationError('The house has windows on shared walls.')
-        #         # Since there was one wall construction for the whole building,
-        #         # remove the construction for shared walls.
-        #         for side in get_shared_wall_sides():
-        #             for heswall in zone_wall:
-        #                 if heswall['side'] == side:
-        #                     zone_wall.remove(heswall)
-        #                     break
-        #     else:
-        #         # Make sure that there are walls defined for each side of the house that isn't a shared wall.
-        #         sides_without_heswall = set(self.sidemap.values())
-        #         for heswall in zone_wall:
-        #             sides_without_heswall.remove(heswall['side'])
-        #         shared_wall_fail = sides_without_heswall != get_shared_wall_sides()
-        #         if shared_wall_fail:
-        #             # Change which walls are shared and check again.
-        #             if bldg_about['town_house_walls'] == 'back_right_front':
-        #                 bldg_about['town_house_walls'] = 'back_front_left'
-        #                 shared_wall_fail = sides_without_heswall != get_shared_wall_sides()
-        #         if shared_wall_fail:
-        #             raise TranslationError(
-        #                 'The house has walls defined for sides {} and shared walls on sides {}.'.format(
-        #                     ', '.join(set(self.sidemap.values()) - sides_without_heswall),
-        #                     ', '.join(get_shared_wall_sides())
-        #                 )
-        #             )
-        #         if windows_are_on_shared_walls():
-        #             raise TranslationError('The house has windows on shared walls.')
 
         # Determine the predominant window characteristics and create HEScore windows
         for side, windows in list(hpxmlwindows.items()):
