@@ -177,7 +177,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         wall3_ext_adjacent_to = self.xpath('//h:Wall[h:SystemIdentifier/@id="Surface_20"]/h:ExteriorAdjacentTo')
         wall3_ext_adjacent_to.getparent().remove(wall3_ext_adjacent_to)
         self.assertRaisesRegex(TranslationError,
-                               r'Surface_20 has no orientation information\.',
+                               r'Can\'t find element Building/BuildingDetails/Enclosure/Walls/Wall\[4\]/ExteriorAdjacentTo/text\(\)',  # noqa: E501
                                tr.hpxml_to_hescore)
 
     def test_missing_siding(self):
