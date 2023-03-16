@@ -806,43 +806,43 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         self.schema.assertValid(self.hpxmldoc)
 
-        # Create return dict
-        hescore_inputs = OrderedDict()
-        bldg = OrderedDict()
-        hescore_inputs['building_unit'] = bldg
-        bldg['address'] = self.get_building_address(b)
-        if self.check_hpwes(p, b):
-            bldg['hpwes'] = self.get_hpwes(p, c)
+        with open(self.jsonschemapath, 'r') as f:
+            json_schema = json.loads(f.read())
+            f.close()
 
-        bldg['about'] = self.get_building_about(b, p)
-        bldg['zone'] = OrderedDict()
-        bldg['zone']['zone_roof'] = None  # to save the spot in the order
-        bldg['zone']['zone_floor'] = self.get_building_zone_floor(b, bldg['about'])
-        footprint_area = self.get_footprint_area(bldg)
-        bldg['zone']['zone_roof'] = self.get_building_zone_roof(b, footprint_area)
-        skylights = self.get_skylights(b, bldg['zone']['zone_roof'])
-        for roof_num in range(len(bldg['zone']['zone_roof'])):
-            bldg['zone']['zone_roof'][roof_num]['zone_skylight'] = skylights[roof_num]
-        bldg['zone']['wall_construction_same'] = False
-        bldg['zone']['window_construction_same'] = False
-        bldg['zone']['zone_wall'] = self.get_building_zone_wall(b, bldg['about'])
-        bldg['systems'] = OrderedDict()
-        bldg['systems']['hvac'] = self.get_hvac(b, bldg)
-        bldg['systems']['domestic_hot_water'] = self.get_systems_dhw(b)
+        # Create return dict
+        hes_bldg = OrderedDict()
+        hes_bldg['version'] = json_schema['properties']['version']['const']
+        hes_bldg['address'] = self.get_building_address(b)
+        if self.check_hpwes(p, b):
+            hes_bldg['hpwes'] = self.get_hpwes(p, c)
+
+        hes_bldg['about'] = self.get_building_about(b, p)
+        hes_bldg['zone'] = OrderedDict()
+        hes_bldg['zone']['zone_roof'] = None  # to save the spot in the order
+        hes_bldg['zone']['zone_floor'] = self.get_building_zone_floor(b, hes_bldg['about'])
+        footprint_area = self.get_footprint_area(hes_bldg)
+        hes_bldg['zone']['zone_roof'] = self.get_building_zone_roof(b, footprint_area)
+        skylights = self.get_skylights(b, hes_bldg['zone']['zone_roof'])
+        for roof_num in range(len(hes_bldg['zone']['zone_roof'])):
+            hes_bldg['zone']['zone_roof'][roof_num]['zone_skylight'] = skylights[roof_num]
+        hes_bldg['zone']['wall_construction_same'] = False
+        hes_bldg['zone']['window_construction_same'] = False
+        hes_bldg['zone']['zone_wall'] = self.get_building_zone_wall(b, hes_bldg['about'])
+        hes_bldg['systems'] = OrderedDict()
+        hes_bldg['systems']['hvac'] = self.get_hvac(b, hes_bldg)
+        hes_bldg['systems']['domestic_hot_water'] = self.get_systems_dhw(b)
         generation = self.get_generation(b)
         if generation:
-            bldg['systems']['generation'] = generation
-        self.remove_hidden_keys(hescore_inputs)
+            hes_bldg['systems']['generation'] = generation
+        self.remove_hidden_keys(hes_bldg)
 
         # Validate
-        self.validate_hescore_inputs(hescore_inputs)
+        self.validate_hescore_inputs(hes_bldg)
         # Validate against JSON schema
-        with open(self.jsonschemapath, 'r') as js:
-            json_schema = json.loads(js.read())
-            js.close()
-        validate(hescore_inputs, json_schema, format_checker=FormatChecker())
+        validate(hes_bldg, json_schema, format_checker=FormatChecker())
 
-        return hescore_inputs
+        return hes_bldg
 
     @staticmethod
     def get_footprint_area(bldg):
