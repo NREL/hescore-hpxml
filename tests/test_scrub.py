@@ -197,7 +197,7 @@ def test_remove_building_customerid(hpxml_filebase):
 def test_cli_scrubbed():
     root_dir = pathlib.Path(__file__).resolve().parent.parent
     xml_file_path = root_dir / 'examples' / 'hescore_min_v3.xml'
-    schema_path = pathlib.Path(root_dir, 'hescorehpxml', 'schemas', 'hpxml-3.0.0', 'HPXML.xsd')
+    schema_path = pathlib.Path(root_dir, 'hescorehpxml', 'schemas', 'hpxml-3.1', 'HPXML.xsd')
     schema_doc = etree.parse(str(schema_path))
     schema = etree.XMLSchema(schema_doc.getroot())
     parser = etree.XMLParser(schema=schema)
