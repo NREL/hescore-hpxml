@@ -1,4 +1,3 @@
-from future import standard_library
 from builtins import map
 from builtins import str
 from builtins import object
@@ -17,7 +16,6 @@ import sys
 import tempfile
 import jsonschema
 import re
-standard_library.install_aliases()  # noqa: 402
 
 
 thisdir = os.path.dirname(os.path.abspath(__file__))

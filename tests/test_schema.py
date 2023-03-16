@@ -38,6 +38,11 @@ def get_error_messages(jsonfile, jsonschema):
     return errors
 
 
+def assert_required_error(errors, *required_fields):
+    fields = ', '.join(f"'{x}'" for x in required_fields)
+    assert any(x.endswith(f"should not be valid under {{'required': [{fields}]}}") for x in errors)
+
+
 def test_schema_version_validation():
     schema = get_json_schema()
     error = jsonschema.Draft7Validator.check_schema(schema)
@@ -121,14 +126,14 @@ def test_invalid_building_about(hpxml_filebase):
     if hpxml_filebase == 'townhouse_walls':
         js3['about']['shape'] = 'rectangle'
         errors = get_error_messages(js3, js_schema)
-        assert any(x.startswith("{'required': ['town_house_walls']} is not allowed") for x in errors)
+        assert_required_error(errors, 'town_house_walls')
         js3['about']['air_sealing_present'] = True
         errors = get_error_messages(js3, js_schema)
-        assert any(x.startswith("{'required': ['air_sealing_present']} is not allowed") for x in errors)
+        assert_required_error(errors, 'air_sealing_present')
     elif hpxml_filebase == 'house1':
         js3['about']['envelope_leakage'] = 1204
         errors = get_error_messages(js3, js_schema)
-        assert any(x.startswith("{'required': ['envelope_leakage']} is not allowed") for x in errors)
+        assert_required_error(errors, 'envelope_leakage')
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -172,8 +177,8 @@ def test_invalid_roof(hpxml_filebase):
     js2['zone']['zone_roof'][0]['roof_type'] = 'cath_ceiling'
     js2['zone']['zone_roof'][0]['roof_absorptance'] = 0.6
     errors = get_error_messages(js2, js_schema)
-    assert any(x.find("{'required': ['ceiling_area', 'ceiling_assembly_code']} is not allowed") > -1 for x in errors)
-    assert any(x.find("{'required': ['roof_absorptance']} is not allowed") > -1 for x in errors)
+    assert_required_error(errors, 'ceiling_area', 'ceiling_assembly_code')
+    assert_required_error(errors, 'roof_absorptance')
 
 
 def test_invalid_skylight():
@@ -187,8 +192,7 @@ def test_invalid_skylight():
     errors = get_error_messages(js1, js_schema)
     assert "'skylight_u_value' is a required property" in errors
     assert "'skylight_shgc' is a required property" in errors
-    assert ("{'required': ['skylight_code']} is not allowed for {'skylight_area': 11.0, 'skylight_method': 'custom', "
-            "'skylight_code': 'dcab', 'solar_screen': False}") in errors
+    assert_required_error(errors, 'skylight_code')
     del js1['zone']['zone_roof'][0]['zone_skylight']['skylight_method']
     del js1['zone']['zone_roof'][0]['zone_skylight']['skylight_code']
     errors = get_error_messages(js1, js_schema)
@@ -206,8 +210,7 @@ def test_invalid_skylight():
     js3 = copy.deepcopy(js)
     js3['zone']['zone_roof'][0]['zone_skylight']['skylight_u_value'] = 0.5
     errors = get_error_messages(js3, js_schema)
-    assert ("{'required': ['skylight_u_value']} is not allowed for {'skylight_area': 11.0, 'skylight_method': 'code', "
-            "'skylight_code': 'dcab', 'solar_screen': False, 'skylight_u_value': 0.5}") in errors
+    assert_required_error(errors, 'skylight_u_value')
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -233,14 +236,7 @@ def test_invalid_floor(hpxml_filebase):
     js2 = copy.deepcopy(js)
     js2['zone']['zone_floor'][0]['foundation_type'] = 'slab_on_grade'
     errors = get_error_messages(js2, js_schema)
-    if hpxml_filebase == 'townhouse_walls':
-        assert ("{'required': ['floor_assembly_code']} is not allowed for {'floor_name': 'floor1', 'floor_area': 800, "
-                "'foundation_type': 'slab_on_grade', 'foundation_insulation_level': 0, "
-                "'floor_assembly_code': 'efwf00ca'}") in errors
-    elif hpxml_filebase == 'house1':
-        assert ("{'required': ['floor_assembly_code']} is not allowed for {'floor_name': 'floor1', "
-                "'floor_area': 810.0, 'foundation_type': 'slab_on_grade', 'foundation_insulation_level': 0, "
-                "'floor_assembly_code': 'efwf03ca'}") in errors
+    assert_required_error(errors, 'floor_assembly_code')
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -363,8 +359,7 @@ def test_invalid_heating(hpxml_filebase):
     js3['systems']['hvac'][0]['heating']['efficiency'] = 0.5
     errors = get_error_messages(js3, js_schema)
     assert "0.5 is less than the minimum of 0.6" in errors
-    assert ("{'required': ['efficiency']} is not allowed for {'fuel_primary': 'natural_gas', 'type': 'central_furnace',"
-            " 'efficiency_method': 'shipment_weighted', 'efficiency': 0.5}") in errors
+    assert_required_error(errors, 'efficiency')
     del js3['systems']['hvac'][0]['heating']['fuel_primary']
     errors = get_error_messages(js3, js_schema)
     assert "'fuel_primary' is a required property" in errors
@@ -416,12 +411,7 @@ def test_invalid_heating(hpxml_filebase):
     js5 = copy.deepcopy(js)
     js5['systems']['hvac'][0]['heating']['year'] = 2021
     errors = get_error_messages(js5, js_schema)
-    if hpxml_filebase == 'townhouse_walls':
-        assert ("{'required': ['year']} is not allowed for {'fuel_primary': 'natural_gas', 'type': 'central_furnace', "
-                "'efficiency_method': 'user', 'efficiency': 0.95, 'year': 2021}") in errors
-    elif hpxml_filebase == 'house1':
-        assert ("{'required': ['year']} is not allowed for {'fuel_primary': 'natural_gas', 'type': 'central_furnace', "
-                "'efficiency_method': 'user', 'efficiency': 0.92, 'year': 2021}") in errors
+    assert_required_error(errors, 'year')
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -435,8 +425,7 @@ def test_invalid_cooling(hpxml_filebase):
     js1['systems']['hvac'][0]['cooling']['year'] = 2021
     errors = get_error_messages(js1, js_schema)
     assert "'hvac_name' is a required property" in errors
-    assert ("{'required': ['year']} is not allowed for {'type': 'split_dx', 'efficiency_method': 'user', "
-            "'efficiency': 13.0, 'year': 2021}") in errors
+    assert_required_error(errors, 'year')
 
     js2 = copy.deepcopy(js)
     js2['systems']['hvac'][0]['cooling']['type'] = 'none'
@@ -461,8 +450,7 @@ def test_invalid_cooling(hpxml_filebase):
     js3['systems']['hvac'][0]['cooling']['efficiency'] = 7.9
     errors = get_error_messages(js3, js_schema)
     assert "7.9 is less than the minimum of 8" in errors
-    assert ("{'required': ['efficiency']} is not allowed for {'type': 'split_dx', "
-            "'efficiency_method': 'shipment_weighted', 'efficiency': 7.9}") in errors
+    assert_required_error(errors, 'efficiency')
     # heat pump
     js3['systems']['hvac'][0]['cooling']['type'] = 'heat_pump'
     errors = get_error_messages(js3, js_schema)
@@ -499,20 +487,7 @@ def test_invalid_hvac_distribution(hpxml_filebase):
     del js1['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location']
     del js1['systems']['hvac'][0]['hvac_distribution']['duct'][0]['insulated']
     errors = get_error_messages(js1, js_schema)
-    if hpxml_filebase == 'townhouse_walls':
-        assert ("{'required': ['hvac_distribution']} is not allowed for {'hvac_name': 'hvac1', 'hvac_fraction': 1.0, "
-                "'heating': {'fuel_primary': 'natural_gas', 'type': 'wall_furnace', 'efficiency_method': 'user', "
-                "'efficiency': 0.95}, 'cooling': {'type': 'packaged_dx', 'efficiency_method': 'user', "
-                "'efficiency': 13.0}, 'hvac_distribution': {'leakage_method': 'qualitative', 'sealed': False, "
-                "'duct': [{'name': 'duct1', 'fraction': 1.0}]}}") in errors
-    elif hpxml_filebase == 'house1':
-        assert ("{'required': ['hvac_distribution']} is not allowed for {'hvac_name': 'hvac1', 'hvac_fraction': 1.0, "
-                "'heating': {'fuel_primary': 'natural_gas', 'type': 'wall_furnace', 'efficiency_method': 'user', "
-                "'efficiency': 0.92}, 'cooling': {'type': 'packaged_dx', 'efficiency_method': 'user', "
-                "'efficiency': 13.0}, 'hvac_distribution': {'leakage_method': 'qualitative', 'sealed': False, "
-                "'duct': [{'name': 'duct1', 'fraction': 0.5}, {'name': 'duct2', 'location': 'uncond_attic', "
-                "'fraction': 0.35, 'insulated': True}, {'name': 'duct3', 'location': 'cond_space', 'fraction': 0.15, "
-                "'insulated': False}]}}") in errors
+    assert_required_error(errors, 'hvac_distribution')
 
     js2 = copy.deepcopy(js)
     del js2['systems']['hvac'][0]['hvac_distribution']['duct'][0]['name']
@@ -549,16 +524,7 @@ def test_invalid_hvac_distribution(hpxml_filebase):
     js4['systems']['hvac'][0]['hvac_distribution']['leakage_method'] = 'quantitative'
     errors = get_error_messages(js4, js_schema)
     assert "'leakage_to_outside' is a required property" in errors
-    if hpxml_filebase == 'townhouse_walls':
-        assert ("{'required': ['sealed']} is not allowed for {'sealed': False, 'duct': [{'name': 'duct1', "
-                "'location': 'cond_space', 'fraction': 1.0, 'insulated': False}], "
-                "'leakage_method': 'quantitative'}") in errors
-    elif hpxml_filebase == 'house1':
-        assert ("{'required': ['sealed']} is not allowed for {'sealed': False, 'duct': [{'name': 'duct1', "
-                "'location': 'vented_crawl', 'fraction': 0.5, 'insulated': True}, {'name': 'duct2', "
-                "'location': 'uncond_attic', 'fraction': 0.35, 'insulated': True}, {'name': 'duct3', "
-                "'location': 'cond_space', 'fraction': 0.15, 'insulated': False}], "
-                "'leakage_method': 'quantitative'}") in errors
+    assert_required_error(errors, 'sealed')
 
     js5 = copy.deepcopy(js)
     del js5['systems']['hvac'][0]['hvac_distribution']['sealed']
@@ -656,15 +622,11 @@ def test_invalid_domestic_hot_water(hpxml_filebase):
     if hpxml_filebase == 'townhouse_walls':
         js6['systems']['domestic_hot_water']['energy_factor'] = 0.6
         errors = get_error_messages(js6, js_schema)
-        assert ("{'required': ['energy_factor']} is not allowed for {'category': 'unit', 'type': 'storage', "
-                "'fuel_primary': 'natural_gas', 'efficiency_method': 'shipment_weighted', 'year': 2010, "
-                "'energy_factor': 0.6}") in errors
+        assert_required_error(errors, 'energy_factor')
     elif hpxml_filebase == 'house1':
         js6['systems']['domestic_hot_water']['year'] = 2021
         errors = get_error_messages(js6, js_schema)
-        assert ("{'required': ['year']} is not allowed for {'category': 'unit', 'type': 'storage', "
-                "'fuel_primary': 'electric', 'efficiency_method': 'user', 'energy_factor': 0.8, "
-                "'year': 2021}") in errors
+        assert_required_error(errors, 'year')
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
@@ -680,8 +642,7 @@ def test_invalid_solar_electric(hpxml_filebase):
     assert "'year' is a required property" in errors
     assert "'array_azimuth' is a required property" in errors
     assert "'array_tilt' is a required property" in errors
-    assert ("{'required': ['system_capacity']} is not allowed for {'capacity_known': False, "
-            "'system_capacity': 50}") in errors
+    assert_required_error(errors, 'system_capacity')
 
     js2 = copy.deepcopy(js)
     js2['systems'] = {'generation': {'solar_electric': {'capacity_known': True, 'num_panels': 5}}}
@@ -690,7 +651,7 @@ def test_invalid_solar_electric(hpxml_filebase):
     assert "'year' is a required property" in errors
     assert "'array_azimuth' is a required property" in errors
     assert "'array_tilt' is a required property" in errors
-    assert ("{'required': ['num_panels']} is not allowed for {'capacity_known': True, 'num_panels': 5}") in errors
+    assert_required_error(errors, 'num_panels')
 
     js3 = copy.deepcopy(js)
     js3['systems'] = {'generation': {'solar_electric': {'year': 2021}}}
