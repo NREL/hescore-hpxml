@@ -38,38 +38,6 @@ code snippet are required with the exception of ``Address2``. Additionally, if a
 zip plus 4 code is entered in HPXML, it will be trimmed to just the 5 digit zip
 code before being passed to HEScore.
 
-.. _assessment-type-mapping:
-
-Assessment Type
-***************
-
-To begin a HEScore session an assessment type must be selected. The assessment type
-is determined from HPXML via the
-``XMLTransactionHeaderInformation/Transaction`` and
-``Building/ProjectStatus/EventType`` element using the following mapping: 
-
-.. table:: Assessment Type mapping
-
-   +---------------------+-------------------------------------------+------------------------+
-   |XML Transaction Type |HPXML Event Type                           |HEScore Assessment Type |
-   +=====================+===========================================+========================+
-   |create               |audit                                      |initial                 |
-   +                     +-------------------------------------------+------------------------+
-   |                     |proposed workscope                         |alternative             |
-   +                     +-------------------------------------------+------------------------+
-   |                     |approved workscope                         |alternative             |
-   +                     +-------------------------------------------+------------------------+
-   |                     |construction-period testing/daily test out |test                    |
-   +                     +-------------------------------------------+------------------------+
-   |                     |job completion testing/final inspection    |final                   |
-   +                     +-------------------------------------------+------------------------+
-   |                     |quality assurance/monitoring               |qa                      |
-   +                     +-------------------------------------------+------------------------+
-   |                     |preconstruction                            |preconstruction         |
-   +---------------------+-------------------------------------------+------------------------+
-   |update               |*any*                                      |corrected               |
-   +---------------------+-------------------------------------------+------------------------+
-
 Mentor Assessment Type
 ======================
 
