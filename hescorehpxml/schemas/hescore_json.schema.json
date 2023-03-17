@@ -65,6 +65,7 @@
         "about": {
             "type": "object",
             "required": [
+                "assessment_type",
                 "assessment_date",
                 "shape",
                 "year_built",
@@ -77,7 +78,19 @@
             ],
             "additionalProperties": false,
             "properties": {
-                "assessment_type": {"type": "string"},
+                "assessment_type": {
+                    "type": "string",
+                    "enum": [
+                        "initial",
+                        "final",
+                        "qa",
+                        "alternative",
+                        "test",
+                        "corrected",
+                        "mentor",
+                        "preconstruction"
+                    ]
+                },
                 "assessment_date": {
                     "type": "string",
                     "format": "date",
