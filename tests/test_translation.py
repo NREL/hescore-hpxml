@@ -133,59 +133,22 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
 
     def test_townhouse_window_fail(self):
         tr = self._load_xmlfile('townhouse_walls')
-        el = self.xpath('//h:Window/h:Orientation[text()="south"]')
-        el.text = 'west'
+        # change an exterior wall to a shared wall
+        wall3_ext_adjacent_to = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall3"]/h:ExteriorAdjacentTo')
+        wall3_ext_adjacent_to.text = 'other housing unit'
         self.assertRaisesRegex(TranslationError,
                                r'The house has windows on shared walls\.',
                                tr.hpxml_to_hescore)
-
-    def test_townhouse_walls_all_same(self):
-        tr = self._load_xmlfile('townhouse_walls')
-        # Remove other walls
-        for el in self.xpath('//h:Wall[h:SystemIdentifier/@id!="wall1"]'):
-            el.getparent().remove(el)
-        # Remove the orientation of the first one
-        wall1_orientation = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall1"]/h:Orientation')
-        wall1_orientation.getparent().remove(wall1_orientation)
-        # This means that the interpreter should assume all walls are like the first wall.
-        d = tr.hpxml_to_hescore()
-        # Check to make sure we're not getting any walls facing directions that are attached to adjacent to other units.
-        for wall in d['zone']['zone_wall']:
-            self.assertIn(wall['side'], ['front', 'back', 'left'])
-
-    def test_townhouse_window_wall_all_same_fail(self):
-        tr = self._load_xmlfile('townhouse_walls')
-        # Remove other walls
-        for el in self.xpath('//h:Wall[h:SystemIdentifier/@id!="wall1"]'):
-            el.getparent().remove(el)
-        # Remove the orientation of the first one
-        wall1_orientation = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall1"]/h:Orientation')
-        wall1_orientation.getparent().remove(wall1_orientation)
-        # This means that the interpreter should assume all walls are like the first wall.
-        el = self.xpath('//h:Window/h:Orientation[text()="south"]')
-        el.text = 'west'
-        self.assertRaisesRegex(TranslationError,
-                               r'The house has windows on shared walls\.',
-                               tr.hpxml_to_hescore)
-
-    def test_townhouse_walls_conflict(self):
-        tr = self._load_xmlfile('townhouse_walls')
-        # move a wall to the west (attached) side
-        el = self.xpath('//h:Wall[1]/h:Orientation')
-        el.text = 'west'
-        self.assertRaisesRegex(
-            TranslationError,
-            r'The house has walls defined for sides ((front|right|left|back)(, )?)+ and shared walls on sides ((front|right|left|back)(, )?)+',  # noqa: E501
-            tr.hpxml_to_hescore
-        )
 
     def test_townhouse_windows_area_wrong(self):
         tr = self._load_xmlfile('townhouse_walls')
         el = self.xpath('//h:OrientationOfFrontOfHome')
         el.text = 'west'
-        for wall in self.xpath('//h:Wall/h:Orientation'):
-            if wall.text == 'north':
-                wall.text = 'west'
+        # change an exterior wall to a shared wall
+        wall1_orientation = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall1"]/h:Orientation')
+        wall1_orientation.text = 'west'
+        wall4_orientation = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall4"]/h:Orientation')
+        wall4_orientation.text = 'north'
         for i, window in enumerate(self.xpath('//h:Window')):
             if i == 0:
                 window.xpath('h:Area', namespaces=tr.ns)[0].text = '20'
@@ -205,7 +168,15 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
                 self.assertEqual(wall['zone_window']['window_area'], 4)
             elif wall['side'] == 'back':
                 self.assertEqual(wall['zone_window']['window_area'], 0)
-        self.assertEqual(set(['front', 'right', 'back']), walls_found)
+
+    def test_missing_adjacent_to(self):
+        tr = self._load_xmlfile('house9')
+        # change an exterior wall to a shared wall
+        wall3_ext_adjacent_to = self.xpath('//h:Wall[h:SystemIdentifier/@id="Surface_20"]/h:ExteriorAdjacentTo')
+        wall3_ext_adjacent_to.getparent().remove(wall3_ext_adjacent_to)
+        self.assertRaisesRegex(TranslationError,
+                               r'Can\'t find element Building/BuildingDetails/Enclosure/Walls/Wall\[4\]/ExteriorAdjacentTo/text\(\)',  # noqa: E501
+                               tr.hpxml_to_hescore)
 
     def test_missing_siding(self):
         tr = self._load_xmlfile('hescore_min')
@@ -294,21 +265,6 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
                                r'ResidentialFacilityType is required in the HPXML document',
                                tr_v3.hpxml_to_hescore)
 
-    def test_invalid_residential_faciliy_type(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:ResidentialFacilityType')
-        el.text = 'manufactured home'
-        self.assertRaisesRegex(TranslationError,
-                               r'Cannot translate HPXML ResidentialFacilityType of .+ into HEScore building shape',
-                               tr.hpxml_to_hescore)
-
-        tr_v3 = self._load_xmlfile('hescore_min_v3')
-        el = self.xpath('//h:ResidentialFacilityType')
-        el.text = 'manufactured home'
-        self.assertRaisesRegex(TranslationError,
-                               r'Cannot translate HPXML ResidentialFacilityType of .+ into HEScore building shape',
-                               tr_v3.hpxml_to_hescore)
-
     def test_invalid_infiltration_unit_of_measure(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:BuildingAirLeakage/h:UnitofMeasure')
@@ -324,23 +280,6 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertRaisesRegex(TranslationError,
                                r'AirInfiltration must have "AirInfiltrationMeasurement/BuildingAirLeakage/AirLeakage" or "AirInfiltrationMeasurement/LeakinessDescription" or "AirSealing"',  # noqa: E501
                                tr.hpxml_to_hescore)
-
-    def test_missing_surroundings(self):
-        tr = self._load_xmlfile('townhouse_walls')
-        el = self.xpath('//h:Surroundings')
-        el.getparent().remove(el)
-        self.assertRaisesRegex(TranslationError,
-                               r'Site/Surroundings element is required in the HPXML document for town houses',
-                               tr.hpxml_to_hescore)
-
-    def test_invalid_surroundings(self):
-        tr = self._load_xmlfile('townhouse_walls')
-        el = self.xpath('//h:Surroundings')
-        el.text = 'attached on three sides'
-        self.assertRaisesRegex(
-            TranslationError,
-            r'Cannot translate HPXML Site/Surroundings element value of .+ into HEScore town_house_walls',
-            tr.hpxml_to_hescore)
 
     def test_attic_roof_assoc(self):
         tr = self._load_xmlfile('house6')
@@ -1019,10 +958,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         # remove the siding
         siding = wall2.find(tr.addns('h:Siding'))
         wall2.remove(siding)
-        # add an ExteriorAdjacentTo = attic
-        ext_adj_to = etree.Element(tr.addns('h:ExteriorAdjacentTo'))
-        ext_adj_to.text = 'attic'
-        wall2.insert(1, ext_adj_to)
+        # change ExteriorAdjacentTo to attic
+        wall2.xpath('h:ExteriorAdjacentTo', namespaces=tr.ns)[0].text = 'attic'
         # add an area
         area_el = etree.Element(tr.addns('h:Area'))
         area_el.text = '200'
@@ -1069,8 +1006,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         ins_sysid = wall2.xpath('h:Insulation/h:SystemIdentifier', namespaces=tr.ns)[0]
         ins_sysid.attrib['id'] = 'wall2ins'
         wall1.addnext(wall2)
-        sysid.addnext(E.InteriorAdjacentTo('attic - vented'))
-        sysid.addnext(E.ExteriorAdjacentTo('outside'))
+        wall2_ext_adjacent_to = wall2.find(tr.addns('h:ExteriorAdjacentTo'))
+        wall2_ext_adjacent_to.addnext(E.InteriorAdjacentTo('attic - vented'))
         att_to_roof = self.xpath('//h:Attic/h:AttachedToRoof')
         att_to_roof.addnext(E.AttachedToWall(idref='wall2'))
 

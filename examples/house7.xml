@@ -92,6 +92,38 @@
                         <WallType>
                             <StructuralBrick/>
                         </WallType>
+                        <Area>510</Area>
+                        <Orientation>southeast</Orientation>
+                        <!-- Intentionally omitting insulation to see if it comes up with zero as it should -->
+                    </Wall>
+                    <Wall>
+                        <SystemIdentifier id="wallback"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
+                        <WallType>
+                            <StructuralBrick/>
+                        </WallType>
+                        <Area>510</Area>
+                        <Orientation>northwest</Orientation>
+                        <!-- Intentionally omitting insulation to see if it comes up with zero as it should -->
+                    </Wall>
+                    <Wall>
+                        <SystemIdentifier id="wallleft"/>
+                        <ExteriorAdjacentTo>other housing unit</ExteriorAdjacentTo>
+                        <WallType>
+                            <WoodStud/>
+                        </WallType>
+                        <Area>510</Area>
+                        <Orientation>northeast</Orientation>
+                        <!-- Intentionally omitting insulation to see if it comes up with zero as it should -->
+                    </Wall>
+                    <Wall>
+                        <SystemIdentifier id="wallright"/>
+                        <ExteriorAdjacentTo>other housing unit</ExteriorAdjacentTo>
+                        <WallType>
+                            <WoodStud/>
+                        </WallType>
+                        <Area>510</Area>
+                        <Orientation>southwest</Orientation>
                         <!-- Intentionally omitting insulation to see if it comes up with zero as it should -->
                     </Wall>
                 </Walls>
