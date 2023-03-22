@@ -11,7 +11,7 @@ def convert_to_type(type_, value):
 
 
 class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
-    SCHEMA_DIR = 'hpxml-3.1'
+    SCHEMA_DIR = 'hpxml-3.1.0'
 
     def check_hpwes(self, v2_p, b):
         # multiple verification nodes?

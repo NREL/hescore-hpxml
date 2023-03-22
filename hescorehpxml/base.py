@@ -472,7 +472,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                          'wall_furnace': ['AFUE'],
                          'boiler': ['AFUE'],
                          'gchp': ['COP']}[sys_heating['type']]
-            if len(eff_units) != 0:
+            if len(eff_units) > 0:
                 eff_els = []
                 for eff_unit in eff_units:
                     eff_el = htgsys.xpath(
@@ -482,26 +482,33 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     )
                     if len(eff_el) > 0:
                         eff_els.append(eff_el[0])
-            if len(eff_els) == 0:
-                # Use the year instead
-                sys_heating['efficiency_method'] = 'shipment_weighted'
-                try:
-                    sys_heating['year'] = int(htgsys.xpath('(h:YearInstalled|h:ModelYear)/text()', namespaces=ns)[0])
-                except IndexError:
-                    raise TranslationError(
-                        'Heating efficiency could not be determined. ' +
-                        '{} must have a heating efficiency with units of {} '.format(sys_heating['type'], eff_units) +
-                        'or YearInstalled or ModelYear.'
-                    )
-            else:
-                sys_heating['efficiency_method'] = 'user'
-                is_ducted = not (xpath(htgsys, 'h:DistributionSystem/@idref') is None)
-                # Use the efficiency of the first element found.
-                if xpath(eff_els[0], 'h:Units/text()') == 'HSPF2' and is_ducted:
-                    # convert HSPF2 to HSPF
-                    sys_heating['efficiency'] = float(xpath(eff_els[0], 'h:Value/text()')) / 0.85
+                if len(eff_els) == 0:
+                    # Use the year instead
+                    sys_heating['efficiency_method'] = 'shipment_weighted'
+                    try:
+                        sys_heating['year'] = int(htgsys.xpath(
+                            '(h:YearInstalled|h:ModelYear)/text()', namespaces=ns)[0])
+                    except IndexError:
+                        raise TranslationError(
+                            'Heating efficiency could not be determined. ' +
+                            '{} must have a heating efficiency with units of {} '.format(sys_heating['type'], eff_units) +
+                            'or YearInstalled or ModelYear.'
+                        )
                 else:
-                    sys_heating['efficiency'] = float(xpath(eff_els[0], 'h:Value/text()'))
+                    sys_heating['efficiency_method'] = 'user'
+                    eff_els_hspf = [eff_el for eff_el in eff_els if xpath(eff_el, 'h:Units/text()') == 'HSPF']
+                    eff_els_hspf2 = [eff_el for eff_el in eff_els if xpath(eff_el, 'h:Units/text()') == 'HSPF2']
+                    if len(eff_els_hspf) > 0:
+                        sys_heating['efficiency'] = float(xpath(eff_els_hspf[0], 'h:Value/text()'))
+                    elif len(eff_els_hspf2) > 0:
+                        if (xpath(htgsys, 'h:DistributionSystem/@idref') is not None):
+                            # convert HSPF2 to HSPF
+                            sys_heating['efficiency'] = float(xpath(eff_els_hspf2[0], 'h:Value/text()')) / 0.85
+                        else:
+                            sys_heating['efficiency'] = float(xpath(eff_els_hspf2[0], 'h:Value/text()'))
+                    else:
+                        # Use the efficiency of the first element found.
+                        sys_heating['efficiency'] = float(xpath(eff_els[0], 'h:Value/text()'))
         sys_heating['_capacity'] = convert_to_type(float, xpath(htgsys, 'h:HeatingCapacity/text()'))
         sys_heating['_fracload'] = convert_to_type(float, xpath(htgsys, 'h:FractionHeatLoadServed/text()'))
         sys_heating['_floorarea'] = convert_to_type(float, xpath(htgsys, 'h:FloorAreaServed/text()'))
@@ -538,7 +545,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                      'dec': [],
                      'iec': [],
                      'idec': []}[sys_cooling['type']]
-        if len(eff_units) != 0:
+        if len(eff_units) > 0:
             eff_els = []
             for eff_unit in eff_units:
                 eff_el = clgsys.xpath(
@@ -561,15 +568,26 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     )
             else:
                 sys_cooling['efficiency_method'] = 'user'
-                is_ducted = not (xpath(clgsys, 'h:DistributionSystem/@idref') is None)
-                # Use the efficiency of the first element found.
-                if xpath(eff_els[0], 'h:Units/text()') == 'CEER':
+                eff_els_eer = [eff_el for eff_el in eff_els if xpath(eff_el, 'h:Units/text()') == 'EER']
+                eff_els_ceer = [eff_el for eff_el in eff_els if xpath(eff_el, 'h:Units/text()') == 'CEER']
+                eff_els_seer = [eff_el for eff_el in eff_els if xpath(eff_el, 'h:Units/text()') == 'SEER']
+                eff_els_seer2 = [eff_el for eff_el in eff_els if xpath(eff_el, 'h:Units/text()') == 'SEER2']
+                if len(eff_els_eer) > 0:
+                    sys_cooling['efficiency'] = float(xpath(eff_els_eer[0], 'h:Value/text()'))
+                elif len(eff_els_ceer) > 0:
                     # convert ceer to eer
-                    sys_cooling['efficiency'] = float(xpath(eff_els[0], 'h:Value/text()')) * 1.01
-                elif xpath(eff_els[0], 'h:Units/text()') == 'SEER2' and is_ducted:
-                    # convert seer2 to seer
-                    sys_cooling['efficiency'] = float(xpath(eff_els[0], 'h:Value/text()')) / 0.95
+                    sys_cooling['efficiency'] = float(xpath(eff_els_ceer[0], 'h:Value/text()')) * 1.01
+                elif len(eff_els_seer) > 0:
+                    sys_cooling['efficiency'] = float(xpath(eff_els_seer[0], 'h:Value/text()'))
+                elif len(eff_els_seer2) > 0:
+                    # ducted or ductless
+                    if (xpath(clgsys, 'h:DistributionSystem/@idref') is not None):
+                        # convert seer2 to seer
+                        sys_cooling['efficiency'] = float(xpath(eff_els_seer2[0], 'h:Value/text()')) / 0.95
+                    else:
+                        sys_cooling['efficiency'] = float(xpath(eff_els_seer2[0], 'h:Value/text()'))
                 else:
+                    # Use the efficiency of the first element found.
                     sys_cooling['efficiency'] = float(xpath(eff_els[0], 'h:Value/text()'))
 
         sys_cooling['_capacity'] = convert_to_type(float, xpath(clgsys, 'h:CoolingCapacity/text()'))
