@@ -471,7 +471,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                          'wall_furnace': ['AFUE'],
                          'boiler': ['AFUE'],
                          'gchp': ['COP']}[sys_heating['type']]
-            if len(eff_units) != 0:
+            if len(eff_units) > 0:
                 eff_els = []
                 for eff_unit in eff_units:
                     eff_el = htgsys.xpath(
