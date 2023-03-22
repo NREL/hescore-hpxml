@@ -255,8 +255,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             else:
                 closest_wall_code, closest_code_rvalue = min(
                     [(doe2code, code_rvalue)
-                     for doe2code, code_rvalue in self.int_wall_assembly_eff_rvalues.items()
-                     if doe2code[2:4] == wallconstype and doe2code[6:8] == sidingtype],
+                     for doe2code, code_rvalue in self.int_wall_assembly_eff_rvalues.items()],
                     key=lambda x: abs(x[1] - assembly_eff_rvalue)
                 )
                 return closest_wall_code, assembly_eff_rvalue
@@ -2592,17 +2591,18 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             0, 19)
 
         for zone_wall in hescore_inputs['building']['zone']['zone_wall']:
-            zone_window = zone_wall['zone_window']
-            do_bounds_check('window_area',
-                            zone_window['window_area'],
-                            0, 999)
-            if zone_window['window_area'] > 0 and zone_window['window_method'] == 'custom':
-                do_bounds_check('window_u_value',
-                                zone_window['window_u_value'],
-                                0.01, 5)
-                do_bounds_check('window_shgc',
-                                zone_window['window_shgc'],
-                                0, 1)
+            if 'zone_window' in zone_wall:
+                zone_window = zone_wall['zone_window']
+                do_bounds_check('window_area',
+                                zone_window['window_area'],
+                                0, 999)
+                if zone_window['window_area'] > 0 and zone_window['window_method'] == 'custom':
+                    do_bounds_check('window_u_value',
+                                    zone_window['window_u_value'],
+                                    0.01, 5)
+                    do_bounds_check('window_shgc',
+                                    zone_window['window_shgc'],
+                                    0, 1)
 
         for sys_hvac in hescore_inputs['building']['systems']['hvac']:
 
