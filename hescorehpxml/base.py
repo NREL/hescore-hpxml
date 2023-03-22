@@ -1982,16 +1982,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
             if not wall_found:
                 continue
 
+            # If there are no windows on that side of the house
+            if len(windows) == 0:
+                continue
+
             zone_window = OrderedDict()
             heswall['zone_window'] = zone_window
-
-            # If there are no windows on that side of the house
-            if len(windows) == 0:  # FIXME: Do we need this?
-                zone_window['window_area'] = 0
-                zone_window['window_method'] = 'code'
-                zone_window['window_code'] = 'scna'
-                zone_window['solar_screen'] = False
-                continue
 
             # Get the list of uvalues and shgcs for the windows on this side of the house.
             uvalues, shgcs, areas = map(list,
