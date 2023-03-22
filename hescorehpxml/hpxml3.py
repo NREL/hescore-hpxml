@@ -290,7 +290,15 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                          'attic - vented': ['uncond_attic']}
 
     def get_enclosure_adjacent_to(self, enclosure_adjacent_to):
-        return self.enclosure_adjacent_to_map[enclosure_adjacent_to]
+        adjacent_to = self.enclosure_adjacent_to_map[enclosure_adjacent_to]
+
+        if adjacent_to is None:
+            raise TranslationError('HEScore only supports ExteriorAdjacentTo=[\
+                                   \'other housing unit\' or \'other housing unit above\' or \
+                                   \'other housing unit below\' or \'outside\' or \
+                                   \'unconditioned space\']')
+
+        return adjacent_to
 
     enclosure_adjacent_to_map = {'attic': None,
                                  'attic - conditioned': None,
@@ -315,4 +323,4 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                                  'other housing unit above': 'other_unit',
                                  'other housing unit below': 'other_unit',
                                  'outside': 'outside',
-                                 'unconditioned space': 'interior_common_area'}  # FIXME: Check it
+                                 'unconditioned space': 'interior_common_area'}
