@@ -57,7 +57,7 @@ def main():
             assembly_u_value = 1 / assembly_r_value
             csv_writer.writerow([assembly_code, f"{assembly_u_value:.3f}", f"{assembly_r_value:.1f}"])
 
-    wall_assembly_codes = json_schema['properties']['building']['properties']['zone']['properties']['zone_wall']['items']['properties']['wall_assembly_code']['enum']
+    wall_assembly_codes = json_schema['properties']['building']['properties']['zone']['properties']['zone_wall']['items']['properties']['wall_assembly_code']['enum']  # noqa E501
     int_wall_assembly_codes = [s for s in wall_assembly_codes if s.startswith('iw')]
     csv_filename = here / 'lu_int_wall_eff_rvalue.csv'
     with csv_filename.open('w', newline='') as f:
