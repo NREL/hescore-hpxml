@@ -2720,41 +2720,43 @@
                             }
                         }
                     }
-                },
-                {
-                    "if": {
+                }
+            }                
+        },
+        {
+            "if": {
+                "properties": {
+                    "about": {
                         "properties": {
-                            "about": {
-                                "properties": {
-                                    "dwelling_unit_type": {"enum": ["single_family_detached", "manufactured_home"]}
-                                },
-                                "required": ["dwelling_unit_type"]
-                            }
-                            
-                        }
-                    },
-                    "then": {
+                            "dwelling_unit_type": {"enum": ["single_family_detached", "manufactured_home"]}
+                        },
+                        "required": ["dwelling_unit_type"]
+                    }
+                    
+                }
+            },
+            "then": {
+                "properties": {
+                    "zone": {
                         "properties": {
-                            "zone": {
-                                "properties": {
-                                    "zone_wall": {
-                                        "not": {
-                                            "contains": {
-                                                "properties": {
-                                                    "adjacent_to": {"enum": ["other_unit", "interior_common_area"]}
-                                                },
-                                                "required": ["adjacent_to"]
-                                            }
+                            "zone_wall": {
+                                "not": {
+                                    "contains": {
+                                        "properties": {
+                                            "adjacent_to": {"enum": ["other_unit", "interior_common_area"]}
                                         },
-                                        "error_msg": "single family detached and manufactured homes only allow adjacent_to \"outside\""
+                                        "required": ["adjacent_to"]
                                     }
-                                }
+                                },
+                                "error_msg": "single family detached and manufactured homes only allow adjacent_to \"outside\""
                             }
                         }
                     }
                 }
-            ]
-        },
+            }
+        }
+    ],
+    "definitions": {
         "def_hvac_distribution": {
             "type": "object",
             "description": "Inputs about the ducts",

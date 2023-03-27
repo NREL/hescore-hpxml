@@ -40,7 +40,7 @@ specified, that wall is used to determine the wall construction.
       on that side of the building must have an ``Area`` specified.
     * Either all walls must have an ``Azimuth`` and/or ``Orientation`` or none
       of them must. 
-    * All walls must have ``ExteriorAdjacnetTo``. 
+    * All walls must have ``ExteriorAdjacentTo``. 
 
 .. _wall-construction:
 
@@ -237,3 +237,33 @@ Then the nearest discrete R-value to the weighted average R-value from the looku
 The lookup table can be found at `hescorehpxml\\lookups\\lu_wall_eff_rvalue.csv
 <https://github.com/NREL/hescore-hpxml/blob/master/hescorehpxml/lookups/lu_wall_eff_rvalue.csv>`_.
 
+
+.. _wall_exterior_adjacent_to:
+
+Wall ExteriorAdjacentTo
+***********************
+
+Each ``Wall`` is considered and the ``ExteriorAdjacentTo`` is mapped into a HEScore ``adjacent_to`` 
+according to the following mapping. HPXML options not included in the mapping will not be translated 
+and a warning will be returned if they are used.
+
+.. table:: HPXML ExteriorAdjacentTo to HEScore adjacent_to mapping (HPXML v2)
+
+   =====================  ================
+   HPXML                  HEScore
+   =====================  ================
+   ambient                outside
+   other housing unit     other_unit
+   =====================  ================
+
+.. table:: HPXML ExteriorAdjacentTo to HEScore adjacent_to mapping (HPXML v3)
+
+   ==========================  ====================
+   HPXML                       HEScore
+   ==========================  ====================
+   outside                     outside
+   other housing unit          other_unit
+   other housing unit above    other_unit
+   other housing unit below    other_unit
+   unconditioned space         interior_common_area
+   ==========================  ====================
