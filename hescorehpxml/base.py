@@ -2590,7 +2590,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                             zone_floor['foundation_insulation_level'],
                             0, 19)
 
-        for zone_wall in hescore_inputs['building']['zone']['zone_wall']:
+        for zone_wall in hescore_inputs['zone']['zone_wall']:
             if 'zone_window' in zone_wall:
                 zone_window = zone_wall['zone_window']
                 do_bounds_check('window_area',
