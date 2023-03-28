@@ -244,6 +244,18 @@ def test_invalid_wall(hpxml_filebase):
     assert 'zone_wall/side["left"] requires "side" and "wall_assembly_code"' in errors
 
 
+def test_invalid_wall_adjacent_to():
+    hpxml_filebase = 'house9'
+    schema = get_json_schema()
+    js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
+    js = get_example_json(hpxml_filebase)
+
+    js1 = copy.deepcopy(js)
+    js1['zone']['zone_wall'][1]['adjacent_to'] = 'other_unit'
+    errors = get_error_messages(js1, js_schema)
+    assert "single family detached and manufactured homes only allow adjacent_to \"outside\"" in errors
+
+
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
 def test_invalid_window(hpxml_filebase):
     schema = get_json_schema()
