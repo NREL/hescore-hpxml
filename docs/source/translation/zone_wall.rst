@@ -245,7 +245,7 @@ Wall ExteriorAdjacentTo
 
 Each ``Wall`` is considered and the ``ExteriorAdjacentTo`` is mapped into a HEScore ``adjacent_to`` 
 according to the following mapping. HPXML options not included in the mapping will not be translated 
-and a warning will be returned if they are used.
+and an error will be returned if they are used.
 
 .. table:: HPXML ExteriorAdjacentTo to HEScore adjacent_to mapping (HPXML v2)
 
@@ -263,7 +263,5 @@ and a warning will be returned if they are used.
    ==========================  ====================
    outside                     outside
    other housing unit          other_unit
-   other housing unit above    other_unit
-   other housing unit below    other_unit
    unconditioned space         interior_common_area
    ==========================  ====================

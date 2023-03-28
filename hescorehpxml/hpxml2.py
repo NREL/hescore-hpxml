@@ -185,20 +185,20 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                          'garage': 'unvented_crawl',
                          'outside': 'outside'}
 
-    def get_enclosure_adjacent_to(self, enclosure_adjacent_to):
-        adjacent_to = self.enclosure_adjacent_to_map[enclosure_adjacent_to]
+    def get_wall_adjacent_to(self, enclosure_adjacent_to):
+        adjacent_to = self.wall_adjacent_to_map[enclosure_adjacent_to]
 
         if adjacent_to is None:
             raise TranslationError('HEScore only supports ExteriorAdjacentTo=[\'other housing unit\' or \'ambient\']')
 
         return adjacent_to
 
-    enclosure_adjacent_to_map = {'ambient': 'outside',
-                                 'garage': None,
-                                 'attic': None,
-                                 'crawlspace': None,
-                                 'ground': None,
-                                 'living space': None,
-                                 'unconditioned basement': None,
-                                 'other housing unit': 'other_unit',
-                                 'other': None}
+    wall_adjacent_to_map = {'ambient': 'outside',
+                            'garage': None,
+                            'attic': None,
+                            'crawlspace': None,
+                            'ground': None,
+                            'living space': None,
+                            'unconditioned basement': None,
+                            'other housing unit': 'other_unit',
+                            'other': None}

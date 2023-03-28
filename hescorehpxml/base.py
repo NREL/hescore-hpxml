@@ -1806,7 +1806,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             wall_id = xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)
             wall_adjacent_to = xpath(wall, 'h:ExteriorAdjacentTo/text()', raise_err=True)
 
-            if self.get_enclosure_adjacent_to(wall_adjacent_to) == 'outside':
+            if self.get_wall_adjacent_to(wall_adjacent_to) == 'outside':
                 is_exterior_wall = True
             else:
                 is_exterior_wall = False
@@ -1874,7 +1874,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             const_type, ext_finish, adjacent_to = max(list(wall_const_type_ext_finish_adjacent_to_areas.keys()),
                                                       key=lambda x: wall_const_type_ext_finish_adjacent_to_areas[x])
             rvalueavgeff = walltotalarea / wallua
-            if self.get_enclosure_adjacent_to(adjacent_to) == 'outside':
+            if self.get_wall_adjacent_to(adjacent_to) == 'outside':
                 comb_wall_code, comb_rvalue = min(
                     [(doe2code, code_rvalue)
                         for doe2code, code_rvalue in self.wall_assembly_eff_rvalues.items()
@@ -1889,7 +1889,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 )
             heswall['wall_assembly_code'] = comb_wall_code
             try:
-                heswall['adjacent_to'] = self.get_enclosure_adjacent_to(hpxmlwalls[side][0]['adjacent_to'])
+                heswall['adjacent_to'] = self.get_wall_adjacent_to(hpxmlwalls[side][0]['adjacent_to'])
             except TranslationError:
                 raise TranslationError(
                     'The Wall[SystemIdentifier/@id="{}"] has no ExteriorAdjacentTo.'.format(
