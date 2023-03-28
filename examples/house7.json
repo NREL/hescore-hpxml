@@ -55,13 +55,7 @@
       {
         "side": "left",
         "wall_assembly_code": "iwwf00",
-        "adjacent_to": "other_unit",
-        "zone_window": {
-          "window_area": 0,
-          "window_method": "code",
-          "window_code": "scna",
-          "solar_screen": false
-        }
+        "adjacent_to": "other_unit"
       },
       {
         "side": "back",
@@ -77,13 +71,7 @@
       {
         "side": "right",
         "wall_assembly_code": "iwwf00",
-        "adjacent_to": "other_unit",
-        "zone_window": {
-          "window_area": 0,
-          "window_method": "code",
-          "window_code": "scna",
-          "solar_screen": false
-        }
+        "adjacent_to": "other_unit"
       }
     ]
   },
