@@ -77,33 +77,10 @@ into HEScore.
    For enumerations that are *not translated*
    the HPXML file will fail to run in HEScore.
 
-For town houses HEScore requires a ``town_house_walls`` input to be specified.
-This is available in HPXML in the
-``Building/BuildingSummary/Site/Surroundings`` element. The translation of the
-enumerations is as follows:
-
-.. table:: Mapping for shared walls in town houses
-
-   =======================  ===================================
-   HPXML                    HEScore 
-   =======================  ===================================
-   stand-alone              *not translated*
-   attached on one side     back_right_front or back_front_left
-   attached on two sides    back_front
-   attached on three sides  *not translated*
-   =======================  ===================================
-
-If the HPXML enumeration of ``attached on one side`` is present the translation
-will determine which HEScore enumeration to select based on which side of the
-house is missing windows. 
-
 .. warning::
 
    * If windows are found on a shared town house wall, the translation will 
      fail.
-   * HEScore cannot model townhouses that are "attached on three sides" or
-     "stand-alone". Using one of those inputs will result in a translation
-     error.
 
 Year Built, Stories, Bedrooms, Floor Height, and Floor Area
 ***********************************************************
