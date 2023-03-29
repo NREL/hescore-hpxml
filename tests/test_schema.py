@@ -40,7 +40,7 @@ def get_error_messages(jsonfile, jsonschema):
 
 def assert_required_error(errors, *required_fields):
     fields = ', '.join(f"'{x}'" for x in required_fields)
-    assert any(x.endswith(f"should not be valid under {{'required': [{fields}]}}") for x in errors)
+    assert any(x.startswith(f"{{'required': [{fields}]}} is not allowed for") for x in errors)
 
 
 def test_schema_version_validation():
@@ -240,8 +240,8 @@ def test_invalid_wall(hpxml_filebase):
     del js1['zone']['zone_wall'][0]['side']
     del js1['zone']['zone_wall'][1]['wall_assembly_code']
     errors = get_error_messages(js1, js_schema)
-    assert 'zone_wall/side["front"] requires "side" and "wall_assembly_code"' in errors
-    assert 'zone_wall/side["left"] requires "side" and "wall_assembly_code"' in errors
+    assert "'side' is a required property" in errors
+    assert "'wall_assembly_code' is a required property" in errors
 
 
 def test_invalid_wall_adjacent_to():
@@ -269,15 +269,18 @@ def test_invalid_window(hpxml_filebase):
     del js1['zone']['zone_wall'][2]['zone_window']['window_code']
     errors = get_error_messages(js1, js_schema)
     if hpxml_filebase == 'townhouse_walls':
-        assert 'zone_wall/side["front"]/zone_window requires "window_area" and "window_method"' in errors
-        assert 'zone_wall/side["back"]/zone_window requires "window_code"' in errors
-        assert 'zone_wall/side["front"]/zone_window requires "window_u_value" and "window_shgc"' in errors
+        assert "'window_area' is a required property" in errors
+        assert "{'window_area': 3.0, 'window_method': 'code', 'solar_screen': False} is not valid under any of the given schemas" in errors  # noqa
+        assert "{'window_method': 'custom', 'window_shgc': 0.75, 'solar_screen': False} is not valid under any of the given schemas" in errors  # noqa
     elif hpxml_filebase == 'house1':
-        assert 'zone_wall/side["front"]/zone_window requires "window_area" and "window_method"' in errors
-        assert 'zone_wall/side["back"]/zone_window requires "window_code"' in errors
+        assert "'window_area' is a required property" in errors
+        assert "{'window_area': 135.3333333, 'window_method': 'code', 'solar_screen': False} is not valid under any of the given schemas" in errors  # noqa
     del js1['zone']['zone_wall'][2]['zone_window']['window_method']
     errors = get_error_messages(js1, js_schema)
-    assert 'zone_wall/side["back"]/zone_window requires "window_area" and "window_method"' in errors
+    if hpxml_filebase == 'townhouse_walls':
+        assert "{'window_area': 3.0, 'solar_screen': False} is not valid under any of the given schemas" in errors
+    elif hpxml_filebase == 'house1':
+        assert "{'window_area': 135.3333333, 'solar_screen': False} is not valid under any of the given schemas" in errors  # noqa
     js1['zone']['zone_wall'][0]['zone_window']['window_shgc'] = 1
     errors = get_error_messages(js1, js_schema)
     assert '1 is greater than or equal to the maximum of 1' in errors
@@ -288,13 +291,13 @@ def test_invalid_window(hpxml_filebase):
     if hpxml_filebase == 'townhouse_walls':
         assert len(errors) == 0
     elif hpxml_filebase == 'house1':
-        assert '"window_u_value" and "window_shgc" are not allowed for zone_wall/side["front"]/zone_window' in errors
+        assert "{'window_area': 108.0, 'window_method': 'code', 'window_code': 'dcaa', 'solar_screen': False, 'window_u_value': 0.5} is not valid under any of the given schemas" in errors # noqa
 
     js3 = copy.deepcopy(js)
     js3['zone']['zone_wall'][0]['zone_window']['window_code'] = 'dcaa'
     errors = get_error_messages(js3, js_schema)
     if hpxml_filebase == 'townhouse_walls':
-        assert '"window_code" is not allowed for zone_wall/side["front"]/zone_window' in errors
+        assert "{'window_area': 1.0, 'window_method': 'custom', 'window_u_value': 1.0, 'window_shgc': 0.75, 'solar_screen': False, 'window_code': 'dcaa'} is not valid under any of the given schemas" in errors # noqa
     elif hpxml_filebase == 'house1':
         assert len(errors) == 0
 

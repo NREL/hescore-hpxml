@@ -1054,7 +1054,34 @@
                                         "type": "boolean",
                                         "description": "Does this window have a solar screen?"
                                     }
-                                }
+                                },
+                                "oneOf": [
+                                    {
+                                        "properties": {
+                                            "window_method": {"const": "code"}
+                                        },
+                                        "required": ["window_code"],
+                                        "not": {
+                                            "anyOf": [
+                                                {
+                                                    "required": ["window_u_value"]
+                                                },
+                                                {
+                                                    "required": ["window_shgc"]
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "properties": {
+                                            "window_method": {"const": "custom"}
+                                        },
+                                        "required": ["window_u_value", "window_shgc"],
+                                        "not": {
+                                            "required": ["window_code"]
+                                        }
+                                    }
+                                ]
                             }
                         },
                         "allOf": [

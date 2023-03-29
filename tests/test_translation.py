@@ -153,9 +153,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             if i == 0:
                 window.xpath('h:Area', namespaces=tr.ns)[0].text = '20'
                 window.xpath('h:Orientation', namespaces=tr.ns)[0].text = 'west'
-            elif i == 1:
+            elif i == 1 or i == 2:
                 window.xpath('h:Area', namespaces=tr.ns)[0].text = '4'
-                window.xpath('h:Orientation', namespaces=tr.ns)[0].text = 'south'
             else:
                 window.getparent().remove(window)
         hesd = tr.hpxml_to_hescore()
@@ -167,7 +166,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             elif wall['side'] == 'right':
                 self.assertEqual(wall['zone_window']['window_area'], 4)
             elif wall['side'] == 'back':
-                self.assertEqual(wall['zone_window']['window_area'], 0)
+                self.assertEqual(wall['zone_window']['window_area'], 4)
 
     def test_missing_adjacent_to(self):
         tr = self._load_xmlfile('house9')
@@ -1300,6 +1299,47 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         sysid.addnext(E.AssemblyEffectiveRValue('6.0'))
         hesinp = tr.hpxml_to_hescore()
         self.assertEqual(hesinp['zone']['zone_floor'][0]['foundation_insulation_level'], 5)
+
+    def test_interior_wall(self):
+        tr = self._load_xmlfile('townhouse_walls')
+        intwall_rvalue = self.xpath('//h:Walls/h:Wall[4]/h:Insulation/h:Layer/h:NominalRValue')
+        intwall_rvalue.text = '5.0'
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['zone']['zone_wall'][3]['wall_assembly_code'], 'iwwf03')
+        self.assertEqual(res['zone']['zone_wall'][3]['adjacent_to'], 'other_unit')
+
+    def test_partial_interior_wall(self):
+        tr = self._load_xmlfile('house9')
+        el = self.xpath('//h:ResidentialFacilityType')
+        el.text = 'multi-family - town homes'
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['zone']['zone_wall'][0]['wall_assembly_code'], 'ewwf15wo')
+
+        # When a wall is partially an interior wall
+        southwall = self.xpath('//h:Walls/h:Wall[h:SystemIdentifier/@id="Surface_20"]')
+        tr.xpath(southwall, 'h:ExteriorAdjacentTo').text = 'other housing unit'
+        tr.xpath(southwall, 'h:Insulation/h:AssemblyEffectiveRValue').text = '5.0'
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['zone']['zone_wall'][0]['wall_assembly_code'], 'ewwf07wo')
+        # The area of the wall in contact with outdoor air is the largest
+        self.assertEqual(res['zone']['zone_wall'][0]['adjacent_to'], 'outside')
+
+    def test_invalid_number_of_walls(self):
+        tr = self._load_xmlfile('townhouse_walls')
+        wall4 = self.xpath('//h:Walls/h:Wall[h:SystemIdentifier/@id="wall4"]')
+        wall4.getparent().remove(wall4)
+        self.assertRaisesRegex(jsonschema.exceptions.ValidationError,
+                               r"\[OrderedDict\(\[\('side', 'front'\), \('wall_assembly_code', 'ewwf11br'\), \('adjacent_to', 'outside'\), \('zone_window', OrderedDict\(\[\('window_area', 1.0\), \('window_method', 'custom'\), \('window_u_value', 1.0\), \('window_shgc', 0.75\), \('solar_screen', False\)\]\)\)\]\), OrderedDict\(\[\('side', 'left'\), \('wall_assembly_code', 'ewwf19wo'\), \('adjacent_to', 'outside'\), \('zone_window', OrderedDict\(\[\('window_area', 4.0\), \('window_method', 'code'\), \('window_code', 'dcaw'\), \('solar_screen', False\)\]\)\)\]\), OrderedDict\(\[\('side', 'back'\), \('wall_assembly_code', 'ewwf15vi'\), \('adjacent_to', 'outside'\), \('zone_window', OrderedDict\(\[\('window_area', 3.0\), \('window_method', 'code'\), \('window_code', 'dcaw'\), \('solar_screen', False\)\]\)\)\]\)\] is too short",  # noqa: E501
+                               tr.hpxml_to_hescore)
+
+        # It is not allowed to model only one wall for a townhouse
+        wall2 = self.xpath('//h:Walls/h:Wall[h:SystemIdentifier/@id="wall2"]')
+        wall2.getparent().remove(wall2)
+        wall3 = self.xpath('//h:Walls/h:Wall[h:SystemIdentifier/@id="wall3"]')
+        wall3.getparent().remove(wall3)
+        self.assertRaisesRegex(jsonschema.exceptions.ValidationError,
+                               r"\[OrderedDict\(\[\('side', 'front'\), \('wall_assembly_code', 'ewwf11br'\), \('adjacent_to', 'outside'\), \('zone_window', OrderedDict\(\[\('window_area', 1.0\), \('window_method', 'custom'\), \('window_u_value', 1.0\), \('window_shgc', 0.75\), \('solar_screen', False\)\]\)\)\]\)\] is too short",  # noqa: E501
+                               tr.hpxml_to_hescore)
 
     def test_duct_leakage_to_outside(self):
         tr = self._load_xmlfile('house1')
