@@ -40,7 +40,7 @@ def get_error_messages(jsonfile, jsonschema):
 
 def assert_required_error(errors, *required_fields):
     fields = ', '.join(f"'{x}'" for x in required_fields)
-    assert any(x.startswith(f"{{'required': [{fields}]}} is not allowed for") for x in errors)
+    assert any(x.endswith(f"should not be valid under {{'required': [{fields}]}}") for x in errors)
 
 
 def test_schema_version_validation():
