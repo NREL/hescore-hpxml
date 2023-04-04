@@ -1871,7 +1871,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             const_type, ext_finish, adjacent_to = max(list(wall_const_type_ext_finish_adjacent_to_areas.keys()),
                                                       key=lambda x: wall_const_type_ext_finish_adjacent_to_areas[x])
             rvalueavgeff = walltotalarea / wallua
-            if self.get_wall_adjacent_to(adjacent_to) == 'outside':
+            if is_exterior_wall:
                 comb_wall_code, comb_rvalue = min(
                     [(doe2code, code_rvalue)
                         for doe2code, code_rvalue in self.wall_assembly_eff_rvalues.items()
