@@ -1806,10 +1806,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             wall_id = xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)
             wall_adjacent_to = xpath(wall, 'h:ExteriorAdjacentTo/text()', raise_err=True)
 
-            if self.get_wall_adjacent_to(wall_adjacent_to) == 'outside':
-                is_exterior_wall = True
-            else:
-                is_exterior_wall = False
+            is_exterior_wall = self.get_wall_adjacent_to(wall_adjacent_to) == 'outside'
 
             assembly_code, assembly_eff_rvalue = self.get_wall_assembly_code_and_rvalue(wall, is_exterior_wall)
 
