@@ -95,7 +95,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         hpxml_attic_type = self.xpath(attic, 'h:AtticType/text()')
         rooftypemap = {'cape cod': 'cath_ceiling',
                        'cathedral ceiling': 'cath_ceiling',
-                       'flat roof': 'cath_ceiling',
+                       'flat roof': 'flat_roof',
                        'unvented attic': 'vented_attic',
                        'vented attic': 'vented_attic',
                        'venting unknown attic': 'vented_attic',

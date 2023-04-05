@@ -171,6 +171,11 @@ def test_invalid_roof(hpxml_filebase):
     assert_required_error(errors, 'ceiling_area', 'ceiling_assembly_code')
     assert_required_error(errors, 'roof_absorptance')
 
+    js3 = copy.deepcopy(js)
+    js3['zone']['zone_roof'][0]['roof_type'] = 'flat_roof'
+    errors = get_error_messages(js3, js_schema)
+    assert "'roof_area' is a required property" in errors
+
 
 def test_manufactured_home_width():
     hpxml_filebase = 'townhouse_walls'

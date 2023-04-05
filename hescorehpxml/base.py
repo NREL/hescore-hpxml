@@ -1173,8 +1173,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # Ceiling or Roof area
             if atticd['rooftype'] == 'vented_attic':
                 atticd['ceiling_area'] = self.get_ceiling_area(attic)
-            else:
-                assert atticd['rooftype'] == 'cath_ceiling'
+            else:  # cathedral ceiling, flat roof, bowstring roof, and below apartment
                 atticd['roof_area'] = sum(self.get_attic_roof_area(roofs[roofid]) for roofid in roofids)
 
             # Get other roof information from attached Roof nodes.
@@ -1501,7 +1500,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 zone_roof_item['ceiling_area'] = atticd['ceiling_area']
                 zone_roof_item['ceiling_assembly_code'] = attic_floor_code
             else:
-                assert atticd['rooftype'] == 'cath_ceiling'
                 zone_roof_item['roof_area'] = atticd['roof_area']
             if knee_wall_d:
                 zone_roof_item['knee_wall'] = knee_wall_d

@@ -3648,7 +3648,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         area_el.text = '1200'
         roof_sysid_el.addnext(area_el)
         d = tr.hpxml_to_hescore()
-        self.assertEqual(d['zone']['zone_roof'][0]['roof_type'], 'cath_ceiling')
+        self.assertEqual(d['zone']['zone_roof'][0]['roof_type'], 'flat_roof')
         type_attic = etree.SubElement(attic_type_el, tr.addns('h:Attic'))
         etree.SubElement(type_attic, tr.addns('h:Vented')).text = "true"
         attic_type_el.remove(flatroof)

@@ -268,7 +268,7 @@
                                 "type": "number",
                                 "minimum": 1,
                                 "maximum": 25000,
-                                "description": "Area of the roof, used if roof_type = cath_ceiling"
+                                "description": "Area of the roof, used if roof_type = cath_ceiling, flat_roof, below_other_unit"
                             },
                             "roof_assembly_code": {
                                 "type": "string",
@@ -609,12 +609,19 @@
                             {
                                 "if": {
                                     "properties": {
-                                        "roof_type": {"enum": ["below_other_unit"]}
+                                        "roof_type": {"enum": ["below_other_unit", "cath_ceiling", "flat_roof", "bowstring_roof"]}
                                     },
                                     "required": ["roof_type"]
                                 },
                                 "then": {
-                                    "not": {"required": ["roof_type", "ceiling_area", "ceiling_assembly_code"]}
+                                    "allOf": [
+                                        {
+                                            "not": {"required": ["ceiling_area", "ceiling_assembly_code"]}
+                                        },
+                                        {
+                                            "required": ["roof_area"]
+                                        }
+                                    ]
                                 }
                             },
                             {
@@ -625,28 +632,7 @@
                                     "required": ["roof_type"]
                                 },
                                 "then": {
-                                    "required": [
-                                        "ceiling_area",
-                                        "ceiling_assembly_code"
-                                    ]
-                                }
-                            },
-                            {
-                                "if": {
-                                    "properties": {
-                                        "roof_type": {
-                                            "enum": ["cath_ceiling"]
-                                        }
-                                    },
-                                    "required": ["roof_type"]
-                                },
-                                "then": {
-                                    "not": {
-                                        "required": [
-                                            "ceiling_area",
-                                            "ceiling_assembly_code"
-                                        ]
-                                    }
+                                    "required": ["ceiling_area", "ceiling_assembly_code"]
                                 }
                             },
                             {
