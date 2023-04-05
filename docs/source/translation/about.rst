@@ -42,12 +42,12 @@ HEScore requires an assessment date. If a date is stored in the element
 ``Building/ProjectStatus/Date``, that date is used. If not, the current date is
 used.
 
-Building Shape
-**************
+Building Dwelling Unit Type
+***************************
 
-HEScore requires specifying whether the building is a detached house or a town
-house through their ``building.shape`` input. HPXML can specify this (and a
-variety of other house types) through the
+HEScore requires specifying whether the building is a detached house, a town
+house, or a manufactured house through their ``building.dwelling_unit_type`` input. 
+HPXML can specify this (and a variety of other house types) through the
 ``Building/BuildingSummary/BuildingConstruction/ResidentialFacilitytype`` data
 element. Not all facility types in HPXML can be modeled in HEScore. The table
 below shows how the possible enumerations of the HPXML field are translated
@@ -55,22 +55,22 @@ into HEScore.
 
 .. table:: HPXML Facility Types to HEScore Building Shape
 
-   ============================  ================
+   ============================  ======================
    HPXML                         HEScore 
-   ============================  ================
-   single-family detached        rectangle
-   single-family attached        town_house
-   manufactured home             *not translated*
+   ============================  ======================
+   single-family detached        single_family_detached
+   single-family attached        single_family_attached
+   manufactured home             manufactured_home
    2-4 unit building             *not translated*
    5+ unit building              *not translated*
    multi-family - uncategorized  *not translated*
-   multi-family - town homes     town_house
+   multi-family - town homes     single_family_attached
    multi-family - condos         *not translated*
-   apartment unit                *not translated*
+   apartment unit                apartment_unit
    studio unit                   *not translated*
    other                         *not translated*
    unknown                       *not translated*
-   ============================  ================
+   ============================  ======================
 
 .. note::
 
@@ -81,9 +81,17 @@ into HEScore.
 
    * If windows are found on a shared town house wall, the translation will 
      fail.
+   * ``building.shape`` is replaced by ``building.dwelling_unit_type``.
    * ``Building/BuildingSummary/Site/Surroundings`` is no longer used for shared walls mapping in town houses.
      Each ``Wall`` is considered and the ``ExteriorAdjacentTo`` is mapped into a HEScore ``adjacent_to``.
      See :ref:`wall_exterior_adjacent_to`
+
+Manufactured Home Width
+***********************
+
+If ``building.dwelling_unit_type`` is a manufactured_home, ``building.manufactured_home_width`` must be specified.
+Available options are ``single``, ``double``, or ``triple``.
+
 
 Year Built, Stories, Bedrooms, Floor Height, and Floor Area
 ***********************************************************
