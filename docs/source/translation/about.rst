@@ -81,6 +81,9 @@ into HEScore.
 
    * If windows are found on a shared town house wall, the translation will 
      fail.
+   * ``Building/BuildingSummary/Site/Surroundings`` is no longer used for shared walls mapping in town houses.
+     Each ``Wall`` is considered and the ``ExteriorAdjacentTo`` is mapped into a HEScore ``adjacent_to``.
+     See :ref:`wall_exterior_adjacent_to`
 
 Year Built, Stories, Bedrooms, Floor Height, and Floor Area
 ***********************************************************
