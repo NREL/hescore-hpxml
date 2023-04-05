@@ -1805,7 +1805,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         for wall in self.get_hescore_walls(b):
             wall_id = xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)
             wall_adjacent_to = xpath(wall, 'h:ExteriorAdjacentTo/text()', raise_err=True)
-
             is_exterior_wall = self.get_wall_adjacent_to(wall_adjacent_to) == 'outside'
 
             assembly_code, assembly_eff_rvalue = self.get_wall_assembly_code_and_rvalue(wall, is_exterior_wall)
@@ -1871,6 +1870,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             const_type, ext_finish, adjacent_to = max(list(wall_const_type_ext_finish_adjacent_to_areas.keys()),
                                                       key=lambda x: wall_const_type_ext_finish_adjacent_to_areas[x])
             rvalueavgeff = walltotalarea / wallua
+            is_exterior_wall = self.get_wall_adjacent_to(adjacent_to) == 'outside'
             if is_exterior_wall:
                 comb_wall_code, comb_rvalue = min(
                     [(doe2code, code_rvalue)
