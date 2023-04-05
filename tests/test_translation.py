@@ -3659,6 +3659,16 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         d = tr.hpxml_to_hescore()
         self.assertEqual(d['zone']['zone_roof'][0]['roof_type'], 'cath_ceiling')
 
+    def test_foundation_type(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+        el = self.xpath('//h:Foundations/h:Foundation/h:FoundationType/h:Basement')
+        fnd_type_el = el.getparent()
+        fnd_type_el.remove(el)
+        etree.SubElement(fnd_type_el, tr.addns('h:AboveApartment'))
+        print(fnd_type_el)
+        d = tr.hpxml_to_hescore()
+        self.assertEqual(d['zone']['zone_floor'][0]['foundation_type'], 'above_other_unit')
+
     def test_mini_split_cooling_only(self):
         tr = self._load_xmlfile('hescore_min_v3')
         E = self.element_maker()
@@ -3894,7 +3904,6 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         self.assertEqual(d_v3['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location'],
                          'uncond_attic')
 
-        # Is this reasonable?
         el.text = 'crawlspace'
         d_v3 = tr_v3.hpxml_to_hescore()
         self.assertEqual(d_v3['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location'],

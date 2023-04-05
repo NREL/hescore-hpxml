@@ -1672,6 +1672,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 zone_floor['foundation_type'] = 'unvented_crawl'
             elif hpxml_foundation_type == 'Ambient':
                 zone_floor['foundation_type'] = 'vented_crawl'
+            elif hpxml_foundation_type == 'AboveApartment':
+                zone_floor['foundation_type'] = 'above_other_unit'
             else:
                 raise TranslationError(
                     'HEScore does not have a foundation type analogous to: %s' %
@@ -1748,7 +1750,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 zone_floor['foundation_insulation_level'] - x))
 
             # floor above foundation insulation
-            if zone_floor['foundation_type'] != 'slab_on_grade':
+            if not (zone_floor['foundation_type'] == 'slab_on_grade' or
+                    zone_floor['foundation_type'] == 'above_other_unit'):
                 ffua = 0
                 fftotalarea = 0
                 framefloors = self.get_foundation_frame_floors(foundation, b)

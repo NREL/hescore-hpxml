@@ -250,6 +250,9 @@ def test_invalid_floor(hpxml_filebase):
     js2['zone']['zone_floor'][0]['foundation_type'] = 'slab_on_grade'
     errors = get_error_messages(js2, js_schema)
     assert_required_error(errors, 'floor_assembly_code')
+    js2['zone']['zone_floor'][0]['foundation_type'] = 'above_other_unit'
+    errors = get_error_messages(js2, js_schema)
+    assert_required_error(errors, 'floor_assembly_code')
 
 
 @pytest.mark.parametrize('hpxml_filebase', hescore_examples)
