@@ -1885,13 +1885,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     key=lambda x: abs(x[1] - rvalueavgeff)
                 )
             heswall['wall_assembly_code'] = comb_wall_code
-            try:
-                heswall['adjacent_to'] = self.get_wall_adjacent_to(hpxmlwalls[side][0]['adjacent_to'])
-            except TranslationError:
-                raise TranslationError(
-                    'The Wall[SystemIdentifier/@id="{}"] has no ExteriorAdjacentTo.'.format(
-                        hpxmlwalls[side][0]['id'])
-                )
+            heswall['adjacent_to'] = self.get_wall_adjacent_to(hpxmlwalls[side][0]['adjacent_to'])
+
             zone_wall.append(heswall)
 
         # building.zone.zone_wall.zone_window--------------------------------------
