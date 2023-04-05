@@ -76,7 +76,6 @@ into HEScore.
 
    For enumerations that are *not translated*
    the HPXML file will fail to run in HEScore.
-   ``building.shape`` is replaced by ``building.dwelling_unit_type``.
    ``Building/BuildingSummary/Site/Surroundings`` is no longer used for shared walls mapping in town houses.
    Each ``Wall`` is considered and the ``ExteriorAdjacentTo`` is mapped into a HEScore ``adjacent_to``.
    See :ref:`wall_exterior_adjacent_to`
@@ -89,6 +88,7 @@ into HEScore.
 Manufactured Home Width
 ***********************
 
+TODO: It should be replaced with a description of which hpxml inputs are translated into ``building.manufactured_home_width``.
 If ``building.dwelling_unit_type`` is a manufactured_home, ``building.manufactured_home_width`` must be specified.
 Available options are ``single``, ``double``, or ``triple``.
 
