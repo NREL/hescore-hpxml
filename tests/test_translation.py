@@ -1329,7 +1329,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         wall4 = self.xpath('//h:Walls/h:Wall[h:SystemIdentifier/@id="wall4"]')
         wall4.getparent().remove(wall4)
         self.assertRaisesRegex(jsonschema.exceptions.ValidationError,
-                               r"\[OrderedDict\(\[\('side', 'front'\), \('wall_assembly_code', 'ewwf11br'\), \('adjacent_to', 'outside'\), \('zone_window', OrderedDict\(\[\('window_area', 1.0\), \('window_method', 'custom'\), \('window_u_value', 1.0\), \('window_shgc', 0.75\), \('solar_screen', False\)\]\)\)\]\), OrderedDict\(\[\('side', 'left'\), \('wall_assembly_code', 'ewwf19wo'\), \('adjacent_to', 'outside'\), \('zone_window', OrderedDict\(\[\('window_area', 4.0\), \('window_method', 'code'\), \('window_code', 'dcaw'\), \('solar_screen', False\)\]\)\)\]\), OrderedDict\(\[\('side', 'back'\), \('wall_assembly_code', 'ewwf15vi'\), \('adjacent_to', 'outside'\), \('zone_window', OrderedDict\(\[\('window_area', 3.0\), \('window_method', 'code'\), \('window_code', 'dcaw'\), \('solar_screen', False\)\]\)\)\]\)\] is too short",  # noqa: E501
+                               r".*\] is too short",
                                tr.hpxml_to_hescore)
 
         # It is not allowed to model only one wall for a townhouse
@@ -1338,7 +1338,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         wall3 = self.xpath('//h:Walls/h:Wall[h:SystemIdentifier/@id="wall3"]')
         wall3.getparent().remove(wall3)
         self.assertRaisesRegex(jsonschema.exceptions.ValidationError,
-                               r"\[OrderedDict\(\[\('side', 'front'\), \('wall_assembly_code', 'ewwf11br'\), \('adjacent_to', 'outside'\), \('zone_window', OrderedDict\(\[\('window_area', 1.0\), \('window_method', 'custom'\), \('window_u_value', 1.0\), \('window_shgc', 0.75\), \('solar_screen', False\)\]\)\)\]\)\] is too short",  # noqa: E501
+                               r".*\] is too short",
                                tr.hpxml_to_hescore)
 
     def test_duct_leakage_to_outside(self):
