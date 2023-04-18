@@ -2462,7 +2462,7 @@
                                     "efficiency": {
                                         "type": "number",
                                         "minimum": 0.45,
-                                        "maximum": 0.95
+                                        "maximum": 0.99
                                     }
                                 }
                             }
