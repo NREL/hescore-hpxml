@@ -1109,6 +1109,17 @@
                                     "efficiency": {
                                         "type": "number",
                                         "$comment": "Additional requirements for this property apply based on the heating system type"
+                                    },
+                                    "efficiency_unit": {
+                                        "type": "string",
+                                        "enum": [
+                                            "afue",
+                                            "percent",
+                                            "cop",
+                                            "hspf",
+                                            "hspf2"
+                                        ],
+                                        "$comment": "Additional requirements for this property apply based on the heating system type"
                                     }
                                 },
                                 "allOf": [
@@ -1134,11 +1145,16 @@
                                             },
                                             "then": {
                                                 "properties": {
+                                                    "efficiency_unit": {"description": "Unit of efficiency value (only used if efficiency_method is user)"},
                                                     "efficiency": {"description": "Efficiency of heating equipment (only used if efficiency_method is user)"}
                                                 }
                                             },
                                             "else": {
                                                 "properties": {
+                                                    "efficiency_unit": {
+                                                        "enum": ["afue"],
+                                                        "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                    },
                                                     "efficiency": {
                                                         "minimum": 0.6,
                                                         "maximum": 1,
@@ -1162,6 +1178,13 @@
                                         },
                                         "then": {
                                             "properties": {
+                                                "efficiency_unit": {
+                                                    "enum": [
+                                                        "hspf",
+                                                        "hspf2"
+                                                    ],
+                                                    "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                },
                                                 "efficiency": {
                                                     "minimum": 6,
                                                     "maximum": 20,
@@ -1179,6 +1202,10 @@
                                         },
                                         "then": {
                                             "properties": {
+                                                "efficiency_unit": {
+                                                    "enum": ["cop"],
+                                                    "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                },
                                                 "efficiency": {
                                                     "minimum": 2,
                                                     "maximum": 5,
@@ -1202,6 +1229,10 @@
                                         },
                                         "then": {
                                             "properties": {
+                                                "efficiency_unit": {
+                                                    "enum": ["percent"],
+                                                    "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                },
                                                 "efficiency": {"description": "Efficiency of heating equipment (only used if efficiency_method is user)"}
                                             }
                                         }
@@ -1242,6 +1273,17 @@
                                     "efficiency": {
                                         "type": "number",
                                         "$comment": "Additional requirements for this property apply based on the cooling system type"
+                                    },
+                                    "efficiency_unit": {
+                                        "type": "string",
+                                        "enum": [
+                                            "eer",
+                                            "eer2",
+                                            "ceer",
+                                            "seer",
+                                            "seer2"
+                                        ],
+                                        "$comment": "Additional requirements for this property apply based on the cooling system type"
                                     }
                                 },
                                 "allOf": [
@@ -1251,7 +1293,8 @@
                                                 "type": {
                                                     "enum": [
                                                         "split_dx",
-                                                        "heat_pump"
+                                                        "heat_pump",
+                                                        "mini_split"
                                                     ]
                                                 }
                                             },
@@ -1259,6 +1302,10 @@
                                         },
                                         "then": {
                                             "properties": {
+                                                "efficiency_unit": {
+                                                    "enum": ["seer", "seer2"],
+                                                    "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                },
                                                 "efficiency": {
                                                     "minimum": 8,
                                                     "maximum": 40,
@@ -1273,7 +1320,6 @@
                                                 "type": {
                                                     "enum": [
                                                         "packaged_dx",
-                                                        "mini_split",
                                                         "gchp"
                                                     ]
                                                 }
@@ -1282,6 +1328,10 @@
                                         },
                                         "then": {
                                             "properties": {
+                                                "efficiency_unit": {
+                                                    "enum": ["eer", "eer2", "ceer"],
+                                                    "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                },
                                                 "efficiency": {
                                                     "minimum": 8,
                                                     "maximum": 40,
@@ -1304,6 +1354,7 @@
                                         },
                                         "then": {
                                             "properties": {
+                                                "efficiency_unit": {"description": "Unit of efficiency value (only used if efficiency_method is user)"},
                                                 "efficiency": {"description": "Efficiency of cooling equipment (only used if efficiency_method is user)"}
                                             }
                                         }
@@ -1527,7 +1578,7 @@
                                             "properties": {
                                                 "heating": {
                                                     "not": {
-                                                        "required": ["efficiency"]
+                                                        "required": ["efficiency", "efficiency_unit"]
                                                     }
                                                 }
                                             }
@@ -1609,7 +1660,7 @@
                                         {
                                             "properties": {
                                                 "heating": {
-                                                    "required": ["efficiency"]
+                                                    "required": ["efficiency", "efficiency_unit"]
                                                 }
                                             }
                                         },
@@ -1728,7 +1779,7 @@
                                             "properties": {
                                                 "cooling": {
                                                     "not": {
-                                                        "required": ["efficiency"]
+                                                        "required": ["efficiency", "efficiency_unit"]
                                                     }
                                                 }
                                             }
@@ -1779,7 +1830,7 @@
                                         {
                                             "properties": {
                                                 "cooling": {
-                                                    "required": ["efficiency"]
+                                                    "required": ["efficiency", "efficiency_unit"]
                                                 }
                                             }
                                         },
@@ -2253,7 +2304,6 @@
                             "type": "string",
                             "enum": [
                                 "user",
-                                "uef",
                                 "shipment_weighted"
                             ],
                             "description": "Method to determine water heater efficiency"
@@ -2263,9 +2313,17 @@
                             "minimum": 1972,
                             "description": "Year water heater was manufactured (only used if efficiency_method is shipment_weighted)"
                         },
-                        "energy_factor": {
+                        "efficiency": {
                             "type": "number",
-                            "description": "Energy factor of water heater (only used if efficiency_method is user or uef)"
+                            "description": "Efficiency of water heater (only used if efficiency_method is user)"
+                        },
+                        "efficiency_unit": {
+                            "type": "string",
+                            "enum": [
+                                "ef",
+                                "uef"
+                            ],
+                            "description": "Unit of water heater efficiency"
                         }
                     },
                     "allOf": [
@@ -2342,19 +2400,18 @@
                                     "properties": {
                                         "efficiency_method": {
                                             "enum": [
-                                                "user",
-                                                "uef"
+                                                "user"
                                             ]
                                         }
                                     },
                                     "required": ["efficiency_method"]
                                 },
                                 "then": {
-                                    "required": ["energy_factor"]
+                                    "required": ["efficiency", "efficiency_unit"]
                                 },
                                 "else": {
                                     "not": {
-                                        "required": ["energy_factor"]
+                                        "required": ["efficiency", "efficiency_unit"]
                                     }
                                 }
                             }
@@ -2366,7 +2423,6 @@
                                     "efficiency_method": {
                                         "enum": [
                                             "user",
-                                            "uef",
                                             "shipment_weighted"
                                         ]
                                     }
@@ -2378,7 +2434,7 @@
                             },
                             "then": {
                                 "properties": {
-                                    "energy_factor": {
+                                    "efficiency": {
                                         "type": "number",
                                         "minimum": 0.45,
                                         "maximum": 0.95
@@ -2392,8 +2448,7 @@
                                     "type": {"const": "tankless"},
                                     "efficiency_method": {
                                         "enum": [
-                                            "user",
-                                            "uef"
+                                            "user"
                                         ]
                                     }
                                 },
@@ -2404,10 +2459,10 @@
                             },
                             "then": {
                                 "properties": {
-                                    "energy_factor": {
+                                    "efficiency": {
                                         "type": "number",
                                         "minimum": 0.45,
-                                        "maximum": 0.99
+                                        "maximum": 0.95
                                     }
                                 }
                             }
@@ -2425,7 +2480,7 @@
                             },
                             "then": {
                                 "properties": {
-                                    "energy_factor": {
+                                    "efficiency": {
                                         "type": "number",
                                         "minimum": 1,
                                         "maximum": 4
