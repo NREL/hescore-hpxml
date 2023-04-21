@@ -115,11 +115,13 @@
           "fuel_primary": "fuel_oil",
           "type": "boiler",
           "efficiency_method": "user",
+          "efficiency_unit": "afue",
           "efficiency": 0.85
         },
         "cooling": {
           "type": "split_dx",
           "efficiency_method": "user",
+          "efficiency_unit": "seer",
           "efficiency": 13.0
         },
         "hvac_distribution": {
@@ -142,11 +144,13 @@
           "fuel_primary": "electric",
           "type": "mini_split",
           "efficiency_method": "user",
+          "efficiency_unit": "hspf",
           "efficiency": 8.2
         },
         "cooling": {
           "type": "mini_split",
           "efficiency_method": "user",
+          "efficiency_unit": "seer",
           "efficiency": 15.0
         }
       }

@@ -120,6 +120,7 @@
         "cooling": {
           "type": "split_dx",
           "efficiency_method": "user",
+          "efficiency_unit": "seer",
           "efficiency": 12.0
         },
         "hvac_distribution": {
@@ -152,7 +153,8 @@
       "type": "storage",
       "fuel_primary": "lpg",
       "efficiency_method": "user",
-      "energy_factor": 0.58
+      "efficiency_unit": "ef",
+      "efficiency": 0.58
     }
   }
 }

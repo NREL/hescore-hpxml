@@ -120,7 +120,8 @@
       "type": "storage",
       "fuel_primary": "lpg",
       "efficiency_method": "user",
-      "energy_factor": 0.56
+      "efficiency_unit": "ef",
+      "efficiency": 0.56
     }
   }
 }
