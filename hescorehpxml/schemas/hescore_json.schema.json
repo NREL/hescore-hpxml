@@ -112,9 +112,9 @@
                     "enum": ["single_family_detached", "single_family_attached", "apartment_unit", "manufactured_home"],
                     "description": "The type of dwelling unit"
                 },
-                "manufactured_home_width": {
+                "manufactured_home_sections": {
                     "type": "string",
-                    "enum": ["single", "double", "triple"],
+                    "enum": ["single-wide", "double-wide", "triple-wide"],
                     "description": "The width if a manufactured home"
                 },
                 "year_built": {
@@ -183,11 +183,11 @@
                         }
                     },
                     "then": {
-                        "required": ["manufactured_home_width"]
+                        "required": ["manufactured_home_sections"]
                     },
                     "else": {
                         "not": {
-                            "required": ["manufactured_home_width"]
+                            "required": ["manufactured_home_sections"]
                         }
                     }
                 },
