@@ -177,21 +177,21 @@ def test_invalid_roof(hpxml_filebase):
     assert "'roof_area' is a required property" in errors
 
 
-def test_manufactured_home_width():
+def test_manufactured_home_sections():
     hpxml_filebase = 'townhouse_walls'
     schema = get_json_schema()
     js_schema = jsonschema.Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     js = get_example_json(hpxml_filebase)
 
     js1 = copy.deepcopy(js)
-    js1['about']['manufactured_home_width'] = 'single'
+    js1['about']['manufactured_home_sections'] = 'single'
     errors = get_error_messages(js1, js_schema)
-    assert_required_error(errors, 'manufactured_home_width')
+    assert_required_error(errors, 'manufactured_home_sections')
 
     js2 = copy.deepcopy(js)
     js2['about']['dwelling_unit_type'] = 'manufactured_home'
     errors = get_error_messages(js2, js_schema)
-    assert "'manufactured_home_width' is a required property" in errors
+    assert "'manufactured_home_sections' is a required property" in errors
 
 
 def test_invalid_skylight():

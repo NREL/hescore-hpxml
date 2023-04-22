@@ -88,8 +88,8 @@ into HEScore.
 Manufactured Home Width
 ***********************
 
-TODO: It should be replaced with a description of which hpxml inputs are translated into ``building.manufactured_home_width``.
-If ``building.dwelling_unit_type`` is a manufactured_home, ``building.manufactured_home_width`` must be specified.
+TODO: It should be replaced with a description of which hpxml inputs are translated into ``building.manufactured_home_sections``.
+If ``building.dwelling_unit_type`` is a manufactured_home, ``building.manufactured_home_sections`` must be specified.
 Available options are ``single``, ``double``, or ``triple``.
 
 
