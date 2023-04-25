@@ -83,7 +83,7 @@ Cooling Efficiency
 ******************
 
 Cooling efficiency can be described in HEScore by either the rated efficiency
-(SEER, EER), or if that is unavailable, the year installed/manufactured from
+(SEER, SEER2, EER, CEER, EER2), or if that is unavailable, the year installed/manufactured from
 which HEScore estimates the efficiency based on shipment weighted efficiencies
 by year. The translator follows this methodology and looks for the rated
 efficiency first and if it cannot be found sends the year installed. 
@@ -100,16 +100,20 @@ cooling system type.
    ===============  ================
    Cooling Type     Efficiency Units
    ===============  ================
-   split_dx         SEER
-   packaged_dx      EER
-   heat_pump        SEER
-   mini_split       SEER
-   gchp             EER
+   split_dx         SEER, SEER2
+   packaged_dx      EER, CEER, EER2
+   heat_pump        SEER, SEER2
+   mini_split       SEER, SEER2
+   gchp             EER, CEER, EER2
    ===============  ================
 
 The translator searches the ``CoolingSystem/AnnualCoolingEfficiency`` or
 ``HeatPump/AnnualCoolEfficiency`` (HPXML v2) or ``HeatPump/AnnualCoolingEfficiency`` (HPXML v3)
 elements of the primary cooling system and uses the first one that has the correct units.
+
+Both ``AnnualCoolingEfficiency(or AnnualCoolEfficiency)/Units`` and 
+``AnnualCoolingEfficiency(or AnnualCoolEfficiency)/Value``
+are searched and expected to match the above table.
 
 .. _clg-shipment-weighted-efficiency:
 
