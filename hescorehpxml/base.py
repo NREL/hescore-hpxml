@@ -502,8 +502,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     if eff_unit_els[0] not in htg_type_eff_units:
                         raise TranslationError('Heating system efficiency unit {} is not '.format(eff_unit_els[0]) +
                                                'valid for the system type {}'.format(sys_heating['type']))
-                else:
-                    raise TranslationError('Heating system efficiency unit not found in the HPXML')
                 sys_heating['efficiency_method'] = 'user'
                 sys_heating['efficiency_unit'] = eff_units[eff_unit_els[0]]
                 sys_heating['efficiency'] = float(eff_els[0])
@@ -574,8 +572,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     if eff_unit_els[0] not in clg_type_eff_units:
                         raise TranslationError('Cooling system efficiency unit {} is not '.format(eff_unit_els[0]) +
                                                'valid for the system type {}'.format(sys_cooling['type']))
-                else:
-                    raise TranslationError('Cooling system efficiency unit not found in the HPXML')
                 sys_cooling['efficiency_method'] = 'user'
                 sys_cooling['efficiency_unit'] = eff_units[eff_unit_els[0]]
                 sys_cooling['efficiency'] = float(eff_els[0])
@@ -2713,10 +2709,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
         if dhw['type'] in ('storage', 'heat_pump', 'tankless'):
             if dhw['efficiency_method'] == 'user':
                 if dhw['type'] == 'storage' or dhw['type'] == 'tankless':
-                    do_bounds_check('domestic_hot_water_energy_factor', dhw['efficiency'], 0.45, 1.0)
+                    do_bounds_check('domestic_hot_water_efficiency', dhw['efficiency'], 0.45, 1.0)
                 else:
                     assert dhw['type'] == 'heat_pump'
-                    do_bounds_check('domestic_hot_water_energy_factor', dhw['efficiency'], 1.0, 4.0)
+                    do_bounds_check('domestic_hot_water_efficiency', dhw['efficiency'], 1.0, 4.0)
             else:
                 assert dhw['efficiency_method'] == 'shipment_weighted'
                 do_bounds_check('domestic_hot_water_year',

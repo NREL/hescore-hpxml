@@ -810,9 +810,9 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.text = 'SEER'
         self.assertRaisesRegex(
             TranslationError,
-            r'Cooling efficiency could not be determined',
+            r'Cooling system efficiency unit SEER is not valid for the system type packaged_dx',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_heating_system_wrong_efficiency_type(self):
         '''
@@ -823,9 +823,9 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.text = 'Percent'
         self.assertRaisesRegex(
             TranslationError,
-            r'Heating efficiency could not be determined',
+            r'Heating system efficiency unit Percent is not valid for the system type central_furnace',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_hvac_fractions_sum_to_one(self):
         tr = self._load_xmlfile('house6')
@@ -880,7 +880,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'Every wall insulation layer needs a NominalRValue',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_attic_knee_wall(self):
         """
@@ -1104,7 +1104,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'Wall R-value outside HEScore bounds',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_heating_system_no_efficiency(self):
         """
@@ -1121,14 +1121,14 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             'efficiency',
             d['systems']['hvac'][0]['heating'],
             'Electric furnace should not have an efficiency.'
-            )
+        )
         annual_heating_eff.getparent().remove(annual_heating_eff)
         d = tr.hpxml_to_hescore()
         self.assertNotIn(
             'efficiency',
             d['systems']['hvac'][0]['heating'],
             'Electric furnace should not have an efficiency.'
-            )
+        )
         htgsys_fuel.text = 'wood'
         htgsys_type = self.xpath('//h:HeatingSystem[1]/h:HeatingSystemType')
         htgsys_type.clear()
@@ -1140,7 +1140,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             'efficiency',
             d['systems']['hvac'][0]['heating'],
             'Wood stove should not have an efficiency.'
-            )
+        )
         htgsys = self.xpath('//h:HeatingSystem[1]')
         htgsys.append(annual_heating_eff)
         d = tr.hpxml_to_hescore()
@@ -1148,7 +1148,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             'efficiency',
             d['systems']['hvac'][0]['heating'],
             'Wood stove should not have an efficiency.'
-            )
+        )
 
     def test_zipcode_missing(self):
         """
@@ -1171,7 +1171,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'(Cooling|Heating) system heatpump1 is not associated with an air distribution system',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_mentor_extension(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1203,7 +1203,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el = etree.SubElement(
             etree.SubElement(self.xpath('//h:Building'), tr.addns('h:extension')),
             tr.addns('h:HESExternalID')
-            )
+        )
         myid = uuid.uuid4().hex
         el.text = myid
         el = etree.SubElement(self.xpath('//h:Building/h:BuildingID'), tr.addns('h:SendingSystemIdentifierValue'))
@@ -1750,17 +1750,18 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         el = self.xpath('//h:WaterHeatingSystem/h:EnergyFactor')
         el.text = '0.44'
         self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_energy_factor is out of bounds',
+                               'domestic_hot_water_efficiency is out of bounds',
                                tr.hpxml_to_hescore)
         el.text = '1.1'
         self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_energy_factor is out of bounds',
+                               'domestic_hot_water_efficiency is out of bounds',
                                tr.hpxml_to_hescore)
         el.text = '0.95'
         res = tr.hpxml_to_hescore()
         dhw = res['systems']['domestic_hot_water']
         self.assertEqual(dhw['efficiency_method'], 'user')
-        self.assertEqual(dhw['energy_factor'], 0.95)
+        self.assertEqual(dhw['efficiency_unit'], 'ef')
+        self.assertEqual(dhw['efficiency'], 0.95)
 
     def test_dhw_heat_pump_efficiency(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1772,17 +1773,18 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         ef_el = etree.SubElement(dhw_sys_el, tr.addns('h:EnergyFactor'))
         ef_el.text = '0.9'
         self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_energy_factor is out of bounds',
+                               'domestic_hot_water_efficiency is out of bounds',
                                tr.hpxml_to_hescore)
         ef_el.text = '4.1'
         self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_energy_factor is out of bounds',
+                               'domestic_hot_water_efficiency is out of bounds',
                                tr.hpxml_to_hescore)
         ef_el.text = '4.0'
         res = tr.hpxml_to_hescore()
         dhw = res['systems']['domestic_hot_water']
         self.assertEqual(dhw['efficiency_method'], 'user')
-        self.assertEqual(dhw['energy_factor'], 4.0)
+        self.assertEqual(dhw['efficiency_unit'], 'ef')
+        self.assertEqual(dhw['efficiency'], 4.0)
 
     def test_dhw_year(self):
         tr = self._load_xmlfile('hescore_min')
@@ -2151,7 +2153,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'ArrayAzimuth or ArrayOrientation is required for every PVSystem',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_tilt_missing(self):
         tr = self._load_xmlfile('hescore_min')
@@ -2160,7 +2162,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'ArrayTilt is required for every PVSystem',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_years_missing(self):
         tr = self._load_xmlfile('hescore_min')
@@ -2169,7 +2171,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'Either YearInverterManufactured or YearModulesManufactured is required for every PVSystem',
             tr.hpxml_to_hescore
-            )
+        )
 
     def test_two_sys_avg(self):
         tr = self._load_xmlfile('hescore_min')
@@ -2197,7 +2199,7 @@ class TestPhotovoltaics(unittest.TestCase, ComparatorBase):
             TranslationError,
             r'Either a MaxPowerOutput or NumberOfPanels or CollectorArea must be specified',
             tr.hpxml_to_hescore
-            )
+        )
 
 
 class TestDuctLocations(unittest.TestCase, ComparatorBase):
@@ -2258,7 +2260,7 @@ class TestHPXMLVersion2Point3(unittest.TestCase, ComparatorBase):
         self.assertEqual(
             d['systems']['hvac'][0]['heating']['type'],
             'wall_furnace'
-            )
+        )
 
     def test_medium_dark_roof_color(self):
         tr = self._load_xmlfile('hescore_min')
@@ -2268,7 +2270,7 @@ class TestHPXMLVersion2Point3(unittest.TestCase, ComparatorBase):
         self.assertEqual(
             d['zone']['zone_roof'][0]['roof_color'],
             'medium_dark'
-            )
+        )
 
     def test_roof_absorptance(self):
         tr = self._load_xmlfile('hescore_min')
@@ -2339,6 +2341,16 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         htg_sys_test_heating_type = ['h:Furnace']
         clg_sys_test_cooling_type = ['central air conditioning']
         hp_test_type = ['water-to-air', 'water-to-water', 'air-to-air', 'ground-to-air']
+        hp_test_clg_eff_unit = {'water-to-air': 'EER',
+                                'water-to-water': 'EER',
+                                'air-to-air': 'SEER',
+                                'ground-to-air': 'EER'}
+        hp_test_htg_eff_unit = {'water-to-air': 'COP',
+                                'water-to-water': 'COP',
+                                'air-to-air': 'HSPF',
+                                'ground-to-air': 'COP'}
+        hp_test_htg_eff_value = {'COP': '3.5',
+                                 'HSPF': '8.2'}
 
         tr = self._load_xmlfile('house4')
 
@@ -2421,11 +2433,13 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
                 # change cooling types
                 hp_type = tr.xpath(hp, 'h:HeatPumpType')
                 hp_type.text = clg_system_type
+                efficiency_unit = tr.xpath(hp, 'h:AnnualCoolEfficiency/h:Units')
+                efficiency_unit.text = hp_test_clg_eff_unit[clg_system_type]
                 tr.xpath(hp, 'h:FloorAreaServed').text = "3213"
                 self.assertRaisesRegex(
                     jsonschema.exceptions.ValidationError,
                     re.compile(f"'{heat_pump_type_map[clg_system_type]}' is not one of "
-                               "['packaged_dx', 'split_dx', 'mini_split', 'dec', 'none']*"), # noqa E501
+                               "['packaged_dx', 'split_dx', 'mini_split', 'dec', 'none']*"),  # noqa E501
                     tr.hpxml_to_hescore
                 )
 
@@ -2479,12 +2493,16 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
                 # change heating types
                 hp_type = tr.xpath(hp, 'h:HeatPumpType')
                 hp_type.text = htg_system_type
+                efficiency_unit = tr.xpath(hp, 'h:AnnualHeatEfficiency/h:Units')
+                efficiency_unit.text = hp_test_htg_eff_unit[htg_system_type]
+                efficiency_value = tr.xpath(hp, 'h:AnnualHeatEfficiency/h:Value')
+                efficiency_value.text = hp_test_htg_eff_value[hp_test_htg_eff_unit[htg_system_type]]
                 tr.xpath(hp, 'h:FloorAreaServed').text = "3213"
 
                 self.assertRaisesRegex(
                     jsonschema.exceptions.ValidationError,
                     re.compile(f"'{clg_system_map[clg_system_type]}' is not one of "
-                               "['packaged_dx', 'gchp', 'dec', 'none']*"), # noqa E501
+                               "['packaged_dx', 'gchp', 'dec', 'none']*"),  # noqa E501
                     tr.hpxml_to_hescore
                 )
 
@@ -2509,10 +2527,14 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         for i, htg_hp_type in enumerate(hp_test_type):
             hp_type = tr.xpath(hp, 'h:HeatPumpType')
             hp_type.text = htg_hp_type
+            efficiency_unit = tr.xpath(hp, 'h:AnnualHeatEfficiency/h:Units')
+            efficiency_unit.text = hp_test_htg_eff_unit[htg_hp_type]
             for j, clg_hp_type in enumerate(hp_test_type):
                 if j != i and heat_pump_type_map[htg_hp_type] != heat_pump_type_map[clg_hp_type]:
                     hp2_type = tr.xpath(hp2, 'h:HeatPumpType')
                     hp2_type.text = clg_hp_type
+                    efficiency_unit = tr.xpath(hp2, 'h:AnnualCoolEfficiency/h:Units')
+                    efficiency_unit.text = hp_test_clg_eff_unit[clg_hp_type]
                     self.assertRaisesRegex(
                         TranslationError,
                         r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.',  # noqa: E501
@@ -2525,6 +2547,12 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         for hp_system_type in hp_test_type:
             hp_type = tr.xpath(hp, 'h:HeatPumpType')
             hp_type.text = hp_system_type
+            efficiency_unit = tr.xpath(hp, 'h:AnnualCoolEfficiency/h:Units')
+            efficiency_unit.text = hp_test_clg_eff_unit[hp_system_type]
+            efficiency_unit = tr.xpath(hp, 'h:AnnualHeatEfficiency/h:Units')
+            efficiency_unit.text = hp_test_htg_eff_unit[hp_system_type]
+            efficiency_value = tr.xpath(hp, 'h:AnnualHeatEfficiency/h:Value')
+            efficiency_value.text = hp_test_htg_eff_value[hp_test_htg_eff_unit[hp_system_type]]
             tr.xpath(hp, 'h:FloorAreaServed').text = "3213"
             d = tr.hpxml_to_hescore()
             # expect tested types correctly load and translated
@@ -3096,8 +3124,9 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         EF.addnext(UEF)
         d = tr.hpxml_to_hescore()
         system = d['systems']['domestic_hot_water']
-        self.assertEqual(system['efficiency_method'], 'uef')
-        self.assertAlmostEqual(system['energy_factor'], 0.7)
+        self.assertEqual(system['efficiency_method'], 'user')
+        self.assertEqual(system['efficiency_unit'], 'uef')
+        self.assertAlmostEqual(system['efficiency'], 0.7)
 
     def test_uef_with_tankless(self):
         tr = self._load_xmlfile('hescore_min')
@@ -3108,10 +3137,11 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         WHtype.getparent().append(UEF)
         d = tr.hpxml_to_hescore()
         system = d['systems']['domestic_hot_water']
-        self.assertEqual(system['efficiency_method'], 'uef')
+        self.assertEqual(system['efficiency_method'], 'user')
+        self.assertEqual(system['efficiency_unit'], 'uef')
         self.assertEqual(system['type'], 'tankless')
         self.assertEqual(system['fuel_primary'], 'natural_gas')
-        self.assertAlmostEqual(system['energy_factor'], 0.7)
+        self.assertAlmostEqual(system['efficiency'], 0.7)
 
     def test_conditioned_attic(self):
         tr = self._load_xmlfile('house4')
@@ -3417,7 +3447,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         heatpump_type.addprevious(E.DistributionSystem(idref='hvacd1'))
         self.assertRaisesRegex(
             TranslationError,
-            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.', # noqa E501
+            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.',  # noqa E501
             tr.hpxml_to_hescore)
 
         # heatpump system type: mini-split + other cooling system
@@ -3428,7 +3458,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         heatpump.remove(self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:DistributionSystem'))
         self.assertRaisesRegex(
             jsonschema.exceptions.ValidationError,
-            r"'split_dx' is not one of ['packaged_dx', 'mini_split', 'dec', 'none']*", # noqa E501
+            r"'split_dx' is not one of ['packaged_dx', 'mini_split', 'dec', 'none']*",  # noqa E501
             tr.hpxml_to_hescore
         )
 
@@ -3493,7 +3523,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         heatpump_type.addprevious(E.DistributionSystem(idref='hvacd1'))
         self.assertRaisesRegex(
             TranslationError,
-            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.', # noqa E501
+            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.',  # noqa E501
             tr_v3.hpxml_to_hescore)
 
         # heatpump system type: mini-split + other cooling system
@@ -3504,7 +3534,7 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         heatpump.remove(self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:DistributionSystem'))
         self.assertRaisesRegex(
             jsonschema.exceptions.ValidationError,
-            r"'split_dx' is not one of ['packaged_dx', 'mini_split', 'dec', 'none']*", # noqa E501
+            r"'split_dx' is not one of ['packaged_dx', 'mini_split', 'dec', 'none']*",  # noqa E501
             tr_v3.hpxml_to_hescore
         )
 
@@ -3605,6 +3635,26 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
         self.assertNotIn(
             'hvac_distribution',
             d['systems']['hvac'][0]
+        )
+
+    def test_hvac_efficiency_unit(self):
+        tr = self._load_xmlfile('house7')
+        # Wrong unit
+        el = self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency/h:Units')
+        el.text = 'SEER'
+        self.assertRaisesRegex(
+            TranslationError,
+            r'Cooling system efficiency unit SEER is not valid for the system type packaged_dx',
+            tr.hpxml_to_hescore
+        )
+        el = self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency/h:Units')
+        el.text = 'EER'
+        el = self.xpath('//h:HeatingSystem[1]/h:AnnualHeatingEfficiency/h:Units')
+        el.text = 'HSPF'
+        self.assertRaisesRegex(
+            TranslationError,
+            r'Heating system efficiency unit HSPF is not valid for the system type boiler',
+            tr.hpxml_to_hescore
         )
 
 
@@ -3737,7 +3787,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         heatpump_type.addprevious(E.DistributionSystem(idref='hvacd1'))
         self.assertRaisesRegex(
             TranslationError,
-            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.', # noqa E501
+            r'Two different heat pump systems: .+ for heating, and .+ for cooling are not supported in one hvac system.',  # noqa E501
             tr.hpxml_to_hescore)
 
         # heatpump system type: mini-split + other cooling system
@@ -3748,7 +3798,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         heatpump.remove(self.xpath('//h:HeatPump[h:SystemIdentifier/@id="heatpump1"]/h:DistributionSystem'))
         self.assertRaisesRegex(
             jsonschema.exceptions.ValidationError,
-            r"'split_dx' is not one of ['packaged_dx', 'mini_split', 'dec', 'none']*", # noqa E501
+            r"'split_dx' is not one of ['packaged_dx', 'mini_split', 'dec', 'none']*",  # noqa E501
             tr.hpxml_to_hescore
         )
 
