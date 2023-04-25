@@ -466,10 +466,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         if not ((sys_heating['type'] in ('central_furnace', 'baseboard')
                  and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
 
-            eff_units = {'HSPF': 'hspf',
-                         'HSPF2': 'hspf2',
-                         'AFUE': 'afue',
-                         'COP': 'cop'}
             htg_type_eff_units = {'heat_pump': ['HSPF', 'HSPF2'],
                                   'mini_split': ['HSPF', 'HSPF2'],
                                   'central_furnace': ['AFUE'],
@@ -503,7 +499,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         raise TranslationError('Heating system efficiency unit {} is not '.format(eff_unit_els[0]) +
                                                'valid for the system type {}'.format(sys_heating['type']))
                 sys_heating['efficiency_method'] = 'user'
-                sys_heating['efficiency_unit'] = eff_units[eff_unit_els[0]]
+                sys_heating['efficiency_unit'] = eff_unit_els[0].lower()
                 sys_heating['efficiency'] = float(eff_els[0])
         sys_heating['_capacity'] = convert_to_type(float, xpath(htgsys, 'h:HeatingCapacity/text()'))
         sys_heating['_fracload'] = convert_to_type(float, xpath(htgsys, 'h:FractionHeatLoadServed/text()'))
@@ -533,11 +529,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
             except KeyError:
                 raise TranslationError('HEScore does not support the HPXML CoolingSystemType %s' % hpxml_cooling_type)
         # cooling efficiency
-        eff_units = {'SEER': 'seer',
-                     'SEER2': 'seer2',
-                     'EER': 'eer',
-                     'EER2': 'eer2',
-                     'CEER': 'ceer'}
         clg_type_eff_units = {'split_dx': ['SEER', 'SEER2'],
                               'packaged_dx': ['EER', 'EER2', 'CEER'],
                               'heat_pump': ['SEER', 'SEER2'],
@@ -573,7 +564,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         raise TranslationError('Cooling system efficiency unit {} is not '.format(eff_unit_els[0]) +
                                                'valid for the system type {}'.format(sys_cooling['type']))
                 sys_cooling['efficiency_method'] = 'user'
-                sys_cooling['efficiency_unit'] = eff_units[eff_unit_els[0]]
+                sys_cooling['efficiency_unit'] = eff_unit_els[0].lower()
                 sys_cooling['efficiency'] = float(eff_els[0])
 
         sys_cooling['_capacity'] = convert_to_type(float, xpath(clgsys, 'h:CoolingCapacity/text()'))

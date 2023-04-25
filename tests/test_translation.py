@@ -3637,7 +3637,7 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
             d['systems']['hvac'][0]
         )
 
-    def test_hvac_efficiency_unit(self):
+    def test_hvac_efficiency_units(self):
         tr = self._load_xmlfile('house7')
         # Wrong unit
         el = self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency/h:Units')
@@ -3656,6 +3656,42 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
             r'Heating system efficiency unit HSPF is not valid for the system type boiler',
             tr.hpxml_to_hescore
         )
+
+    """
+    # FIXME: remove the comment when schema is up to date to support new units
+    def test_hvac_new_efficiency_units(self):
+        tr = self._load_xmlfile('house4')
+        # CEER and EER2 unit for split_dx
+        el_sys_type = self.xpath('//h:CoolingSystem[1]/h:CoolingSystemType')
+        el_sys_type.text = 'room air conditioner'
+        el_units = self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency/h:Units')
+        el_units.text = 'CEER'
+        d = tr.hpxml_to_hescore()
+        self.assertEqual(
+            d['systems']['hvac'][0]['cooling']['efficiency_unit'],
+            'ceer'
+        )
+        el_units.text = 'EER2'
+        d = tr.hpxml_to_hescore()
+        self.assertEqual(
+            d['systems']['hvac'][0]['cooling']['efficiency_unit'],
+            'eer2'
+        )
+        # HSPF2 and SEER2 unit for mini_split
+        el_units_clg = self.xpath('//h:HeatPump[1]/h:AnnualCoolEfficiency/h:Units')
+        el_units_clg.text = 'SEER2'
+        el_units_htg = self.xpath('//h:HeatPump[1]/h:AnnualHeatEfficiency/h:Units')
+        el_units_htg.text = 'HSPF2'
+        d = tr.hpxml_to_hescore()
+        self.assertEqual(
+            d['systems']['hvac'][1]['cooling']['efficiency_unit'],
+            'seer2'
+        )
+        self.assertEqual(
+            d['systems']['hvac'][1]['heating']['efficiency_unit'],
+            'hspf2'
+        )
+        """
 
 
 class TestHEScoreV3(unittest.TestCase, ComparatorBase):
