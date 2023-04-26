@@ -1229,10 +1229,7 @@
                                         },
                                         "then": {
                                             "properties": {
-                                                "efficiency_unit": {
-                                                    "enum": ["percent"],
-                                                    "description": "Unit of efficiency value (only used if efficiency_method is user)"
-                                                },
+                                                "efficiency_unit": {"description": "Unit of efficiency value (only used if efficiency_method is user)"},
                                                 "efficiency": {"description": "Efficiency of heating equipment (only used if efficiency_method is user)"}
                                             }
                                         }

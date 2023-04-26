@@ -350,6 +350,9 @@ def test_invalid_heating(hpxml_filebase):
     del js3['systems']['hvac'][0]['heating']['efficiency']
     errors = get_error_messages(js3, js_schema)
     assert "'efficiency' is a required property" in errors
+    del js3['systems']['hvac'][0]['heating']['efficiency_unit']
+    errors = get_error_messages(js3, js_schema)
+    assert "'efficiency_unit' is a required property" in errors
     del js3['systems']['hvac'][0]['heating']['efficiency_method']
     errors = get_error_messages(js3, js_schema)
     assert "'efficiency_method' is a required property" in errors
@@ -357,10 +360,13 @@ def test_invalid_heating(hpxml_filebase):
     errors = get_error_messages(js3, js_schema)
     assert "'year' is a required property" in errors
     js3['systems']['hvac'][0]['heating']['efficiency'] = 0.5
+    js3['systems']['hvac'][0]['heating']['efficiency_unit'] = 'hspf'
     errors = get_error_messages(js3, js_schema)
     assert "0.5 is less than the minimum of 0.6" in errors
-    assert_required_error(errors, 'efficiency')
+    assert "'hspf' is not one of ['afue']" in errors
+    assert_required_error(errors, 'efficiency', 'efficiency_unit')
     del js3['systems']['hvac'][0]['heating']['fuel_primary']
+    js3['systems']['hvac'][0]['heating']['efficiency_unit'] = 'afue'
     errors = get_error_messages(js3, js_schema)
     assert "'fuel_primary' is a required property" in errors
     # electric central furnace
@@ -370,6 +376,7 @@ def test_invalid_heating(hpxml_filebase):
     # electric wall furnace
     js3['systems']['hvac'][0]['heating']['type'] = 'wall_furnace'
     del js3['systems']['hvac'][0]['heating']['efficiency']
+    del js3['systems']['hvac'][0]['heating']['efficiency_unit']
     errors = get_error_messages(js3, js_schema)
     assert len(errors) == 0
     # electric boiler
@@ -379,17 +386,21 @@ def test_invalid_heating(hpxml_filebase):
     # heat pump
     js3['systems']['hvac'][0]['heating']['type'] = 'heat_pump'
     js3['systems']['hvac'][0]['heating']['efficiency'] = 1.1
+    js3['systems']['hvac'][0]['heating']['efficiency_unit'] = 'afue'
     errors = get_error_messages(js3, js_schema)
     assert "1.1 is less than the minimum of 6" in errors
+    assert "'afue' is not one of ['hspf', 'hspf2']" in errors
     # mini-split
     js3['systems']['hvac'][0]['heating']['type'] = 'mini_split'
     js3['systems']['hvac'][0]['heating']['efficiency'] = 20.1
     errors = get_error_messages(js3, js_schema)
+    assert "'afue' is not one of ['hspf', 'hspf2']" in errors
     assert "20.1 is greater than the maximum of 20" in errors
     # gchp
     js3['systems']['hvac'][0]['heating']['type'] = 'gchp'
     errors = get_error_messages(js3, js_schema)
     assert "20.1 is greater than the maximum of 5" in errors
+    assert "'afue' is not one of ['cop']" in errors
     # electric baseboard
     js3['systems']['hvac'][0]['heating']['type'] = 'baseboard'
     errors = get_error_messages(js3, js_schema)
@@ -441,36 +452,52 @@ def test_invalid_cooling(hpxml_filebase):
     del js3['systems']['hvac'][0]['cooling']['efficiency']
     errors = get_error_messages(js3, js_schema)
     assert "'efficiency' is a required property" in errors
+    del js3['systems']['hvac'][0]['cooling']['efficiency_unit']
+    errors = get_error_messages(js3, js_schema)
+    assert "'efficiency_unit' is a required property" in errors
     del js3['systems']['hvac'][0]['cooling']['efficiency_method']
     errors = get_error_messages(js3, js_schema)
     assert "'efficiency_method' is a required property" in errors
     js3['systems']['hvac'][0]['cooling']['efficiency_method'] = 'shipment_weighted'
     errors = get_error_messages(js3, js_schema)
     assert "'year' is a required property" in errors
+    js3['systems']['hvac'][0]['cooling']['efficiency_unit'] = 'eer'
     js3['systems']['hvac'][0]['cooling']['efficiency'] = 7.9
     errors = get_error_messages(js3, js_schema)
     assert "7.9 is less than the minimum of 8" in errors
-    assert_required_error(errors, 'efficiency')
+    assert "'eer' is not one of ['seer', 'seer2']" in errors
+    assert_required_error(errors, 'efficiency', 'efficiency_unit')
     # heat pump
     js3['systems']['hvac'][0]['cooling']['type'] = 'heat_pump'
+    js3['systems']['hvac'][0]['cooling']['efficiency'] = 7.9
+    js3['systems']['hvac'][0]['cooling']['efficiency_unit'] = 'eer'
     errors = get_error_messages(js3, js_schema)
+    assert "'eer' is not one of ['seer', 'seer2']" in errors
     assert "7.9 is less than the minimum of 8" in errors
     # packaged dx
     js3['systems']['hvac'][0]['cooling']['type'] = 'packaged_dx'
     js3['systems']['hvac'][0]['cooling']['efficiency'] = 40.1
+    js3['systems']['hvac'][0]['cooling']['efficiency_unit'] = 'seer'
     errors = get_error_messages(js3, js_schema)
+    assert "'seer' is not one of ['eer', 'ceer']" in errors
     assert "40.1 is greater than the maximum of 40" in errors
     # mini-split
     js3['systems']['hvac'][0]['cooling']['type'] = 'mini_split'
+    js3['systems']['hvac'][0]['cooling']['efficiency'] = 40.1
+    js3['systems']['hvac'][0]['cooling']['efficiency_unit'] = 'eer'
     errors = get_error_messages(js3, js_schema)
+    assert "'eer' is not one of ['seer', 'seer2']" in errors
     assert "40.1 is greater than the maximum of 40" in errors
     # gchp
-    js3['systems']['hvac'][0]['cooling']['efficiency'] = 40.1
     js3['systems']['hvac'][0]['cooling']['type'] = 'gchp'
+    js3['systems']['hvac'][0]['cooling']['efficiency'] = 40.1
+    js3['systems']['hvac'][0]['cooling']['efficiency_unit'] = 'ceer'
     errors = get_error_messages(js3, js_schema)
+    assert "'ceer' is not one of ['eer']" in errors
     assert "40.1 is greater than the maximum of 40" in errors
     # dec
     js3['systems']['hvac'][0]['cooling']['type'] = 'dec'
+    del js3['systems']['hvac'][0]['cooling']['efficiency_unit']
     errors = get_error_messages(js3, js_schema)
     assert len(errors) == 0
 
@@ -513,7 +540,9 @@ def test_invalid_hvac_distribution(hpxml_filebase):
     js3['systems']['hvac'][0]['hvac_fraction'] = 1
     js3['systems']['hvac'][0]['heating']['type'] = 'mini_split'
     js3['systems']['hvac'][0]['heating']['efficiency'] = 6
+    js3['systems']['hvac'][0]['heating']['efficiency_unit'] = 'hspf'
     js3['systems']['hvac'][0]['cooling']['type'] = 'packaged_dx'
+    js3['systems']['hvac'][0]['cooling']['efficiency_unit'] = 'eer'
     errors = get_error_messages(js3, js_schema)
     assert len(errors) == 0
 
@@ -574,9 +603,9 @@ def test_invalid_domestic_hot_water(hpxml_filebase):
         errors = get_error_messages(js3, js_schema)
         assert "'year' is a required property" in errors
     elif hpxml_filebase == 'house1':
-        del js3['systems']['domestic_hot_water']['energy_factor']
+        del js3['systems']['domestic_hot_water']['efficiency']
         errors = get_error_messages(js3, js_schema)
-        assert "'energy_factor' is a required property" in errors
+        assert "'efficiency' is a required property" in errors
         js3['systems']['domestic_hot_water']['category'] = 'combined'
         errors = get_error_messages(js3, js_schema)
         assert ("The category element can only be set to \"combined\" if the heating/type is \"boiler\""
@@ -587,7 +616,7 @@ def test_invalid_domestic_hot_water(hpxml_filebase):
                 " and the boiler provides the domestic hot water") not in errors
 
     js4 = copy.deepcopy(js)
-    js4['systems']['domestic_hot_water']['energy_factor'] = 0.44
+    js4['systems']['domestic_hot_water']['efficiency'] = 0.44
     errors = get_error_messages(js4, js_schema)
     assert "0.44 is less than the minimum of 0.45" in errors
     js4['systems']['domestic_hot_water']['type'] = 'tankless'
@@ -598,7 +627,7 @@ def test_invalid_domestic_hot_water(hpxml_filebase):
     errors = get_error_messages(js4, js_schema)
     assert "0.44 is less than the minimum of 0.45" in errors
     js4['systems']['domestic_hot_water']['type'] = 'heat_pump'
-    js4['systems']['domestic_hot_water']['energy_factor'] = 4.1
+    js4['systems']['domestic_hot_water']['efficiency'] = 4.1
     errors = get_error_messages(js4, js_schema)
     assert any(x.startswith("4.1 is greater than the maximum") for x in errors)
     js4['systems']['domestic_hot_water']['type'] = 'indirect'
@@ -607,11 +636,11 @@ def test_invalid_domestic_hot_water(hpxml_filebase):
 
     js5 = copy.deepcopy(js)
     js5['systems']['domestic_hot_water']['fuel_primary'] = 'natural_gas'
-    js5['systems']['domestic_hot_water']['energy_factor'] = 0.96
+    js5['systems']['domestic_hot_water']['efficiency'] = 0.96
     errors = get_error_messages(js5, js_schema)
     assert "0.96 is greater than the maximum of 0.95" in errors
     js5['systems']['domestic_hot_water']['type'] = 'tankless'
-    js5['systems']['domestic_hot_water']['energy_factor'] = 1.0
+    js5['systems']['domestic_hot_water']['efficiency'] = 1.0
     if hpxml_filebase == 'townhouse_walls':
         js5['systems']['domestic_hot_water']['efficiency_method'] = 'user'
         del js5['systems']['domestic_hot_water']['year']
@@ -620,9 +649,10 @@ def test_invalid_domestic_hot_water(hpxml_filebase):
 
     js6 = copy.deepcopy(js)
     if hpxml_filebase == 'townhouse_walls':
-        js6['systems']['domestic_hot_water']['energy_factor'] = 0.6
+        js6['systems']['domestic_hot_water']['efficiency'] = 0.6
+        js6['systems']['domestic_hot_water']['efficiency_unit'] = 'ef'
         errors = get_error_messages(js6, js_schema)
-        assert_required_error(errors, 'energy_factor')
+        assert_required_error(errors, 'efficiency', 'efficiency_unit')
     elif hpxml_filebase == 'house1':
         js6['systems']['domestic_hot_water']['year'] = 2021
         errors = get_error_messages(js6, js_schema)
