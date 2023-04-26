@@ -3661,7 +3661,7 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
     # FIXME: remove the comment when schema is up to date to support new units
     def test_hvac_new_efficiency_units(self):
         tr = self._load_xmlfile('house4')
-        # CEER and EER2 unit for split_dx
+        # CEER unit for packaged_dx
         el_sys_type = self.xpath('//h:CoolingSystem[1]/h:CoolingSystemType')
         el_sys_type.text = 'room air conditioner'
         el_units = self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency/h:Units')
@@ -3670,12 +3670,6 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
         self.assertEqual(
             d['systems']['hvac'][0]['cooling']['efficiency_unit'],
             'ceer'
-        )
-        el_units.text = 'EER2'
-        d = tr.hpxml_to_hescore()
-        self.assertEqual(
-            d['systems']['hvac'][0]['cooling']['efficiency_unit'],
-            'eer2'
         )
         # HSPF2 and SEER2 unit for mini_split
         el_units_clg = self.xpath('//h:HeatPump[1]/h:AnnualCoolEfficiency/h:Units')

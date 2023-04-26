@@ -1188,7 +1188,7 @@
                                                 "efficiency": {
                                                     "minimum": 6,
                                                     "maximum": 20,
-                                                    "description": "HSPF of heating equipment (only used if efficiency_method is user)"
+                                                    "description": "HSPF or HSPF2 of heating equipment (only used if efficiency_method is user)"
                                                 }
                                             }
                                         }
@@ -1278,7 +1278,6 @@
                                         "type": "string",
                                         "enum": [
                                             "eer",
-                                            "eer2",
                                             "ceer",
                                             "seer",
                                             "seer2"
@@ -1309,7 +1308,7 @@
                                                 "efficiency": {
                                                     "minimum": 8,
                                                     "maximum": 40,
-                                                    "description": "SEER of cooling equipment (only used if efficiency_method is user)"
+                                                    "description": "SEER or SEER2 of cooling equipment (only used if efficiency_method is user)"
                                                 }
                                             }
                                         }
@@ -1318,10 +1317,7 @@
                                         "if": {
                                             "properties": {
                                                 "type": {
-                                                    "enum": [
-                                                        "packaged_dx",
-                                                        "gchp"
-                                                    ]
+                                                    "enum": ["packaged_dx"]
                                                 }
                                             },
                                             "required": ["type"]
@@ -1329,7 +1325,30 @@
                                         "then": {
                                             "properties": {
                                                 "efficiency_unit": {
-                                                    "enum": ["eer", "eer2", "ceer"],
+                                                    "enum": ["eer", "ceer"],
+                                                    "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                },
+                                                "efficiency": {
+                                                    "minimum": 8,
+                                                    "maximum": 40,
+                                                    "description": "EER or CEER of cooling equipment (only used if efficiency_method is user)"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "type": {
+                                                    "enum": ["gchp"]
+                                                }
+                                            },
+                                            "required": ["type"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "efficiency_unit": {
+                                                    "enum": ["eer"],
                                                     "description": "Unit of efficiency value (only used if efficiency_method is user)"
                                                 },
                                                 "efficiency": {

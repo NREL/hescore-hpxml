@@ -530,10 +530,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 raise TranslationError('HEScore does not support the HPXML CoolingSystemType %s' % hpxml_cooling_type)
         # cooling efficiency
         clg_type_eff_units = {'split_dx': ['SEER', 'SEER2'],
-                              'packaged_dx': ['EER', 'EER2', 'CEER'],
+                              'packaged_dx': ['EER', 'CEER'],
                               'heat_pump': ['SEER', 'SEER2'],
                               'mini_split': ['SEER', 'SEER2'],
-                              'gchp': ['EER', 'EER2', 'CEER'],
+                              'gchp': ['EER'],
                               'dec': [],
                               'iec': [],
                               'idec': []}[sys_cooling['type']]
