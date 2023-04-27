@@ -184,7 +184,7 @@ def test_manufactured_home_sections():
     js = get_example_json(hpxml_filebase)
 
     js1 = copy.deepcopy(js)
-    js1['about']['manufactured_home_sections'] = 'single'
+    js1['about']['manufactured_home_sections'] = 'single-wide'
     errors = get_error_messages(js1, js_schema)
     assert_required_error(errors, 'manufactured_home_sections')
 

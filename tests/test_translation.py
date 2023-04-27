@@ -1496,6 +1496,37 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertEqual(res['systems']['hvac'][0]['hvac_distribution']['duct'][2]['fraction'], 0.2)
         self.assertEqual(res['systems']['hvac'][0]['hvac_distribution']['duct'][2]['insulated'], False)
 
+    def test_manufactured_home(self):
+        tr = self._load_xmlfile('hescore_min')
+        E = self.element_maker()
+        el = self.xpath('//h:ResidentialFacilityType')
+        el.text = 'manufactured home'
+        self.assertRaisesRegex(ElementNotFoundError,
+                               r'Can\'t find element Building/BuildingDetails/BuildingSummary/BuildingConstruction/extension/ManufacturedHomeSections/text\(\)',  # noqa E501
+                               tr.hpxml_to_hescore)
+        el.getparent().append(
+            E.extension(
+                E.ManufacturedHomeSections('single-wide')
+            )
+        )
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['about']['manufactured_home_sections'], 'single-wide')
+
+        tr_v3 = self._load_xmlfile('hescore_min_v3')
+        E = self.element_maker()
+        el_v3 = self.xpath('//h:ResidentialFacilityType')
+        el_v3.text = 'manufactured home'
+        self.assertRaisesRegex(ElementNotFoundError,
+                               r'Can\'t find element Building/BuildingDetails/BuildingSummary/BuildingConstruction/extension/ManufacturedHomeSections/text\(\)',  # noqa E501
+                               tr_v3.hpxml_to_hescore)
+        el_v3.getparent().append(
+            E.extension(
+                E.ManufacturedHomeSections('CrossMod')
+            )
+        )
+        res = tr_v3.hpxml_to_hescore()
+        self.assertEqual(res['about']['manufactured_home_sections'], 'CrossMod')
+
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
 

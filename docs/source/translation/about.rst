@@ -90,7 +90,7 @@ Manufactured Home Sections
 
 HEScore requires specifying manufactured home sections if ``building.dwelling_unit_type`` is a manufactured_home. 
 HPXML can specify this through the 
-``Building/BuildingDetails/BuildingSummary/BuildingConstruction/ManufacturedHomeSections`` element.
+``Building/BuildingDetails/BuildingSummary/BuildingConstruction/extension/ManufacturedHomeSections`` element.
 
 Year Built, Stories, Bedrooms, Floor Height, and Floor Area
 ***********************************************************
