@@ -990,12 +990,15 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                                 }[residential_facility_type]
         except KeyError:
             raise TranslationError('ResidentialFacilityType is required in the HPXML document')
+
+        bldg_cons_el = xpath(b, 'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction', raise_err=True)
         if bldg_about['dwelling_unit_type'] is None:
             raise TranslationError(
                 'Cannot translate HPXML ResidentialFacilityType of %s into HEScore building dwelling unit type' %
                 residential_facility_type)
-
-        bldg_cons_el = xpath(b, 'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction', raise_err=True)
+        elif bldg_about['dwelling_unit_type'] == 'manufactured_home':
+            bldg_about['manufactured_home_sections'] = xpath(
+                bldg_cons_el, 'h:extension/h:ManufacturedHomeSections/text()', raise_err=True)
         bldg_about['year_built'] = int(xpath(bldg_cons_el, 'h:YearBuilt/text()', raise_err=True))
         nbedrooms = int(xpath(bldg_cons_el, 'h:NumberofBedrooms/text()', raise_err=True))
         bldg_about['number_bedrooms'] = nbedrooms
