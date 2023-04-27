@@ -76,7 +76,7 @@ into HEScore.
 
    For enumerations that are *not translated*
    the HPXML file will fail to run in HEScore.
-   ``Building/BuildingSummary/Site/Surroundings`` is no longer used for shared walls mapping in town houses.
+   ``Building/BuildingDetails/BuildingSummary/Site/Surroundings`` is no longer used for shared walls mapping in town houses.
    Each ``Wall`` is considered and the ``ExteriorAdjacentTo`` is mapped into a HEScore ``adjacent_to``.
    See :ref:`wall_exterior_adjacent_to`
 
@@ -85,13 +85,12 @@ into HEScore.
    * If windows are found on a shared town house wall, the translation will 
      fail.
 
-Manufactured Home Width
-***********************
+Manufactured Home Sections
+**************************
 
-TODO: It should be replaced with a description of which hpxml inputs are translated into ``building.manufactured_home_sections``.
-If ``building.dwelling_unit_type`` is a manufactured_home, ``building.manufactured_home_sections`` must be specified.
-Available options are ``single``, ``double``, or ``triple``.
-
+HEScore requires specifying manufactured home sections if ``building.dwelling_unit_type`` is a manufactured_home. 
+HPXML can specify this through the 
+``Building/BuildingDetails/BuildingSummary/BuildingConstruction/ManufacturedHomeSections`` element.
 
 Year Built, Stories, Bedrooms, Floor Height, and Floor Area
 ***********************************************************
