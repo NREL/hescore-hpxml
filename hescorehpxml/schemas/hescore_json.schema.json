@@ -114,8 +114,8 @@
                 },
                 "manufactured_home_sections": {
                     "type": "string",
-                    "enum": ["single-wide", "double-wide", "triple-wide"],
-                    "description": "The width if a manufactured home"
+                    "enum": ["single-wide", "double-wide", "triple-wide", "CrossMod"],
+                    "description": "The sections of a manufactured home"
                 },
                 "year_built": {
                     "type": "integer",
