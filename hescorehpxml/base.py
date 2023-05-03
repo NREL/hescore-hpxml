@@ -179,7 +179,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                      'fiber cement siding': 'wo',
                      'composite shingle siding': 'wo',
                      'masonite siding': 'wo',
-                     'other': None}
+                     'other': None,
+                     'none': None}
 
         def wall_round_to_nearest(*args):
             try:
@@ -324,9 +325,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         glass_type = xpath(window, 'h:GlassType/text()')
         is_hescore_dp = self.check_is_doublepane(window, glass_layers)
         is_storm_lowe = False
-        window_frame = None
-        window_layer = None
-        window_glass_type = None
 
         if is_hescore_dp:
             # double pane needs more information being analyzed to determine glass type
@@ -341,6 +339,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         elif glass_layers == 'triple-pane':
             window_layer = 'triple-pane'
             window_glass_type = 'insulating low-e argon'
+        else:
+            raise TranslationError('Unhandled glass layers: {}'.format(glass_layers))
 
         gas_fill = xpath(window, 'h:GasFill/text()')
         argon_filled = False
@@ -465,9 +465,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         if not ((sys_heating['type'] in ('central_furnace', 'baseboard')
                  and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
 
-            # FIXME: Should we use newer units as higher priority?
-            htg_type_eff_units = {'heat_pump': ['HSPF', 'HSPF2'],
-                                  'mini_split': ['HSPF', 'HSPF2'],
+            htg_type_eff_units = {'heat_pump': ['HSPF2', 'HSPF'],
+                                  'mini_split': ['HSPF2', 'HSPF'],
                                   'central_furnace': ['AFUE'],
                                   'wall_furnace': ['AFUE'],
                                   'boiler': ['AFUE'],
@@ -509,7 +508,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 sys_heating['efficiency_method'] = 'user'
                 sys_heating['efficiency_unit'] = eff_unit.lower()
                 sys_heating['efficiency'] = float(efficiency)
-
         sys_heating['_capacity'] = convert_to_type(float, xpath(htgsys, 'h:HeatingCapacity/text()'))
         sys_heating['_fracload'] = convert_to_type(float, xpath(htgsys, 'h:FractionHeatLoadServed/text()'))
         sys_heating['_floorarea'] = convert_to_type(float, xpath(htgsys, 'h:FloorAreaServed/text()'))
@@ -537,12 +535,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                        'evaporative cooler': 'dec'}[hpxml_cooling_type]
             except KeyError:
                 raise TranslationError('HEScore does not support the HPXML CoolingSystemType %s' % hpxml_cooling_type)
+
         # cooling efficiency
-        # FIXME: Should we use newer units as higher priority?
-        clg_type_eff_units = {'split_dx': ['SEER', 'SEER2'],
-                              'packaged_dx': ['EER', 'CEER'],
-                              'heat_pump': ['SEER', 'SEER2'],
-                              'mini_split': ['SEER', 'SEER2'],
+        clg_type_eff_units = {'split_dx': ['SEER2', 'SEER'],
+                              'packaged_dx': ['CEER', 'EER'],
+                              'heat_pump': ['SEER2', 'SEER'],
+                              'mini_split': ['SEER2', 'SEER'],
                               'gchp': ['EER'],
                               'dec': [],
                               'iec': [],
@@ -583,9 +581,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     )
             else:
                 sys_cooling['efficiency_method'] = 'user'
+
                 sys_cooling['efficiency_unit'] = eff_unit.lower()
                 sys_cooling['efficiency'] = float(efficiency)
-
         sys_cooling['_capacity'] = convert_to_type(float, xpath(clgsys, 'h:CoolingCapacity/text()'))
         sys_cooling['_fracload'] = convert_to_type(float, xpath(clgsys, 'h:FractionCoolLoadServed/text()'))
         sys_cooling['_floorarea'] = convert_to_type(float, xpath(clgsys, 'h:FloorAreaServed/text()'))
