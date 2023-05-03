@@ -3394,7 +3394,7 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
         )
 
     def test_boiler_no_cooling_sys_v3(self):
-        tr = self._load_xmlfile('house7')
+        tr = self._load_xmlfile('house7_v3')
         el = self.xpath('//h:CoolingSystem[1]')
         el.getparent().remove(el)
         d = tr.hpxml_to_hescore()
@@ -3425,24 +3425,12 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
             tr.hpxml_to_hescore
         )
 
-    """
-    # FIXME: remove the comment when schema is up to date to support new units
     def test_hvac_new_efficiency_units(self):
-        tr = self._load_xmlfile('house4')
-        # CEER unit for packaged_dx
-        el_sys_type = self.xpath('//h:CoolingSystem[1]/h:CoolingSystemType')
-        el_sys_type.text = 'room air conditioner'
-        el_units = self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency/h:Units')
-        el_units.text = 'CEER'
-        d = tr.hpxml_to_hescore()
-        self.assertEqual(
-            d['systems']['hvac'][0]['cooling']['efficiency_unit'],
-            'ceer'
-        )
+        tr = self._load_xmlfile('house4_v3')
         # HSPF2 and SEER2 unit for mini_split
-        el_units_clg = self.xpath('//h:HeatPump[1]/h:AnnualCoolEfficiency/h:Units')
+        el_units_clg = self.xpath('//h:HeatPump[1]/h:AnnualCoolingEfficiency/h:Units')
         el_units_clg.text = 'SEER2'
-        el_units_htg = self.xpath('//h:HeatPump[1]/h:AnnualHeatEfficiency/h:Units')
+        el_units_htg = self.xpath('//h:HeatPump[1]/h:AnnualHeatingEfficiency/h:Units')
         el_units_htg.text = 'HSPF2'
         d = tr.hpxml_to_hescore()
         self.assertEqual(
@@ -3453,7 +3441,20 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
             d['systems']['hvac'][1]['heating']['efficiency_unit'],
             'hspf2'
         )
-        """
+        # CEER unit for packaged_dx
+        distribution_el = self.xpath('//h:HVACDistribution[1]')
+        distribution_el.getparent().remove(distribution_el)
+        el_sys_type = self.xpath('//h:CoolingSystem[1]/h:CoolingSystemType')
+        el_sys_type.text = 'room air conditioner'
+        el_dist = self.xpath('//h:CoolingSystem[1]/h:DistributionSystem[1]')
+        el_dist.getparent().remove(el_dist)
+        el_units = self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency/h:Units')
+        el_units.text = 'CEER'
+        d = tr.hpxml_to_hescore()
+        self.assertEqual(
+            d['systems']['hvac'][0]['cooling']['efficiency_unit'],
+            'ceer'
+        )
 
 
 class TestHEScoreV3(unittest.TestCase, ComparatorBase):
