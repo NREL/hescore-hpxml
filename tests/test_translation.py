@@ -7,7 +7,7 @@ import datetime as dt
 from lxml import etree, objectify
 from lxml.builder import ElementMaker
 from hescorehpxml import HPXMLtoHEScoreTranslator, main
-from hescorehpxml.exceptions import TranslationError, InputOutOfBounds, ElementNotFoundError
+from hescorehpxml.exceptions import TranslationError, ElementNotFoundError
 import io
 import json
 from copy import deepcopy
@@ -810,7 +810,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.text = 'SEER'
         self.assertRaisesRegex(
             TranslationError,
-            r'Cooling system efficiency unit SEER is not valid for the system type packaged_dx',
+            r'Cooling efficiency could not be determined. packaged_dx must have a cooling efficiency with units ' +
+            r'of EER or CEER or YearInstalled or ModelYear.',
             tr.hpxml_to_hescore
         )
 
@@ -823,7 +824,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.text = 'Percent'
         self.assertRaisesRegex(
             TranslationError,
-            r'Heating system efficiency unit Percent is not valid for the system type central_furnace',
+            r'Heating efficiency could not be determined. central_furnace must have a heating efficiency with units ' +
+            r'of AFUE or YearInstalled or ModelYear.',
             tr.hpxml_to_hescore
         )
 
@@ -1520,208 +1522,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertEqual(res['systems']['hvac'][0]['hvac_distribution']['duct'][2]['insulated'], False)
 
 
-class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
-
-    def test_assessment_date1(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:Building/h:ProjectStatus/h:Date')
-        el.text = '2009-12-31'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'assessment_date is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_assessment_date2(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:Building/h:ProjectStatus/h:Date')
-        el.text = (dt.datetime.today().date() + dt.timedelta(1)).isoformat()
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'assessment_date is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_year_built1(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:YearBuilt')
-        el.text = '1599'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'year_built is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_year_built2(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:YearBuilt')
-        el.text = str(dt.datetime.today().year + 1)
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'year_built is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_num_floor_above_grade(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:NumberofConditionedFloorsAboveGrade')
-        el.text = '5'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'num_floor_above_grade is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_number_bedrooms(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:NumberofBedrooms')
-        el.text = '25'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'number_bedrooms is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_floor_to_ceiling_height1(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:AverageCeilingHeight')
-        el.text = '5'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'floor_to_ceiling_height is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_floor_to_ceiling_height2(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:AverageCeilingHeight')
-        el.text = '13'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'floor_to_ceiling_height is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_conditioned_floor_area1(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:ConditionedFloorArea')
-        el.text = '249'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'conditioned_floor_area is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_conditioned_floor_area2(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:ConditionedFloorArea')
-        el.text = '25001'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'conditioned_floor_area is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_envelope_leakage(self):
-        tr = self._load_xmlfile('hescore_min')
-        units_el = self.xpath('//h:BuildingAirLeakage/h:UnitofMeasure')
-        leak_el = self.xpath('//h:BuildingAirLeakage/h:AirLeakage')
-        units_el.text = 'CFM'
-        leak_el.text = '25001'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'envelope_leakage is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_skylight_area(self):
-        tr = self._load_xmlfile('house4')
-        el = self.xpath('//h:Skylight/h:Area')
-        el.text = '301'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'skylight_area is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_skylight_u_value(self):
-        tr = self._load_xmlfile('house4')
-        skylight = self.xpath('//h:Skylight')
-        etree.SubElement(skylight, tr.addns('h:UFactor')).text = '0.001'
-        etree.SubElement(skylight, tr.addns('h:SHGC')).text = '0.7'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'skylight_u_value is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_window_area(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:Window[1]/h:Area')
-        el.text = '1000'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'window_area is out of bounds',
-                               tr.hpxml_to_hescore)
-        tr_v3 = self._load_xmlfile('hescore_min_v3')
-        el = self.xpath('//h:Window[1]/h:Area')
-        el.text = '1000'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'window_area is out of bounds',
-                               tr_v3.hpxml_to_hescore)
-
-    def test_window_u_value(self):
-        tr = self._load_xmlfile('house2')
-        el = self.xpath('//h:Window[1]/h:UFactor')
-        el.text = '5.00001'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'window_u_value is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_heating_efficiency_furnace(self):
-        tr = self._load_xmlfile('hescore_min')
-        htg_eff_el = self.xpath('//h:HeatingSystem/h:AnnualHeatingEfficiency/h:Value')
-        htg_eff_el.text = '1.01'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
-        htg_eff_el.text = '0.59'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
-
-        tr_v3 = self._load_xmlfile('hescore_min_v3')
-        htg_eff_el = self.xpath('//h:HeatingSystem/h:AnnualHeatingEfficiency/h:Value')
-        htg_eff_el.text = '1.01'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr_v3.hpxml_to_hescore)
-        htg_eff_el.text = '0.59'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr_v3.hpxml_to_hescore)
-
-    def test_heating_efficiency_heat_pump(self):
-        tr = self._load_xmlfile('house4')
-        htg_eff_el = self.xpath('//h:HeatPump/h:AnnualHeatEfficiency/h:Value')
-        htg_eff_el.text = '5.9'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
-        htg_eff_el.text = '20.1'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_heating_efficiency_gchp(self):
-        tr = self._load_xmlfile('house3')
-        self.xpath('//h:HeatPump/h:HeatPumpType').text = 'ground-to-air'
-        hp_el = self.xpath('//h:HeatPump')
-        eff_el = etree.SubElement(hp_el, tr.addns('h:AnnualHeatEfficiency'))
-        etree.SubElement(eff_el, tr.addns('h:Units')).text = 'COP'
-        eff_value_el = etree.SubElement(eff_el, tr.addns('h:Value'))
-        eff_value_el.text = '1.9'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
-        eff_value_el.text = '5.1'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_heating_year(self):
-        tr = self._load_xmlfile('house3')
-        el = self.xpath('//h:HeatPump/h:YearInstalled')
-        el.text = str(dt.datetime.today().year + 1)
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_year is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_cooling_efficiency(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency/h:Value')
-        el.text = '40.1'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'cooling_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
-        el.text = '7.9'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'cooling_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
-
+class TestValidations(unittest.TestCase, ComparatorBase):
     def test_evap_cooler_missing_efficiency(self):
         tr = self._load_xmlfile('hescore_min')
         eff_el = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency')
@@ -1735,27 +1536,9 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         self.assertNotIn('efficiency', list(clg_sys.keys()))
         self.assertNotIn('efficiency_method', list(clg_sys.keys()))
 
-    def test_cooling_year(self):
-        tr = self._load_xmlfile('house1')
-        eff_el = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency')
-        eff_el.getparent().remove(eff_el)
-        year_el = self.xpath('//h:CoolingSystem/h:YearInstalled')
-        year_el.text = str(dt.datetime.today().year + 1)
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'cooling_year is out of bounds',
-                               tr.hpxml_to_hescore)
-
     def test_dhw_storage_efficiency(self):
         tr = self._load_xmlfile('house1')
         el = self.xpath('//h:WaterHeatingSystem/h:EnergyFactor')
-        el.text = '0.44'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
-        el.text = '1.1'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
         el.text = '0.95'
         res = tr.hpxml_to_hescore()
         dhw = res['systems']['domestic_hot_water']
@@ -1771,28 +1554,12 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         year_el.getparent().remove(year_el)
         dhw_sys_el = self.xpath('//h:WaterHeatingSystem')
         ef_el = etree.SubElement(dhw_sys_el, tr.addns('h:EnergyFactor'))
-        ef_el.text = '0.9'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
-        ef_el.text = '4.1'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
         ef_el.text = '4.0'
         res = tr.hpxml_to_hescore()
         dhw = res['systems']['domestic_hot_water']
         self.assertEqual(dhw['efficiency_method'], 'user')
         self.assertEqual(dhw['efficiency_unit'], 'ef')
         self.assertEqual(dhw['efficiency'], 4.0)
-
-    def test_dhw_year(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:WaterHeatingSystem/h:YearInstalled')
-        el.text = str(dt.datetime.today().year + 1)
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_year is out of bounds',
-                               tr.hpxml_to_hescore)
 
     def test_heating_system_not_requiring_ducts(self):
         tr = self._load_xmlfile('hescore_min')
@@ -3644,7 +3411,8 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
         el.text = 'SEER'
         self.assertRaisesRegex(
             TranslationError,
-            r'Cooling system efficiency unit SEER is not valid for the system type packaged_dx',
+            r'Cooling efficiency could not be determined. packaged_dx must have a cooling efficiency with units' +
+            r' of EER or CEER or YearInstalled or ModelYear.',
             tr.hpxml_to_hescore
         )
         el = self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency/h:Units')
@@ -3653,7 +3421,8 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
         el.text = 'HSPF'
         self.assertRaisesRegex(
             TranslationError,
-            r'Heating system efficiency unit HSPF is not valid for the system type boiler',
+            r'Heating efficiency could not be determined. boiler must have a heating efficiency with units' +
+            r' of AFUE or YearInstalled or ModelYear.',
             tr.hpxml_to_hescore
         )
 
