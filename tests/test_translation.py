@@ -136,8 +136,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         # change an exterior wall to a shared wall
         wall3_ext_adjacent_to = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall3"]/h:ExteriorAdjacentTo')
         wall3_ext_adjacent_to.text = 'other housing unit'
-        self.assertRaisesRegex(TranslationError,
-                               r'The house has windows on shared walls\.',
+        self.assertRaisesRegex(jsonschema.exceptions.ValidationError,
+                               r"\[\('side', 'left'\), \('wall_assembly_code', 'iwwf19'\), \('adjacent_to', 'other_unit'\).* should not be valid under \{'required': \['zone_window'\]\}",  # noqa: E501
                                tr.hpxml_to_hescore)
 
     def test_townhouse_windows_area_wrong(self):

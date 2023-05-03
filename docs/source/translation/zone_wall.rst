@@ -265,3 +265,8 @@ and an error will be returned if they are used.
    other housing unit          other_unit
    unconditioned space         interior_common_area
    ==========================  ====================
+
+.. warning::
+
+   * If windows are found on a wall adjacent to `other_unit` or `interior_common_area`, the translation will 
+     fail.

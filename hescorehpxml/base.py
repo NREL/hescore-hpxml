@@ -1947,24 +1947,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
             for window_side in window_sides:
                 hpxmlwindows[window_side].append(dict(windowd))
 
-        def get_shared_wall_sides(zone_wall):
-            shared_wall_sides = []
-            for hes_wall in zone_wall:
-                if hes_wall['adjacent_to'] == 'other_unit':
-                    shared_wall_sides.append(hes_wall['side'])
-            return shared_wall_sides
-
-        def windows_are_on_shared_walls(zone_wall):
-            shared_wall_sides = get_shared_wall_sides(zone_wall)
-            for side in shared_wall_sides:
-                if len(hpxmlwindows[side]) > 0:
-                    return True
-            return False
-
-        window_on_shared_wall_fail = windows_are_on_shared_walls(zone_wall)
-        if window_on_shared_wall_fail:
-            raise TranslationError('The house has windows on shared walls.')
-
         # Determine the predominant window characteristics and create HEScore windows
         for side, windows in list(hpxmlwindows.items()):
 

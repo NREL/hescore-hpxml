@@ -1095,6 +1095,11 @@
                                     "required": [
                                         "zone_window"
                                     ]
+                                },
+                                "else": {
+                                    "not": {
+                                        "required": ["zone_window"]
+                                    }
                                 }
                             }
                         ]
