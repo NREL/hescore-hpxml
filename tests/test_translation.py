@@ -3,7 +3,6 @@ from builtins import str
 from builtins import object
 import os
 import unittest
-import datetime as dt
 from lxml import etree, objectify
 from lxml.builder import ElementMaker
 from hescorehpxml import HPXMLtoHEScoreTranslator, main
