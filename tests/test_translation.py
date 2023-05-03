@@ -810,7 +810,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertRaisesRegex(
             TranslationError,
             r'Cooling efficiency could not be determined. packaged_dx must have a cooling efficiency with units ' +
-            r'of EER or CEER or YearInstalled or ModelYear.',
+            r'of CEER or EER or YearInstalled or ModelYear.',
             tr.hpxml_to_hescore
         )
 
@@ -3411,7 +3411,7 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
         self.assertRaisesRegex(
             TranslationError,
             r'Cooling efficiency could not be determined. packaged_dx must have a cooling efficiency with units' +
-            r' of EER or CEER or YearInstalled or ModelYear.',
+            r' of CEER or EER or YearInstalled or ModelYear.',
             tr.hpxml_to_hescore
         )
         el = self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency/h:Units')
