@@ -3127,6 +3127,165 @@
                     }
                 }
             }
+        },
+        {
+            "if": {
+                "properties": {
+                    "zone": {
+                        "properties": {
+                            "zone_floor": {
+                                "not": {
+                                    "contains": {
+                                        "properties": {
+                                            "foundation_type": {
+                                                "enum": [
+                                                    "vented_crawl"
+                                                ]
+                                            }
+                                        },
+                                        "required": ["foundation_type"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "systems": {
+                        "properties": {
+                            "hvac": {
+                                "contains": {
+                                    "properties": {
+                                        "hvac_distribution": {
+                                            "properties": {
+                                                "duct": {
+                                                    "not": {
+                                                        "contains": {
+                                                            "properties": {
+                                                                "location": {"const": "vented_crawl"}
+                                                            },
+                                                            "required": ["location"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "error_msg": "duct/location[\"vented_crawl\"] is not allowed as there is no vented crawlspace."
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "zone": {
+                        "properties": {
+                            "zone_floor": {
+                                "not": {
+                                    "contains": {
+                                        "properties": {
+                                            "foundation_type": {
+                                                "enum": [
+                                                    "unvented_crawl"
+                                                ]
+                                            }
+                                        },
+                                        "required": ["foundation_type"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "systems": {
+                        "properties": {
+                            "hvac": {
+                                "contains": {
+                                    "properties": {
+                                        "hvac_distribution": {
+                                            "properties": {
+                                                "duct": {
+                                                    "not": {
+                                                        "contains": {
+                                                            "properties": {
+                                                                "location": {"const": "unvented_crawl"}
+                                                            },
+                                                            "required": ["location"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "error_msg": "duct/location[\"unvented_crawl\"] is not allowed as there is no unvented crawlspace."
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "zone": {
+                        "properties": {
+                            "zone_floor": {
+                                "not": {
+                                    "contains": {
+                                        "properties": {
+                                            "foundation_type": {
+                                                "enum": [
+                                                    "uncond_basement"
+                                                ]
+                                            }
+                                        },
+                                        "required": ["foundation_type"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "systems": {
+                        "properties": {
+                            "hvac": {
+                                "contains": {
+                                    "properties": {
+                                        "hvac_distribution": {
+                                            "properties": {
+                                                "duct": {
+                                                    "not": {
+                                                        "contains": {
+                                                            "properties": {
+                                                                "location": {"const": "uncond_basement"}
+                                                            },
+                                                            "required": ["location"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "error_msg": "duct/location[\"uncond_basement\"] is not allowed as there is no unconditioned basement."
+                            }
+                        }
+                    }
+                }
+            }
         }
     ],
     "definitions": {

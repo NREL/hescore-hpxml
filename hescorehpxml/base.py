@@ -871,8 +871,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
             hes_bldg['systems']['generation'] = generation
         self.remove_hidden_keys(hes_bldg)
 
-        # Validate
-        self.validate_hescore_inputs(hes_bldg)
         # Validate against JSON schema
         validate(hes_bldg, json_schema, format_checker=FormatChecker())
 
@@ -2574,47 +2572,3 @@ class HPXMLtoHEScoreTranslatorBase(object):
             every_layer_has_nominal_rvalue = False
 
         return every_layer_has_nominal_rvalue
-
-    def validate_hescore_inputs(self, hescore_inputs):
-        for sys_hvac in hescore_inputs['systems']['hvac']:
-            if 'hvac_distribution' in sys_hvac:
-                for hvacd in sys_hvac['hvac_distribution']['duct']:
-                    # Test if the duct location exists in roof and floor types
-                    duct_location_error = False
-                    if hvacd['location'] == 'uncond_basement':
-                        duct_location_error = 'uncond_basement' not in [
-                            zone_floor['foundation_type']
-                            for zone_floor in hescore_inputs['zone']['zone_floor']
-                        ]
-                    elif hvacd['location'] == 'unvented_crawl':
-                        duct_location_error = 'unvented_crawl' not in [
-                            zone_floor['foundation_type']
-                            for zone_floor in hescore_inputs['zone']['zone_floor']
-                        ]
-                    elif hvacd['location'] == 'vented_crawl':
-                        duct_location_error = 'vented_crawl' not in [
-                            zone_floor['foundation_type']
-                            for zone_floor in hescore_inputs['zone']['zone_floor']
-                        ]
-                    elif hvacd['location'] == 'uncond_attic':
-                        duct_location_error = 'vented_attic' not in [
-                            zone_roof['roof_type'] for zone_roof in
-                            hescore_inputs['zone']['zone_roof']
-                        ]
-
-                    if duct_location_error:
-                        raise TranslationError(
-                            'HVAC distribution: %(name)s location: %(location)s not exists in zone_roof/floor types.' %
-                            hvacd)
-
-        dhw = hescore_inputs['systems']['domestic_hot_water']
-        if dhw['category'] == 'combined' and dhw['type'] in ('tankless_coil', 'indirect'):
-            found_boiler = False
-            for sys_hvac in hescore_inputs['systems']['hvac']:
-                if 'heating' not in sys_hvac:
-                    continue
-                if sys_hvac['heating']['type'] == 'boiler':
-                    found_boiler = True
-            if not found_boiler:
-                raise TranslationError('Cannot have water heater type %(type)s if there is no boiler heating system.' %
-                                       dhw)

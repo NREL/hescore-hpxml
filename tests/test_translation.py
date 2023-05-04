@@ -639,11 +639,6 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
     def test_bad_duct_location(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:DuctLocation[1]')
-        el.text = 'unconditioned basement'
-        self.assertRaisesRegex(TranslationError,
-                               'HVAC distribution: duct1 location: uncond_basement not exists in zone_roof/floor',
-                               tr.hpxml_to_hescore)
-
         el.text = 'interstitial space'
         self.assertRaisesRegex(TranslationError,
                                'No comparable duct location in HEScore: interstitial space',
@@ -651,11 +646,6 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:DuctLocation[1]')
-        el.text = 'basement - unconditioned'
-        self.assertRaisesRegex(TranslationError,
-                               'HVAC distribution: duct1 location: uncond_basement not exists in zone_roof/floor',
-                               tr_v3.hpxml_to_hescore)
-
         el.text = 'interstitial space'
         self.assertRaisesRegex(TranslationError,
                                'No comparable duct location in HEScore: interstitial space',
@@ -667,22 +657,6 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         el.getparent().remove(el)
         self.assertRaisesRegex(TranslationError,
                                r'No water heating systems found\.',
-                               tr.hpxml_to_hescore)
-
-    def test_indirect_dhw_error(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:WaterHeatingSystem[1]/h:WaterHeaterType')
-        el.text = 'space-heating boiler with storage tank'
-        self.assertRaisesRegex(TranslationError,
-                               'Cannot have water heater type indirect if there is no boiler heating system',
-                               tr.hpxml_to_hescore)
-
-    def test_tankless_coil_dhw_error(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:WaterHeatingSystem[1]/h:WaterHeaterType')
-        el.text = 'space-heating boiler with tankless coil'
-        self.assertRaisesRegex(TranslationError,
-                               'Cannot have water heater type tankless_coil if there is no boiler heating system',
                                tr.hpxml_to_hescore)
 
     def test_missing_attached_to_roof(self):
@@ -2823,44 +2797,6 @@ class TestHEScore2019Updates(unittest.TestCase, ComparatorBase):
         comment.text = 'Any comment to test'
         res = tr.hpxml_to_hescore()
         self.assertEqual(res['about']['comments'], 'Any comment to test')
-
-    def test_duct_location_validation(self):
-        tr = self._load_xmlfile('house1')
-        # duct1:vented crawl duct2:uncond_attic duct3:cond_space
-        # two duct type covered, two not
-        duct3oc1 = self.xpath(
-            '//h:HVACDistribution[h:SystemIdentifier/@id="ductsys1"]/h:DistributionSystemType/h:AirDistribution/h:Ducts/h:DuctLocation'  # noqa: E501
-        )[1]
-        duct3oc1.text = 'unvented crawlspace'
-        rooftype = self.xpath('//h:Attic[h:SystemIdentifier/@id="attic1"]/h:AtticType')
-        Crawtype = self.xpath('//h:Foundation[h:SystemIdentifier/@id="crawl1"]/h:FoundationType/h:Crawlspace/h:Vented')
-        self.assertRaisesRegex(
-            TranslationError,
-            'HVAC distribution: duct3 location: unvented_crawl not exists in zone_roof/floor types.',
-            tr.hpxml_to_hescore)
-
-        duct3oc1.text = 'unconditioned basement'
-        self.assertRaisesRegex(
-            TranslationError,
-            'HVAC distribution: duct3 location: uncond_basement not exists in zone_roof/floor types.',
-            tr.hpxml_to_hescore)
-
-        duct3oc1.text = 'conditioned space'  # set back to cond_space to avoid previous error message
-        rooftype.text = 'flat roof'  # change attic type
-        roofid = rooftype.getparent().xpath('h:AttachedToRoof/@idref', namespaces=tr.ns)[0]
-        el = self.xpath('//h:Roof[h:SystemIdentifier/@id=$roofid]/h:RadiantBarrier', roofid=roofid)
-        area_el = el.makeelement(tr.addns('h:RoofArea'))
-        area_el.text = '810'
-        el.addprevious(area_el)
-        self.assertRaisesRegex(TranslationError,
-                               'HVAC distribution: duct2 location: uncond_attic not exists in zone_roof/floor types.',
-                               tr.hpxml_to_hescore)
-
-        rooftype.text = 'vented attic'  # set back to vented_attic to avoid previous error message
-        Crawtype.text = 'false'
-        self.assertRaisesRegex(TranslationError,
-                               'HVAC distribution: duct1 location: vented_crawl not exists in zone_roof/floor types.',
-                               tr.hpxml_to_hescore)
 
     def test_tankless_energyfactorerror(self):
         tr = self._load_xmlfile('hescore_min')
