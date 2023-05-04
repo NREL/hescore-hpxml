@@ -1059,42 +1059,6 @@
                                         }
                                     },
                                     {
-                                        "if": {
-                                            "properties": {
-                                                "type": {"const": "gchp"}
-                                            },
-                                            "required": ["type"]
-                                        },
-                                        "then": {
-                                            "properties": {
-                                                "efficiency": {
-                                                    "minimum": 2,
-                                                    "maximum": 5,
-                                                    "description": "COP (ARI-330) of heating equipment (only used if efficiency_method is user)"
-                                                }
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "if": {
-                                            "properties": {
-                                                "type": {
-                                                    "enum": [
-                                                        "baseboard",
-                                                        "wood_stove",
-                                                        "none"
-                                                    ]
-                                                }
-                                            },
-                                            "required": ["type"]
-                                        },
-                                        "then": {
-                                            "properties": {
-                                                "efficiency": {"description": "Efficiency of heating equipment (only used if efficiency_method is user)"}
-                                            }
-                                        }
-                                    },
-                                    {
                                         "properties": {
                                             "window_method": {"const": "custom"}
                                         },
