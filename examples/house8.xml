@@ -160,6 +160,7 @@
                 <Walls>
                     <Wall>
                         <SystemIdentifier id="wall"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>

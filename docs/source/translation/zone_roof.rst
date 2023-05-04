@@ -23,7 +23,7 @@ type according to the following mapping.
    =====================  ================
    cape cod               cath_ceiling
    cathedral ceiling      cath_ceiling
-   flat roof              cath_ceiling
+   flat roof              flat_roof
    unvented attic         vented_attic
    vented attic           vented_attic
    venting unknown attic  vented_attic
@@ -36,10 +36,11 @@ type according to the following mapping.
    HPXML                       HEScore
    ==========================  ================
    CathedralCeiling            cath_ceiling
-   FlatRoof                    cath_ceiling
+   FlatRoof                    flat_roof
    Attic/CapeCod = 'true'      cath_ceiling
    Attic/Conditioned = 'true'  cath_ceiling
    Attic                       vented_attic
+   BelowApartment              below_other_unit
    Other                       *not translated*
    ==========================  ================
 
@@ -107,10 +108,10 @@ need to provide an area for each one so that the most common roof color and
 exterior finishes may be selected.
 
 
-Cathedral Ceiling
------------------
+Cathedral Ceiling and Flat Roof
+-------------------------------
 
-The thermal boundary for a cathedral ceiling is the roof deck, so the area of
+The thermal boundary for a cathedral ceiling and a flat roof is the roof deck, so the area of
 the roofs attached to the attic are used.
 
 In **HPXML v2** a single ``Roof`` can be referenced by the ``Attic`` and the

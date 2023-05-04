@@ -77,6 +77,7 @@
                 <Walls>
                     <Wall>
                         <SystemIdentifier id="wall1"/>
+                        <ExteriorAdjacentTo>outside</ExteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>

@@ -12,7 +12,7 @@ def main():
     with json_schema_filename.open('r') as f:
         json_schema = json.load(f)
 
-    knee_wall_assembly_codes = json_schema['properties']['building']['properties']['zone']['properties']['zone_roof']['items']['properties']['knee_wall']['properties']['assembly_code']['enum']  # noqa E501
+    knee_wall_assembly_codes = json_schema['properties']['zone']['properties']['zone_roof']['items']['properties']['knee_wall']['properties']['assembly_code']['enum']  # noqa E501
 
     # Source ASHRAE Fundamenetals 2013, p 26.20, Table 10, Indoor Vertical Surface Film
     int_air_film_r_value = 0.68
@@ -33,7 +33,7 @@ def main():
     wood_stud_width = 1.5
 
     csv_filename = here / 'lu_knee_wall_eff_rvalue.csv'
-    with csv_filename.open('w') as f:
+    with csv_filename.open('w', newline='') as f:
         csv_writer = csv.writer(f)
         csv_writer.writerow(['doe2code', 'U-value', 'Eff-R-value'])
         for assembly_code in knee_wall_assembly_codes:
@@ -42,6 +42,30 @@ def main():
             if cav_r_value > 0:
                 # Add plywood on the back side if there's insulation
                 assembly_r_value += plywood_r_value
+            if cav_r_value < 11:
+                # Air gap R-value if it doesn't fill the cavity
+                cav_r_value += 1
+            if cav_r_value == 19:
+                # Compressed
+                # see https://hvac-blog.acca.org/wp-content/uploads/2017/07/owens-corning-compressed-fiberglass-insulation-r-value-chart.png # noqa E501
+                cav_r_value = 18
+            wood_stud_r_value = (3.5 if cav_r_value <= 15 else 5.5) * wood_stud_r_value_per_inch
+            assembly_r_value += 1 / (
+                wood_stud_width / stud_spacing / wood_stud_r_value +
+                (1 - wood_stud_width / stud_spacing) / cav_r_value
+            )
+            assembly_u_value = 1 / assembly_r_value
+            csv_writer.writerow([assembly_code, f"{assembly_u_value:.3f}", f"{assembly_r_value:.1f}"])
+
+    wall_assembly_codes = json_schema['properties']['zone']['properties']['zone_wall']['items']['properties']['wall_assembly_code']['enum']  # noqa E501
+    int_wall_assembly_codes = [s for s in wall_assembly_codes if s.startswith('iw')]
+    csv_filename = here / 'lu_int_wall_eff_rvalue.csv'
+    with csv_filename.open('w', newline='') as f:
+        csv_writer = csv.writer(f)
+        csv_writer.writerow(['doe2code', 'U-value', 'Eff-R-value'])
+        for assembly_code in int_wall_assembly_codes:
+            cav_r_value = int(re.match(r"iwwf(\d+)", assembly_code).group(1))
+            assembly_r_value = 2 * int_air_film_r_value + 2 * gyp_r_value
             if cav_r_value < 11:
                 # Air gap R-value if it doesn't fill the cavity
                 cav_r_value += 1
