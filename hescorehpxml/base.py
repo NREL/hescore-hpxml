@@ -999,6 +999,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
         elif bldg_about['dwelling_unit_type'] == 'manufactured_home':
             bldg_about['manufactured_home_sections'] = xpath(
                 bldg_cons_el, 'h:extension/h:ManufacturedHomeSections/text()', raise_err=True)
+            # Treat CrossMod home as a single-family detached
+            if bldg_about['manufactured_home_sections'] == 'CrossMod':
+                del bldg_about['manufactured_home_sections']
+                bldg_about['dwelling_unit_type'] = 'single_family_detached'
         bldg_about['year_built'] = int(xpath(bldg_cons_el, 'h:YearBuilt/text()', raise_err=True))
         nbedrooms = int(xpath(bldg_cons_el, 'h:NumberofBedrooms/text()', raise_err=True))
         bldg_about['number_bedrooms'] = nbedrooms

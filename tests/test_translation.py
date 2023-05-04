@@ -1525,7 +1525,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             )
         )
         res = tr_v3.hpxml_to_hescore()
-        self.assertEqual(res['about']['manufactured_home_sections'], 'CrossMod')
+        self.assertEqual(res['about']['dwelling_unit_type'], 'single_family_detached')
+        self.assertNotIn('manufactured_home_sections', res['about'])
 
 
 class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
