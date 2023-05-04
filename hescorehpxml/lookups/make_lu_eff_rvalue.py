@@ -12,7 +12,7 @@ def main():
     with json_schema_filename.open('r') as f:
         json_schema = json.load(f)
 
-    knee_wall_assembly_codes = json_schema['properties']['building']['properties']['zone']['properties']['zone_roof']['items']['properties']['knee_wall']['properties']['assembly_code']['enum']  # noqa E501
+    knee_wall_assembly_codes = json_schema['properties']['zone']['properties']['zone_roof']['items']['properties']['knee_wall']['properties']['assembly_code']['enum']  # noqa E501
 
     # Source ASHRAE Fundamenetals 2013, p 26.20, Table 10, Indoor Vertical Surface Film
     int_air_film_r_value = 0.68
@@ -57,12 +57,13 @@ def main():
             assembly_u_value = 1 / assembly_r_value
             csv_writer.writerow([assembly_code, f"{assembly_u_value:.3f}", f"{assembly_r_value:.1f}"])
 
-    int_wall_asssembly_codes = ["iwwf00", "iwwf03", "iwwf07", "iwwf11", "iwwf13", "iwwf15", "iwwf19", "iwwf21"]
+    wall_assembly_codes = json_schema['properties']['zone']['properties']['zone_wall']['items']['properties']['wall_assembly_code']['enum']  # noqa E501
+    int_wall_assembly_codes = [s for s in wall_assembly_codes if s.startswith('iw')]
     csv_filename = here / 'lu_int_wall_eff_rvalue.csv'
     with csv_filename.open('w', newline='') as f:
         csv_writer = csv.writer(f)
         csv_writer.writerow(['doe2code', 'U-value', 'Eff-R-value'])
-        for assembly_code in int_wall_asssembly_codes:
+        for assembly_code in int_wall_assembly_codes:
             cav_r_value = int(re.match(r"iwwf(\d+)", assembly_code).group(1))
             assembly_r_value = 2 * int_air_film_r_value + 2 * gyp_r_value
             if cav_r_value < 11:

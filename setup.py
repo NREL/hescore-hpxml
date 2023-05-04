@@ -12,7 +12,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='hescore-hpxml',
-    version='7.0.0',
+    version='7.0.2',
     description='HPXML Translator for the HEScore API',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -27,18 +27,20 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Topic :: Scientific/Engineering',
         'Topic :: Text Processing :: Markup :: XML',
     ],
     keywords='home energy score hescore doe nrel',
     packages=['hescorehpxml'],
+    python_requires='>=3.7',
     install_requires=[
         'lxml',
-        'future',
-        'jsonschema==3.1.1'
+        'jsonschema'
     ],
     extras_require={
         'dev': [

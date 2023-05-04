@@ -12,13 +12,9 @@ The flexibility of HPXML allows specification of any number of walls and windows
 facing any direction. HEScore expects only one wall/window specification for
 each side of the building (front, back, left, right). 
 
-Each wall in the HPXML document that has an ``ExteriorAdjacentTo='ambient'``
-(HPXML v2) or ``ExteriorAdjacentTo='outside'`` (HPXML v3) or is missing the
-``ExteriorAdjacentTo`` subelement (assumed to be ambient/outside) is considered
-for translation to HEScore. This excludes attic knee walls (see
-:ref:`knee-walls`), interior walls, walls between living space and a garage,
-etc. since HEScore does not model those walls. The translator then attempts to
-assign each wall to the nearest side of the building, which is relative to the
+Each wall in the HPXML document is considered for translation to HEScore.
+This excludes walls between living space and a garage since HEScore does not model those walls.
+The translator then attempts to assign each wall to the nearest side of the building, which is relative to the
 orientation of the front of the building. The wall construction and exterior
 finish of the largest wall by area on each side of the building are used to
 define the properties sent to HEScore. An area weighted R-value of all the walls
@@ -27,7 +23,6 @@ on each side of the building is calculated as well as described in
 is not required for that side. If a wall falls exactly between two sides of the
 house the area of the wall is divided by two and half of the wall is assigned to
 either side.
-
 
 HEScore also allows the specification of one wall for all sides of the building.
 If none of the walls in HPXML have orientation (or azimuth) data, the wall
@@ -45,6 +40,7 @@ specified, that wall is used to determine the wall construction.
       on that side of the building must have an ``Area`` specified.
     * Either all walls must have an ``Azimuth`` and/or ``Orientation`` or none
       of them must. 
+    * All walls must have ``ExteriorAdjacentTo``. 
 
 .. _wall-construction:
 
@@ -241,3 +237,36 @@ Then the nearest discrete R-value to the weighted average R-value from the looku
 The lookup table can be found at `hescorehpxml\\lookups\\lu_wall_eff_rvalue.csv
 <https://github.com/NREL/hescore-hpxml/blob/master/hescorehpxml/lookups/lu_wall_eff_rvalue.csv>`_.
 
+
+.. _wall_exterior_adjacent_to:
+
+Wall ExteriorAdjacentTo
+***********************
+
+Each ``Wall`` is considered and the ``ExteriorAdjacentTo`` is mapped into a HEScore ``adjacent_to`` 
+according to the following mapping. HPXML options not included in the mapping will not be translated 
+and an error will be returned if they are used.
+
+.. table:: HPXML ExteriorAdjacentTo to HEScore adjacent_to mapping (HPXML v2)
+
+   =====================  ================
+   HPXML                  HEScore
+   =====================  ================
+   ambient                outside
+   other housing unit     other_unit
+   =====================  ================
+
+.. table:: HPXML ExteriorAdjacentTo to HEScore adjacent_to mapping (HPXML v3)
+
+   ==========================  ====================
+   HPXML                       HEScore
+   ==========================  ====================
+   outside                     outside
+   other housing unit          other_unit
+   unconditioned space         interior_common_area
+   ==========================  ====================
+
+.. warning::
+
+   * If windows are found on a wall adjacent to `other_unit` or `interior_common_area`, the translation will 
+     fail.
