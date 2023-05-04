@@ -3441,6 +3441,31 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
             d['systems']['hvac'][1]['heating']['efficiency_unit'],
             'hspf2'
         )
+        # preference to new metric
+        el_eff_clg = el_units_clg.getparent()
+        el_eff_clg_seer = deepcopy(el_eff_clg)
+        tr.xpath(el_eff_clg_seer, 'h:Units').text = "SEER"
+        el_eff_clg.addnext(el_eff_clg_seer)
+        # put SEER2 behind SEER
+        el_eff_clg.getparent().remove(el_eff_clg)
+        el_eff_clg_seer.addnext(el_eff_clg)
+
+        el_eff_htg = el_units_htg.getparent()
+        el_eff_htg_hspf = deepcopy(el_eff_htg)
+        tr.xpath(el_eff_htg_hspf, 'h:Units').text = "HSPF"
+        el_eff_htg.addnext(el_eff_htg_hspf)
+        # put HSPF2 behind HSPF
+        el_eff_htg.getparent().remove(el_eff_htg)
+        el_eff_htg_hspf.addnext(el_eff_htg)
+        d = tr.hpxml_to_hescore()
+        self.assertEqual(
+            d['systems']['hvac'][1]['cooling']['efficiency_unit'],
+            'seer2'
+        )
+        self.assertEqual(
+            d['systems']['hvac'][1]['heating']['efficiency_unit'],
+            'hspf2'
+        )
         # CEER unit for packaged_dx
         distribution_el = self.xpath('//h:HVACDistribution[1]')
         distribution_el.getparent().remove(distribution_el)
@@ -3450,6 +3475,19 @@ class TestHEScore2021Updates(unittest.TestCase, ComparatorBase):
         el_dist.getparent().remove(el_dist)
         el_units = self.xpath('//h:CoolingSystem[1]/h:AnnualCoolingEfficiency/h:Units')
         el_units.text = 'CEER'
+        d = tr.hpxml_to_hescore()
+        self.assertEqual(
+            d['systems']['hvac'][0]['cooling']['efficiency_unit'],
+            'ceer'
+        )
+        # preference to new metric
+        el_eff_clg = el_units_clg.getparent()
+        el_eff_clg_eer = deepcopy(el_eff_clg)
+        tr.xpath(el_eff_clg_eer, 'h:Units').text = "EER"
+        el_eff_clg.addnext(el_eff_clg_eer)
+        # put CEER behind EER
+        el_eff_clg.getparent().remove(el_eff_clg)
+        el_eff_clg_eer.addnext(el_eff_clg)
         d = tr.hpxml_to_hescore()
         self.assertEqual(
             d['systems']['hvac'][0]['cooling']['efficiency_unit'],
