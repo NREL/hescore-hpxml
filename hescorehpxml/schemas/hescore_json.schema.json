@@ -262,13 +262,13 @@
                                 "type": "number",
                                 "minimum": 1,
                                 "maximum": 25000,
-                                "description": "Area of ceiling (attic floor), used if roof_type = vented_attic"
+                                "description": "Area of ceiling (attic floor), used if roof_type = vented_attic, below_other_unit"
                             },
                             "roof_area": {
                                 "type": "number",
                                 "minimum": 1,
                                 "maximum": 25000,
-                                "description": "Area of the roof, used if roof_type = cath_ceiling, flat_roof, below_other_unit"
+                                "description": "Area of the roof, used if roof_type = cath_ceiling, flat_roof"
                             },
                             "roof_assembly_code": {
                                 "type": "string",
@@ -609,18 +609,30 @@
                             {
                                 "if": {
                                     "properties": {
-                                        "roof_type": {"enum": ["below_other_unit", "cath_ceiling", "flat_roof", "bowstring_roof"]}
+                                        "roof_type": {"enum": ["cath_ceiling", "flat_roof", "bowstring_roof"]}
                                     },
                                     "required": ["roof_type"]
                                 },
                                 "then": {
                                     "allOf": [
-                                        {
-                                            "not": {"required": ["ceiling_area", "ceiling_assembly_code"]}
-                                        },
-                                        {
-                                            "required": ["roof_area"]
-                                        }
+                                        {"not": {"required": ["ceiling_area"]}},
+                                        {"not": {"required": ["ceiling_assembly_code"]}},
+                                        {"required": ["roof_area"]}
+                                    ]
+                                }
+                            },
+                            {
+                                "if": {
+                                    "properties": {
+                                        "roof_type": {"const": "below_other_unit"}
+                                    },
+                                    "required": ["roof_type"]
+                                },
+                                "then": {
+                                    "allOf": [
+                                        {"not": {"required": ["ceiling_assembly_code"]}},
+                                        {"not": {"required": ["roof_area"]}},
+                                        {"required": ["ceiling_area"]}
                                     ]
                                 }
                             },
@@ -792,9 +804,7 @@
                                                 "required": ["foundation_type"]
                                             },
                                             "then": {
-                                                "not": {
-                                                    "required": ["floor_assembly_code"]
-                                                }
+                                                "not": {"required": ["floor_assembly_code"]}
                                             },
                                             "else": {
                                                 "required": ["floor_assembly_code"]

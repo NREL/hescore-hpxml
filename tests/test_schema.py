@@ -168,13 +168,23 @@ def test_invalid_roof(hpxml_filebase):
     js2['zone']['zone_roof'][0]['roof_type'] = 'cath_ceiling'
     js2['zone']['zone_roof'][0]['roof_absorptance'] = 0.6
     errors = get_error_messages(js2, js_schema)
-    assert_required_error(errors, 'ceiling_area', 'ceiling_assembly_code')
+    assert_required_error(errors, 'ceiling_area')
+    assert_required_error(errors, 'ceiling_assembly_code')
     assert_required_error(errors, 'roof_absorptance')
 
     js3 = copy.deepcopy(js)
     js3['zone']['zone_roof'][0]['roof_type'] = 'flat_roof'
     errors = get_error_messages(js3, js_schema)
     assert "'roof_area' is a required property" in errors
+
+    js4 = copy.deepcopy(js)
+    js4['zone']['zone_roof'][0]['roof_type'] = 'below_other_unit'
+    js4['zone']['zone_roof'][0]['roof_area'] = 1000
+    del js4['zone']['zone_roof'][0]['ceiling_area']
+    errors = get_error_messages(js4, js_schema)
+    assert "'ceiling_area' is a required property" in errors
+    assert_required_error(errors, 'ceiling_assembly_code')
+    assert_required_error(errors, 'roof_area')
 
 
 def test_manufactured_home_sections():
