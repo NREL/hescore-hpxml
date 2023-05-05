@@ -125,8 +125,8 @@ heating system type.
    ===============  ================
    Heating Type     Efficiency Units
    ===============  ================
-   heat_pump        HSPF, HSPF2
-   mini_split       HSPF, HSPF2
+   heat_pump        HSPF2, HSPF
+   mini_split       HSPF2, HSPF
    central_furnace  AFUE
    wall_furnace     AFUE
    boiler           AFUE
@@ -135,11 +135,11 @@ heating system type.
 
 The translator searches the ``HeatingSystem/AnnualHeatingEfficiency`` or
 ``HeatPump/AnnualHeatEfficiency`` (HPXML v2) or ``HeatPump/AnnualHeatingEfficiency`` (HPXML v3)
-elements of the primary heating system and uses the first one that has the correct units.
+elements of the primary heating system.
 
 Both ``AnnualHeatingEfficiency(or AnnualHeatEfficiency)/Units`` and 
 ``AnnualHeatingEfficiency(or AnnualHeatEfficiency)/Value``
-are searched and expected to match the above table.
+are searched and expected to match the above table, with precedence to first/newer units.
 
 Shipment Weighted Efficiency
 ============================

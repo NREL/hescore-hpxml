@@ -100,20 +100,20 @@ cooling system type.
    ===============  ================
    Cooling Type     Efficiency Units
    ===============  ================
-   split_dx         SEER, SEER2
-   packaged_dx      EER, CEER
-   heat_pump        SEER, SEER2
-   mini_split       SEER, SEER2
+   split_dx         SEER2, SEER
+   packaged_dx      CEER, EER
+   heat_pump        SEER2, SEER
+   mini_split       SEER2, SEER
    gchp             EER
    ===============  ================
 
 The translator searches the ``CoolingSystem/AnnualCoolingEfficiency`` or
 ``HeatPump/AnnualCoolEfficiency`` (HPXML v2) or ``HeatPump/AnnualCoolingEfficiency`` (HPXML v3)
-elements of the primary cooling system and uses the first one that has the correct units.
+elements of the primary cooling system.
 
 Both ``AnnualCoolingEfficiency(or AnnualCoolEfficiency)/Units`` and 
 ``AnnualCoolingEfficiency(or AnnualCoolEfficiency)/Value``
-are searched and expected to match the above table.
+are searched and expected to match the above table, with precedence to first/newer units.
 
 .. _clg-shipment-weighted-efficiency:
 
