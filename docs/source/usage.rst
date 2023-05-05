@@ -50,14 +50,14 @@ It it useful to run it this way for debugging a translation of your particular f
 Set Up
 ======
 
-The program runs using `Python 3.x <https://www.python.org/>`_. The instructions below will help you set up Python
+The program runs using `Python 2.7 <https://www.python.org/>`_. The instructions below will help you set up Python
 on your platform and get the translator installed.
 
 Windows
 -------
 
-#. `Download Python 3.x from python.org <https://www.python.org/downloads/>`_ and Install.
-#. Add ``C:\Python3X`` to your path.
+#. `Download Python 2.7.x (not the 3.x version) from python.org <https://www.python.org/downloads/>`_ and Install.
+#. Add ``C:\Python27`` to your path.
    `Here's how <http://superuser.com/questions/143119/how-to-add-python-to-the-windows-path>`_.
 #. Follow instructions for :ref:`all_platforms_install_instructions`.
 
@@ -66,13 +66,13 @@ Mac OS X
 
 #. Install `Homebrew <http://brew.sh/>`_.
 #. Open a terminal.
-#. Install Python 3.x using homebrew: ``brew install python``
+#. Install Python 2.7 using homebrew: ``brew install python``
 #. Follow instructions for :ref:`all_platforms_install_instructions`.
 
 Linux
 -----
 
-#. Install Python 3.x using the package manager for your platform.
+#. Install Python 2.7 using the package manager for your platform.
 #. Follow instructions for :ref:`all_platforms_install_instructions`.
 
 .. _all_platforms_install_instructions:

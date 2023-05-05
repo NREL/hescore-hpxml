@@ -179,8 +179,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
                      'fiber cement siding': 'wo',
                      'composite shingle siding': 'wo',
                      'masonite siding': 'wo',
-                     'other': None,
-                     'none': None}
+                     'other': None}
 
         def wall_round_to_nearest(*args):
             try:
@@ -325,6 +324,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
         glass_type = xpath(window, 'h:GlassType/text()')
         is_hescore_dp = self.check_is_doublepane(window, glass_layers)
         is_storm_lowe = False
+        window_frame = None
+        window_layer = None
+        window_glass_type = None
 
         if is_hescore_dp:
             # double pane needs more information being analyzed to determine glass type
@@ -339,8 +341,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         elif glass_layers == 'triple-pane':
             window_layer = 'triple-pane'
             window_glass_type = 'insulating low-e argon'
-        else:
-            raise TranslationError('Unhandled glass layers: {}'.format(glass_layers))
 
         gas_fill = xpath(window, 'h:GasFill/text()')
         argon_filled = False
@@ -581,7 +581,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     )
             else:
                 sys_cooling['efficiency_method'] = 'user'
-
                 sys_cooling['efficiency_unit'] = eff_unit.lower()
                 sys_cooling['efficiency'] = float(efficiency)
         sys_cooling['_capacity'] = convert_to_type(float, xpath(clgsys, 'h:CoolingCapacity/text()'))
@@ -1036,7 +1035,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         if avg_ceiling_ht is None:
             try:
                 avg_ceiling_ht = float(xpath(bldg_cons_el, 'h:ConditionedBuildingVolume/text()', raise_err=True)) / \
-                    float(xpath(bldg_cons_el, 'h:ConditionedFloorArea/text()', raise_err=True))
+                                 float(xpath(bldg_cons_el, 'h:ConditionedFloorArea/text()', raise_err=True))
             except ElementNotFoundError:
                 raise TranslationError(
                     'Either AverageCeilingHeight or both ConditionedBuildingVolume and ConditionedFloorArea are '
@@ -1093,9 +1092,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
             elif xpath(blower_door_test, 'h:BuildingAirLeakage/h:UnitofMeasure/text()') == 'ACH':
                 bldg_about['envelope_leakage'] = bldg_about['floor_to_ceiling_height'] * bldg_about[
                     'conditioned_floor_area'] * \
-                    float(xpath(blower_door_test,
-                                'h:BuildingAirLeakage/h:AirLeakage/text()',
-                                raise_err=True)) / 60.
+                                                 float(xpath(blower_door_test,
+                                                             'h:BuildingAirLeakage/h:AirLeakage/text()',
+                                                             raise_err=True)) / 60.
             bldg_about['envelope_leakage'] = int(python2round(bldg_about['envelope_leakage']))
         elif air_infilt_est is not None:
             if xpath(air_infilt_est, 'h:LeakinessDescription/text()') in ('tight', 'very tight'):
@@ -1389,9 +1388,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
             attic_floor_rvalue = self.get_attic_floor_assembly_rvalue(attic, b)
             if attic_floor_rvalue is not None:
                 _, closest_code_rvalue = min(
-                    self.ceiling_assembly_eff_rvalues.items(),
-                    key=lambda x: abs(x[1] - attic_floor_rvalue)
-                )
+                        self.ceiling_assembly_eff_rvalues.items(),
+                        key=lambda x: abs(x[1] - attic_floor_rvalue)
+                    )
                 atticd['attic_floor_assembly_rvalue'] = closest_code_rvalue
             elif self.every_attic_floor_layer_has_nominal_rvalue(attic, b):
                 attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
