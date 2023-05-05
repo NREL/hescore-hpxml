@@ -100,6 +100,7 @@
                 <Walls>
                     <Wall>
                         <SystemIdentifier id="wall1"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>

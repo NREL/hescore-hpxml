@@ -9,8 +9,7 @@
   "about": {
     "assessment_type": "initial",
     "assessment_date": "2014-12-02",
-    "shape": "town_house",
-    "town_house_walls": "back_front_left",
+    "dwelling_unit_type": "single_family_attached",
     "year_built": 1961,
     "number_bedrooms": 4,
     "num_floor_above_grade": 2,
@@ -46,12 +45,11 @@
         "floor_assembly_code": "efwf00ca"
       }
     ],
-    "wall_construction_same": false,
-    "window_construction_same": false,
     "zone_wall": [
       {
         "side": "front",
         "wall_assembly_code": "ewwf11br",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 1.0,
           "window_method": "custom",
@@ -63,6 +61,7 @@
       {
         "side": "left",
         "wall_assembly_code": "ewwf19wo",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 4.0,
           "window_method": "code",
@@ -73,12 +72,18 @@
       {
         "side": "back",
         "wall_assembly_code": "ewwf15vi",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 3.0,
           "window_method": "code",
           "window_code": "dcaw",
           "solar_screen": false
         }
+      },
+      {
+        "side": "right",
+        "wall_assembly_code": "iwwf00",
+        "adjacent_to": "other_unit"
       }
     ]
   },

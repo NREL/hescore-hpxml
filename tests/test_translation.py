@@ -132,66 +132,28 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
 
     def test_townhouse_window_fail(self):
         tr = self._load_xmlfile('townhouse_walls')
-        el = self.xpath('//h:Window/h:Orientation[text()="south"]')
-        el.text = 'west'
-        self.assertRaisesRegex(TranslationError,
-                               r'The house has windows on shared walls\.',
+        # change an exterior wall to a shared wall
+        wall3_ext_adjacent_to = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall3"]/h:ExteriorAdjacentTo')
+        wall3_ext_adjacent_to.text = 'other housing unit'
+        self.assertRaisesRegex(jsonschema.exceptions.ValidationError,
+                               r"\[\('side', 'left'\), \('wall_assembly_code', 'iwwf19'\), \('adjacent_to', 'other_unit'\).* should not be valid under \{'required': \['zone_window'\]\}",  # noqa: E501
                                tr.hpxml_to_hescore)
-
-    def test_townhouse_walls_all_same(self):
-        tr = self._load_xmlfile('townhouse_walls')
-        # Remove other walls
-        for el in self.xpath('//h:Wall[h:SystemIdentifier/@id!="wall1"]'):
-            el.getparent().remove(el)
-        # Remove the orientation of the first one
-        wall1_orientation = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall1"]/h:Orientation')
-        wall1_orientation.getparent().remove(wall1_orientation)
-        # This means that the interpreter should assume all walls are like the first wall.
-        d = tr.hpxml_to_hescore()
-        # Check to make sure we're not getting any walls facing directions that are attached to adjacent to other units.
-        for wall in d['zone']['zone_wall']:
-            self.assertIn(wall['side'], ['front', 'back', 'left'])
-
-    def test_townhouse_window_wall_all_same_fail(self):
-        tr = self._load_xmlfile('townhouse_walls')
-        # Remove other walls
-        for el in self.xpath('//h:Wall[h:SystemIdentifier/@id!="wall1"]'):
-            el.getparent().remove(el)
-        # Remove the orientation of the first one
-        wall1_orientation = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall1"]/h:Orientation')
-        wall1_orientation.getparent().remove(wall1_orientation)
-        # This means that the interpreter should assume all walls are like the first wall.
-        el = self.xpath('//h:Window/h:Orientation[text()="south"]')
-        el.text = 'west'
-        self.assertRaisesRegex(TranslationError,
-                               r'The house has windows on shared walls\.',
-                               tr.hpxml_to_hescore)
-
-    def test_townhouse_walls_conflict(self):
-        tr = self._load_xmlfile('townhouse_walls')
-        # move a wall to the west (attached) side
-        el = self.xpath('//h:Wall[1]/h:Orientation')
-        el.text = 'west'
-        self.assertRaisesRegex(
-            TranslationError,
-            r'The house has walls defined for sides ((front|right|left|back)(, )?)+ and shared walls on sides ((front|right|left|back)(, )?)+',  # noqa: E501
-            tr.hpxml_to_hescore
-        )
 
     def test_townhouse_windows_area_wrong(self):
         tr = self._load_xmlfile('townhouse_walls')
         el = self.xpath('//h:OrientationOfFrontOfHome')
         el.text = 'west'
-        for wall in self.xpath('//h:Wall/h:Orientation'):
-            if wall.text == 'north':
-                wall.text = 'west'
+        # change an exterior wall to a shared wall
+        wall1_orientation = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall1"]/h:Orientation')
+        wall1_orientation.text = 'west'
+        wall4_orientation = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall4"]/h:Orientation')
+        wall4_orientation.text = 'north'
         for i, window in enumerate(self.xpath('//h:Window')):
             if i == 0:
                 window.xpath('h:Area', namespaces=tr.ns)[0].text = '20'
                 window.xpath('h:Orientation', namespaces=tr.ns)[0].text = 'west'
-            elif i == 1:
+            elif i == 1 or i == 2:
                 window.xpath('h:Area', namespaces=tr.ns)[0].text = '4'
-                window.xpath('h:Orientation', namespaces=tr.ns)[0].text = 'south'
             else:
                 window.getparent().remove(window)
         hesd = tr.hpxml_to_hescore()
@@ -203,8 +165,16 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
             elif wall['side'] == 'right':
                 self.assertEqual(wall['zone_window']['window_area'], 4)
             elif wall['side'] == 'back':
-                self.assertEqual(wall['zone_window']['window_area'], 0)
-        self.assertEqual(set(['front', 'right', 'back']), walls_found)
+                self.assertEqual(wall['zone_window']['window_area'], 4)
+
+    def test_missing_adjacent_to(self):
+        tr = self._load_xmlfile('house9')
+        # change an exterior wall to a shared wall
+        wall3_ext_adjacent_to = self.xpath('//h:Wall[h:SystemIdentifier/@id="Surface_20"]/h:ExteriorAdjacentTo')
+        wall3_ext_adjacent_to.getparent().remove(wall3_ext_adjacent_to)
+        self.assertRaisesRegex(TranslationError,
+                               r'Can\'t find element Building/BuildingDetails/Enclosure/Walls/Wall\[4\]/ExteriorAdjacentTo/text\(\)',  # noqa: E501
+                               tr.hpxml_to_hescore)
 
     def test_missing_siding(self):
         tr = self._load_xmlfile('hescore_min')
@@ -293,21 +263,6 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
                                r'ResidentialFacilityType is required in the HPXML document',
                                tr_v3.hpxml_to_hescore)
 
-    def test_invalid_residential_faciliy_type(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:ResidentialFacilityType')
-        el.text = 'manufactured home'
-        self.assertRaisesRegex(TranslationError,
-                               r'Cannot translate HPXML ResidentialFacilityType of .+ into HEScore building shape',
-                               tr.hpxml_to_hescore)
-
-        tr_v3 = self._load_xmlfile('hescore_min_v3')
-        el = self.xpath('//h:ResidentialFacilityType')
-        el.text = 'manufactured home'
-        self.assertRaisesRegex(TranslationError,
-                               r'Cannot translate HPXML ResidentialFacilityType of .+ into HEScore building shape',
-                               tr_v3.hpxml_to_hescore)
-
     def test_invalid_infiltration_unit_of_measure(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:BuildingAirLeakage/h:UnitofMeasure')
@@ -323,23 +278,6 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertRaisesRegex(TranslationError,
                                r'AirInfiltration must have "AirInfiltrationMeasurement/BuildingAirLeakage/AirLeakage" or "AirInfiltrationMeasurement/LeakinessDescription" or "AirSealing"',  # noqa: E501
                                tr.hpxml_to_hescore)
-
-    def test_missing_surroundings(self):
-        tr = self._load_xmlfile('townhouse_walls')
-        el = self.xpath('//h:Surroundings')
-        el.getparent().remove(el)
-        self.assertRaisesRegex(TranslationError,
-                               r'Site/Surroundings element is required in the HPXML document for town houses',
-                               tr.hpxml_to_hescore)
-
-    def test_invalid_surroundings(self):
-        tr = self._load_xmlfile('townhouse_walls')
-        el = self.xpath('//h:Surroundings')
-        el.text = 'attached on three sides'
-        self.assertRaisesRegex(
-            TranslationError,
-            r'Cannot translate HPXML Site/Surroundings element value of .+ into HEScore town_house_walls',
-            tr.hpxml_to_hescore)
 
     def test_attic_roof_assoc(self):
         tr = self._load_xmlfile('house6')
@@ -994,10 +932,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         # remove the siding
         siding = wall2.find(tr.addns('h:Siding'))
         wall2.remove(siding)
-        # add an ExteriorAdjacentTo = attic
-        ext_adj_to = etree.Element(tr.addns('h:ExteriorAdjacentTo'))
-        ext_adj_to.text = 'attic'
-        wall2.insert(1, ext_adj_to)
+        # change ExteriorAdjacentTo to attic
+        wall2.xpath('h:ExteriorAdjacentTo', namespaces=tr.ns)[0].text = 'attic'
         # add an area
         area_el = etree.Element(tr.addns('h:Area'))
         area_el.text = '200'
@@ -1044,8 +980,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         ins_sysid = wall2.xpath('h:Insulation/h:SystemIdentifier', namespaces=tr.ns)[0]
         ins_sysid.attrib['id'] = 'wall2ins'
         wall1.addnext(wall2)
-        sysid.addnext(E.InteriorAdjacentTo('attic - vented'))
-        sysid.addnext(E.ExteriorAdjacentTo('outside'))
+        wall2_ext_adjacent_to = wall2.find(tr.addns('h:ExteriorAdjacentTo'))
+        wall2_ext_adjacent_to.addnext(E.InteriorAdjacentTo('attic - vented'))
         att_to_roof = self.xpath('//h:Attic/h:AttachedToRoof')
         att_to_roof.addnext(E.AttachedToWall(idref='wall2'))
 
@@ -1339,6 +1275,47 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         hesinp = tr.hpxml_to_hescore()
         self.assertEqual(hesinp['zone']['zone_floor'][0]['foundation_insulation_level'], 5)
 
+    def test_interior_wall(self):
+        tr = self._load_xmlfile('townhouse_walls')
+        intwall_rvalue = self.xpath('//h:Walls/h:Wall[4]/h:Insulation/h:Layer/h:NominalRValue')
+        intwall_rvalue.text = '5.0'
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['zone']['zone_wall'][3]['wall_assembly_code'], 'iwwf03')
+        self.assertEqual(res['zone']['zone_wall'][3]['adjacent_to'], 'other_unit')
+
+    def test_partial_interior_wall(self):
+        tr = self._load_xmlfile('house9')
+        el = self.xpath('//h:ResidentialFacilityType')
+        el.text = 'multi-family - town homes'
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['zone']['zone_wall'][0]['wall_assembly_code'], 'ewwf15wo')
+
+        # When a wall is partially an interior wall
+        southwall = self.xpath('//h:Walls/h:Wall[h:SystemIdentifier/@id="Surface_20"]')
+        tr.xpath(southwall, 'h:ExteriorAdjacentTo').text = 'other housing unit'
+        tr.xpath(southwall, 'h:Insulation/h:AssemblyEffectiveRValue').text = '5.0'
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['zone']['zone_wall'][0]['wall_assembly_code'], 'ewwf07wo')
+        # The area of the wall in contact with outdoor air is the largest
+        self.assertEqual(res['zone']['zone_wall'][0]['adjacent_to'], 'outside')
+
+    def test_invalid_number_of_walls(self):
+        tr = self._load_xmlfile('townhouse_walls')
+        wall4 = self.xpath('//h:Walls/h:Wall[h:SystemIdentifier/@id="wall4"]')
+        wall4.getparent().remove(wall4)
+        self.assertRaisesRegex(jsonschema.exceptions.ValidationError,
+                               r".*\] is too short",
+                               tr.hpxml_to_hescore)
+
+        # It is not allowed to model only one wall for a townhouse
+        wall2 = self.xpath('//h:Walls/h:Wall[h:SystemIdentifier/@id="wall2"]')
+        wall2.getparent().remove(wall2)
+        wall3 = self.xpath('//h:Walls/h:Wall[h:SystemIdentifier/@id="wall3"]')
+        wall3.getparent().remove(wall3)
+        self.assertRaisesRegex(jsonschema.exceptions.ValidationError,
+                               r".*\] is too short",
+                               tr.hpxml_to_hescore)
+
     def test_duct_leakage_to_outside(self):
         tr = self._load_xmlfile('house1')
         E = self.element_maker()
@@ -1493,6 +1470,38 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         self.assertEqual(res['systems']['hvac'][0]['hvac_distribution']['duct'][2]['location'], 'uncond_attic')   # noqa E501
         self.assertEqual(res['systems']['hvac'][0]['hvac_distribution']['duct'][2]['fraction'], 0.2)
         self.assertEqual(res['systems']['hvac'][0]['hvac_distribution']['duct'][2]['insulated'], False)
+
+    def test_manufactured_home(self):
+        tr = self._load_xmlfile('hescore_min')
+        E = self.element_maker()
+        el = self.xpath('//h:ResidentialFacilityType')
+        el.text = 'manufactured home'
+        self.assertRaisesRegex(ElementNotFoundError,
+                               r'Can\'t find element Building/BuildingDetails/BuildingSummary/BuildingConstruction/extension/ManufacturedHomeSections/text\(\)',  # noqa E501
+                               tr.hpxml_to_hescore)
+        el.getparent().append(
+            E.extension(
+                E.ManufacturedHomeSections('single-wide')
+            )
+        )
+        res = tr.hpxml_to_hescore()
+        self.assertEqual(res['about']['manufactured_home_sections'], 'single-wide')
+
+        tr_v3 = self._load_xmlfile('hescore_min_v3')
+        E = self.element_maker()
+        el_v3 = self.xpath('//h:ResidentialFacilityType')
+        el_v3.text = 'manufactured home'
+        self.assertRaisesRegex(ElementNotFoundError,
+                               r'Can\'t find element Building/BuildingDetails/BuildingSummary/BuildingConstruction/extension/ManufacturedHomeSections/text\(\)',  # noqa E501
+                               tr_v3.hpxml_to_hescore)
+        el_v3.getparent().append(
+            E.extension(
+                E.ManufacturedHomeSections('CrossMod')
+            )
+        )
+        res = tr_v3.hpxml_to_hescore()
+        self.assertEqual(res['about']['dwelling_unit_type'], 'single_family_detached')
+        self.assertNotIn('manufactured_home_sections', res['about'])
 
 
 class TestValidations(unittest.TestCase, ComparatorBase):
@@ -3494,7 +3503,7 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         area_el.text = '1200'
         roof_sysid_el.addnext(area_el)
         d = tr.hpxml_to_hescore()
-        self.assertEqual(d['zone']['zone_roof'][0]['roof_type'], 'cath_ceiling')
+        self.assertEqual(d['zone']['zone_roof'][0]['roof_type'], 'flat_roof')
         type_attic = etree.SubElement(attic_type_el, tr.addns('h:Attic'))
         etree.SubElement(type_attic, tr.addns('h:Vented')).text = "true"
         attic_type_el.remove(flatroof)
@@ -3504,6 +3513,16 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         etree.SubElement(type_attic, tr.addns('h:Conditioned')).text = "true"
         d = tr.hpxml_to_hescore()
         self.assertEqual(d['zone']['zone_roof'][0]['roof_type'], 'cath_ceiling')
+
+    def test_foundation_type(self):
+        tr = self._load_xmlfile('hescore_min_v3')
+        el = self.xpath('//h:Foundations/h:Foundation/h:FoundationType/h:Basement')
+        fnd_type_el = el.getparent()
+        fnd_type_el.remove(el)
+        etree.SubElement(fnd_type_el, tr.addns('h:AboveApartment'))
+        print(fnd_type_el)
+        d = tr.hpxml_to_hescore()
+        self.assertEqual(d['zone']['zone_floor'][0]['foundation_type'], 'above_other_unit')
 
     def test_mini_split_cooling_only(self):
         tr = self._load_xmlfile('hescore_min_v3')
@@ -3740,7 +3759,6 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         self.assertEqual(d_v3['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location'],
                          'uncond_attic')
 
-        # Is this reasonable?
         el.text = 'crawlspace'
         d_v3 = tr_v3.hpxml_to_hescore()
         self.assertEqual(d_v3['systems']['hvac'][0]['hvac_distribution']['duct'][0]['location'],

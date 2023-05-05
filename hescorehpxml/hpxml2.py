@@ -95,7 +95,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         hpxml_attic_type = self.xpath(attic, 'h:AtticType/text()')
         rooftypemap = {'cape cod': 'cath_ceiling',
                        'cathedral ceiling': 'cath_ceiling',
-                       'flat roof': 'cath_ceiling',
+                       'flat roof': 'flat_roof',
                        'unvented attic': 'vented_attic',
                        'vented attic': 'vented_attic',
                        'venting unknown attic': 'vented_attic',
@@ -161,7 +161,7 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_hescore_walls(self, b):
         return self.xpath(
             b, 'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall\
-                [((h:ExteriorAdjacentTo="ambient" and not(contains(h:ExteriorAdjacentTo, "garage"))) or\
+                [((h:ExteriorAdjacentTo[text()="ambient" or text()="other housing unit"] and not(contains(h:ExteriorAdjacentTo, "garage"))) or\
                     not(h:ExteriorAdjacentTo)) and not(contains(h:InteriorAdjacentTo, "attic"))]',  # noqa: E501
             aslist=True)
 
@@ -184,3 +184,21 @@ class HPXML2toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                          'interstitial space': None,
                          'garage': 'unvented_crawl',
                          'outside': 'outside'}
+
+    def get_wall_adjacent_to(self, enclosure_adjacent_to):
+        adjacent_to = self.wall_adjacent_to_map[enclosure_adjacent_to]
+
+        if adjacent_to is None:
+            raise TranslationError('HEScore only supports ExteriorAdjacentTo=[\'other housing unit\' or \'ambient\']')
+
+        return adjacent_to
+
+    wall_adjacent_to_map = {'ambient': 'outside',
+                            'garage': None,
+                            'attic': None,
+                            'crawlspace': None,
+                            'ground': None,
+                            'living space': None,
+                            'unconditioned basement': None,
+                            'other housing unit': 'other_unit',
+                            'other': None}

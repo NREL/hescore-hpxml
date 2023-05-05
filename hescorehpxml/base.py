@@ -95,6 +95,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         self._ceiling_assembly_eff_rvalues = None
         self._floor_assembly_eff_rvalues = None
         self._knee_wall_assembly_eff_rvalues = None
+        self._int_wall_assembly_eff_rvalues = None
 
     def xpath(self, el, xpathquery, aslist=False, raise_err=False, **kwargs):
         if isinstance(el, etree._ElementTree):
@@ -164,7 +165,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
     def get_wall_assembly_rvalue(self, wall):
         return convert_to_type(float, self.xpath(wall, 'h:Insulation/h:AssemblyEffectiveRValue/text()'))
 
-    def get_wall_assembly_code_and_rvalue(self, hpxmlwall):
+    def get_wall_assembly_code_and_rvalue(self, hpxmlwall, is_exterior_wall):
         xpath = self.xpath
         wallid = xpath(hpxmlwall, 'h:SystemIdentifier/@id', raise_err=True)
 
@@ -192,82 +193,99 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         # Construction type and Siding
         wall_type = xpath(hpxmlwall, 'name(h:WallType/*)', raise_err=True)
-        if wall_type == 'WoodStud':
-            has_rigid_ins = xpath(
-                hpxmlwall,
-                'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean('
-                'h:InsulationMaterial/h:Rigid)])'
-            )
-            if has_rigid_ins or\
-                    tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')):
-                wallconstype = 'ps'
-            elif tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:OptimumValueEngineering/text()')):
-                wallconstype = 'ov'
-            else:
-                wallconstype = 'wf'
-            hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
-            try:
-                sidingtype = sidingmap[hpxmlsiding]
-            except KeyError:
-                raise TranslationError(f'Wall {wallid}: Exterior finish information is missing')
-            else:
-                if sidingtype is None:
-                    raise TranslationError(
-                        f'Wall {wallid}: There is no HEScore wall siding equivalent for the HPXML option: {hpxmlsiding}'
-                    )
-        elif wall_type == 'StructuralBrick':
-            wallconstype = 'br'
-            sidingtype = 'nn'
-        elif wall_type in ('ConcreteMasonryUnit', 'Stone'):
-            wallconstype = 'cb'
-            hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
-            if hpxmlsiding is None:
+
+        if is_exterior_wall:
+            if wall_type == 'WoodStud':
+                has_rigid_ins = xpath(
+                    hpxmlwall,
+                    'boolean(h:Insulation/h:Layer[h:NominalRValue > 0][h:InstallationType="continuous"][boolean('
+                    'h:InsulationMaterial/h:Rigid)])'
+                )
+                if has_rigid_ins or\
+                        tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:ExpandedPolystyreneSheathing/text()')):
+                    wallconstype = 'ps'
+                elif tobool(xpath(hpxmlwall, 'h:WallType/h:WoodStud/h:OptimumValueEngineering/text()')):
+                    wallconstype = 'ov'
+                else:
+                    wallconstype = 'wf'
+                hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
+                try:
+                    sidingtype = sidingmap[hpxmlsiding]
+                except KeyError:
+                    raise TranslationError(f'Wall {wallid}: Exterior finish information is missing')
+                else:
+                    if sidingtype is None:
+                        raise TranslationError(
+                            f'Wall {wallid}: '
+                            f'There is no HEScore wall siding equivalent for the HPXML option: {hpxmlsiding}'
+                        )
+            elif wall_type == 'StructuralBrick':
+                wallconstype = 'br'
                 sidingtype = 'nn'
+            elif wall_type in ('ConcreteMasonryUnit', 'Stone'):
+                wallconstype = 'cb'
+                hpxmlsiding = xpath(hpxmlwall, 'h:Siding/text()')
+                if hpxmlsiding is None:
+                    sidingtype = 'nn'
+                else:
+                    sidingtype = sidingmap[hpxmlsiding]
+                    if sidingtype not in ('st', 'br'):
+                        raise TranslationError(
+                            f'Wall {wallid}: is a CMU and needs a siding of stucco, brick, or none to translate '
+                            f'to HEScore. It has a siding type of {hpxmlsiding}'
+                        )
+            elif wall_type == 'StrawBale':
+                wallconstype = 'sb'
+                sidingtype = 'st'
             else:
-                sidingtype = sidingmap[hpxmlsiding]
-                if sidingtype not in ('st', 'br'):
-                    raise TranslationError(
-                        f'Wall {wallid}: is a CMU and needs a siding of stucco, brick, or none to translate '
-                        f'to HEScore. It has a siding type of {hpxmlsiding}'
-                    )
-        elif wall_type == 'StrawBale':
-            wallconstype = 'sb'
-            sidingtype = 'st'
-        else:
-            raise TranslationError(f'Wall type {wall_type} not supported, wall id: {wallid}')
+                raise TranslationError(f'Wall type {wall_type} not supported, wall id: {wallid}')
 
         # R-value and construction code
         if assembly_eff_rvalue is not None:
-            closest_wall_code, closest_code_rvalue = min(
-                [(doe2code, code_rvalue)
-                 for doe2code, code_rvalue in self.wall_assembly_eff_rvalues.items()
-                 if doe2code[2:4] == wallconstype and doe2code[6:8] == sidingtype],
-                key=lambda x: abs(x[1] - assembly_eff_rvalue)
-            )
-            return closest_wall_code, assembly_eff_rvalue
+            if is_exterior_wall:
+                closest_wall_code, closest_code_rvalue = min(
+                    [(doe2code, code_rvalue)
+                     for doe2code, code_rvalue in self.wall_assembly_eff_rvalues.items()
+                     if doe2code[2:4] == wallconstype and doe2code[6:8] == sidingtype],
+                    key=lambda x: abs(x[1] - assembly_eff_rvalue)
+                )
+                return closest_wall_code, assembly_eff_rvalue
+            else:
+                closest_wall_code, closest_code_rvalue = min(
+                    [(doe2code, code_rvalue)
+                     for doe2code, code_rvalue in self.int_wall_assembly_eff_rvalues.items()],
+                    key=lambda x: abs(x[1] - assembly_eff_rvalue)
+                )
+                return closest_wall_code, assembly_eff_rvalue
 
         elif self.every_wall_layer_has_nominal_rvalue(hpxmlwall):
-            # If the wall as a NominalRValue element for every layer (or there are no layers)
-            # and there isn't an AssemblyEffectiveRValue element
             wall_rvalue = xpath(hpxmlwall, 'sum(h:Insulation/h:Layer/h:NominalRValue)', raise_err=True)
-            if wallconstype == 'ps':
-                # account for the rigid foam sheathing in the construction code
-                wall_rvalue = max(0, wall_rvalue - 5)
-                rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
-            elif wallconstype == 'ov':
-                rvalue = wall_round_to_nearest(wall_rvalue, (19, 21, 25, 27, 33, 35, 38))
-            elif wallconstype == 'wf':
-                rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
-            elif wallconstype == 'br':
-                rvalue = wall_round_to_nearest(wall_rvalue, (0, 5, 10))
-            elif wallconstype == 'cb':
-                rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 6))
-            elif wallconstype == 'sb':
-                rvalue = 0
+            if is_exterior_wall:
+                # If the wall as a NominalRValue element for every layer (or there are no layers)
+                # and there isn't an AssemblyEffectiveRValue element
+                if wallconstype == 'ps':
+                    # account for the rigid foam sheathing in the construction code
+                    wall_rvalue = max(0, wall_rvalue - 5)
+                    rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+                elif wallconstype == 'ov':
+                    rvalue = wall_round_to_nearest(wall_rvalue, (19, 21, 25, 27, 33, 35, 38))
+                elif wallconstype == 'wf':
+                    rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+                elif wallconstype == 'br':
+                    rvalue = wall_round_to_nearest(wall_rvalue, (0, 5, 10))
+                elif wallconstype == 'cb':
+                    rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 6))
+                elif wallconstype == 'sb':
+                    rvalue = 0
 
-            wall_code = f'ew{wallconstype}{rvalue:02d}{sidingtype}'
-            assembly_eff_rvalue = self.wall_assembly_eff_rvalues[wall_code]
-            return wall_code, assembly_eff_rvalue
+                wall_code = f'ew{wallconstype}{rvalue:02d}{sidingtype}'
+                assembly_eff_rvalue = self.wall_assembly_eff_rvalues[wall_code]
+                return wall_code, assembly_eff_rvalue
+            else:
+                rvalue = wall_round_to_nearest(wall_rvalue, (0, 3, 7, 11, 13, 15, 19, 21))
+                wall_code = f'iwwf{rvalue:02d}'
+                assembly_eff_rvalue = self.int_wall_assembly_eff_rvalues[wall_code]
+                return wall_code, assembly_eff_rvalue
 
         else:
             raise TranslationError('Every wall insulation layer needs a NominalRValue or '
@@ -859,8 +877,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         skylights = self.get_skylights(b, hes_bldg['zone']['zone_roof'])
         for roof_num in range(len(hes_bldg['zone']['zone_roof'])):
             hes_bldg['zone']['zone_roof'][roof_num]['zone_skylight'] = skylights[roof_num]
-        hes_bldg['zone']['wall_construction_same'] = False
-        hes_bldg['zone']['window_construction_same'] = False
         hes_bldg['zone']['zone_wall'] = self.get_building_zone_wall(b, hes_bldg['about'])
         hes_bldg['systems'] = OrderedDict()
         hes_bldg['systems']['hvac'] = self.get_hvac(b, hes_bldg)
@@ -991,41 +1007,34 @@ class HPXMLtoHEScoreTranslatorBase(object):
         residential_facility_type = xpath(
             b, 'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction/h:ResidentialFacilityType/text()')
         try:
-            bldg_about['shape'] = {'single-family detached': 'rectangle',
-                                   'single-family attached': 'town_house',
-                                   'manufactured home': None,
-                                   '2-4 unit building': None,
-                                   '5+ unit building': None,
-                                   'multi-family - uncategorized': None,
-                                   'multi-family - town homes': 'town_house',
-                                   'multi-family - condos': None,
-                                   'apartment unit': None,
-                                   'studio unit': None,
-                                   'other': None,
-                                   'unknown': None
-                                   }[residential_facility_type]
+            bldg_about['dwelling_unit_type'] = {'single-family detached': 'single_family_detached',
+                                                'single-family attached': 'single_family_attached',
+                                                'manufactured home': 'manufactured_home',
+                                                '2-4 unit building': None,
+                                                '5+ unit building': None,
+                                                'multi-family - uncategorized': None,
+                                                'multi-family - town homes': 'single_family_attached',
+                                                'multi-family - condos': None,
+                                                'apartment unit': 'apartment_unit',
+                                                'studio unit': None,
+                                                'other': None,
+                                                'unknown': None
+                                                }[residential_facility_type]
         except KeyError:
             raise TranslationError('ResidentialFacilityType is required in the HPXML document')
-        if bldg_about['shape'] is None:
-            raise TranslationError(
-                'Cannot translate HPXML ResidentialFacilityType of %s into HEScore building shape' %
-                residential_facility_type)
-        if bldg_about['shape'] == 'town_house':
-            hpxml_surroundings = xpath(b, 'h:BuildingDetails/h:BuildingSummary/h:Site/h:Surroundings/text()')
-            try:
-                bldg_about['town_house_walls'] = {'stand-alone': None,
-                                                  'attached on one side': 'back_right_front',
-                                                  'attached on two sides': 'back_front',
-                                                  'attached on three sides': None
-                                                  }[hpxml_surroundings]
-            except KeyError:
-                raise TranslationError('Site/Surroundings element is required in the HPXML document for town houses')
-            if bldg_about['town_house_walls'] is None:
-                raise TranslationError(
-                    'Cannot translate HPXML Site/Surroundings element value of %s into HEScore town_house_walls' %
-                    hpxml_surroundings)
 
         bldg_cons_el = xpath(b, 'h:BuildingDetails/h:BuildingSummary/h:BuildingConstruction', raise_err=True)
+        if bldg_about['dwelling_unit_type'] is None:
+            raise TranslationError(
+                'Cannot translate HPXML ResidentialFacilityType of %s into HEScore building dwelling unit type' %
+                residential_facility_type)
+        elif bldg_about['dwelling_unit_type'] == 'manufactured_home':
+            bldg_about['manufactured_home_sections'] = xpath(
+                bldg_cons_el, 'h:extension/h:ManufacturedHomeSections/text()', raise_err=True)
+            # Treat CrossMod home as a single-family detached
+            if bldg_about['manufactured_home_sections'] == 'CrossMod':
+                del bldg_about['manufactured_home_sections']
+                bldg_about['dwelling_unit_type'] = 'single_family_detached'
         bldg_about['year_built'] = int(xpath(bldg_cons_el, 'h:YearBuilt/text()', raise_err=True))
         nbedrooms = int(xpath(bldg_cons_el, 'h:NumberofBedrooms/text()', raise_err=True))
         bldg_about['number_bedrooms'] = nbedrooms
@@ -1112,7 +1121,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         return bldg_about
 
     def get_assembly_eff_rvalues_dict(self, construction):
-        assert construction in ['wall', 'roof', 'ceiling', 'floor', 'knee_wall']
+        assert construction in ['wall', 'roof', 'ceiling', 'floor', 'knee_wall', 'int_wall']
         with open(os.path.join(thisdir, 'lookups', f'lu_{construction}_eff_rvalue.csv'), newline='') as f:
             reader = csv.DictReader(f)
             assembly_eff_rvalues = {}
@@ -1149,6 +1158,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
         if self._knee_wall_assembly_eff_rvalues is None:
             self._knee_wall_assembly_eff_rvalues = self.get_assembly_eff_rvalues_dict('knee_wall')
         return self._knee_wall_assembly_eff_rvalues
+
+    @property
+    def int_wall_assembly_eff_rvalues(self):
+        if self._int_wall_assembly_eff_rvalues is None:
+            self._int_wall_assembly_eff_rvalues = self.get_assembly_eff_rvalues_dict('int_wall')
+        return self._int_wall_assembly_eff_rvalues
 
     def get_building_zone_roof(self, b, footprint_area):
 
@@ -1197,8 +1212,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # Ceiling or Roof area
             if atticd['rooftype'] == 'vented_attic':
                 atticd['ceiling_area'] = self.get_ceiling_area(attic)
-            else:
-                assert atticd['rooftype'] == 'cath_ceiling'
+            else:  # cathedral ceiling, flat roof, bowstring roof, and below apartment
                 atticd['roof_area'] = sum(self.get_attic_roof_area(roofs[roofid]) for roofid in roofids)
 
             # Get other roof information from attached Roof nodes.
@@ -1525,7 +1539,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 zone_roof_item['ceiling_area'] = atticd['ceiling_area']
                 zone_roof_item['ceiling_assembly_code'] = attic_floor_code
             else:
-                assert atticd['rooftype'] == 'cath_ceiling'
                 zone_roof_item['roof_area'] = atticd['roof_area']
             if knee_wall_d:
                 zone_roof_item['knee_wall'] = knee_wall_d
@@ -1698,6 +1711,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 zone_floor['foundation_type'] = 'unvented_crawl'
             elif hpxml_foundation_type == 'Ambient':
                 zone_floor['foundation_type'] = 'vented_crawl'
+            elif hpxml_foundation_type == 'AboveApartment':
+                zone_floor['foundation_type'] = 'above_other_unit'
             else:
                 raise TranslationError(
                     'HEScore does not have a foundation type analogous to: %s' %
@@ -1774,7 +1789,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 zone_floor['foundation_insulation_level'] - x))
 
             # floor above foundation insulation
-            if zone_floor['foundation_type'] != 'slab_on_grade':
+            if not (zone_floor['foundation_type'] == 'slab_on_grade' or
+                    zone_floor['foundation_type'] == 'above_other_unit'):
                 ffua = 0
                 fftotalarea = 0
                 framefloors = self.get_foundation_frame_floors(foundation, b)
@@ -1827,11 +1843,17 @@ class HPXMLtoHEScoreTranslatorBase(object):
         hpxmlwalls = dict([(side, []) for side in list(sidemap.values())])
         hpxmlwalls['noside'] = []
         for wall in self.get_hescore_walls(b):
-            assembly_code, assembly_eff_rvalue = self.get_wall_assembly_code_and_rvalue(wall)
+            wall_id = xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)
+            wall_adjacent_to = xpath(wall, 'h:ExteriorAdjacentTo/text()', raise_err=True)
+            is_exterior_wall = self.get_wall_adjacent_to(wall_adjacent_to) == 'outside'
+
+            assembly_code, assembly_eff_rvalue = self.get_wall_assembly_code_and_rvalue(wall, is_exterior_wall)
+
             walld = {'assembly_code': assembly_code,
                      'assembly_eff_rvalue': assembly_eff_rvalue,
                      'area': convert_to_type(float, xpath(wall, 'h:Area/text()')),
-                     'id': xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)}
+                     'id': wall_id,
+                     'adjacent_to': wall_adjacent_to}
 
             try:
                 wall_azimuth = self.get_nearest_azimuth(xpath(wall, 'h:Azimuth/text()'),
@@ -1853,14 +1875,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
                     hpxmlwalls[wall_side].append(walld)
 
         if len(hpxmlwalls['noside']) > 0 and list(map(len, [hpxmlwalls[key] for key in sidemap.values()])) == ([0] * 4):
-            all_walls_same = True
             # if none of the walls have orientation information
             # copy the walls to all sides
             for side in list(sidemap.values()):
                 hpxmlwalls[side] = hpxmlwalls['noside']
             del hpxmlwalls['noside']
         else:
-            all_walls_same = False
             # make sure all of the walls have an orientation
             if len(hpxmlwalls['noside']) > 0:
                 raise TranslationError('Some of the HPXML walls have orientation information and others do not.')
@@ -1876,26 +1896,37 @@ class HPXMLtoHEScoreTranslatorBase(object):
             elif len(hpxmlwalls[side]) > 1 and None in [x['area'] for x in hpxmlwalls[side]]:
                 raise TranslationError('The %s side of the house has %d walls and they do not all have areas.' % (
                     side, len(hpxmlwalls[side])))
-            wall_const_type_ext_finish_areas = defaultdict(float)
+            wall_const_type_ext_finish_adjacent_to_areas = defaultdict(float)
             wallua = 0
             walltotalarea = 0
             for walld in hpxmlwalls[side]:
                 const_type = walld['assembly_code'][2:4]
                 ext_finish = walld['assembly_code'][6:8]
                 assembly_eff_rvalue = walld['assembly_eff_rvalue']
+                adjacent_to = walld['adjacent_to']
                 wallua += walld['area'] / assembly_eff_rvalue
                 walltotalarea += walld['area']
-                wall_const_type_ext_finish_areas[(const_type, ext_finish)] += walld['area']
-            const_type, ext_finish = max(list(wall_const_type_ext_finish_areas.keys()),
-                                         key=lambda x: wall_const_type_ext_finish_areas[x])
+                wall_const_type_ext_finish_adjacent_to_areas[(const_type, ext_finish, adjacent_to)] += walld['area']
+            const_type, ext_finish, adjacent_to = max(list(wall_const_type_ext_finish_adjacent_to_areas.keys()),
+                                                      key=lambda x: wall_const_type_ext_finish_adjacent_to_areas[x])
             rvalueavgeff = walltotalarea / wallua
-            comb_wall_code, comb_rvalue = min(
-                [(doe2code, code_rvalue)
-                    for doe2code, code_rvalue in self.wall_assembly_eff_rvalues.items()
-                    if doe2code[2:4] == const_type and doe2code[6:8] == ext_finish],
-                key=lambda x: abs(x[1] - rvalueavgeff)
-            )
+            is_exterior_wall = self.get_wall_adjacent_to(adjacent_to) == 'outside'
+            if is_exterior_wall:
+                comb_wall_code, comb_rvalue = min(
+                    [(doe2code, code_rvalue)
+                        for doe2code, code_rvalue in self.wall_assembly_eff_rvalues.items()
+                        if doe2code[2:4] == const_type and doe2code[6:8] == ext_finish],
+                    key=lambda x: abs(x[1] - rvalueavgeff)
+                )
+            else:
+                comb_wall_code, comb_rvalue = min(
+                    [(doe2code, code_rvalue)
+                        for doe2code, code_rvalue in self.int_wall_assembly_eff_rvalues.items()],
+                    key=lambda x: abs(x[1] - rvalueavgeff)
+                )
             heswall['wall_assembly_code'] = comb_wall_code
+            heswall['adjacent_to'] = self.get_wall_adjacent_to(hpxmlwalls[side][0]['adjacent_to'])
+
             zone_wall.append(heswall)
 
         # building.zone.zone_wall.zone_window--------------------------------------
@@ -1952,55 +1983,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
             for window_side in window_sides:
                 hpxmlwindows[window_side].append(dict(windowd))
 
-        def get_shared_wall_sides():
-            return set(sidemap.values()) - set(bldg_about['town_house_walls'].split('_'))
-
-        def windows_are_on_shared_walls():
-            shared_wall_sides = get_shared_wall_sides()
-            for side in shared_wall_sides:
-                if len(hpxmlwindows[side]) > 0:
-                    return True
-            return False
-
-        if bldg_about['shape'] == 'town_house':
-            if all_walls_same:
-                # Check to make sure the windows aren't on shared walls.
-                window_on_shared_wall_fail = windows_are_on_shared_walls()
-                if window_on_shared_wall_fail:
-                    # Change which walls are shared and check again.
-                    if bldg_about['town_house_walls'] == 'back_right_front':
-                        bldg_about['town_house_walls'] = 'back_front_left'
-                        window_on_shared_wall_fail = windows_are_on_shared_walls()
-                if window_on_shared_wall_fail:
-                    raise TranslationError('The house has windows on shared walls.')
-                # Since there was one wall construction for the whole building,
-                # remove the construction for shared walls.
-                for side in get_shared_wall_sides():
-                    for heswall in zone_wall:
-                        if heswall['side'] == side:
-                            zone_wall.remove(heswall)
-                            break
-            else:
-                # Make sure that there are walls defined for each side of the house that isn't a shared wall.
-                sides_without_heswall = set(self.sidemap.values())
-                for heswall in zone_wall:
-                    sides_without_heswall.remove(heswall['side'])
-                shared_wall_fail = sides_without_heswall != get_shared_wall_sides()
-                if shared_wall_fail:
-                    # Change which walls are shared and check again.
-                    if bldg_about['town_house_walls'] == 'back_right_front':
-                        bldg_about['town_house_walls'] = 'back_front_left'
-                        shared_wall_fail = sides_without_heswall != get_shared_wall_sides()
-                if shared_wall_fail:
-                    raise TranslationError(
-                        'The house has walls defined for sides {} and shared walls on sides {}.'.format(
-                            ', '.join(set(self.sidemap.values()) - sides_without_heswall),
-                            ', '.join(get_shared_wall_sides())
-                        )
-                    )
-                if windows_are_on_shared_walls():
-                    raise TranslationError('The house has windows on shared walls.')
-
         # Determine the predominant window characteristics and create HEScore windows
         for side, windows in list(hpxmlwindows.items()):
 
@@ -2013,16 +1995,12 @@ class HPXMLtoHEScoreTranslatorBase(object):
             if not wall_found:
                 continue
 
-            zone_window = OrderedDict()
-            heswall['zone_window'] = zone_window
-
             # If there are no windows on that side of the house
             if len(windows) == 0:
-                zone_window['window_area'] = 0
-                zone_window['window_method'] = 'code'
-                zone_window['window_code'] = 'scna'
-                zone_window['solar_screen'] = False
                 continue
+
+            zone_window = OrderedDict()
+            heswall['zone_window'] = zone_window
 
             # Get the list of uvalues and shgcs for the windows on this side of the house.
             uvalues, shgcs, areas = map(list,

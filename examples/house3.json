@@ -9,7 +9,7 @@
   "about": {
     "assessment_type": "qa",
     "assessment_date": "2014-10-29",
-    "shape": "rectangle",
+    "dwelling_unit_type": "single_family_detached",
     "year_built": 1980,
     "number_bedrooms": 5,
     "num_floor_above_grade": 3,
@@ -40,12 +40,11 @@
         "foundation_insulation_level": 5
       }
     ],
-    "wall_construction_same": false,
-    "window_construction_same": false,
     "zone_wall": [
       {
         "side": "front",
         "wall_assembly_code": "ewps13al",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 120.0,
           "window_method": "code",
@@ -56,6 +55,7 @@
       {
         "side": "left",
         "wall_assembly_code": "ewps13al",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 36.0,
           "window_method": "code",
@@ -66,6 +66,7 @@
       {
         "side": "back",
         "wall_assembly_code": "ewps13al",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 72.0,
           "window_method": "code",
@@ -76,6 +77,7 @@
       {
         "side": "right",
         "wall_assembly_code": "ewps13al",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 75.0,
           "window_method": "code",

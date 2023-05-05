@@ -9,7 +9,7 @@
   "about": {
     "assessment_type": "alternative",
     "assessment_date": "2022-02-15",
-    "shape": "rectangle",
+    "dwelling_unit_type": "single_family_detached",
     "year_built": 1950,
     "number_bedrooms": 4,
     "num_floor_above_grade": 2,
@@ -47,12 +47,11 @@
         "floor_assembly_code": "efwf30ca"
       }
     ],
-    "wall_construction_same": false,
-    "window_construction_same": false,
     "zone_wall": [
       {
         "side": "front",
         "wall_assembly_code": "ewwf15wo",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 30.03,
           "window_method": "custom",
@@ -64,6 +63,7 @@
       {
         "side": "left",
         "wall_assembly_code": "ewwf13wo",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 16.68,
           "window_method": "custom",
@@ -75,6 +75,7 @@
       {
         "side": "back",
         "wall_assembly_code": "ewwf13wo",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 30.03,
           "window_method": "custom",
@@ -86,6 +87,7 @@
       {
         "side": "right",
         "wall_assembly_code": "ewwf13wo",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 16.68,
           "window_method": "custom",

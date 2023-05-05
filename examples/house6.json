@@ -9,7 +9,7 @@
   "about": {
     "assessment_type": "corrected",
     "assessment_date": "2014-12-18",
-    "shape": "rectangle",
+    "dwelling_unit_type": "single_family_detached",
     "year_built": 1950,
     "number_bedrooms": 10,
     "num_floor_above_grade": 2,
@@ -61,12 +61,11 @@
         "foundation_insulation_level": 5
       }
     ],
-    "wall_construction_same": false,
-    "window_construction_same": false,
     "zone_wall": [
       {
         "side": "front",
         "wall_assembly_code": "ewbr00nn",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 180.0,
           "window_method": "code",
@@ -77,6 +76,7 @@
       {
         "side": "left",
         "wall_assembly_code": "ewwf00wo",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 70.0,
           "window_method": "code",
@@ -87,6 +87,7 @@
       {
         "side": "back",
         "wall_assembly_code": "ewwf00wo",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 220.0,
           "window_method": "code",
@@ -97,6 +98,7 @@
       {
         "side": "right",
         "wall_assembly_code": "ewbr00nn",
+        "adjacent_to": "outside",
         "zone_window": {
           "window_area": 40.0,
           "window_method": "code",
