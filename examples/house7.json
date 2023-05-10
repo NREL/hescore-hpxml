@@ -25,11 +25,7 @@
         "roof_name": "roof1",
         "roof_assembly_code": "rfwf19tg",
         "roof_color": "medium",
-<<<<<<< HEAD
-        "roof_type": "flat_roof",
-=======
         "roof_type": "cath_ceiling",
->>>>>>> cc61f54db5811894b5ed74681d278ff584b62c04
         "roof_area": 900.0,
         "zone_skylight": {
           "skylight_area": 0
