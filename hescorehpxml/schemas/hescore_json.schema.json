@@ -1097,6 +1097,17 @@
                             {
                                 "if": {
                                     "properties": {
+                                        "adjacent_to": {"const": "other_unit"}
+                                    },
+                                    "required": ["adjacent_to"]
+                                },
+                                "then": {
+                                    "not": {"required": ["wall_assembly_code"]}
+                                }
+                            },
+                            {
+                                "if": {
+                                    "properties": {
                                         "adjacent_to": {"enum": ["outside"]}
                                     },
                                     "required": ["adjacent_to"]
