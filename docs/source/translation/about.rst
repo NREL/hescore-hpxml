@@ -87,6 +87,10 @@ HEScore requires specifying manufactured home sections if ``building.dwelling_un
 HPXML can specify this through the 
 ``Building/BuildingDetails/BuildingSummary/BuildingConstruction/extension/ManufacturedHomeSections`` element.
 
+.. note::
+
+   ``CrossMod`` manufactured home will be treated as a single-family detached home in Hescore.  
+
 Year Built, Stories, Bedrooms, Floor Height, and Floor Area
 ***********************************************************
 
