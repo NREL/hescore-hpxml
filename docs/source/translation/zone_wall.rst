@@ -40,7 +40,7 @@ specified, that wall is used to determine the wall construction.
       on that side of the building must have an ``Area`` specified.
     * Either all walls must have an ``Azimuth`` and/or ``Orientation`` or none
       of them must. 
-    * All walls must have ``ExteriorAdjacnetTo``. 
+    * All walls must have ``ExteriorAdjacentTo``. 
 
 .. _wall-construction:
 
