@@ -70,7 +70,6 @@
                 "dwelling_unit_type",
                 "year_built",
                 "number_bedrooms",
-                "num_floor_above_grade",
                 "floor_to_ceiling_height",
                 "conditioned_floor_area",
                 "orientation",
@@ -239,6 +238,9 @@
                         "not": {
                             "required": ["num_floor_above_grade"]
                         }
+                    },
+                    "else": {
+                        "required": ["num_floor_above_grade"]
                     }
                 }
             ]
