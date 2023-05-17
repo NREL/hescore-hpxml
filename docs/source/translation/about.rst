@@ -46,7 +46,7 @@ Building Dwelling Unit Type
 ***************************
 
 HEScore requires specifying whether the building is a detached house, a town
-house, or a manufactured house through their ``building.dwelling_unit_type`` input. 
+house, an apartment unit, or a manufactured house through their ``building.dwelling_unit_type`` input. 
 HPXML can specify this (and a variety of other house types) through the
 ``Building/BuildingSummary/BuildingConstruction/ResidentialFacilitytype`` data
 element. Not all facility types in HPXML can be modeled in HEScore. The table
