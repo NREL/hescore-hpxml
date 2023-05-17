@@ -1156,17 +1156,19 @@
                                     "required": ["adjacent_to"]
                                 },
                                 "then": {
-                                    "wall_assembly_code": {
-                                        "enum": [
-                                            "iwwf00",
-                                            "iwwf03",
-                                            "iwwf07",
-                                            "iwwf11",
-                                            "iwwf13",
-                                            "iwwf15",
-                                            "iwwf19",
-                                            "iwwf21"
-                                        ]
+                                    "properties": {
+                                        "wall_assembly_code": {
+                                            "enum": [
+                                                "iwwf00",
+                                                "iwwf03",
+                                                "iwwf07",
+                                                "iwwf11",
+                                                "iwwf13",
+                                                "iwwf15",
+                                                "iwwf19",
+                                                "iwwf21"
+                                            ]
+                                        }
                                     },
                                     "required": ["wall_assembly_code"]
                                 }
