@@ -132,7 +132,7 @@
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 4,
-                    "description": "Number of floors above grade"
+                    "description": "Number of floors above grade. Assumes 1 when dwelling_unit_type is apartment_unit"
                 },
                 "floor_to_ceiling_height": {
                     "type": "integer",
@@ -227,6 +227,18 @@
                                 }
                             }
                         ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "dwelling_unit_type": {"const": "apartment_unit"}
+                        }
+                    },
+                    "then": {
+                        "not": {
+                            "required": ["num_floor_above_grade"]
+                        }
                     }
                 }
             ]
