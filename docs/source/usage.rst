@@ -10,22 +10,14 @@ The stand alone method is mostly for developers needing to debug and track down 
 Home Energy Score API
 *********************
 
-The HEScore API provides the most generally applicable way use HPXML to generate a Home Energy Score.
-Generally in the API is used by doing the following steps, calling each API method in order:
+The HEScore API provides the most generally applicable way use HPXML to generate
+a Home Energy Score. See the the `Home Energy Scoring Tool API Documentation
+<http://hes-documentation.labworks.org/home>`_ for details on how to do that.
 
-#. ``submit_address`` - Creates a new building and assessment date.
-#. ``submit_inputs`` - Submit a detailed house description in a format specific to Home Energy Score.
-#. ``calculate_base_building`` - Calculates the energy use of the as-described building.
-#. ``commit_results`` - Locks the inputs and marks them as being accurate by the Qualified Assessor.
-#. ``calculate_package_building`` - Analyzes a set of retrofit upgrades that are screened against standardized costs, and determines the most cost effective ones.
-#. ``generate_label`` - Creates a PDF and PNG Home Energy Score label.
-
-There are other options and reports available, but that is the general gist of it.
-The HPXML translator is made available through a separate API method: ``submit_hpxml_inputs``.
-It replaces the first two steps above, alleviating the need to translate data elements from your data structure into the HEScore data structure.
-
-``submit_hpxml_inputs`` accepts an HPXML file as a `Base64 <http://en.wikipedia.org/wiki/Base64>`_ encoded payload, so you will need to convert it.
-An example of how to do this in Python is:
+The HPXML translator is made available through the API method
+``submit_hpxml_inputs``, which accepts an HPXML file as a `Base64
+<http://en.wikipedia.org/wiki/Base64>`_ encoded payload, so you will need to
+convert it. An example of how to do this in Python is:
 
 .. code:: python
 
@@ -35,8 +27,6 @@ An example of how to do this in Python is:
         hpxml_as_base64 = base64.standard_b64encode(f.read())
 
 Similar libraries and functionality exist in many languages.
-
-Much more information on how to use the HEScore API including the ``submit_hpxml_inputs`` method is available on the `Home Energy Scoring Tool API Documentation site <http://hes-documentation.labworks.org/home>`_.
 
 .. _stand-alone:
 
