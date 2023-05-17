@@ -823,6 +823,20 @@
                                             "else": {
                                                 "required": ["floor_assembly_code"]
                                             }
+                                        },
+                                        {
+                                            "if": {
+                                                "properties": {
+                                                    "foundation_type": {"const": "above_other_unit"}
+                                                },
+                                                "required": ["foundation_type"]
+                                            },
+                                            "then": {
+                                                "not": {"required": ["foundation_insulation_level"]}
+                                            },
+                                            "else": {
+                                                "required": ["foundation_insulation_level"]
+                                            }
                                         }
                                     ]
                                 }
