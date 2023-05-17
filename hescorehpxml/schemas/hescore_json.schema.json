@@ -268,7 +268,7 @@
                                 "type": "number",
                                 "minimum": 1,
                                 "maximum": 25000,
-                                "description": "Area of the roof, used if roof_type = cath_ceiling, flat_roof"
+                                "description": "Area of the roof, used if roof_type = cath_ceiling, flat_roof, bowstring_roof"
                             },
                             "roof_assembly_code": {
                                 "type": "string",
@@ -1126,7 +1126,57 @@
                         ]
                     }
                 }
-            }
+            },
+            "allOf": [
+                {
+                    "properties": {
+                        "zone_wall": {
+                            "contains": {
+                                "properties": {
+                                    "side": {"const": "front"}
+                                },
+                                "required": ["side"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "zone_wall": {
+                            "contains": {
+                                "properties": {
+                                    "side": {"const": "back"}
+                                },
+                                "required": ["side"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "zone_wall": {
+                            "contains": {
+                                "properties": {
+                                    "side": {"const": "left"}
+                                },
+                                "required": ["side"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "zone_wall": {
+                            "contains": {
+                                "properties": {
+                                    "side": {"const": "right"}
+                                },
+                                "required": ["side"]
+                            }
+                        }
+                    }
+                }
+            ]
         },
         "systems": {
             "type": "object",
