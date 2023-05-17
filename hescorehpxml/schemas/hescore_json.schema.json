@@ -231,7 +231,7 @@
                 {
                     "if": {
                         "properties": {
-                            "dwelling_unit_type": {"const": "apartment_unit"}
+                            "dwelling_unit_type": {"enum": ["apartment_unit", "manufactured_home"]}
                         }
                     },
                     "then": {
