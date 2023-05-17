@@ -13,7 +13,8 @@ facing any direction. HEScore expects only one wall/window specification for
 each side of the building (front, back, left, right). 
 
 Each wall in the HPXML document is considered for translation to HEScore.
-This excludes walls between living space and a garage since HEScore does not model those walls.
+This excludes attic knee walls (see :ref:`knee-walls`), interior walls, 
+walls between living space and a garage, etc. since HEScore does not model those walls.
 The translator then attempts to assign each wall to the nearest side of the building, which is relative to the
 orientation of the front of the building. The wall construction and exterior
 finish of the largest wall by area on each side of the building are used to
