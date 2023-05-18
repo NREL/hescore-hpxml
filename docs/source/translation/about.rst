@@ -53,7 +53,7 @@ element. Not all facility types in HPXML can be modeled in HEScore. The table
 below shows how the possible enumerations of the HPXML field are translated
 into HEScore. 
 
-.. table:: HPXML Facility Types to HEScore Building Shape
+.. table:: HPXML Facility Types to HEScore Building Dwelling Unit Type
 
    ============================  ======================
    HPXML                         HEScore 
