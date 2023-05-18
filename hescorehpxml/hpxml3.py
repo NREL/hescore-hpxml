@@ -323,7 +323,9 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                             'living space': None,
                             'other': None,
                             'other housing unit': 'other_unit',
+                            'other heated space': 'other_heated_space',
+                            'other multifamily buffer space': 'other_multifamily_buffer_space',
+                            'other non-freezing space': 'other_non_freezing_space',
                             'other housing unit above': None,
                             'other housing unit below': None,
-                            'outside': 'outside',
-                            'unconditioned space': 'interior_common_area'}
+                            'outside': 'outside'}

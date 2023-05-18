@@ -259,15 +259,17 @@ and an error will be returned if they are used.
 
 .. table:: HPXML ExteriorAdjacentTo to HEScore adjacent_to mapping (HPXML v3)
 
-   ==========================  ====================
-   HPXML                       HEScore
-   ==========================  ====================
-   outside                     outside
-   other housing unit          other_unit
-   unconditioned space         interior_common_area
-   ==========================  ====================
+   ==============================  ==============================  =======================================================
+   HPXML                           HEScore                         Description
+   ==============================  ==============================  ======================================================= 
+   outside                         outside                         ambient environment
+   other housing unit              other_unit                      e.g., conditioned adjacent unit or conditioned corridor
+   other heated space              other_heated_space              e.g., shared laundry/equipment space
+   other multifamily buffer space  other_multifamily_buffer_space  e.g., enclosed unconditioned stairwell
+   other non-freezing space        other_non_freezing_space        e.g., shared parking garage ceiling
+   ==============================  ==============================  =======================================================
 
 .. warning::
 
-   * If windows are found on a wall adjacent to `other_unit` or `interior_common_area`, the translation will 
-     fail.
+   * If windows are found on a wall adjacent to `other_unit` or `other_heated_space` or `other_multifamily_buffer_space`
+     or `other_non_freezing_space`, the translation will fail.

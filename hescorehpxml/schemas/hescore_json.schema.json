@@ -1010,7 +1010,7 @@
                             },
                             "adjacent_to": {
                                 "type": "string",
-                                "enum": ["other_unit", "interior_common_area", "outside"],
+                                "enum": ["outside", "other_unit", "other_heated_space", "other_multifamily_buffer_space", "other_non_freezing_space"],
                                 "description": "What is on the other side of the wall"
                             },
                             "zone_window": {
@@ -1109,7 +1109,7 @@
                             {
                                 "if": {
                                     "properties": {
-                                        "adjacent_to": {"enum": ["outside", "interior_common_area"]}
+                                        "adjacent_to": {"enum": ["outside", "other_heated_space", "other_multifamily_buffer_space", "other_non_freezing_space"]}
                                     },
                                     "required": ["adjacent_to"]
                                 },
@@ -1151,7 +1151,7 @@
                             {
                                 "if": {
                                     "properties": {
-                                        "adjacent_to": {"const": "interior_common_area"}
+                                        "adjacent_to": {"enum": ["other_heated_space", "other_multifamily_buffer_space", "other_non_freezing_space"]}
                                     },
                                     "required": ["adjacent_to"]
                                 },
@@ -2882,7 +2882,7 @@
                                 "not": {
                                     "contains": {
                                         "properties": {
-                                            "adjacent_to": {"enum": ["other_unit", "interior_common_area"]}
+                                            "adjacent_to": {"enum": ["other_unit", "other_heated_space", "other_multifamily_buffer_space", "other_non_freezing_space"]}
                                         },
                                         "required": ["adjacent_to"]
                                     }
