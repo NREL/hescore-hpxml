@@ -250,24 +250,24 @@ and an error will be returned if they are used.
 
 .. table:: HPXML ExteriorAdjacentTo to HEScore adjacent_to mapping (HPXML v2)
 
-   =====================  ================
-   HPXML                  HEScore
-   =====================  ================
-   ambient                outside
-   other housing unit     other_unit
-   =====================  ================
+   =====================  ================  =======================================================  ==========================================
+   HPXML                  HEScore           Description                                              Dwelling Unit Type
+   =====================  ================  =======================================================  ==========================================
+   ambient                outside           ambient environment                                      Any
+   other housing unit     other_unit        e.g., conditioned adjacent unit or conditioned corridor  single_family_attached/apartment_unit Only
+   =====================  ================  =======================================================  ==========================================
 
 .. table:: HPXML ExteriorAdjacentTo to HEScore adjacent_to mapping (HPXML v3)
 
-   ==============================  ==============================  =======================================================
-   HPXML                           HEScore                         Description
-   ==============================  ==============================  ======================================================= 
-   outside                         outside                         ambient environment
-   other housing unit              other_unit                      e.g., conditioned adjacent unit or conditioned corridor
-   other heated space              other_heated_space              e.g., shared laundry/equipment space
-   other multifamily buffer space  other_multifamily_buffer_space  e.g., enclosed unconditioned stairwell
-   other non-freezing space        other_non_freezing_space        e.g., shared parking garage ceiling
-   ==============================  ==============================  =======================================================
+   ==============================  ==============================  =======================================================  ==========================================
+   HPXML                           HEScore                         Description                                              Dwelling Unit Type
+   ==============================  ==============================  =======================================================  ==========================================
+   outside                         outside                         ambient environment                                      Any
+   other housing unit              other_unit                      e.g., conditioned adjacent unit or conditioned corridor  single_family_attached/apartment_unit Only
+   other heated space              other_heated_space              e.g., shared laundry/equipment space                     single_family_attached/apartment_unit Only
+   other multifamily buffer space  other_multifamily_buffer_space  e.g., enclosed unconditioned stairwell                   single_family_attached/apartment_unit Only
+   other non-freezing space        other_non_freezing_space        e.g., shared parking garage ceiling                      single_family_attached/apartment_unit Only
+   ==============================  ==============================  =======================================================  ==========================================
 
 .. warning::
 
