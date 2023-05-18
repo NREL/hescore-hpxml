@@ -271,5 +271,4 @@ and an error will be returned if they are used.
 
 .. warning::
 
-   * If windows are found on a wall adjacent to `other_unit` or `other_heated_space` or `other_multifamily_buffer_space`
-     or `other_non_freezing_space`, the translation will fail.
+   * If windows are found on a wall not adjacent to `outside`, the translation will fail.
