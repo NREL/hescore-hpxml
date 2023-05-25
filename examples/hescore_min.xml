@@ -28,7 +28,6 @@
         <BuildingDetails>
             <BuildingSummary>
                 <Site>
-                    <Surroundings>stand-alone</Surroundings>
                     <OrientationOfFrontOfHome>north</OrientationOfFrontOfHome>
                 </Site>
                 <BuildingConstruction>
@@ -95,6 +94,7 @@
                 <Walls>
                     <Wall>
                         <SystemIdentifier id="wall1"/>
+                        <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
