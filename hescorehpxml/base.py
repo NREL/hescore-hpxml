@@ -2528,6 +2528,14 @@ class HPXMLtoHEScoreTranslatorBase(object):
         return every_layer_has_nominal_rvalue
 
     def validate_hescore_inputs(self, hescore_inputs):
+        def do_bounds_check(fieldname, value, minincl, maxincl):
+            if value < minincl or value > maxincl:
+                raise InputOutOfBounds(fieldname, value)
+
+        do_bounds_check('assessment_date',
+                        dt.datetime.strptime(hescore_inputs['about']['assessment_date'], '%Y-%m-%d').date(),
+                        dt.date(2010, 1, 1), dt.datetime.today().date())
+
         for sys_hvac in hescore_inputs['systems']['hvac']:
             if 'hvac_distribution' in sys_hvac:
                 for hvacd in sys_hvac['hvac_distribution']['duct']:
