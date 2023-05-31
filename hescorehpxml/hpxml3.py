@@ -229,7 +229,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
     def get_hescore_walls(self, b):
         return self.xpath(
             b, 'h:BuildingDetails/h:Enclosure/h:Walls/h:Wall\
-                [((h:ExteriorAdjacentTo[text()="outside" or text()="other housing unit" or text()="unconditioned space"] and not(contains(h:ExteriorAdjacentTo, "garage"))) or\
+                [((h:ExteriorAdjacentTo[text()="outside" or text()="other housing unit" or text()="unconditioned space"] and h:InteriorAdjacentTo[text()="living space"] and not(contains(h:ExteriorAdjacentTo, "garage"))) or\
                     not(h:ExteriorAdjacentTo)) and not(contains(h:InteriorAdjacentTo, "attic"))]',  # noqa: E501
             aslist=True)
 
@@ -323,7 +323,9 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
                             'living space': None,
                             'other': None,
                             'other housing unit': 'other_unit',
+                            'other heated space': 'other_heated_space',
+                            'other multifamily buffer space': 'other_multifamily_buffer_space',
+                            'other non-freezing space': 'other_non_freezing_space',
                             'other housing unit above': None,
                             'other housing unit below': None,
-                            'outside': 'outside',
-                            'unconditioned space': 'interior_common_area'}
+                            'outside': 'outside'}

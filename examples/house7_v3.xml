@@ -79,6 +79,7 @@
                     <Wall>
                         <SystemIdentifier id="wallfront"/>
                         <ExteriorAdjacentTo>outside</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <StructuralBrick/>
                         </WallType>
@@ -89,6 +90,7 @@
                     <Wall>
                         <SystemIdentifier id="wallback"/>
                         <ExteriorAdjacentTo>outside</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <StructuralBrick/>
                         </WallType>
@@ -99,6 +101,7 @@
                     <Wall>
                         <SystemIdentifier id="wallleft"/>
                         <ExteriorAdjacentTo>other housing unit</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
@@ -109,6 +112,7 @@
                     <Wall>
                         <SystemIdentifier id="wallright"/>
                         <ExteriorAdjacentTo>other housing unit</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>

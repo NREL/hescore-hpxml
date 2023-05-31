@@ -128,6 +128,7 @@
                     <Wall>
                         <SystemIdentifier id="wallfront"/>
                         <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <StructuralBrick/>
                         </WallType>
@@ -137,6 +138,7 @@
                     <Wall>
                         <SystemIdentifier id="wallback1"/>
                         <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <StructuralBrick/>
                         </WallType>
@@ -153,6 +155,7 @@
                     <Wall>
                         <SystemIdentifier id="wallback2"/>
                         <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
@@ -170,6 +173,7 @@
                     <Wall>
                         <SystemIdentifier id="wallright1"/>
                         <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <StructuralBrick/>
                         </WallType>
@@ -186,6 +190,7 @@
                     <Wall>
                         <SystemIdentifier id="wallright2"/>
                         <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
@@ -203,6 +208,7 @@
                     <Wall>
                         <SystemIdentifier id="wallleft1"/>
                         <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <StructuralBrick/>
                         </WallType>
@@ -219,6 +225,7 @@
                     <Wall>
                         <SystemIdentifier id="wallleft2"/>
                         <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>

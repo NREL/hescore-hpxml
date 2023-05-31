@@ -137,7 +137,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         wall3_ext_adjacent_to = self.xpath('//h:Wall[h:SystemIdentifier/@id="wall3"]/h:ExteriorAdjacentTo')
         wall3_ext_adjacent_to.text = 'other housing unit'
         self.assertRaisesRegex(jsonschema.exceptions.ValidationError,
-                               r"\[\('side', 'left'\), \('wall_assembly_code', 'iwwf19'\), \('adjacent_to', 'other_unit'\).* should not be valid under \{'required': \['zone_window'\]\}",  # noqa: E501
+                               r"\[\('side', 'left'\), \('adjacent_to', 'other_unit'\).* should not be valid under \{'required': \['zone_window'\]\}",  # noqa: E501
                                tr.hpxml_to_hescore)
 
     def test_townhouse_windows_area_wrong(self):
@@ -1005,8 +1005,8 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         ins_sysid = wall2.xpath('h:Insulation/h:SystemIdentifier', namespaces=tr.ns)[0]
         ins_sysid.attrib['id'] = 'wall2ins'
         wall1.addnext(wall2)
-        wall2_ext_adjacent_to = wall2.find(tr.addns('h:ExteriorAdjacentTo'))
-        wall2_ext_adjacent_to.addnext(E.InteriorAdjacentTo('attic - vented'))
+        wall2_int_adjacent_to = wall2.find(tr.addns('h:InteriorAdjacentTo'))
+        wall2_int_adjacent_to.text = 'attic - vented'
         att_to_roof = self.xpath('//h:Attic/h:AttachedToRoof')
         att_to_roof.addnext(E.AttachedToWall(idref='wall2'))
 
@@ -1305,7 +1305,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         intwall_rvalue = self.xpath('//h:Walls/h:Wall[4]/h:Insulation/h:Layer/h:NominalRValue')
         intwall_rvalue.text = '5.0'
         res = tr.hpxml_to_hescore()
-        self.assertEqual(res['zone']['zone_wall'][3]['wall_assembly_code'], 'iwwf03')
+        self.assertNotIn('wall_assembly_code', res['zone']['zone_wall'][3])
         self.assertEqual(res['zone']['zone_wall'][3]['adjacent_to'], 'other_unit')
 
     def test_partial_interior_wall(self):
@@ -1329,7 +1329,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         wall4 = self.xpath('//h:Walls/h:Wall[h:SystemIdentifier/@id="wall4"]')
         wall4.getparent().remove(wall4)
         self.assertRaisesRegex(jsonschema.exceptions.ValidationError,
-                               r".*\] is too short",
+                               r"None of .*\] are valid under the given schema",
                                tr.hpxml_to_hescore)
 
         # It is not allowed to model only one wall for a townhouse
@@ -1338,7 +1338,7 @@ class TestOtherHouses(unittest.TestCase, ComparatorBase):
         wall3 = self.xpath('//h:Walls/h:Wall[h:SystemIdentifier/@id="wall3"]')
         wall3.getparent().remove(wall3)
         self.assertRaisesRegex(jsonschema.exceptions.ValidationError,
-                               r".*\] is too short",
+                               r"None of .*\] are valid under the given schema",
                                tr.hpxml_to_hescore)
 
     def test_duct_leakage_to_outside(self):
@@ -1547,69 +1547,75 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
                                'assessment_date is out of bounds',
                                tr.hpxml_to_hescore)
 
-    def test_year_built1(self):
+    def test_year_built(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:YearBuilt')
         el.text = '1599'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'year_built is out of bounds',
-                               tr.hpxml_to_hescore)
-
-    def test_year_built2(self):
-        tr = self._load_xmlfile('hescore_min')
-        el = self.xpath('//h:YearBuilt')
-        el.text = str(dt.datetime.today().year + 1)
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'year_built is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'1599 is less than the minimum of 1600',
+            tr.hpxml_to_hescore
+        )
 
     def test_num_floor_above_grade(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:NumberofConditionedFloorsAboveGrade')
         el.text = '5'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'num_floor_above_grade is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'5 is greater than the maximum of 4',
+            tr.hpxml_to_hescore
+        )
 
     def test_number_bedrooms(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:NumberofBedrooms')
-        el.text = '25'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'number_bedrooms is out of bounds',
-                               tr.hpxml_to_hescore)
+        el.text = '11'
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'11 is greater than the maximum of 10',
+            tr.hpxml_to_hescore
+        )
 
     def test_floor_to_ceiling_height1(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:AverageCeilingHeight')
         el.text = '5'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'floor_to_ceiling_height is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'5 is less than the minimum of 6',
+            tr.hpxml_to_hescore
+        )
 
     def test_floor_to_ceiling_height2(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:AverageCeilingHeight')
         el.text = '13'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'floor_to_ceiling_height is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'13 is greater than the maximum of 12',
+            tr.hpxml_to_hescore
+        )
 
     def test_conditioned_floor_area1(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:ConditionedFloorArea')
         el.text = '249'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'conditioned_floor_area is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'249 is less than the minimum of 250',
+            tr.hpxml_to_hescore
+        )
 
     def test_conditioned_floor_area2(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:ConditionedFloorArea')
         el.text = '25001'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'conditioned_floor_area is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'25001 is greater than the maximum of 25000',
+            tr.hpxml_to_hescore
+        )
 
     def test_envelope_leakage(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1617,83 +1623,107 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         leak_el = self.xpath('//h:BuildingAirLeakage/h:AirLeakage')
         units_el.text = 'CFM'
         leak_el.text = '25001'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'envelope_leakage is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'25001 is greater than the maximum of 25000',
+            tr.hpxml_to_hescore
+        )
 
     def test_skylight_area(self):
         tr = self._load_xmlfile('house4')
         el = self.xpath('//h:Skylight/h:Area')
         el.text = '301'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'skylight_area is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'301.0 is greater than the maximum of 300',
+            tr.hpxml_to_hescore
+        )
 
     def test_skylight_u_value(self):
         tr = self._load_xmlfile('house4')
         skylight = self.xpath('//h:Skylight')
         etree.SubElement(skylight, tr.addns('h:UFactor')).text = '0.001'
         etree.SubElement(skylight, tr.addns('h:SHGC')).text = '0.7'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'skylight_u_value is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'0.001 is less than the minimum of 0.01',
+            tr.hpxml_to_hescore
+        )
 
     def test_window_area(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Window[1]/h:Area')
         el.text = '1000'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'window_area is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'1000.0 is greater than the maximum of 999',
+            tr.hpxml_to_hescore
+        )
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         el = self.xpath('//h:Window[1]/h:Area')
         el.text = '1000'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'window_area is out of bounds',
-                               tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'1000.0 is greater than the maximum of 999',
+            tr_v3.hpxml_to_hescore
+        )
 
     def test_window_u_value(self):
         tr = self._load_xmlfile('house2')
         el = self.xpath('//h:Window[1]/h:UFactor')
         el.text = '5.00001'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'window_u_value is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'5.00001 is greater than the maximum of 5',
+            tr.hpxml_to_hescore
+        )
 
     def test_heating_efficiency_furnace(self):
         tr = self._load_xmlfile('hescore_min')
         htg_eff_el = self.xpath('//h:HeatingSystem/h:AnnualHeatingEfficiency/h:Value')
         htg_eff_el.text = '1.01'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'1.01 is greater than the maximum of 1',
+            tr.hpxml_to_hescore
+        )
         htg_eff_el.text = '0.59'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'0.59 is less than the minimum of 0.6',
+            tr.hpxml_to_hescore
+        )
 
         tr_v3 = self._load_xmlfile('hescore_min_v3')
         htg_eff_el = self.xpath('//h:HeatingSystem/h:AnnualHeatingEfficiency/h:Value')
         htg_eff_el.text = '1.01'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'1.01 is greater than the maximum of 1',
+            tr_v3.hpxml_to_hescore
+        )
         htg_eff_el.text = '0.59'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr_v3.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'0.59 is less than the minimum of 0.6',
+            tr_v3.hpxml_to_hescore
+        )
 
     def test_heating_efficiency_heat_pump(self):
         tr = self._load_xmlfile('house4')
         htg_eff_el = self.xpath('//h:HeatPump/h:AnnualHeatEfficiency/h:Value')
         htg_eff_el.text = '5.9'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'5.9 is less than the minimum of 6',
+            tr.hpxml_to_hescore
+        )
         htg_eff_el.text = '20.1'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'20.1 is greater than the maximum of 20',
+            tr.hpxml_to_hescore
+        )
 
     def test_heating_efficiency_gchp(self):
         tr = self._load_xmlfile('house3')
@@ -1703,33 +1733,43 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         etree.SubElement(eff_el, tr.addns('h:Units')).text = 'COP'
         eff_value_el = etree.SubElement(eff_el, tr.addns('h:Value'))
         eff_value_el.text = '1.9'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'1.9 is less than the minimum of 2',
+            tr.hpxml_to_hescore
+        )
         eff_value_el.text = '5.1'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'5.1 is greater than the maximum of 5',
+            tr.hpxml_to_hescore
+        )
 
     def test_heating_year(self):
         tr = self._load_xmlfile('house3')
         el = self.xpath('//h:HeatPump/h:YearInstalled')
-        el.text = str(dt.datetime.today().year + 1)
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'heating_year is out of bounds',
-                               tr.hpxml_to_hescore)
+        el.text = '1969'
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'1969 is less than the minimum of 1970',
+            tr.hpxml_to_hescore
+        )
 
     def test_cooling_efficiency(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency/h:Value')
         el.text = '40.1'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'cooling_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'40.1 is greater than the maximum of 40',
+            tr.hpxml_to_hescore
+        )
         el.text = '7.9'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'cooling_efficiency is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'7.9 is less than the minimum of 8',
+            tr.hpxml_to_hescore
+        )
 
     def test_evap_cooler_missing_efficiency(self):
         tr = self._load_xmlfile('hescore_min')
@@ -1749,22 +1789,28 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         eff_el = self.xpath('//h:CoolingSystem/h:AnnualCoolingEfficiency')
         eff_el.getparent().remove(eff_el)
         year_el = self.xpath('//h:CoolingSystem/h:YearInstalled')
-        year_el.text = str(dt.datetime.today().year + 1)
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'cooling_year is out of bounds',
-                               tr.hpxml_to_hescore)
+        year_el.text = '1969'
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'1969 is less than the minimum of 1970',
+            tr.hpxml_to_hescore
+        )
 
     def test_dhw_storage_efficiency(self):
         tr = self._load_xmlfile('house1')
         el = self.xpath('//h:WaterHeatingSystem/h:EnergyFactor')
         el.text = '0.44'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_energy_factor is out of bounds',
-                               tr.hpxml_to_hescore)
-        el.text = '1.1'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_energy_factor is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'0.44 is less than the minimum of 0.45',
+            tr.hpxml_to_hescore
+        )
+        el.text = '0.96'
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'0.96 is greater than the maximum of 0.95',
+            tr.hpxml_to_hescore
+        )
         el.text = '0.95'
         res = tr.hpxml_to_hescore()
         dhw = res['systems']['domestic_hot_water']
@@ -1780,13 +1826,17 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
         dhw_sys_el = self.xpath('//h:WaterHeatingSystem')
         ef_el = etree.SubElement(dhw_sys_el, tr.addns('h:EnergyFactor'))
         ef_el.text = '0.9'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_energy_factor is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'0.9 is less than the minimum of 1',
+            tr.hpxml_to_hescore
+        )
         ef_el.text = '4.1'
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_energy_factor is out of bounds',
-                               tr.hpxml_to_hescore)
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'4.1 is greater than the maximum of 4',
+            tr.hpxml_to_hescore
+        )
         ef_el.text = '4.0'
         res = tr.hpxml_to_hescore()
         dhw = res['systems']['domestic_hot_water']
@@ -1796,10 +1846,12 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
     def test_dhw_year(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:WaterHeatingSystem/h:YearInstalled')
-        el.text = str(dt.datetime.today().year + 1)
-        self.assertRaisesRegex(InputOutOfBounds,
-                               'domestic_hot_water_year is out of bounds',
-                               tr.hpxml_to_hescore)
+        el.text = '1971'
+        self.assertRaisesRegex(
+            jsonschema.exceptions.ValidationError,
+            r'1971 is less than the minimum of 1972',
+            tr.hpxml_to_hescore
+        )
 
     def test_heating_system_not_requiring_ducts(self):
         tr = self._load_xmlfile('hescore_min')
@@ -3697,7 +3749,6 @@ class TestHEScoreV3(unittest.TestCase, ComparatorBase):
         fnd_type_el = el.getparent()
         fnd_type_el.remove(el)
         etree.SubElement(fnd_type_el, tr.addns('h:AboveApartment'))
-        print(fnd_type_el)
         d = tr.hpxml_to_hescore()
         self.assertEqual(d['zone']['zone_floor'][0]['foundation_type'], 'above_other_unit')
 

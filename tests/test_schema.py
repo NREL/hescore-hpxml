@@ -278,6 +278,16 @@ def test_invalid_wall(hpxml_filebase):
     assert "'side' is a required property" in errors
     assert "'wall_assembly_code' is a required property" in errors
 
+    js2 = copy.deepcopy(js)
+    js2['zone']['zone_wall'][1]['side'] = 'right'
+    errors = get_error_messages(js1, js_schema)
+    if hpxml_filebase == 'townhouse_walls':
+        assert any(error.startswith("None of [{'wall_assembly_code': 'ewwf11br', 'adjacent_to': 'outside',") and
+                   error.endswith("are valid under the given schema") for error in errors)
+    elif hpxml_filebase == 'house1':
+        assert any(error.startswith("None of [{'wall_assembly_code': 'ewwf00br', 'adjacent_to': 'outside',") and
+                   error.endswith("are valid under the given schema") for error in errors)
+
 
 def test_invalid_wall_adjacent_to():
     hpxml_filebase = 'house9'

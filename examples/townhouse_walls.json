@@ -82,7 +82,6 @@
       },
       {
         "side": "right",
-        "wall_assembly_code": "iwwf00",
         "adjacent_to": "other_unit"
       }
     ]

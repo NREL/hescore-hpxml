@@ -91,6 +91,7 @@
                     <Wall>
                         <SystemIdentifier id="wall1"/>
                         <ExteriorAdjacentTo>outside</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
@@ -107,6 +108,7 @@
                     <Wall>
                         <SystemIdentifier id="wall2"/>
                         <ExteriorAdjacentTo>outside</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
@@ -123,6 +125,7 @@
                     <Wall>
                         <SystemIdentifier id="wall3"/>
                         <ExteriorAdjacentTo>outside</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
@@ -139,6 +142,7 @@
                     <Wall>
                         <SystemIdentifier id="wall4"/>
                         <ExteriorAdjacentTo>other housing unit</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
