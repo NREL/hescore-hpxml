@@ -1534,7 +1534,7 @@ class TestInputOutOfBounds(unittest.TestCase, ComparatorBase):
     def test_assessment_date1(self):
         tr = self._load_xmlfile('hescore_min')
         el = self.xpath('//h:Building/h:ProjectStatus/h:Date')
-        el.text = '2009-12-30'
+        el.text = '2009-12-31'
         self.assertRaisesRegex(InputOutOfBounds,
                                'assessment_date is out of bounds',
                                tr.hpxml_to_hescore)
