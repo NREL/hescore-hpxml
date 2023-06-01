@@ -16,6 +16,7 @@ from jsonschema import validate, FormatChecker
 
 from .exceptions import (
     TranslationError,
+    InputOutOfBounds,
     ElementNotFoundError,
     RoundOutOfBounds,
 )
@@ -872,7 +873,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         hes_bldg['zone'] = OrderedDict()
         hes_bldg['zone']['zone_roof'] = None  # to save the spot in the order
         hes_bldg['zone']['zone_floor'] = self.get_building_zone_floor(b, hes_bldg['about'])
-        footprint_area = self.get_footprint_area(hes_bldg)
+        stories = self.get_nstories(hes_bldg['about'])
+        footprint_area = self.get_footprint_area(hes_bldg, stories)
         hes_bldg['zone']['zone_roof'] = self.get_building_zone_roof(b, footprint_area)
         skylights = self.get_skylights(b, hes_bldg['zone']['zone_roof'])
         for roof_num in range(len(hes_bldg['zone']['zone_roof'])):
@@ -889,17 +891,27 @@ class HPXMLtoHEScoreTranslatorBase(object):
         # Validate against JSON schema
         validate(hes_bldg, json_schema, format_checker=FormatChecker())
 
+        # Validate HEScore inputs
+        self.validate_hescore_inputs(hes_bldg)
+
         return hes_bldg
 
     @staticmethod
-    def get_footprint_area(bldg):
+    def get_footprint_area(bldg, stories):
         floor_area = bldg['about']['conditioned_floor_area']
-        stories = bldg['about']['num_floor_above_grade']
         cond_basement_floor_area = 0
         for zone_floor in bldg['zone']['zone_floor']:
             if zone_floor['foundation_type'] == 'cond_basement':
                 cond_basement_floor_area += zone_floor['floor_area']
         return math.floor((floor_area - cond_basement_floor_area) / stories)
+
+    def get_nstories(self, bldg_about):
+        if bldg_about['dwelling_unit_type'] == 'single_family_detached' or \
+                bldg_about['dwelling_unit_type'] == 'single_family_attached':
+            stories = bldg_about['num_floor_above_grade']
+        else:
+            stories = 1
+        return stories
 
     @classmethod
     def remove_hidden_keys(cls, d):
@@ -1038,8 +1050,10 @@ class HPXMLtoHEScoreTranslatorBase(object):
         bldg_about['year_built'] = int(xpath(bldg_cons_el, 'h:YearBuilt/text()', raise_err=True))
         nbedrooms = int(xpath(bldg_cons_el, 'h:NumberofBedrooms/text()', raise_err=True))
         bldg_about['number_bedrooms'] = nbedrooms
-        bldg_about['num_floor_above_grade'] = int(
-            math.ceil(float(xpath(bldg_cons_el, 'h:NumberofConditionedFloorsAboveGrade/text()', raise_err=True))))
+        if bldg_about['dwelling_unit_type'] == 'single_family_detached' or \
+                bldg_about['dwelling_unit_type'] == 'single_family_attached':
+            bldg_about['num_floor_above_grade'] = int(
+                math.ceil(float(xpath(bldg_cons_el, 'h:NumberofConditionedFloorsAboveGrade/text()', raise_err=True))))
         avg_ceiling_ht = xpath(bldg_cons_el, 'h:AverageCeilingHeight/text()')
         if avg_ceiling_ht is None:
             try:
@@ -1722,7 +1736,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             # only one foundation.
             if abs(area) < smallnum:
                 assert len(foundations) == 1  # We should only be here if there's only one foundation
-                nstories = bldg_about['num_floor_above_grade']
+                nstories = self.get_nstories(bldg_about)
                 if zone_floor['foundation_type'] == 'cond_basement':
                     nstories += 1
                 zone_floor['floor_area'] = math.floor(bldg_about['conditioned_floor_area'] / nstories)
@@ -1787,6 +1801,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 zone_floor['foundation_insulation_level'] = 0
             zone_floor['foundation_insulation_level'] = min(list(fw_eff_rvalues.keys()), key=lambda x: abs(
                 zone_floor['foundation_insulation_level'] - x))
+            if zone_floor['foundation_type'] == 'above_other_unit':
+                del zone_floor['foundation_insulation_level']
 
             # floor above foundation insulation
             if not (zone_floor['foundation_type'] == 'slab_on_grade' or
@@ -1844,8 +1860,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         hpxmlwalls['noside'] = []
         for wall in self.get_hescore_walls(b):
             wall_id = xpath(wall, 'h:SystemIdentifier/@id', raise_err=True)
-            wall_adjacent_to = xpath(wall, 'h:ExteriorAdjacentTo/text()', raise_err=True)
-            is_exterior_wall = self.get_wall_adjacent_to(wall_adjacent_to) == 'outside'
+            wall_adjacent_to = self.get_wall_adjacent_to(xpath(wall, 'h:ExteriorAdjacentTo/text()', raise_err=True))
+            is_exterior_wall = wall_adjacent_to == 'outside'
 
             assembly_code, assembly_eff_rvalue = self.get_wall_assembly_code_and_rvalue(wall, is_exterior_wall)
 
@@ -1910,7 +1926,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
             const_type, ext_finish, adjacent_to = max(list(wall_const_type_ext_finish_adjacent_to_areas.keys()),
                                                       key=lambda x: wall_const_type_ext_finish_adjacent_to_areas[x])
             rvalueavgeff = walltotalarea / wallua
-            is_exterior_wall = self.get_wall_adjacent_to(adjacent_to) == 'outside'
+            is_exterior_wall = adjacent_to == 'outside'
             if is_exterior_wall:
                 comb_wall_code, comb_rvalue = min(
                     [(doe2code, code_rvalue)
@@ -1924,8 +1940,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         for doe2code, code_rvalue in self.int_wall_assembly_eff_rvalues.items()],
                     key=lambda x: abs(x[1] - rvalueavgeff)
                 )
-            heswall['wall_assembly_code'] = comb_wall_code
-            heswall['adjacent_to'] = self.get_wall_adjacent_to(hpxmlwalls[side][0]['adjacent_to'])
+            if adjacent_to != 'other_unit':
+                heswall['wall_assembly_code'] = comb_wall_code
+            heswall['adjacent_to'] = adjacent_to
 
             zone_wall.append(heswall)
 
@@ -2449,8 +2466,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
                         'Tankless water heater efficiency cannot be estimated by shipment weighted method.')
                 else:
                     dhwyear = int(xpath(primarydhw, '(h:YearInstalled|h:ModelYear)[1]/text()', raise_err=True))
-                    if dhwyear < 1972:
-                        dhwyear = 1972
                     sys_dhw['efficiency_method'] = 'shipment_weighted'
                     sys_dhw['year'] = dhwyear
         return sys_dhw
@@ -2549,3 +2564,55 @@ class HPXMLtoHEScoreTranslatorBase(object):
             every_layer_has_nominal_rvalue = False
 
         return every_layer_has_nominal_rvalue
+
+    def validate_hescore_inputs(self, hescore_inputs):
+        def do_bounds_check(fieldname, value, minincl, maxincl):
+            if value < minincl or value > maxincl:
+                raise InputOutOfBounds(fieldname, value)
+
+        do_bounds_check('assessment_date',
+                        dt.datetime.strptime(hescore_inputs['about']['assessment_date'], '%Y-%m-%d').date(),
+                        dt.date(2010, 1, 1), dt.datetime.today().date())
+
+        for sys_hvac in hescore_inputs['systems']['hvac']:
+            if 'hvac_distribution' in sys_hvac:
+                for hvacd in sys_hvac['hvac_distribution']['duct']:
+                    # Test if the duct location exists in roof and floor types
+                    duct_location_error = False
+                    if hvacd['location'] == 'uncond_basement':
+                        duct_location_error = 'uncond_basement' not in [
+                            zone_floor['foundation_type']
+                            for zone_floor in hescore_inputs['zone']['zone_floor']
+                        ]
+                    elif hvacd['location'] == 'unvented_crawl':
+                        duct_location_error = 'unvented_crawl' not in [
+                            zone_floor['foundation_type']
+                            for zone_floor in hescore_inputs['zone']['zone_floor']
+                        ]
+                    elif hvacd['location'] == 'vented_crawl':
+                        duct_location_error = 'vented_crawl' not in [
+                            zone_floor['foundation_type']
+                            for zone_floor in hescore_inputs['zone']['zone_floor']
+                        ]
+                    elif hvacd['location'] == 'uncond_attic':
+                        duct_location_error = 'vented_attic' not in [
+                            zone_roof['roof_type'] for zone_roof in
+                            hescore_inputs['zone']['zone_roof']
+                        ]
+
+                    if duct_location_error:
+                        raise TranslationError(
+                            'HVAC distribution: %(name)s location: %(location)s not exists in zone_roof/floor types.' %
+                            hvacd)
+
+        dhw = hescore_inputs['systems']['domestic_hot_water']
+        if dhw['category'] == 'combined' and dhw['type'] in ('tankless_coil', 'indirect'):
+            found_boiler = False
+            for sys_hvac in hescore_inputs['systems']['hvac']:
+                if 'heating' not in sys_hvac:
+                    continue
+                if sys_hvac['heating']['type'] == 'boiler':
+                    found_boiler = True
+            if not found_boiler:
+                raise TranslationError('Cannot have water heater type %(type)s if there is no boiler heating system.' %
+                                       dhw)

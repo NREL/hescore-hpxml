@@ -95,6 +95,7 @@
                     <Wall>
                         <SystemIdentifier id="wall1"/>
                         <ExteriorAdjacentTo>ambient</ExteriorAdjacentTo>
+                        <InteriorAdjacentTo>living space</InteriorAdjacentTo>
                         <WallType>
                             <WoodStud/>
                         </WallType>
