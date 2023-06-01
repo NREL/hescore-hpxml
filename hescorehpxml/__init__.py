@@ -38,11 +38,11 @@ def main(argv=sys.argv[1:]):
     )
     parser.add_argument(
         '--projectid',
-        help='HPXML project id to use in translating HPwES data if there are more than one <Project/> elements. Default: first one.' # noqa 501
+        help='HPXML project id to use in translating HPwES data if there are more than one <Project/> elements. Default: first one.'  # noqa 501
     )
     parser.add_argument(
         '--contractorid',
-        help='HPXML contractor id to use in translating HPwES data if there are more than one <Contractor/> elements. Default: first one.' # noqa 501
+        help='HPXML contractor id to use in translating HPwES data if there are more than one <Contractor/> elements. Default: first one.'  # noqa 501
     )
     parser.add_argument(
         '--scrubbed-hpxml',

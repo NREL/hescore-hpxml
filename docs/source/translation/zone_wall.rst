@@ -13,7 +13,8 @@ facing any direction. HEScore expects only one wall/window specification for
 each side of the building (front, back, left, right). 
 
 Each wall in the HPXML document is considered for translation to HEScore.
-This excludes walls between living space and a garage since HEScore does not model those walls.
+This excludes attic knee walls (see :ref:`knee-walls`), interior walls, 
+walls between living space and a garage, etc. since HEScore does not model those walls.
 The translator then attempts to assign each wall to the nearest side of the building, which is relative to the
 orientation of the front of the building. The wall construction and exterior
 finish of the largest wall by area on each side of the building are used to
@@ -249,24 +250,25 @@ and an error will be returned if they are used.
 
 .. table:: HPXML ExteriorAdjacentTo to HEScore adjacent_to mapping (HPXML v2)
 
-   =====================  ================
-   HPXML                  HEScore
-   =====================  ================
-   ambient                outside
-   other housing unit     other_unit
-   =====================  ================
+   =====================  ================  =======================================================  ==========================================
+   HPXML                  HEScore           Description                                              Dwelling Unit Type
+   =====================  ================  =======================================================  ==========================================
+   ambient                outside           ambient environment                                      Any
+   other housing unit     other_unit        e.g., conditioned adjacent unit or conditioned corridor  single_family_attached/apartment_unit Only
+   =====================  ================  =======================================================  ==========================================
 
 .. table:: HPXML ExteriorAdjacentTo to HEScore adjacent_to mapping (HPXML v3)
 
-   ==========================  ====================
-   HPXML                       HEScore
-   ==========================  ====================
-   outside                     outside
-   other housing unit          other_unit
-   unconditioned space         interior_common_area
-   ==========================  ====================
+   ==============================  ==============================  =======================================================  ==========================================
+   HPXML                           HEScore                         Description                                              Dwelling Unit Type
+   ==============================  ==============================  =======================================================  ==========================================
+   outside                         outside                         ambient environment                                      Any
+   other housing unit              other_unit                      e.g., conditioned adjacent unit or conditioned corridor  single_family_attached/apartment_unit Only
+   other heated space              other_heated_space              e.g., shared laundry/equipment space                     single_family_attached/apartment_unit Only
+   other multifamily buffer space  other_multifamily_buffer_space  e.g., enclosed unconditioned stairwell                   single_family_attached/apartment_unit Only
+   other non-freezing space        other_non_freezing_space        e.g., shared parking garage ceiling                      single_family_attached/apartment_unit Only
+   ==============================  ==============================  =======================================================  ==========================================
 
 .. warning::
 
-   * If windows are found on a wall adjacent to `other_unit` or `interior_common_area`, the translation will 
-     fail.
+   * If windows are found on a wall not adjacent to `outside`, the translation will fail.

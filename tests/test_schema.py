@@ -168,13 +168,23 @@ def test_invalid_roof(hpxml_filebase):
     js2['zone']['zone_roof'][0]['roof_type'] = 'cath_ceiling'
     js2['zone']['zone_roof'][0]['roof_absorptance'] = 0.6
     errors = get_error_messages(js2, js_schema)
-    assert_required_error(errors, 'ceiling_area', 'ceiling_assembly_code')
+    assert_required_error(errors, 'ceiling_area')
+    assert_required_error(errors, 'ceiling_assembly_code')
     assert_required_error(errors, 'roof_absorptance')
 
     js3 = copy.deepcopy(js)
     js3['zone']['zone_roof'][0]['roof_type'] = 'flat_roof'
     errors = get_error_messages(js3, js_schema)
     assert "'roof_area' is a required property" in errors
+
+    js4 = copy.deepcopy(js)
+    js4['zone']['zone_roof'][0]['roof_type'] = 'below_other_unit'
+    js4['zone']['zone_roof'][0]['roof_area'] = 1000
+    del js4['zone']['zone_roof'][0]['ceiling_area']
+    errors = get_error_messages(js4, js_schema)
+    assert "'ceiling_area' is a required property" in errors
+    assert_required_error(errors, 'ceiling_assembly_code')
+    assert_required_error(errors, 'roof_area')
 
 
 def test_manufactured_home_sections():
@@ -267,6 +277,16 @@ def test_invalid_wall(hpxml_filebase):
     errors = get_error_messages(js1, js_schema)
     assert "'side' is a required property" in errors
     assert "'wall_assembly_code' is a required property" in errors
+
+    js2 = copy.deepcopy(js)
+    js2['zone']['zone_wall'][1]['side'] = 'right'
+    errors = get_error_messages(js1, js_schema)
+    if hpxml_filebase == 'townhouse_walls':
+        assert any(error.startswith("None of [{'wall_assembly_code': 'ewwf11br', 'adjacent_to': 'outside',") and
+                   error.endswith("are valid under the given schema") for error in errors)
+    elif hpxml_filebase == 'house1':
+        assert any(error.startswith("None of [{'wall_assembly_code': 'ewwf00br', 'adjacent_to': 'outside',") and
+                   error.endswith("are valid under the given schema") for error in errors)
 
 
 def test_invalid_wall_adjacent_to():

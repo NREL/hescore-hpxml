@@ -70,7 +70,6 @@
                 "dwelling_unit_type",
                 "year_built",
                 "number_bedrooms",
-                "num_floor_above_grade",
                 "floor_to_ceiling_height",
                 "conditioned_floor_area",
                 "orientation",
@@ -132,7 +131,7 @@
                     "type": "integer",
                     "minimum": 1,
                     "maximum": 4,
-                    "description": "Number of floors above grade"
+                    "description": "Number of floors above grade. Assumes 1 when dwelling_unit_type is apartment_unit"
                 },
                 "floor_to_ceiling_height": {
                     "type": "integer",
@@ -228,6 +227,22 @@
                             }
                         ]
                     }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "dwelling_unit_type": {"enum": ["apartment_unit", "manufactured_home"]}
+                        },
+                        "required": ["dwelling_unit_type"]
+                    },
+                    "then": {
+                        "not": {
+                            "required": ["num_floor_above_grade"]
+                        }
+                    },
+                    "else": {
+                        "required": ["num_floor_above_grade"]
+                    }
                 }
             ]
         },
@@ -262,13 +277,13 @@
                                 "type": "number",
                                 "minimum": 1,
                                 "maximum": 25000,
-                                "description": "Area of ceiling (attic floor), used if roof_type = vented_attic"
+                                "description": "Area of ceiling (attic floor), used if roof_type = vented_attic, below_other_unit"
                             },
                             "roof_area": {
                                 "type": "number",
                                 "minimum": 1,
                                 "maximum": 25000,
-                                "description": "Area of the roof, used if roof_type = cath_ceiling, flat_roof, below_other_unit"
+                                "description": "Area of the roof, used if roof_type = cath_ceiling, flat_roof, bowstring_roof"
                             },
                             "roof_assembly_code": {
                                 "type": "string",
@@ -609,18 +624,30 @@
                             {
                                 "if": {
                                     "properties": {
-                                        "roof_type": {"enum": ["below_other_unit", "cath_ceiling", "flat_roof", "bowstring_roof"]}
+                                        "roof_type": {"enum": ["cath_ceiling", "flat_roof", "bowstring_roof"]}
                                     },
                                     "required": ["roof_type"]
                                 },
                                 "then": {
                                     "allOf": [
-                                        {
-                                            "not": {"required": ["ceiling_area", "ceiling_assembly_code"]}
-                                        },
-                                        {
-                                            "required": ["roof_area"]
-                                        }
+                                        {"not": {"required": ["ceiling_area"]}},
+                                        {"not": {"required": ["ceiling_assembly_code"]}},
+                                        {"required": ["roof_area"]}
+                                    ]
+                                }
+                            },
+                            {
+                                "if": {
+                                    "properties": {
+                                        "roof_type": {"const": "below_other_unit"}
+                                    },
+                                    "required": ["roof_type"]
+                                },
+                                "then": {
+                                    "allOf": [
+                                        {"not": {"required": ["ceiling_assembly_code"]}},
+                                        {"not": {"required": ["roof_area"]}},
+                                        {"required": ["ceiling_area"]}
                                     ]
                                 }
                             },
@@ -779,10 +806,7 @@
                                 "then": {
                                     "allOf": [
                                         {
-                                            "required": [
-                                                "foundation_type",
-                                                "foundation_insulation_level"
-                                            ]
+                                            "required": ["foundation_type"]
                                         },
                                         {
                                             "if": {
@@ -792,12 +816,24 @@
                                                 "required": ["foundation_type"]
                                             },
                                             "then": {
-                                                "not": {
-                                                    "required": ["floor_assembly_code"]
-                                                }
+                                                "not": {"required": ["floor_assembly_code"]}
                                             },
                                             "else": {
                                                 "required": ["floor_assembly_code"]
+                                            }
+                                        },
+                                        {
+                                            "if": {
+                                                "properties": {
+                                                    "foundation_type": {"const": "above_other_unit"}
+                                                },
+                                                "required": ["foundation_type"]
+                                            },
+                                            "then": {
+                                                "not": {"required": ["foundation_insulation_level"]}
+                                            },
+                                            "else": {
+                                                "required": ["foundation_insulation_level"]
                                             }
                                         }
                                     ]
@@ -975,7 +1011,7 @@
                             },
                             "adjacent_to": {
                                 "type": "string",
-                                "enum": ["other_unit", "interior_common_area", "outside"],
+                                "enum": ["outside", "other_unit", "other_heated_space", "other_multifamily_buffer_space", "other_non_freezing_space"],
                                 "description": "What is on the other side of the wall"
                             },
                             "zone_window": {
@@ -1074,7 +1110,7 @@
                             {
                                 "if": {
                                     "properties": {
-                                        "adjacent_to": {"enum": ["outside", "interior_common_area"]}
+                                        "adjacent_to": {"enum": ["outside", "other_heated_space", "other_multifamily_buffer_space", "other_non_freezing_space"]}
                                     },
                                     "required": ["adjacent_to"]
                                 },
@@ -1082,6 +1118,17 @@
                                     "required": [
                                         "wall_assembly_code"
                                     ]
+                                }
+                            },
+                            {
+                                "if": {
+                                    "properties": {
+                                        "adjacent_to": {"const": "other_unit"}
+                                    },
+                                    "required": ["adjacent_to"]
+                                },
+                                "then": {
+                                    "not": {"required": ["wall_assembly_code"]}
                                 }
                             },
                             {
@@ -1101,11 +1148,86 @@
                                         "required": ["zone_window"]
                                     }
                                 }
+                            },
+                            {
+                                "if": {
+                                    "properties": {
+                                        "adjacent_to": {"enum": ["other_heated_space", "other_multifamily_buffer_space", "other_non_freezing_space"]}
+                                    },
+                                    "required": ["adjacent_to"]
+                                },
+                                "then": {
+                                    "properties": {
+                                        "wall_assembly_code": {
+                                            "enum": [
+                                                "iwwf00",
+                                                "iwwf03",
+                                                "iwwf07",
+                                                "iwwf11",
+                                                "iwwf13",
+                                                "iwwf15",
+                                                "iwwf19",
+                                                "iwwf21"
+                                            ]
+                                        }
+                                    },
+                                    "required": ["wall_assembly_code"]
+                                }
                             }
                         ]
                     }
                 }
-            }
+            },
+            "allOf": [
+                {
+                    "properties": {
+                        "zone_wall": {
+                            "contains": {
+                                "properties": {
+                                    "side": {"const": "front"}
+                                },
+                                "required": ["side"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "zone_wall": {
+                            "contains": {
+                                "properties": {
+                                    "side": {"const": "back"}
+                                },
+                                "required": ["side"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "zone_wall": {
+                            "contains": {
+                                "properties": {
+                                    "side": {"const": "left"}
+                                },
+                                "required": ["side"]
+                            }
+                        }
+                    }
+                },
+                {
+                    "properties": {
+                        "zone_wall": {
+                            "contains": {
+                                "properties": {
+                                    "side": {"const": "right"}
+                                },
+                                "required": ["side"]
+                            }
+                        }
+                    }
+                }
+            ]
         },
         "systems": {
             "type": "object",
@@ -2832,7 +2954,7 @@
                                 "not": {
                                     "contains": {
                                         "properties": {
-                                            "adjacent_to": {"enum": ["other_unit", "interior_common_area"]}
+                                            "adjacent_to": {"enum": ["other_unit", "other_heated_space", "other_multifamily_buffer_space", "other_non_freezing_space"]}
                                         },
                                         "required": ["adjacent_to"]
                                     }
