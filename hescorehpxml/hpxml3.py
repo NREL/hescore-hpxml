@@ -11,7 +11,7 @@ def convert_to_type(type_, value):
 
 
 class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
-    SCHEMA_DIR = 'hpxml-3.0.0'
+    SCHEMA_DIR = 'hpxml-3.1.0'
 
     def check_hpwes(self, v2_p, b):
         # multiple verification nodes?
@@ -138,7 +138,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         # Average
         try:
             floor_r = sum(x['area'] for x in frame_floor_dict_ls) / \
-                      sum(x['area'] / x['rvalue'] for x in frame_floor_dict_ls)
+                sum(x['area'] / x['rvalue'] for x in frame_floor_dict_ls)
         except ZeroDivisionError:
             floor_r = 0
 
@@ -160,7 +160,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         # Average
         try:
             floor_r = sum(x['area'] for x in frame_floor_dict_ls) / \
-                      sum(x['area'] / x['rvalue'] for x in frame_floor_dict_ls)
+                sum(x['area'] / x['rvalue'] for x in frame_floor_dict_ls)
         except ZeroDivisionError:
             floor_r = None
 
@@ -235,7 +235,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
 
     def check_is_doublepane(self, window, glass_layers):
         return (self.xpath(window, 'h:StormWindow') is not None and glass_layers == 'single-pane') or \
-               glass_layers == 'double-pane'
+            glass_layers == 'double-pane'
 
     def check_is_storm_lowe(self, window, glass_layers):
         storm_type = self.xpath(window, 'h:StormWindow/h:GlassType/text()')
@@ -270,6 +270,7 @@ class HPXML3toHEScoreTranslator(HPXMLtoHEScoreTranslatorBase):
         return loc_hierarchy[0]
 
     duct_location_map = {'living space': ['cond_space'],
+                         'conditioned space': ['cond_space'],
                          'unconditioned space': ['uncond_basement', 'vented_crawl', 'unvented_crawl', 'uncond_attic'],
                          'under slab': ['under_slab'],
                          'basement': ['uncond_basement', 'cond_space'],
