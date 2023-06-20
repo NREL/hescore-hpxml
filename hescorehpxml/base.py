@@ -16,8 +16,8 @@ from jsonschema import validate, FormatChecker
 
 from .exceptions import (
     TranslationError,
-    ElementNotFoundError,
     InputOutOfBounds,
+    ElementNotFoundError,
     RoundOutOfBounds,
 )
 
@@ -181,7 +181,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
                      'fiber cement siding': 'wo',
                      'composite shingle siding': 'wo',
                      'masonite siding': 'wo',
-                     'other': None}
+                     'other': None,
+                     'none': None}
 
         def wall_round_to_nearest(*args):
             try:
@@ -343,9 +344,6 @@ class HPXMLtoHEScoreTranslatorBase(object):
         glass_type = xpath(window, 'h:GlassType/text()')
         is_hescore_dp = self.check_is_doublepane(window, glass_layers)
         is_storm_lowe = False
-        window_frame = None
-        window_layer = None
-        window_glass_type = None
 
         if is_hescore_dp:
             # double pane needs more information being analyzed to determine glass type
@@ -360,6 +358,8 @@ class HPXMLtoHEScoreTranslatorBase(object):
         elif glass_layers == 'triple-pane':
             window_layer = 'triple-pane'
             window_glass_type = 'insulating low-e argon'
+        else:
+            raise TranslationError('Unhandled glass layers: {}'.format(glass_layers))
 
         gas_fill = xpath(window, 'h:GasFill/text()')
         argon_filled = False
@@ -483,18 +483,35 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         if not ((sys_heating['type'] in ('central_furnace', 'baseboard')
                  and sys_heating['fuel_primary'] == 'electric') or sys_heating['type'] == 'wood_stove'):
-            eff_units = {'heat_pump': 'HSPF',
-                         'mini_split': 'HSPF',
-                         'central_furnace': 'AFUE',
-                         'wall_furnace': 'AFUE',
-                         'boiler': 'AFUE',
-                         'gchp': 'COP'}[sys_heating['type']]
-            eff_els = htgsys.xpath(
-                '(h:AnnualHeatingEfficiency|h:AnnualHeatEfficiency)[h:Units=$effunits]/h:Value/text()',
-                namespaces=ns,
-                effunits=eff_units
+
+            htg_type_eff_units = {'heat_pump': ['HSPF2', 'HSPF'],
+                                  'mini_split': ['HSPF2', 'HSPF'],
+                                  'central_furnace': ['AFUE'],
+                                  'wall_furnace': ['AFUE'],
+                                  'boiler': ['AFUE'],
+                                  'gchp': ['COP']}[sys_heating['type']]
+
+            eff_unit_els = htgsys.xpath(
+                '(h:AnnualHeatingEfficiency|h:AnnualHeatEfficiency)/h:Units/text()',
+                namespaces=ns
             )
-            if len(eff_els) == 0:
+            eff_unit = None
+            efficiency = None
+            if len(eff_unit_els) > 0:
+                index = len(htg_type_eff_units)
+                for eff_unit_el in eff_unit_els:
+                    if eff_unit_el not in htg_type_eff_units:
+                        continue
+                    elif htg_type_eff_units.index(eff_unit_el) < index:  # Preference to first units
+                        index = htg_type_eff_units.index(eff_unit_el)
+                        eff_unit = eff_unit_el
+                        eff_value_els = htgsys.xpath('(h:AnnualHeatingEfficiency|h:AnnualHeatEfficiency)' +
+                                                     '[h:Units=$effunits]/h:Value/text()',
+                                                     namespaces=ns,
+                                                     effunits=eff_unit)
+                        if len(eff_value_els) > 0:
+                            efficiency = eff_value_els[0]
+            if eff_unit is None or efficiency is None:
                 # Use the year instead
                 sys_heating['efficiency_method'] = 'shipment_weighted'
                 try:
@@ -502,13 +519,14 @@ class HPXMLtoHEScoreTranslatorBase(object):
                 except IndexError:
                     raise TranslationError(
                         'Heating efficiency could not be determined. ' +
-                        '{} must have a heating efficiency with units of {} '.format(sys_heating['type'], eff_units) +
+                        '{} must have a heating efficiency with units of {} '.format(sys_heating['type'],
+                                                                                     " or ".join(htg_type_eff_units)) +
                         'or YearInstalled or ModelYear.'
                     )
             else:
-                # Use the efficiency of the first element found.
                 sys_heating['efficiency_method'] = 'user'
-                sys_heating['efficiency'] = float(eff_els[0])
+                sys_heating['efficiency_unit'] = eff_unit.lower()
+                sys_heating['efficiency'] = float(efficiency)
         sys_heating['_capacity'] = convert_to_type(float, xpath(htgsys, 'h:HeatingCapacity/text()'))
         sys_heating['_fracload'] = convert_to_type(float, xpath(htgsys, 'h:FractionHeatLoadServed/text()'))
         sys_heating['_floorarea'] = convert_to_type(float, xpath(htgsys, 'h:FloorAreaServed/text()'))
@@ -536,37 +554,54 @@ class HPXMLtoHEScoreTranslatorBase(object):
                                        'evaporative cooler': 'dec'}[hpxml_cooling_type]
             except KeyError:
                 raise TranslationError('HEScore does not support the HPXML CoolingSystemType %s' % hpxml_cooling_type)
+
         # cooling efficiency
-        eff_units = {'split_dx': 'SEER',
-                     'packaged_dx': 'EER',
-                     'heat_pump': 'SEER',
-                     'mini_split': 'SEER',
-                     'gchp': 'EER',
-                     'dec': None,
-                     'iec': None,
-                     'idec': None}[sys_cooling['type']]
-        if eff_units is not None:
-            eff_els = clgsys.xpath(
-                '(h:AnnualCoolingEfficiency|h:AnnualCoolEfficiency)[h:Units=$effunits]/h:Value/text()',
-                namespaces=ns,
-                effunits=eff_units
+        clg_type_eff_units = {'split_dx': ['SEER2', 'SEER'],
+                              'packaged_dx': ['CEER', 'EER'],
+                              'heat_pump': ['SEER2', 'SEER'],
+                              'mini_split': ['SEER2', 'SEER'],
+                              'gchp': ['EER'],
+                              'dec': [],
+                              'iec': [],
+                              'idec': []}[sys_cooling['type']]
+        if len(clg_type_eff_units) > 0:
+            eff_unit_els = clgsys.xpath(
+                '(h:AnnualCoolingEfficiency|h:AnnualCoolEfficiency)/h:Units/text()',
+                namespaces=ns
             )
-            if len(eff_els) == 0:
+            eff_unit = None
+            efficiency = None
+            if len(eff_unit_els) > 0:
+                index = len(clg_type_eff_units)
+                for eff_unit_el in eff_unit_els:
+                    if eff_unit_el not in clg_type_eff_units:
+                        continue
+                    elif clg_type_eff_units.index(eff_unit_el) < index:  # Preference to first units
+                        index = clg_type_eff_units.index(eff_unit_el)
+                        eff_unit = eff_unit_el
+                        eff_value_els = clgsys.xpath('(h:AnnualCoolingEfficiency|h:AnnualCoolEfficiency)' +
+                                                     '[h:Units=$effunits]/h:Value/text()',
+                                                     namespaces=ns,
+                                                     effunits=eff_unit)
+                        if len(eff_value_els) > 0:
+                            efficiency = eff_value_els[0]
+            if eff_unit is None or efficiency is None:
                 # Use the year instead
-                sys_cooling['efficiency_method'] = 'shipment_weighted'
                 try:
-                    sys_cooling['year'] = int(clgsys.xpath('(h:YearInstalled|h:ModelYear)/text()', namespaces=ns)[0])
+                    sys_cooling['year'] = int(clgsys.xpath(
+                        '(h:YearInstalled|h:ModelYear)/text()', namespaces=ns)[0])
+                    sys_cooling['efficiency_method'] = 'shipment_weighted'
                 except IndexError:
                     raise TranslationError(
                         'Cooling efficiency could not be determined. ' +
-                        '{} must have a cooling efficiency with units of {} '.format(sys_cooling['type'], eff_units) +
+                        '{} must have a cooling efficiency with units of {} '.format(sys_cooling['type'],
+                                                                                     " or ".join(clg_type_eff_units)) +
                         'or YearInstalled or ModelYear.'
                     )
             else:
-                # Use the efficiency of the first element found.
                 sys_cooling['efficiency_method'] = 'user'
-                sys_cooling['efficiency'] = float(eff_els[0])
-
+                sys_cooling['efficiency_unit'] = eff_unit.lower()
+                sys_cooling['efficiency'] = float(efficiency)
         sys_cooling['_capacity'] = convert_to_type(float, xpath(clgsys, 'h:CoolingCapacity/text()'))
         sys_cooling['_fracload'] = convert_to_type(float, xpath(clgsys, 'h:FractionCoolLoadServed/text()'))
         sys_cooling['_floorarea'] = convert_to_type(float, xpath(clgsys, 'h:FloorAreaServed/text()'))
@@ -853,11 +888,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
             hes_bldg['systems']['generation'] = generation
         self.remove_hidden_keys(hes_bldg)
 
-        # Validate
-        self.validate_hescore_inputs(hes_bldg)
         # Validate against JSON schema
         validate(hes_bldg, json_schema, format_checker=FormatChecker())
-
+        self.validate_hescore_inputs(hes_bldg)
         return hes_bldg
 
     @staticmethod
@@ -1022,7 +1055,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
         if avg_ceiling_ht is None:
             try:
                 avg_ceiling_ht = float(xpath(bldg_cons_el, 'h:ConditionedBuildingVolume/text()', raise_err=True)) / \
-                                 float(xpath(bldg_cons_el, 'h:ConditionedFloorArea/text()', raise_err=True))
+                    float(xpath(bldg_cons_el, 'h:ConditionedFloorArea/text()', raise_err=True))
             except ElementNotFoundError:
                 raise TranslationError(
                     'Either AverageCeilingHeight or both ConditionedBuildingVolume and ConditionedFloorArea are '
@@ -1079,9 +1112,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
             elif xpath(blower_door_test, 'h:BuildingAirLeakage/h:UnitofMeasure/text()') == 'ACH':
                 bldg_about['envelope_leakage'] = bldg_about['floor_to_ceiling_height'] * bldg_about[
                     'conditioned_floor_area'] * \
-                                                 float(xpath(blower_door_test,
-                                                             'h:BuildingAirLeakage/h:AirLeakage/text()',
-                                                             raise_err=True)) / 60.
+                    float(xpath(blower_door_test,
+                                'h:BuildingAirLeakage/h:AirLeakage/text()',
+                                raise_err=True)) / 60.
             bldg_about['envelope_leakage'] = int(python2round(bldg_about['envelope_leakage']))
         elif air_infilt_est is not None:
             if xpath(air_infilt_est, 'h:LeakinessDescription/text()') in ('tight', 'very tight'):
@@ -1380,9 +1413,9 @@ class HPXMLtoHEScoreTranslatorBase(object):
             attic_floor_rvalue = self.get_attic_floor_assembly_rvalue(attic, b)
             if attic_floor_rvalue is not None:
                 _, closest_code_rvalue = min(
-                        self.ceiling_assembly_eff_rvalues.items(),
-                        key=lambda x: abs(x[1] - attic_floor_rvalue)
-                    )
+                    self.ceiling_assembly_eff_rvalues.items(),
+                    key=lambda x: abs(x[1] - attic_floor_rvalue)
+                )
                 atticd['attic_floor_assembly_rvalue'] = closest_code_rvalue
             elif self.every_attic_floor_layer_has_nominal_rvalue(attic, b):
                 attic_floor_rvalue = self.get_attic_floor_rvalue(attic, b)
@@ -2416,11 +2449,13 @@ class HPXMLtoHEScoreTranslatorBase(object):
             energyfactor = xpath(primarydhw, 'h:EnergyFactor/text()')
             unified_energy_factor = xpath(primarydhw, 'h:UniformEnergyFactor/text()')
             if unified_energy_factor is not None:
-                sys_dhw['efficiency_method'] = 'uef'
-                sys_dhw['energy_factor'] = float(unified_energy_factor)
+                sys_dhw['efficiency_method'] = 'user'
+                sys_dhw['efficiency_unit'] = 'uef'
+                sys_dhw['efficiency'] = float(unified_energy_factor)
             elif energyfactor is not None:
                 sys_dhw['efficiency_method'] = 'user'
-                sys_dhw['energy_factor'] = float(energyfactor)
+                sys_dhw['efficiency_unit'] = 'ef'
+                sys_dhw['efficiency'] = float(energyfactor)
             else:
                 # Tankless type must use energy factor method
                 if sys_dhw['type'] == 'tankless':
@@ -2535,46 +2570,3 @@ class HPXMLtoHEScoreTranslatorBase(object):
         do_bounds_check('assessment_date',
                         dt.datetime.strptime(hescore_inputs['about']['assessment_date'], '%Y-%m-%d').date(),
                         dt.date(2010, 1, 1), dt.datetime.today().date())
-
-        for sys_hvac in hescore_inputs['systems']['hvac']:
-            if 'hvac_distribution' in sys_hvac:
-                for hvacd in sys_hvac['hvac_distribution']['duct']:
-                    # Test if the duct location exists in roof and floor types
-                    duct_location_error = False
-                    if hvacd['location'] == 'uncond_basement':
-                        duct_location_error = 'uncond_basement' not in [
-                            zone_floor['foundation_type']
-                            for zone_floor in hescore_inputs['zone']['zone_floor']
-                        ]
-                    elif hvacd['location'] == 'unvented_crawl':
-                        duct_location_error = 'unvented_crawl' not in [
-                            zone_floor['foundation_type']
-                            for zone_floor in hescore_inputs['zone']['zone_floor']
-                        ]
-                    elif hvacd['location'] == 'vented_crawl':
-                        duct_location_error = 'vented_crawl' not in [
-                            zone_floor['foundation_type']
-                            for zone_floor in hescore_inputs['zone']['zone_floor']
-                        ]
-                    elif hvacd['location'] == 'uncond_attic':
-                        duct_location_error = 'vented_attic' not in [
-                            zone_roof['roof_type'] for zone_roof in
-                            hescore_inputs['zone']['zone_roof']
-                        ]
-
-                    if duct_location_error:
-                        raise TranslationError(
-                            'HVAC distribution: %(name)s location: %(location)s not exists in zone_roof/floor types.' %
-                            hvacd)
-
-        dhw = hescore_inputs['systems']['domestic_hot_water']
-        if dhw['category'] == 'combined' and dhw['type'] in ('tankless_coil', 'indirect'):
-            found_boiler = False
-            for sys_hvac in hescore_inputs['systems']['hvac']:
-                if 'heating' not in sys_hvac:
-                    continue
-                if sys_hvac['heating']['type'] == 'boiler':
-                    found_boiler = True
-            if not found_boiler:
-                raise TranslationError('Cannot have water heater type %(type)s if there is no boiler heating system.' %
-                                       dhw)

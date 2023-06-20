@@ -105,7 +105,7 @@ Heating Efficiency
 ******************
 
 Heating efficiency can be described in HEScore by either the rated efficiency
-(AFUE, HSPF, COP), or if that is unavailable, the year installed/manufactured
+(AFUE, HSPF, HSPF2, COP), or if that is unavailable, the year installed/manufactured
 from which HEScore estimates the efficiency based on shipment weighted
 efficiencies by year. The translator follows this methodology and looks for the
 rated efficiency first and if it cannot be found sends the year installed.
@@ -125,8 +125,8 @@ heating system type.
    ===============  ================
    Heating Type     Efficiency Units
    ===============  ================
-   heat_pump        HSPF
-   mini_split       HSPF
+   heat_pump        HSPF2, HSPF
+   mini_split       HSPF2, HSPF
    central_furnace  AFUE
    wall_furnace     AFUE
    boiler           AFUE
@@ -135,7 +135,11 @@ heating system type.
 
 The translator searches the ``HeatingSystem/AnnualHeatingEfficiency`` or
 ``HeatPump/AnnualHeatEfficiency`` (HPXML v2) or ``HeatPump/AnnualHeatingEfficiency`` (HPXML v3)
-elements of the primary heating system and uses the first one that has the correct units.
+elements of the primary heating system.
+
+Both ``AnnualHeatingEfficiency(or AnnualHeatEfficiency)/Units`` and 
+``AnnualHeatingEfficiency(or AnnualHeatEfficiency)/Value``
+are searched and expected to match the above table, with precedence to first/newer units.
 
 Shipment Weighted Efficiency
 ============================

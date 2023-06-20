@@ -105,11 +105,13 @@
           "fuel_primary": "lpg",
           "type": "central_furnace",
           "efficiency_method": "user",
+          "efficiency_unit": "afue",
           "efficiency": 0.8
         },
         "cooling": {
           "type": "split_dx",
           "efficiency_method": "user",
+          "efficiency_unit": "seer",
           "efficiency": 10.0
         },
         "hvac_distribution": {
@@ -132,11 +134,13 @@
           "fuel_primary": "lpg",
           "type": "central_furnace",
           "efficiency_method": "user",
+          "efficiency_unit": "afue",
           "efficiency": 0.92
         },
         "cooling": {
           "type": "split_dx",
           "efficiency_method": "user",
+          "efficiency_unit": "seer",
           "efficiency": 15.0
         },
         "hvac_distribution": {
@@ -158,7 +162,8 @@
       "type": "storage",
       "fuel_primary": "lpg",
       "efficiency_method": "user",
-      "energy_factor": 0.55
+      "efficiency_unit": "ef",
+      "efficiency": 0.55
     }
   }
 }

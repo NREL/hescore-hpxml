@@ -82,11 +82,13 @@
           "fuel_primary": "natural_gas",
           "type": "boiler",
           "efficiency_method": "user",
+          "efficiency_unit": "afue",
           "efficiency": 0.8
         },
         "cooling": {
           "type": "packaged_dx",
           "efficiency_method": "user",
+          "efficiency_unit": "eer",
           "efficiency": 9.0
         }
       }

@@ -1305,6 +1305,17 @@
                                     "efficiency": {
                                         "type": "number",
                                         "$comment": "Additional requirements for this property apply based on the heating system type"
+                                    },
+                                    "efficiency_unit": {
+                                        "type": "string",
+                                        "enum": [
+                                            "afue",
+                                            "percent",
+                                            "cop",
+                                            "hspf",
+                                            "hspf2"
+                                        ],
+                                        "$comment": "Additional requirements for this property apply based on the heating system type"
                                     }
                                 },
                                 "allOf": [
@@ -1330,11 +1341,16 @@
                                             },
                                             "then": {
                                                 "properties": {
+                                                    "efficiency_unit": {"description": "Unit of efficiency value (only used if efficiency_method is user)"},
                                                     "efficiency": {"description": "Efficiency of heating equipment (only used if efficiency_method is user)"}
                                                 }
                                             },
                                             "else": {
                                                 "properties": {
+                                                    "efficiency_unit": {
+                                                        "enum": ["afue"],
+                                                        "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                    },
                                                     "efficiency": {
                                                         "minimum": 0.6,
                                                         "maximum": 1,
@@ -1358,10 +1374,17 @@
                                         },
                                         "then": {
                                             "properties": {
+                                                "efficiency_unit": {
+                                                    "enum": [
+                                                        "hspf",
+                                                        "hspf2"
+                                                    ],
+                                                    "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                },
                                                 "efficiency": {
                                                     "minimum": 6,
                                                     "maximum": 20,
-                                                    "description": "HSPF of heating equipment (only used if efficiency_method is user)"
+                                                    "description": "HSPF or HSPF2 of heating equipment (only used if efficiency_method is user)"
                                                 }
                                             }
                                         }
@@ -1375,6 +1398,10 @@
                                         },
                                         "then": {
                                             "properties": {
+                                                "efficiency_unit": {
+                                                    "enum": ["cop"],
+                                                    "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                },
                                                 "efficiency": {
                                                     "minimum": 2,
                                                     "maximum": 5,
@@ -1398,6 +1425,7 @@
                                         },
                                         "then": {
                                             "properties": {
+                                                "efficiency_unit": {"description": "Unit of efficiency value (only used if efficiency_method is user)"},
                                                 "efficiency": {"description": "Efficiency of heating equipment (only used if efficiency_method is user)"}
                                             }
                                         }
@@ -1438,6 +1466,16 @@
                                     "efficiency": {
                                         "type": "number",
                                         "$comment": "Additional requirements for this property apply based on the cooling system type"
+                                    },
+                                    "efficiency_unit": {
+                                        "type": "string",
+                                        "enum": [
+                                            "eer",
+                                            "ceer",
+                                            "seer",
+                                            "seer2"
+                                        ],
+                                        "$comment": "Additional requirements for this property apply based on the cooling system type"
                                     }
                                 },
                                 "allOf": [
@@ -1447,7 +1485,8 @@
                                                 "type": {
                                                     "enum": [
                                                         "split_dx",
-                                                        "heat_pump"
+                                                        "heat_pump",
+                                                        "mini_split"
                                                     ]
                                                 }
                                             },
@@ -1455,10 +1494,14 @@
                                         },
                                         "then": {
                                             "properties": {
+                                                "efficiency_unit": {
+                                                    "enum": ["seer", "seer2"],
+                                                    "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                },
                                                 "efficiency": {
                                                     "minimum": 8,
                                                     "maximum": 40,
-                                                    "description": "SEER of cooling equipment (only used if efficiency_method is user)"
+                                                    "description": "SEER or SEER2 of cooling equipment (only used if efficiency_method is user)"
                                                 }
                                             }
                                         }
@@ -1467,17 +1510,40 @@
                                         "if": {
                                             "properties": {
                                                 "type": {
-                                                    "enum": [
-                                                        "packaged_dx",
-                                                        "mini_split",
-                                                        "gchp"
-                                                    ]
+                                                    "enum": ["packaged_dx"]
                                                 }
                                             },
                                             "required": ["type"]
                                         },
                                         "then": {
                                             "properties": {
+                                                "efficiency_unit": {
+                                                    "enum": ["eer", "ceer"],
+                                                    "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                },
+                                                "efficiency": {
+                                                    "minimum": 8,
+                                                    "maximum": 40,
+                                                    "description": "EER or CEER of cooling equipment (only used if efficiency_method is user)"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "if": {
+                                            "properties": {
+                                                "type": {
+                                                    "enum": ["gchp"]
+                                                }
+                                            },
+                                            "required": ["type"]
+                                        },
+                                        "then": {
+                                            "properties": {
+                                                "efficiency_unit": {
+                                                    "enum": ["eer"],
+                                                    "description": "Unit of efficiency value (only used if efficiency_method is user)"
+                                                },
                                                 "efficiency": {
                                                     "minimum": 8,
                                                     "maximum": 40,
@@ -1500,6 +1566,7 @@
                                         },
                                         "then": {
                                             "properties": {
+                                                "efficiency_unit": {"description": "Unit of efficiency value (only used if efficiency_method is user)"},
                                                 "efficiency": {"description": "Efficiency of cooling equipment (only used if efficiency_method is user)"}
                                             }
                                         }
@@ -1723,7 +1790,7 @@
                                             "properties": {
                                                 "heating": {
                                                     "not": {
-                                                        "required": ["efficiency"]
+                                                        "required": ["efficiency", "efficiency_unit"]
                                                     }
                                                 }
                                             }
@@ -1805,7 +1872,7 @@
                                         {
                                             "properties": {
                                                 "heating": {
-                                                    "required": ["efficiency"]
+                                                    "required": ["efficiency", "efficiency_unit"]
                                                 }
                                             }
                                         },
@@ -1924,7 +1991,7 @@
                                             "properties": {
                                                 "cooling": {
                                                     "not": {
-                                                        "required": ["efficiency"]
+                                                        "required": ["efficiency", "efficiency_unit"]
                                                     }
                                                 }
                                             }
@@ -1975,7 +2042,7 @@
                                         {
                                             "properties": {
                                                 "cooling": {
-                                                    "required": ["efficiency"]
+                                                    "required": ["efficiency", "efficiency_unit"]
                                                 }
                                             }
                                         },
@@ -2449,7 +2516,6 @@
                             "type": "string",
                             "enum": [
                                 "user",
-                                "uef",
                                 "shipment_weighted"
                             ],
                             "description": "Method to determine water heater efficiency"
@@ -2459,9 +2525,17 @@
                             "minimum": 1972,
                             "description": "Year water heater was manufactured (only used if efficiency_method is shipment_weighted)"
                         },
-                        "energy_factor": {
+                        "efficiency": {
                             "type": "number",
-                            "description": "Energy factor of water heater (only used if efficiency_method is user or uef)"
+                            "description": "Efficiency of water heater (only used if efficiency_method is user)"
+                        },
+                        "efficiency_unit": {
+                            "type": "string",
+                            "enum": [
+                                "ef",
+                                "uef"
+                            ],
+                            "description": "Unit of water heater efficiency"
                         }
                     },
                     "allOf": [
@@ -2538,19 +2612,18 @@
                                     "properties": {
                                         "efficiency_method": {
                                             "enum": [
-                                                "user",
-                                                "uef"
+                                                "user"
                                             ]
                                         }
                                     },
                                     "required": ["efficiency_method"]
                                 },
                                 "then": {
-                                    "required": ["energy_factor"]
+                                    "required": ["efficiency", "efficiency_unit"]
                                 },
                                 "else": {
                                     "not": {
-                                        "required": ["energy_factor"]
+                                        "required": ["efficiency", "efficiency_unit"]
                                     }
                                 }
                             }
@@ -2562,7 +2635,6 @@
                                     "efficiency_method": {
                                         "enum": [
                                             "user",
-                                            "uef",
                                             "shipment_weighted"
                                         ]
                                     }
@@ -2574,7 +2646,7 @@
                             },
                             "then": {
                                 "properties": {
-                                    "energy_factor": {
+                                    "efficiency": {
                                         "type": "number",
                                         "minimum": 0.45,
                                         "maximum": 0.95
@@ -2588,8 +2660,7 @@
                                     "type": {"const": "tankless"},
                                     "efficiency_method": {
                                         "enum": [
-                                            "user",
-                                            "uef"
+                                            "user"
                                         ]
                                     }
                                 },
@@ -2600,7 +2671,7 @@
                             },
                             "then": {
                                 "properties": {
-                                    "energy_factor": {
+                                    "efficiency": {
                                         "type": "number",
                                         "minimum": 0.45,
                                         "maximum": 0.99
@@ -2621,7 +2692,7 @@
                             },
                             "then": {
                                 "properties": {
-                                    "energy_factor": {
+                                    "efficiency": {
                                         "type": "number",
                                         "minimum": 1,
                                         "maximum": 4
@@ -2889,6 +2960,165 @@
                                     }
                                 },
                                 "error_msg": "single family detached and manufactured homes only allow adjacent_to \"outside\""
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "zone": {
+                        "properties": {
+                            "zone_floor": {
+                                "not": {
+                                    "contains": {
+                                        "properties": {
+                                            "foundation_type": {
+                                                "enum": [
+                                                    "vented_crawl"
+                                                ]
+                                            }
+                                        },
+                                        "required": ["foundation_type"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "systems": {
+                        "properties": {
+                            "hvac": {
+                                "contains": {
+                                    "properties": {
+                                        "hvac_distribution": {
+                                            "properties": {
+                                                "duct": {
+                                                    "not": {
+                                                        "contains": {
+                                                            "properties": {
+                                                                "location": {"const": "vented_crawl"}
+                                                            },
+                                                            "required": ["location"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "error_msg": "duct/location[\"vented_crawl\"] is not allowed as there is no vented crawlspace."
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "zone": {
+                        "properties": {
+                            "zone_floor": {
+                                "not": {
+                                    "contains": {
+                                        "properties": {
+                                            "foundation_type": {
+                                                "enum": [
+                                                    "unvented_crawl"
+                                                ]
+                                            }
+                                        },
+                                        "required": ["foundation_type"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "systems": {
+                        "properties": {
+                            "hvac": {
+                                "contains": {
+                                    "properties": {
+                                        "hvac_distribution": {
+                                            "properties": {
+                                                "duct": {
+                                                    "not": {
+                                                        "contains": {
+                                                            "properties": {
+                                                                "location": {"const": "unvented_crawl"}
+                                                            },
+                                                            "required": ["location"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "error_msg": "duct/location[\"unvented_crawl\"] is not allowed as there is no unvented crawlspace."
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "zone": {
+                        "properties": {
+                            "zone_floor": {
+                                "not": {
+                                    "contains": {
+                                        "properties": {
+                                            "foundation_type": {
+                                                "enum": [
+                                                    "uncond_basement"
+                                                ]
+                                            }
+                                        },
+                                        "required": ["foundation_type"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "then": {
+                "properties": {
+                    "systems": {
+                        "properties": {
+                            "hvac": {
+                                "contains": {
+                                    "properties": {
+                                        "hvac_distribution": {
+                                            "properties": {
+                                                "duct": {
+                                                    "not": {
+                                                        "contains": {
+                                                            "properties": {
+                                                                "location": {"const": "uncond_basement"}
+                                                            },
+                                                            "required": ["location"]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "error_msg": "duct/location[\"uncond_basement\"] is not allowed as there is no unconditioned basement."
                             }
                         }
                     }
