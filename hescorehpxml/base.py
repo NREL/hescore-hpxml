@@ -890,7 +890,7 @@ class HPXMLtoHEScoreTranslatorBase(object):
 
         # Validate against JSON schema
         validate(hes_bldg, json_schema, format_checker=FormatChecker())
-
+        self.validate_hescore_inputs(hes_bldg)
         return hes_bldg
 
     @staticmethod
