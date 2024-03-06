@@ -1,3 +1,6 @@
+**This repo has been archived. Development of these features has moved into another repo.**
+
+
 HPXML to Home Energy Score Translator
 =====================================
 
